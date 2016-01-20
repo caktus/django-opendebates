@@ -14,19 +14,26 @@ class VoterForm(Form):
     email = forms.EmailField()
     zipcode = USZipCodeField()
 
+
 class QuestionForm(Form):
     category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
     question = forms.CharField()
     citation = forms.URLField(required=False)
 
-display_name_help_text = _("""How your name will be displayed on the site. If you are an expert in a particular field or have a professional affiliation that is relevant to your ideas, feel free to mention it here alongside your name! If you leave this blank, your first name and last initial will be used instead.""") #@@TODO
-display_name_label = u"""
-Display name <span data-toggle='tooltip' title='%s' class='glyphicon glyphicon-question-sign'></span>
-""" % display_name_help_text
-twitter_handle_help_text = _("""Fill in your Twitter username (without the @) if you would like to be @mentioned on Twitter when people tweet your ideas.""") #@@TODO
-twitter_handle_label = u"""
-Twitter handle <span data-toggle='tooltip' title='%s' class='glyphicon glyphicon-question-sign'></span>
-""" % twitter_handle_help_text
+display_name_help_text = _("How your name will be displayed on the site. If you "
+                           "are an expert in a particular field or have a professional "
+                           "affiliation that is relevant to your ideas, feel free to "
+                           "mention it here alongside your name! If you leave this "
+                           "blank, your first name and last initial will be used "
+                           "instead.")  # @@TODO
+display_name_label = (u"Display name <span data-toggle='tooltip' title='%s' "
+                      "class='glyphicon glyphicon-question-sign'></span>" % display_name_help_text)
+twitter_handle_help_text = _("Fill in your Twitter username (without the @) if you "
+                             "would like to be @mentioned on Twitter when people "
+                             "tweet your ideas.")  # @@TODO
+twitter_handle_label = (u"Twitter handle <span data-toggle='tooltip' title='%s' "
+                        "class='glyphicon glyphicon-question-sign'></span>"
+                        % twitter_handle_help_text)
 
 
 class OpenDebatesRegistrationForm(RegistrationForm):
@@ -60,8 +67,10 @@ class OpenDebatesRegistrationForm(RegistrationForm):
         """
         User = get_user_model()
         if User.objects.filter(email__iexact=self.cleaned_data['email']):
-            raise forms.ValidationError("This email address is already in use. Please supply a different email address.")
+            raise forms.ValidationError("This email address is already in use. Please supply "
+                                        "a different email address.")
         return self.cleaned_data['email']
+
 
 class OpenDebatesAuthenticationForm(AuthenticationForm):
     username = forms.CharField(max_length=254,

@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db.models import F
@@ -20,6 +19,7 @@ from .forms import VoterForm, QuestionForm
 from opendebates_comments.forms import CommentForm
 from opendebates_comments.models import Comment
 
+
 @allow_http("GET")
 @rendered_with("opendebates/test.html")
 def test(request):
@@ -27,6 +27,7 @@ def test(request):
     return {
         "copy": copy
     }
+
 
 @allow_http("GET")
 @rendered_with("opendebates/snippets/recent_activity.html")
@@ -36,16 +37,17 @@ def recent_activity(request):
         voter=F('submission__voter')).order_by("-id")[:10]
     submissions = Submission.objects.select_related(
         "voter", "voter__user").order_by("-id")[:10]
-    comments = Comment.objects.select_related(
+    comments = Comment.objects.select_related(  # noqa FIXME: is this needed? --vkurup
         "user", "user__voter", "object").exclude(
             user__voter=F('object__voter')).order_by("-id")[:10]
 
     entries = list(votes) + list(submissions)
     entries = sorted(entries, key=lambda x: x.created_at, reverse=True)[:10]
-    
+
     return {
         "recent_activity": entries
     }
+
 
 @rendered_with("opendebates/list_ideas.html")
 def list_ideas(request):
@@ -121,6 +123,7 @@ def category_search(request, cat_id):
         'url_name': reverse("list_category", kwargs={'cat_id': cat_id})
     }
 
+
 @rendered_with("opendebates/vote.html")
 @allow_http("GET", "POST")
 def vote(request, id):
@@ -148,19 +151,21 @@ def vote(request, id):
                                              duplicate_of__isnull=True,
                                              approved=True).exclude(
                                                  id=idea.id).exclude(id=related1.id)[0]
-    except (IndexError, AttributeError):  # if related1 is None -> related1.id 
+    except (IndexError, AttributeError):  # if related1 is None -> related1.id
         related2 = None
-        
+
     if request.method == "GET":
         return {
             'idea': idea,
             'show_duplicates': True,
             'related1': related1,
             'related2': related2,
-            'duplicates': (Submission.objects.filter(approved=True, duplicate_of=idea) 
+            'duplicates': (Submission.objects.filter(approved=True, duplicate_of=idea)
                            if idea.has_duplicates else []),
             'comment_form': CommentForm(idea),
-            'comment_list': idea.comments.filter(is_public=True, is_removed=False).select_related("user", "user__voter"),
+            'comment_list': idea.comments.filter(
+                is_public=True, is_removed=False
+            ).select_related("user", "user__voter"),
         }
 
     form = VoterForm(request.POST)
@@ -173,14 +178,14 @@ def vote(request, id):
         return {
             'form': form,
             'idea': idea,
-            'comment_form': CommentForm(idea),            
+            'comment_form': CommentForm(idea),
             }
     voter, created = Voter.objects.get_or_create(email=form.cleaned_data['email'])
 
     if created and 'opendebates.source' in request.COOKIES:
         voter.source = request.COOKIES['opendebates.source']
         voter.save()
-        
+
     if voter.zip != form.cleaned_data['zipcode']:
         voter.zip = form.cleaned_data['zipcode']
         try:
@@ -188,7 +193,7 @@ def vote(request, id):
         except Exception:
             pass
         voter.save()
-        
+
     votes = idea.vote_set.filter(voter=voter)
     if len(votes) == 0:
 
@@ -196,7 +201,7 @@ def vote(request, id):
             vote_source = request.COOKIES['opendebates.source']
         else:
             vote_source = None
-        
+
         try:
             Vote.objects.create(  # or idea.voter_set.create(voter=voter)
                 submission=idea,
@@ -206,7 +211,7 @@ def vote(request, id):
                 source=vote_source,
                 request_headers=get_headers_from_request(request),
             )
-        except Exception: # lazy handling of race condition
+        except Exception:  # lazy handling of race condition
             pass
         else:
             idea.votes += 1
@@ -214,14 +219,15 @@ def vote(request, id):
 
     if 'voter' not in request.session:
         request.session['voter'] = {"email": voter.email, "zip": voter.zip}
-            
+
     if request.is_ajax():
         return HttpResponse(
             json.dumps({"status": "200", "tally": idea.votes, "id": idea.id}),
             content_type="application/json")
-    
+
     url = reverse("vote", kwargs={'id': id})
     return redirect(url)
+
 
 @rendered_with("opendebates/list_ideas.html")
 @allow_http("GET", "POST")
@@ -231,12 +237,12 @@ def questions(request):
     if request.method == 'GET':
         form = QuestionForm()
 
-        import pdb; pdb.set_trace()
         return {
             'form': form,
             'categories': categories,
             'stashed_submission': request.session.pop(
-                "opendebates.stashed_submission", None) if request.user.is_authenticated() else None,
+                "opendebates.stashed_submission", None)
+            if request.user.is_authenticated() else None,
         }
 
     form = QuestionForm(request.POST)
@@ -265,7 +271,7 @@ def questions(request):
     if created and 'opendebates.source' in request.COOKIES:
         voter.source = request.COOKIES['opendebates.source']
         voter.save()
-        
+
     idea = Submission()
     idea.voter = voter
     idea.category = Category.objects.get(pk=category)
@@ -279,17 +285,18 @@ def questions(request):
 
     if 'opendebates.source' in request.COOKIES:
         idea.source = request.COOKIES['opendebates.source']
-    
+
     idea.save()
 
     Vote.objects.create(
         submission=idea,
         voter=voter,
         ip_address=get_ip_address_from_request(request),
-        request_headers=get_headers_from_request(request),        
+        request_headers=get_headers_from_request(request),
         created_at=timezone.now())
     url = reverse("vote", kwargs={'id': idea.id})
     return redirect(url)
+
 
 class OpenDebatesRegistrationView(RegistrationView):
 
@@ -320,9 +327,11 @@ class OpenDebatesRegistrationView(RegistrationView):
 
         return new_user
 
+
 def registration_complete(request):
     request.session['events.account_created'] = True
     return redirect("/")
+
 
 @rendered_with("opendebates/list_candidates.html")
 @allow_http("GET")

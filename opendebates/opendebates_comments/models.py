@@ -19,8 +19,8 @@ class BaseCommentAbstractModel(models.Model):
 
     # Content-object field
     content_type = models.ForeignKey(ContentType,
-            verbose_name=_('content type'),
-            related_name="content_type_set_for_%(class)s")
+                                     verbose_name=_('content type'),
+                                     related_name="content_type_set_for_%(class)s")
     object_pk = models.TextField(_('object ID'), db_index=True)
     content_object = generic.GenericForeignKey(ct_field="content_type", fk_field="object_pk")
 
@@ -47,7 +47,7 @@ class Comment(models.Model):
     """
 
     object = models.ForeignKey('opendebates.Submission', related_name="comments")
-    
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'),
                              related_name="comments")
 
@@ -56,16 +56,17 @@ class Comment(models.Model):
     # Metadata about the comment
     submit_date = models.DateTimeField(_('date/time submitted'), default=None,
                                        db_index=True)
-    ip_address = models.GenericIPAddressField(_('IP address'), unpack_ipv4=True, blank=True, null=True)
+    ip_address = models.GenericIPAddressField(_('IP address'), unpack_ipv4=True,
+                                              blank=True, null=True)
     is_public = models.BooleanField(_('is public'), default=True,
                                     db_index=True,
-                    help_text=_('Uncheck this box to make the comment effectively ' \
-                                'disappear from the site.'))
+                                    help_text=_('Uncheck this box to make the comment effectively '
+                                                'disappear from the site.'))
     is_removed = models.BooleanField(_('is removed'), default=False,
                                      db_index=True,
-                    help_text=_('Check this box if the comment is inappropriate. ' \
-                                'A "This comment has been removed" message will ' \
-                                'be displayed instead.'))
+                                     help_text=_('Check this box if the comment is inappropriate. '
+                                                 'A "This comment has been removed" message will '
+                                                 'be displayed instead.'))
 
     class Meta:
         db_table = "opendebates_comments"
@@ -116,7 +117,7 @@ class Comment(models.Model):
 
     def _set_name(self, val):
         if self.user_id:
-            raise AttributeError(_("This comment was posted by an authenticated "\
+            raise AttributeError(_("This comment was posted by an authenticated "
                                    "user and thus the name is read-only."))
         self.user_name = val
     name = property(_get_name, _set_name, doc="The name of the user who posted this comment")
@@ -126,7 +127,7 @@ class Comment(models.Model):
 
     def _set_email(self, val):
         if self.user_id:
-            raise AttributeError(_("This comment was posted by an authenticated "\
+            raise AttributeError(_("This comment was posted by an authenticated "
                                    "user and thus the email is read-only."))
         self.user_email = val
     email = property(_get_email, _set_email, doc="The email of the user who posted this comment")
@@ -169,7 +170,8 @@ class CommentFlag(models.Model):
     design users are only allowed to flag a comment with a given flag once;
     if you want rating look elsewhere.
     """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'), related_name="comment_flags")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'),
+                             related_name="comment_flags")
     comment = models.ForeignKey(Comment, verbose_name=_('comment'), related_name="flags")
     flag = models.CharField(_('flag'), max_length=30, db_index=True)
     flag_date = models.DateTimeField(_('date'), default=None)

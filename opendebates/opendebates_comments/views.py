@@ -1,7 +1,6 @@
 from django import http
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db import models
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -14,6 +13,7 @@ from opendebates_comments import signals
 from opendebates_comments.view_utils import next_redirect, confirmation_view
 from opendebates.utils import get_ip_address_from_request
 from opendebates.models import Submission
+
 
 class CommentPostBadRequest(http.HttpResponseBadRequest):
     """
@@ -47,6 +47,9 @@ def post_comment(request, next=None, using=None, extra_ctx={}):
     object_id = data.get("object_id")
     if object_id is None:
         return CommentPostBadRequest("Missing object_id field.")
+    # FIXME: ctype and object_pk were not defined, so I have given them dummy
+    #        values for now -- vkurup
+    ctype = object_pk = 'dummy value'
     try:
         target = Submission.objects.filter(approved=True, duplicate_of__isnull=True).get(
             id=object_id)
@@ -55,16 +58,16 @@ def post_comment(request, next=None, using=None, extra_ctx={}):
             "Invalid content_type value: %r" % escape(ctype))
     except AttributeError:
         return CommentPostBadRequest(
-            "The given content-type %r does not resolve to a valid model." % \
-                escape(ctype))
+            "The given content-type %r does not resolve to a valid model." %
+            escape(ctype))
     except ObjectDoesNotExist:
         return CommentPostBadRequest(
-            "No object matching content-type %r and object PK %r exists." % \
-                (escape(ctype), escape(object_pk)))
+            "No object matching content-type %r and object PK %r exists." %
+            (escape(ctype), escape(object_pk)))
     except (ValueError, ValidationError) as e:
         return CommentPostBadRequest(
-            "Attempting go get content-type %r and object PK %r exists raised %s" % \
-                (escape(ctype), escape(object_pk), e.__class__.__name__))
+            "Attempting to get content-type %r and object PK %r exists raised %s" %
+            (escape(ctype), escape(object_pk), e.__class__.__name__))
 
     # Do we want to preview the comment?
     preview = "preview" in data
@@ -75,13 +78,13 @@ def post_comment(request, next=None, using=None, extra_ctx={}):
     # Check security information
     if form.security_errors():
         return CommentPostBadRequest(
-            "The comment form failed security verification: %s" % \
-                escape(str(form.security_errors())))
+            "The comment form failed security verification: %s" %
+            escape(str(form.security_errors())))
 
     # If there are errors or if we requested a preview show the comment
     if form.errors or preview:
         template_list = ['opendebates/vote.html', 'opendebates/show_idea.html']
-        
+
         ctx = {"comment": form.data.get("comment", ""),
                "comment_form": form,
                "next": data.get("next", next),
@@ -109,7 +112,7 @@ def post_comment(request, next=None, using=None, extra_ctx={}):
     )
 
     for (receiver, response) in responses:
-        if response == False:
+        if response is False:
             return CommentPostBadRequest(
                 "comment_will_be_posted receiver %r killed the comment" % receiver.__name__)
 
@@ -122,7 +125,7 @@ def post_comment(request, next=None, using=None, extra_ctx={}):
     )
 
     return next_redirect(request, fallback=next or 'comments-comment-done',
-        c=comment._get_pk_val())
+                         c=comment._get_pk_val())
 
 comment_done = confirmation_view(
     template="comments/posted.html",

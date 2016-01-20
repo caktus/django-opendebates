@@ -20,12 +20,10 @@ your own URL patterns for these views instead.
 from django.conf.urls import include
 from django.conf.urls import patterns
 from django.conf.urls import url
-from django.views.generic.base import TemplateView
 from django.contrib.auth import views as auth_views
 
 from .forms import OpenDebatesAuthenticationForm
 from .views import OpenDebatesRegistrationView
-from django import forms
 
 urlpatterns = patterns('',
                        url(r'^register/$',
@@ -38,12 +36,13 @@ urlpatterns = patterns('',
                            'opendebates.views.registration_complete', name="registration_complete"),
                        url(r'^login/$',
                            'django.contrib.auth.views.login',
-                           {'template_name': 'registration/login.html',
-                            'authentication_form': OpenDebatesAuthenticationForm,
+                           {
+                               'template_name': 'registration/login.html',
+                               'authentication_form': OpenDebatesAuthenticationForm,
                            },
                            name='auth_login'),
 
-                       #override the default urls
+                       # override the default urls
                        url(r'^password/change/$',
                            auth_views.password_change,
                            name='password_change'),

@@ -7,6 +7,7 @@ from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
 from urllib import quote_plus
 from django.utils.translation import ugettext_lazy as _
+from djangohelpers.lib import register_admin
 
 
 class Category(models.Model):
@@ -54,8 +55,6 @@ class Submission(models.Model):
 
     random_id = models.FloatField(default=0, db_index=True)
 
-
-
     search_index = VectorField()
 
     keywords = models.TextField(null=True, blank=True)
@@ -66,8 +65,8 @@ class Submission(models.Model):
     source = models.CharField(max_length=255, null=True, blank=True)
 
     def get_recent_votes(self):
-       timespan = datetime.datetime.now() - datetime.timedelta(1)
-       return Vote.objects.filter(submission=self, created_at__gte=timespan).count()
+        timespan = datetime.datetime.now() - datetime.timedelta(1)
+        return Vote.objects.filter(submission=self, created_at__gte=timespan).count()
 
     def get_duplicates(self):
         if not self.has_duplicates:
@@ -84,10 +83,13 @@ class Submission(models.Model):
         return "vote", [self.id]
 
     def my_tweet_text(self):
-        return _(u"Vote for my progressive idea for @ThinkBigUS #BigIdeasProject. 30 leaders in Congress will see top ideas!")
+        return _(u"Vote for my progressive idea for @ThinkBigUS #BigIdeasProject. "
+                 "30 leaders in Congress will see top ideas!")
 
     def tweet_text(self):
-        text = _(u"Let's make sure 30 leaders in Congress see this #BigIdea about %(category_name)s - please vote and RT!" % {"category_name": quote_plus(self.category.name)})
+        text = _(u"Let's make sure 30 leaders in Congress see this #BigIdea about "
+                 "%(category_name)s - please vote and RT!" % {
+                     "category_name": quote_plus(self.category.name)})
         if self.voter.twitter_handle:
             text += u" h/t @%s" % self.voter.twitter_handle
         return text
@@ -109,22 +111,29 @@ class Submission(models.Model):
         return _("Vote+for+my+Big+Idea!")
 
     def email_body_text(self):
-        return _("I+posted+an+idea+on+The+Big+Ideas+Project+--+30+members+of+Congress+will+see+the+top+20+ideas!+Please+click+here+to+see+it+and+vote+on+my+idea+--+and+share+it+with+your+friends!")
+        return _("I+posted+an+idea+on+The+Big+Ideas+Project+--+30+members+of+Congress"
+                 "+will+see+the+top+20+ideas!+Please+click+here+to+see+it+and+vote+on"
+                 "+my+idea+--+and+share+it+with+your+friends!")
 
     def email_url(self):
-        return u"mailto:?subject=%s&body=%s" % (self.email_subject_text(), self.email_body_text(), self.really_absolute_url())
+        return u"mailto:?subject=%s&body=%s" % (
+            self.email_subject_text(), self.email_body_text(), self.really_absolute_url())
 
     def twitter_url(self):
-        return u"https://twitter.com/intent/tweet?url=%(SITE_DOMAIN)s%(idea_url)s&text=%(tweet_text)s" % {
+        url_tmpl = u"https://twitter.com/intent/tweet?url=" + \
+                   "%(SITE_DOMAIN)s%(idea_url)s&text=%(tweet_text)s"
+        return url_tmpl % {
             "SITE_DOMAIN": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL),
             "idea_url": quote_plus(self.get_absolute_url()),
             "tweet_text": quote_plus(self.tweet_text()),
             }
 
+
 class ZipCode(models.Model):
     zip = models.CharField(max_length=10, unique=True)
     city = models.CharField(max_length=255, null=True, blank=True)
     state = models.CharField(max_length=255, null=True, blank=True)
+
 
 class Voter(models.Model):
 
@@ -151,7 +160,8 @@ class Voter(models.Model):
     zip = models.CharField(max_length=10, db_index=True)
     state = models.CharField(max_length=255, null=True, blank=True)
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, related_name="voter")
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, null=True, blank=True, related_name="voter")
 
     source = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -173,6 +183,7 @@ class Voter(models.Model):
         value = signer.sign(email)
         return value
 
+
 class Vote(models.Model):
 
     submission = models.ForeignKey(Submission)
@@ -189,6 +200,7 @@ class Vote(models.Model):
 
     created_at = models.DateTimeField(db_index=True)
     source = models.CharField(max_length=255, null=True, blank=True)
+
 
 class Candidate(models.Model):
     first_name = models.CharField(max_length=255, null=True, blank=True)
@@ -211,7 +223,6 @@ class Candidate(models.Model):
     def __unicode__(self):
         return self.display_name
 
-from djangohelpers.lib import register_admin
 register_admin(Category)
 register_admin(Submission)
 register_admin(Voter)

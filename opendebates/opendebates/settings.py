@@ -2,6 +2,7 @@
 import os
 import sys
 from django.utils.translation import ugettext_lazy as _
+import dj_database_url
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
@@ -76,15 +77,13 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'opendebates.context_processors.global_vars',
-                'opendebates.context_processors.voter',         
+                'opendebates.context_processors.voter',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'wsgi.application'
-
-import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.config(default="postgres://@/opendebates"),
