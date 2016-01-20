@@ -1,0 +1,36 @@
+language: python
+
+sudo: false
+
+python:
+  - '2.7'
+
+addons:
+  postgresql: '9.3'
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+install:
+  - pip install -U pip
+  - pip install -U -r requirements/dev.txt
+
+before_script:
+  - createdb -E UTF-8 opendebates -U postgres -O $USER
+  - find . -name '*.pyc' -delete
+  - cd opendebates
+
+script:
+  - python manage.py makemigrations --dry-run | grep 'No changes detected' || (echo 'There are changes which require migrations.' && exit 1)
+  - coverage run manage.py test
+  - coverage report -m --fail-under 30
+  - flake8 .
+
+notifications:
+  hipchat:
+    template:
+      - ! '%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message} (<a href="%{build_url}">Details</a>/<a href="%{compare_url}">Change view</a>)'
+    format: html
+    rooms:
+      secure: OwUbwQmpNS6ebDmvvD/1Ie74egE9/TaFkoNJFf0IBGDc95ZO24G0msm0kQK80IA6Xwcew7EpOFjcVuNnforaC6syiQp3kFX3dK17h0r5z0VgJhNDGeWAZ36KdusOXOhVXDIeKwd/FsdDCVMUV6aE0WJ6ulq9ElP7Acf0a79KzAyopTT4cOS6jLYkWgxYD9cRynMHw9GuHWZE7P0mo4+zIQCtMCDcxUIsQaRZeY0dw4TeEjsKqBzSRys8KZBtEu9eDL33fNyqQq0xrA5Rgh/UriqSI/6tylD2kbRObAwGdRzfzwI82kg8niJw4hHKdWJL/99PNuWgY/ZmH8S81xvyy564oLDpyveNgxsArdS6WOmYXm6JNuW8CcjgDsdf+uPaS/fOzG2i/DkJQZrqUxu3fjNQ8VSTYfLGXxXB5Wg4va7oB3ePSFsovineRl4fmrGjjTdlBjA40z2+TucJnUMXjx/KOaudnPfgIWMaRoTYhidYn+EXiT7NazAyHa+qY1XPbUfwz6AbKZJrzN6wugzWxg1CxWmCWttw1LvfwZ1bsxjiPewzlNoYywh3K5E/tlSHWzX55r6lcUqOwv3HgaAzEGp+3ukOrX/xKjqMsPBbKlijT4IQZuYj7nSWvcYlwvEPydmBKzvpG8DF4pmiTcZudbgqEwVyz/QIBX88L/xhApE=
