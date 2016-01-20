@@ -1,5 +1,6 @@
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
 from django.utils.translation import ugettext_lazy as _
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -126,6 +127,9 @@ STATICFILES_FINDERS = (
 PIPELINE_COMPILERS = (
     'pipeline.compilers.less.LessCompiler',
 )
+
+if 'test' in sys.argv:
+    PIPELINE_COMPILERS = ()
 
 if DEBUG:
     PIPELINE_CSS_COMPRESSOR = None
