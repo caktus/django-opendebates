@@ -18,6 +18,7 @@ install:
 
 before_script:
   - createdb -E UTF-8 opendebates -U postgres -O $USER
+  - find . -name '*.pyc' -delete
   - cd opendebates
 
 script:
