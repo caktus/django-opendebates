@@ -23,7 +23,7 @@ before_script:
 
 script:
   - python manage.py makemigrations --dry-run | grep 'No changes detected' || (echo 'There are changes which require migrations.' && exit 1)
-  - coverage run manage.py test
+  - coverage run manage.py test -v 3
   - coverage report -m --fail-under 30
   - flake8 .
 
