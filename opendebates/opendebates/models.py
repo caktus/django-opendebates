@@ -2,7 +2,6 @@
 import datetime
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.signing import Signer
 from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
@@ -65,7 +64,7 @@ class Submission(models.Model):
                             auto_update_search_field=True)
 
     source = models.CharField(max_length=255, null=True, blank=True)
-    
+
     def get_recent_votes(self):
        timespan = datetime.datetime.now() - datetime.timedelta(1)
        return Vote.objects.filter(submission=self, created_at__gte=timespan).count()
@@ -111,7 +110,7 @@ class Submission(models.Model):
 
     def email_body_text(self):
         return _("I+posted+an+idea+on+The+Big+Ideas+Project+--+30+members+of+Congress+will+see+the+top+20+ideas!+Please+click+here+to+see+it+and+vote+on+my+idea+--+and+share+it+with+your+friends!")
-    
+
     def email_url(self):
         return u"mailto:?subject=%s&body=%s" % (self.email_subject_text(), self.email_body_text(), self.really_absolute_url())
 
@@ -126,7 +125,7 @@ class ZipCode(models.Model):
     zip = models.CharField(max_length=10, unique=True)
     city = models.CharField(max_length=255, null=True, blank=True)
     state = models.CharField(max_length=255, null=True, blank=True)
-    
+
 class Voter(models.Model):
 
     def user_display_name(self):
@@ -143,7 +142,7 @@ class Voter(models.Model):
                 name = u"%s %s." % (name, user.last_name[0])
         if not name or not name.strip():
             name = _(u"Somebody")
-            
+
         if voter.state:
             name = _(u"%(name)s from %(state)s" % {"name": name, "state": voter.state})
         return name
@@ -152,7 +151,7 @@ class Voter(models.Model):
     zip = models.CharField(max_length=10, db_index=True)
     state = models.CharField(max_length=255, null=True, blank=True)
 
-    user = models.OneToOneField(User, null=True, blank=True, related_name="voter")
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, related_name="voter")
 
     source = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -190,7 +189,7 @@ class Vote(models.Model):
 
     created_at = models.DateTimeField(db_index=True)
     source = models.CharField(max_length=255, null=True, blank=True)
-    
+
 class Candidate(models.Model):
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
