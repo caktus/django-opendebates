@@ -1,7 +1,7 @@
 dj-static
 gunicorn
 Django==1.8
-whitenoise==1.0.6
+#whitenoise==1.0.6
 psycopg2==2.5.2
 dj-database-url==0.3.0
 django-localflavor==1.1
