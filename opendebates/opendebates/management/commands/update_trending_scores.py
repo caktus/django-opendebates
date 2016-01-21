@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.db import connection
 
 sql2 = """
@@ -24,11 +24,11 @@ s."id"
 ) q
 WHERE
 q."id" = opendebates_submission."id";
-"""
+"""  # noqa
+
 
 class Command(BaseCommand):
-     def handle(self, *args, **options):
-         with connection.cursor() as cursor:
-             cursor.execute(sql)
-             cursor.execute(sql2)
-         
+    def handle(self, *args, **options):
+        with connection.cursor() as cursor:
+            cursor.execute(sql)
+            cursor.execute(sql2)

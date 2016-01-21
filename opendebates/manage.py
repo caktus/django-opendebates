@@ -2,8 +2,9 @@
 import os
 import sys
 
-dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".env"))
 import dotenv
+
+dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".env"))
 dotenv.read_dotenv(dotenv_path)
 
 if __name__ == "__main__":

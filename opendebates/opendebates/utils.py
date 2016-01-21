@@ -2,6 +2,7 @@ import json
 import random
 from .models import Voter
 
+
 def get_voter(request):
     if request.user.is_authenticated():
 
@@ -10,11 +11,13 @@ def get_voter(request):
         except Voter.DoesNotExist:
             return {}
 
-        return {'email': request.user.email,
-                'zip': voter.zip,
+        return {
+            'email': request.user.email,
+            'zip': voter.zip,
         }
     elif 'voter' in request.session:
         return request.session['voter']
+
 
 def get_headers_from_request(request):
     try:
@@ -25,7 +28,8 @@ def get_headers_from_request(request):
         return json.dumps(headers)
     except Exception:
         return None
-    
+
+
 def get_ip_address_from_request(request):
     PRIVATE_IPS_PREFIX = ('10.', '172.', '192.', '127.')
     ip_address = ''
@@ -57,6 +61,7 @@ def get_ip_address_from_request(request):
             ip_address = '127.0.0.1'
     return ip_address
 
+
 def choose_sort(sort):
     sort = sort or random.choice(["trending", "trending", "random"])
     return sort
@@ -67,10 +72,10 @@ def sort_list(citations_only, sort, ideas):
         approved=True,
         duplicate_of__isnull=True
     ).select_related("voter", "category", "voter__user")
-    
+
     if citations_only:
         ideas = ideas.filter(citation_verified=True)
-        
+
     if sort == "editors":
         ideas = ideas.order_by("-editors_pick")
     elif sort == "trending":

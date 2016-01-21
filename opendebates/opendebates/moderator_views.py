@@ -4,11 +4,12 @@ from django.shortcuts import redirect
 
 from .models import Submission, Vote
 
+
 @rendered_with("opendebates/moderation/mark_duplicate.html")
 @allow_http("GET", "POST")
 def mark_duplicate(request):
     if not request.user.is_superuser:
-        return HttpResponse("forbidden") #@@TODO
+        return HttpResponse("forbidden")  # @@TODO
 
     to_remove_default = ''
     if request.method == "GET":
@@ -36,7 +37,8 @@ def mark_duplicate(request):
     to_remove.save()
 
     if request.POST.get("handling") == "merge":
-        votes_already_cast = list(Vote.objects.filter(submission=duplicate_of).values_list("voter_id", flat=True))
+        votes_already_cast = list(Vote.objects.filter(
+            submission=duplicate_of).values_list("voter_id", flat=True))
         votes_to_merge = Vote.objects.filter(submission=to_remove).exclude(
             voter__in=votes_already_cast)
         duplicate_of.votes += votes_to_merge.count()
@@ -44,11 +46,15 @@ def mark_duplicate(request):
         votes_to_merge.update(original_merged_submission=to_remove, submission=duplicate_of)
 
     if request.POST.get("send_email") == "yes":
+        # FIXME: `emails` was not defined, so I have commented it out for now. --vkurup
         if request.POST.get("handling") == "merge":
-            emails.idea_is_merged(to_remove)
+            pass
+            # emails.idea_is_merged(to_remove)
         else:
             if duplicate_of is not None:
-                emails.idea_is_duplicate(to_remove)
+                pass
+                # emails.idea_is_duplicate(to_remove)
             else:
-                emails.idea_is_removed(to_remove)
+                pass
+                # emails.idea_is_removed(to_remove)
     return redirect(".")

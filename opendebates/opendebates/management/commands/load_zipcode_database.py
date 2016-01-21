@@ -1,7 +1,7 @@
-from django.core.management.base import BaseCommand, CommandError
-from django.db import connection
+from django.core.management.base import BaseCommand
 from opendebates.models import ZipCode
 import csv
+
 
 class Command(BaseCommand):
 
@@ -14,4 +14,3 @@ class Command(BaseCommand):
         for line in lines:
             z = ZipCode(zip=line[0], city=line[1], state=line[2])
             z.save()
-            

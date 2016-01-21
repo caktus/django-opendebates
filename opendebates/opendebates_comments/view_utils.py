@@ -16,6 +16,7 @@ from django.utils.http import is_safe_url
 
 from opendebates_comments.models import Comment
 
+
 def next_redirect(request, fallback, **get_kwargs):
     """
     Handle the "where should I go next?" part of comment views.
@@ -42,6 +43,7 @@ def next_redirect(request, fallback, **get_kwargs):
         next += joiner + urlencode(get_kwargs) + anchor
     return HttpResponseRedirect(next)
 
+
 def confirmation_view(template, doc="Display a confirmation view."):
     """
     Confirmation view generator for the "comment was
@@ -55,9 +57,8 @@ def confirmation_view(template, doc="Display a confirmation view."):
             except (ObjectDoesNotExist, ValueError):
                 pass
         return render_to_response(template,
-            {'comment': comment},
-            context_instance=RequestContext(request)
-        )
+                                  {'comment': comment},
+                                  context_instance=RequestContext(request))
 
     confirmed.__doc__ = textwrap.dedent("""\
         %s

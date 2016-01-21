@@ -2,7 +2,6 @@ import time
 from django import forms
 from django.forms.util import ErrorDict
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.utils.crypto import salted_hmac, constant_time_compare
 from django.utils.encoding import force_text
 from django.utils.text import get_text_list
@@ -11,14 +10,15 @@ from django.utils.translation import ungettext, ugettext, ugettext_lazy as _
 
 from opendebates_comments.models import Comment
 
-COMMENT_MAX_LENGTH = getattr(settings,'COMMENT_MAX_LENGTH', 3000)
+COMMENT_MAX_LENGTH = getattr(settings, 'COMMENT_MAX_LENGTH', 3000)
+
 
 class CommentSecurityForm(forms.Form):
     """
     Handles the security aspects (anti-spoofing) for comment forms.
     """
-    object_id     = forms.CharField(widget=forms.HiddenInput)
-    timestamp     = forms.IntegerField(widget=forms.HiddenInput)
+    object_id = forms.CharField(widget=forms.HiddenInput)
+    timestamp = forms.IntegerField(widget=forms.HiddenInput)
     security_hash = forms.CharField(min_length=40, max_length=40, widget=forms.HiddenInput)
 
     def __init__(self, target_object, data=None, initial=None):
@@ -39,8 +39,8 @@ class CommentSecurityForm(forms.Form):
     def clean_security_hash(self):
         """Check the security hash."""
         security_hash_dict = {
-            'object_id' : self.data.get("object_id", ""),
-            'timestamp' : self.data.get("timestamp", ""),
+            'object_id': self.data.get("object_id", ""),
+            'timestamp': self.data.get("timestamp", ""),
         }
         expected_hash = self.generate_security_hash(**security_hash_dict)
         actual_hash = self.cleaned_data["security_hash"]
@@ -58,10 +58,10 @@ class CommentSecurityForm(forms.Form):
     def generate_security_data(self):
         """Generate a dict of security data for "initial" data."""
         timestamp = int(time.time())
-        security_dict =   {
-            'object_id'     : str(self.target_object.id),
-            'timestamp'     : str(timestamp),
-            'security_hash' : self.initial_security_hash(timestamp),
+        security_dict = {
+            'object_id': str(self.target_object.id),
+            'timestamp': str(timestamp),
+            'security_hash': self.initial_security_hash(timestamp),
         }
         return security_dict
 
@@ -72,8 +72,8 @@ class CommentSecurityForm(forms.Form):
         """
 
         initial_security_dict = {
-            'object_id' : str(self.target_object.id),
-            'timestamp' : str(timestamp),
+            'object_id': str(self.target_object.id),
+            'timestamp': str(timestamp),
           }
         return self.generate_security_hash(**initial_security_dict)
 
@@ -86,15 +86,16 @@ class CommentSecurityForm(forms.Form):
         value = "-".join(info)
         return salted_hmac(key_salt, value).hexdigest()
 
+
 class CommentDetailsForm(CommentSecurityForm):
     """
     Handles the specific details of the comment (name, comment, etc.).
     """
-    name          = forms.CharField(label=_("Name"), max_length=50, widget=forms.HiddenInput)
-    email         = forms.EmailField(label=_("Email address"), widget=forms.HiddenInput)
-    url           = forms.URLField(label=_("URL"), required=False, widget=forms.HiddenInput)
-    comment       = forms.CharField(label=_('Comment'), widget=forms.Textarea,
-                                    max_length=COMMENT_MAX_LENGTH)
+    name = forms.CharField(label=_("Name"), max_length=50, widget=forms.HiddenInput)
+    email = forms.EmailField(label=_("Email address"), widget=forms.HiddenInput)
+    url = forms.URLField(label=_("URL"), required=False, widget=forms.HiddenInput)
+    comment = forms.CharField(label=_('Comment'), widget=forms.Textarea,
+                              max_length=COMMENT_MAX_LENGTH)
 
     def get_comment_object(self):
         """
@@ -129,11 +130,11 @@ class CommentDetailsForm(CommentSecurityForm):
         method to add extra fields onto a custom comment model.
         """
         return dict(
-            object_id    = force_text(self.target_object.id),
-            comment      = self.cleaned_data["comment"],
-            submit_date  = timezone.now(),
-            is_public    = True,
-            is_removed   = False,
+            object_id=force_text(self.target_object.id),
+            comment=self.cleaned_data["comment"],
+            submit_date=timezone.now(),
+            is_public=True,
+            is_removed=False,
         )
 
     def check_for_duplicate_comment(self, new):
@@ -144,7 +145,7 @@ class CommentDetailsForm(CommentSecurityForm):
         possible_duplicates = self.get_comment_model()._default_manager.using(
             self.target_object._state.db
         ).filter(
-            object_id = new.id,
+            object_id=new.id,
         )
         for old in possible_duplicates:
             if old.submit_date.date() == new.submit_date.date() and old.comment == new.comment:
@@ -158,7 +159,7 @@ class CommentDetailsForm(CommentSecurityForm):
         contain anything in PROFANITIES_LIST.
         """
         comment = self.cleaned_data["comment"]
-        if getattr(settings, 'COMMENTS_ALLOW_PROFANITIES', True) == False:
+        if getattr(settings, 'COMMENTS_ALLOW_PROFANITIES', True) is False:
             bad_words = [w for w in settings.PROFANITIES_LIST if w in comment.lower()]
             if bad_words:
                 raise forms.ValidationError(ungettext(
@@ -169,10 +170,11 @@ class CommentDetailsForm(CommentSecurityForm):
                          for i in bad_words], ugettext('and')))
         return comment
 
+
 class CommentForm(CommentDetailsForm):
-    honeypot      = forms.CharField(required=False,
-                                    label=_('If you enter anything in this field '\
-                                            'your comment will be treated as spam'))
+    honeypot = forms.CharField(required=False,
+                               label=_('If you enter anything in this field '
+                                       'your comment will be treated as spam'))
 
     def clean_honeypot(self):
         """Check that nothing's been entered into the honeypot."""
