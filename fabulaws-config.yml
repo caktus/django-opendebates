@@ -60,6 +60,10 @@
     production: 8001
     testing: 8002
 
+# Mapping of celery worker names to options
+  celery_workers:
+    main: -c 10 -Q celeryd
+
 # Mapping of environment names to domain names. Used to update the
 # primary site in the database after a refresh and to set ALLOWED_HOSTS
 # Note that the first domain in the list must not be a wildcard as it

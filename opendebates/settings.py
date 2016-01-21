@@ -3,6 +3,7 @@ import os
 import sys
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
+import djcelery
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
@@ -113,6 +114,11 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
+# celery settings
+djcelery.setup_loader()
+
+CELERY_SEND_TASK_ERROR_EMAILS = True
 
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
 
