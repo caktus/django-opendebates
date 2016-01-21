@@ -17,3 +17,6 @@ conf/pillar/*/deploy
 node_modules
 */static/js/bundle.js
 */static/css
+*.sqlite3
+aws.sh
+fabsecrets.py
