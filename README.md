@@ -6,12 +6,17 @@ django-opendebates
 Install python 2.7, virtualenv, postgres.
 
 ```
-createdb opendebates
-virtualenv --python=python2.7 ve
-./ve/bin/pip install -r requirements.txt
-./ve/bin/python opendebates/manage.py makemigrations registration
-./ve/bin/python opendebates/manage.py syncdb
-./ve/bin/python opendebates/manage.py load_zipcode_database ./zips.csv
+$ createdb opendebates
+$ mkvirtualenv opendebates -p `which python2.7`
+(opendebates)$ pip install -r requirements/dev.txt
+(opendebates)$ python opendebates/manage.py migrate
+(opendebates)$ python opendebates/manage.py load_zipcode_database ./zips.csv
+(opendebates)$ npm install bower less
+(opendebates)$ cp opendebates/.env.sample opendebates/.env
+(opendebates)$ echo "export PATH=$PWD/node_modules/.bin:$PATH" >> $VIRTUAL_ENV/bin/postactivate
+(opendebates)$ deactivate
+$ workon opendebates
+(opendebates)$
 ```
 
 Then you can start the development server:
@@ -63,7 +68,7 @@ To install front-end packages and then collect static files:
 ./ve/bin/python opendebates/manage.py collectstatic --noinput
 ```
 
-Files will be collected into `opendebates/static/` -- in production mode (DJANGO_DEBUG=False) 
+Files will be collected into `opendebates/static/` -- in production mode (DJANGO_DEBUG=False)
 all static files will be served from this directory.  Do not make edits to files directly
 in `opendebates/static` -- instead, make edits to the source files (usually that's in opendebates/opendebates/static) and then re-run collectstatic
 to update the served copies.
@@ -130,11 +135,11 @@ or if already inside the VM:
 
 ## Front-End
 
-One of the key principles we'd like to keep in mind across the site is separation of concerns. 
-We want to make each piece as much dedicated to one concern as possible. 
+One of the key principles we'd like to keep in mind across the site is separation of concerns.
+We want to make each piece as much dedicated to one concern as possible.
 
-One example where this is particularly relevant is javascript in django template files. 
-We want to keep javascript out of our django template files as much as possible. 
+One example where this is particularly relevant is javascript in django template files.
+We want to keep javascript out of our django template files as much as possible.
 There may be some situations in which it may be necessary to have some small amount of js, particularly if we need to pass python variables to the front end,
 but if you find yourself doing any logic work in an inline javascript snippet in a django template file, please please put that into its own js file.
 
@@ -151,10 +156,10 @@ We're using LESS compiled to CSS, Handlebars templates, and a handful of third-p
 
 We use django templates to hand off any server configs to javascript. We can do this by creating a javascript namespace which can be accessed from any other included JS files.
 
-See /opendebates/templates/base.html for an example of how this works. Similarly, we can then access that namespace in any of our javascript files. 
+See /opendebates/templates/base.html for an example of how this works. Similarly, we can then access that namespace in any of our javascript files.
 An example of loading that namespace is in /opendebates/static/js/base/helpers.js
 
-With our javascript namespace, we can order all of our submodules, with their properties and functions, and any of their sub-modules. 
+With our javascript namespace, we can order all of our submodules, with their properties and functions, and any of their sub-modules.
 Our namespace is `ODebates`, so we might have: `ODebates.paths`, `ODebates.configs`, `ODebates.login`, etc.
 
 If we had a login page, we could have an object `ODebates.login`, which could then have a function `ODebates.login.init()`, an object `ODebates.login.helpers` for helpers that
@@ -167,7 +172,7 @@ http://bower.io/
 https://github.com/nvbn/django-bower
 
 It makes keeping track of front-end libraries/dependencies much simpler and less error-prone. Instead of randomly saving js or css files from 3rd party websites, bower lets us
-keep all of our dependencies in one place, track versions and handle updates. 
+keep all of our dependencies in one place, track versions and handle updates.
 
 In our settings.py file, we have the following:
 ```
@@ -194,7 +199,7 @@ In order to use one of these libraries in a django template, you can use the fol
 
 ### LESS Stylesheets
 
-We're using django-pipeline for LESS->CSS compilation. 
+We're using django-pipeline for LESS->CSS compilation.
 http://django-pipeline.readthedocs.org/en/latest/index.html
 
 In our settings.py file, there is a variable PIPELINE_CSS = {} which sets up the stylesheet pipeline.
@@ -221,9 +226,9 @@ You can then load that stylesheet with the following:
 ```
 
 Which leads us into
-### Bootstrap 
+### Bootstrap
 
-Ideally, we'd like to work with Bootstrap, not fight against it. 
+Ideally, we'd like to work with Bootstrap, not fight against it.
 Bootstrap provides for the setting and accessing of a variety of LESS variables, which we would ideally match with our graphic design palette.
 
 For example, in static/bower_components/bootstrap/less/modals.less, there is the following code:
