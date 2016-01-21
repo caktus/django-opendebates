@@ -1,4 +1,4 @@
-from fabutest.settings import *
+from .settings import *
 
 DEBUG = False
 
