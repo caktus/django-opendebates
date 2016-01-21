@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.test.utils import override_settings
-from .models import Category
+from ..models import Category
 
 
 @override_settings(STATICFILES_STORAGE='pipeline.storage.NonPackagingPipelineStorage',
