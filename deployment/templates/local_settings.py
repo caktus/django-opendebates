@@ -1,4 +1,4 @@
-from .settings import *
+from opendebates.settings import *
 
 DEBUG = False
 
