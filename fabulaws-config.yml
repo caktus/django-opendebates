@@ -29,7 +29,7 @@
                    newrelic_license_key, newrelic_api_key, s3_secret]
   project: opendebates
   wsgi_app: opendebates.wsgi:application
-  requirements_file: requirements/app.txt
+  requirements_file: requirements/base.txt
   requirements_sdists:
   settings_managepy: opendebates.local_settings
   static_html:
@@ -46,8 +46,8 @@
   branches:
     opendebates:
       production: master
-      staging: master
-      testing: master
+      staging: develop
+      testing: add_fabulaws
 
 ## SERVER SETTINGS ##
 
@@ -71,7 +71,7 @@
     staging:
     -
     testing:
-    -
+    - dualstack.opendebates-testing-lb-1802486946.us-east-1.elb.amazonaws.com
 
 ## ENVIRONMENT / ROLE SETTINGS ##
 
@@ -93,7 +93,7 @@
 
   region: us-east-1
   avail_zones:
-  - a
+  - b
   - c
 
 # Mapping of role to security group(s):
