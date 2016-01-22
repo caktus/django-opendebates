@@ -302,26 +302,26 @@ class OpenDebatesRegistrationView(RegistrationView):
 
     form_class = OpenDebatesRegistrationForm
 
-    def register(self, request, **cleaned_data):
-        new_user = RegistrationView.register(self, request, **cleaned_data)
-        new_user.first_name = cleaned_data['first_name']
-        new_user.last_name = cleaned_data['last_name']
+    def register(self, request, form):
+        new_user = RegistrationView.register(self, request, form)
+        new_user.first_name = form.cleaned_data['first_name']
+        new_user.last_name = form.cleaned_data['last_name']
         new_user.save()
 
         try:
-            voter = Voter.objects.get(email=cleaned_data['email'])
+            voter = Voter.objects.get(email=form.cleaned_data['email'])
         except Voter.DoesNotExist:
-            voter = Voter(email=cleaned_data['email'])
+            voter = Voter(email=form.cleaned_data['email'])
             if 'opendebates.source' in request.COOKIES:
                 voter.source = request.COOKIES['opendebates.source']
 
-        voter.zip = cleaned_data['zip']
+        voter.zip = form.cleaned_data['zip']
         try:
-            voter.state = ZipCode.objects.get(zip=cleaned_data['zip']).state
+            voter.state = ZipCode.objects.get(zip=form.cleaned_data['zip']).state
         except Exception:
             pass
-        voter.display_name = cleaned_data.get('display_name')
-        voter.twitter_handle = cleaned_data.get('twitter_handle')
+        voter.display_name = form.cleaned_data.get('display_name')
+        voter.twitter_handle = form.cleaned_data.get('twitter_handle')
         voter.user = new_user
         voter.save()
 
