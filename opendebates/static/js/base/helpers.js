@@ -8,7 +8,7 @@
         results = regex.exec(location.search);
     return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
   };
-  
+
   ODebates.helpers.strTrim = function (str) {
     if (typeof str === "string") {
       return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
@@ -49,20 +49,20 @@
 
   ODebates.helpers.castVote = function(voterData, voteUrl, callback) {
     var data = JSON.parse(JSON.stringify(voterData));
-    data["csrfmiddlewaretoken"] = $("[name=csrfmiddlewaretoken]").val();
+    data.csrfmiddlewaretoken = $("[name=csrfmiddlewaretoken]").val();
     $.post(voteUrl, data, function(resp) {
       if (resp.status === "200") {
         $(".big-idea[data-idea-id="+resp.id+"]").find(".vote-tally-number").html(resp.tally);
         $(".big-idea[data-idea-id="+resp.id+"]").find(".vote-button").hide();
-        $(".big-idea[data-idea-id="+resp.id+"]").find(".already-voted-button").css("display", "block");        
-        
-      }      
+        $(".big-idea[data-idea-id="+resp.id+"]").find(".already-voted-button").css("display", "block");
+
+      }
       if (typeof callback === 'function') {
         callback(resp);
       }
     });
   };
-                                       
+
   $(".search-only form .input-group-addon").on("click", function () {
     $(this).closest("form").submit();
   });
@@ -84,7 +84,7 @@
         var idea = $(".big-idea[data-idea-id="+objId+"]");
         if (!idea) { return; }
         idea.find(".vote-button").hide();
-        idea.find(".already-voted-button").css("display", "block");        
+        idea.find(".already-voted-button").css("display", "block");
       });
     });
   }
@@ -92,7 +92,7 @@
   $(".vote-button").on("click", function () {
     $($(this).data("target")).find("[data-vote-url]").attr("data-vote-url", $(this).data("vote-url"));
   });
-  
+
   $(".votebutton").on("click", function () {
     var that = this,
         $form = $(this).closest('form');
@@ -103,7 +103,7 @@
     };
     ODebates.helpers.castVote(data, $(this).data("vote-url"), function(resp) {
       if (resp.status === "200") {
-        $(that).closest(".modal").modal("hide");        
+        $(that).closest(".modal").modal("hide");
         if (!ODebates.voter) {
           window.location.reload();
         }
@@ -125,9 +125,9 @@
 
     var src = ODebates.helpers.getParameterByName("source");
     if (typeof src === "string") {
-      $.cookie("opendebates.source", src, { path: "/" });      
+      $.cookie("opendebates.source", src, { path: "/" });
     }
-    
+
     if (typeof ODebates.stashedSubmission !== 'undefined') {
       var form = $("#add_question form");
       form.find(":input[name=category]").val(ODebates.stashedSubmission.category);
@@ -135,8 +135,8 @@
       form.find(":input[name=citation]").val(ODebates.stashedSubmission.citation || '');
       form.submit();
     }
-    
-    if ($("#recent-activity").length == 1) {
+
+    if ($("#recent-activity").length === 1) {
       var fetch = function() {
         $.get("/recent/", function(resp) {
           $("#recent-activity").html(resp);
@@ -146,5 +146,5 @@
       setTimeout(fetch);
     }
   });
-  
+
 })();
