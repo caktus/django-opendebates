@@ -18,11 +18,14 @@ AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
 # This is used by the `static` template tag from `static`, if you're using that. Or if anything else
 # refers directly to STATIC_URL. So it's safest to always set it.
-STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+#STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
 
 # Tell the staticfiles app to use S3Boto storage when writing the collected static files (when
 # you run `collectstatic`).
-STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+#STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+# Let's not use S3 quite yet
+# http://django-pipeline.readthedocs.org/en/latest/usage.html#cache-busting
+STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
 
 # Auto-create the bucket if it doesn't exist
 AWS_AUTO_CREATE_BUCKET = True
@@ -60,9 +63,6 @@ MASTER_DATABASE = '{{ master_database.database_key }}'
 MEDIA_ROOT = "{{ media_root }}"
 STATIC_ROOT = "{{ static_root }}"
 
-# AWS credentials (for S3)
-AWS_ACCESS_KEY_ID = 'AKIAI3XJKABCOBWLX33A'
-AWS_SECRET_ACCESS_KEY = "{{ s3_secret }}"
 
 # email settings
 EMAIL_HOST_PASSWORD = '{{ smtp_password }}'
@@ -102,16 +102,6 @@ CELERY_RESULT_BACKEND = "redis://{{ cache_server.internal_ip }}:6379/2"
 # Session settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'session'
-
-# django-compressor settings
-COMPRESS_URL = STATIC_URL
-# Use MEDIA_ROOT rather than STATIC_ROOT because it already exists and is
-# writable on the server.
-COMPRESS_ROOT = MEDIA_ROOT
-COMPRESS_STORAGE = STATICFILES_STORAGE
-COMPRESS_OFFLINE = True
-COMPRESS_OFFLINE_MANIFEST = 'manifest-{{ current_changeset }}.json'
-COMPRESS_ENABLED = True
 
 ALLOWED_HOSTS = [{% for host in allowed_hosts %}'{{ host }}', {% endfor %}]
 

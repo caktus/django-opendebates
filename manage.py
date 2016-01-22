@@ -8,7 +8,7 @@ dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".env"))
 dotenv.read_dotenv(dotenv_path)
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "opendebates.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "opendebates.local_settings")
 
     from django.core.management import execute_from_command_line
 

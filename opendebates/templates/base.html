@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load static from staticfiles %}
 <html>
 <head>
   <title>
@@ -8,7 +9,7 @@
   {% stylesheet 'base' %}
   {% block loading_stylesheets %}
   {% endblock %}
-  <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,300,600,400|Open+Sans+Condensed:700"
+  <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,300,600,400|Open+Sans+Condensed:700"
         rel="stylesheet" type="text/css">
 </head>
 <body>
@@ -66,7 +67,7 @@
       <div id="logo">
         <a href="{% url 'list_ideas' %}">
           <img
-              src="http://progressivechange.institute/media/images/Screen_Shot_2015-03-16_at_7.52.05_.focus-none.width-1000_lSJC5o7.png"
+              src="{% static "images/Screen_Shot_2015-03-16_at_7.52.05_.focus-none.width-1000_lSJC5o7.png" %}"
               alt="Open Debates Logo"
               class="img-responsive center-block">
         </a>
@@ -134,7 +135,6 @@
 </script>
 
 
-{% load static %}
 <script type="text/javascript" src='{% static 'jquery/dist/jquery.min.js' %}'></script>
 <script type="text/javascript" src='{% static 'js/jquery.cookie.js' %}'></script>
 <script type="text/javascript" src='{% static 'handlebars/handlebars.min.js' %}'></script>
@@ -153,7 +153,3 @@
 
 </body>
 </html>
-
-
-
-

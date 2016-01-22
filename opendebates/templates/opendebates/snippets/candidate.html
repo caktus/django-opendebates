@@ -1,9 +1,10 @@
 {% load i18n %}
+{% load static from staticfiles %}
 
 
 <div id="i{{ candidate.id }}" data-candidate-id="{{ candidate.id }}" class="candidate clearfix">
   <section class="col-md-3 center">
-    <img src="http://placehold.it/110x110">
+    <img src="{% static "images/110x110.png" %}">
     <div class="candidate-links">
       {% if candidate.url %}
       <a target="_blank" class="web" href="{{ candidate.url }}">&nbsp;&nbsp;&nbsp;&nbsp;</a>
