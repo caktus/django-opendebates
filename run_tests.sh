@@ -3,7 +3,7 @@ set -e
 
 find . -name '*.pyc' -delete
 
-find -name "*.js" -not \( \
+find . -name "*.js" -not \( \
     -path "./static/*" -o \
     -path "*/bower_components/*" -o \
     -path "./node_modules/*" -o \
