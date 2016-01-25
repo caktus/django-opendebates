@@ -84,7 +84,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'opendebates.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(default="postgres://@/opendebates"),
