@@ -1,13 +1,15 @@
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.db import connections
 from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseServerError
 from django.shortcuts import redirect
 from djangohelpers.lib import rendered_with, allow_http
 
 import json
+import logging
 
 from registration.backends.simple.views import RegistrationView
 
@@ -18,6 +20,32 @@ from .forms import OpenDebatesRegistrationForm
 from .forms import VoterForm, QuestionForm
 from opendebates_comments.forms import CommentForm
 from opendebates_comments.models import Comment
+
+
+def health_check(request):
+    """
+    Health check for the load balancer.
+    """
+    logger = logging.getLogger('opendebates.views.health_check')
+    db_errors = []
+    for conn_name in connections:
+        conn = connections[conn_name]
+        try:
+            cursor = conn.cursor()
+            cursor.execute('SELECT 1')
+            row = cursor.fetchone()
+            assert row[0] == 1
+        except Exception as e:
+            # note that there doesn't seem to be a way to pass a timeout to
+            # psycopg2 through Django, so this will likely not raise a timeout
+            # exception
+            logger.warning('Caught error checking database connection "{0}"'
+                           ''.format(conn_name), exc_info=True)
+            db_errors.append(e)
+    if not db_errors:
+        return HttpResponse('OK')
+    else:
+        return HttpResponseServerError('Configuration Error')
 
 
 @allow_http("GET")
