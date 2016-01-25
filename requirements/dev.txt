@@ -9,4 +9,4 @@ mccabe==0.3.1
 factory-boy==2.6.0
   fake-factory==0.5.3
 
-git+https://github.com/caktus/fabulaws@develop#egg=fabulaws
+fabulaws==0.3.0a2
