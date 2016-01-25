@@ -240,6 +240,7 @@ def questions(request):
         return {
             'form': form,
             'categories': categories,
+            'ideas': [],
             'stashed_submission': request.session.pop(
                 "opendebates.stashed_submission", None)
             if request.user.is_authenticated() else None,
@@ -253,7 +254,8 @@ def questions(request):
 
         return {
             'form': form,
-            'categories': categories
+            'categories': categories,
+            'ideas': [],
         }
 
     if not request.user.is_authenticated():

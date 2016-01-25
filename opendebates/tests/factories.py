@@ -1,6 +1,11 @@
-from django.contrib.auth import get_user_model
+import string
 
+from django.contrib.auth import get_user_model
+from django.utils.timezone import now
 import factory
+import factory.fuzzy
+
+from opendebates import models
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -21,3 +26,37 @@ class UserFactory(factory.DjangoModelFactory):
         if extracted:
             for group in extracted:
                 self.groups.add(group)
+
+
+class CategoryFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.Category
+
+
+class VoterFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.Voter
+
+    user = factory.SubFactory(UserFactory)
+    zip = factory.fuzzy.FuzzyText(length=5, chars=string.digits)
+
+
+class SubmissionFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.Submission
+
+    category = factory.SubFactory(CategoryFactory)
+    idea = factory.fuzzy.FuzzyText()
+    voter = factory.SubFactory(VoterFactory)
+    created_at = now()
+    approved = True
+    votes = 1
+
+
+class VoteFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.Vote
+
+    submission = factory.SubFactory(SubmissionFactory)
+    voter = factory.SubFactory(VoterFactory)
+    created_at = now()

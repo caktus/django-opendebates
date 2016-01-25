@@ -23,7 +23,7 @@ class CommentPostBadRequest(http.HttpResponseBadRequest):
     """
     def __init__(self, why):
         super(CommentPostBadRequest, self).__init__()
-        if settings.DEBUG:
+        if settings.DEBUG:  # FIXME: This template is not present in the repo
             self.content = render_to_string("comments/400-debug.html", {"why": why})
 
 
