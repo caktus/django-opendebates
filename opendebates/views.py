@@ -182,6 +182,13 @@ def vote(request, id):
             }
     voter, created = Voter.objects.get_or_create(email=form.cleaned_data['email'])
 
+    if voter.user and voter.user != request.user:
+        # anonymous user can't use the email of a registered user
+        msg = 'That email is registered. Please login and try again.'
+        return HttpResponse(
+            json.dumps({"status": "400", "errors": {'email': msg}}),
+            content_type="application/json")
+
     if created and 'opendebates.source' in request.COOKIES:
         voter.source = request.COOKIES['opendebates.source']
         voter.save()
