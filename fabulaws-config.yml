@@ -41,7 +41,7 @@
   vcs_cmd: git # or hg
   latest_changeset_cmd: git rev-parse HEAD # hg id -i # or git rev-parse HEAD
   repo: git@github.com:caktus/django-opendebates.git
-# Mapping of Fabric deployments and environments to the Mercurial branch names
+# Mapping of Fabric deployments and environments to the branch names
 # that should be deployed.
   branches:
     opendebates:
