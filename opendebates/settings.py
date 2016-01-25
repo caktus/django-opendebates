@@ -133,9 +133,6 @@ PIPELINE_COMPILERS = (
     'pipeline.compilers.less.LessCompiler',
 )
 
-if 'test' in sys.argv:
-    PIPELINE_COMPILERS = ()
-
 if DEBUG:
     PIPELINE_CSS_COMPRESSOR = None
     PIPELINE_JS_COMPRESSOR = None
@@ -206,3 +203,7 @@ BOWER_INSTALLED_APPS = (
 SITE_ID = 1
 SITE_DOMAIN = os.environ.get("SITE_DOMAIN", "127.0.0.1:8000")
 SITE_DOMAIN_WITH_PROTOCOL = os.environ.get("SITE_PROTOCOL", "http://") + SITE_DOMAIN
+
+if 'test' in sys.argv:
+    PIPELINE_COMPILERS = ()
+    PIPELINE_ENABLED = False

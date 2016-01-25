@@ -19,11 +19,12 @@ install:
 before_script:
   - createdb -E UTF-8 opendebates -U postgres -O $USER
   - find . -name '*.pyc' -delete
+  - coverage erase
 
 script:
   - python manage.py makemigrations --dry-run | grep 'No changes detected' || (echo 'There are changes which require migrations.' && exit 1)
   - coverage run manage.py test
-  - coverage report -m --fail-under 30
+  - coverage report -m --fail-under 65
   - flake8 .
 
 notifications:

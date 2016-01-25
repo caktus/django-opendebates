@@ -1,3 +1,6 @@
+/*jshint devel:true */
+/*global Handlebars */
+
 (function() {
   var ODebates = window.ODebates || {};
   var home;
@@ -29,14 +32,12 @@
           confirm: 'Ok!',
           body: 'Hey I\'m a message!'
         };
-        var modalHtml = Handlebars.templates['modal'](context);
+        var modalHtml = Handlebars.templates.modal(context);
 
         $('body').append(modalHtml);
         $('.modal').modal();
-        
+
       });
     }
   };
 })();
-
-
