@@ -62,6 +62,10 @@
     production: 8001
     testing: 8002
 
+# Whether we're hosting static files on our webservers ('local')
+# or somewhere else ('remote')
+  static_hosting: local
+
 # Mapping of celery worker names to options
   celery_workers:
     main: -c 10 -Q celeryd
