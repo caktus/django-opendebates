@@ -47,7 +47,7 @@
     opendebates:
       production: master
       staging: develop
-      testing: add_fabulaws
+      testing: add_fabulaws_no_s3
 
 ## SERVER SETTINGS ##
 

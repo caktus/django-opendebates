@@ -35,7 +35,7 @@ def health_check(request):
             cursor.execute('SELECT 1')
             row = cursor.fetchone()
             assert row[0] == 1
-        except Exception, e:
+        except Exception as e:
             # note that there doesn't seem to be a way to pass a timeout to
             # psycopg2 through Django, so this will likely not raise a timeout
             # exception

@@ -6,31 +6,36 @@ DEBUG = False
 #LOGGING['filters']['static_fields']['fields']['deployment'] = '{{ deployment_tag }}'
 #LOGGING['filters']['static_fields']['fields']['environment'] = '{{ environment }}'
 #LOGGING['filters']['static_fields']['fields']['role'] = '{{ current_role }}'
-AWS_STORAGE_BUCKET_NAME = '{{ staticfiles_s3_bucket }}'
-AWS_ACCESS_KEY_ID = 'AKIAI3XJKABCOBWLX33A'
-AWS_SECRET_ACCESS_KEY = "{{ s3_secret }}"
+# AWS_STORAGE_BUCKET_NAME = '{{ staticfiles_s3_bucket }}'
+# AWS_ACCESS_KEY_ID = 'AKIAI3XJKABCOBWLX33A'
+# AWS_SECRET_ACCESS_KEY = "{{ s3_secret }}"
 
 # Tell django-storages that when coming up with the URL for an item in S3 storage, keep
 # it simple - just use this domain plus the path. (If this isn't set, things get complicated).
 # This controls how the `static` template tag from `staticfiles` gets expanded, if you're using it.
 # We also use it in the next setting.
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+# AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
 # This is used by the `static` template tag from `static`, if you're using that. Or if anything else
 # refers directly to STATIC_URL. So it's safest to always set it.
-STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+#STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+STATIC_URL = '/static/'
 
 # Tell the staticfiles app to use S3Boto storage when writing the collected static files (when
 # you run `collectstatic`).
-STATICFILES_STORAGE = 'opendebates.storage.S3PipelineCachedStorage'
+#STATICFILES_STORAGE = 'opendebates.storage.S3PipelineCachedStorage'
+
+# Use pipeline w/cachebusting
+# https://django-pipeline.readthedocs.org/en/latest/usage.html#cache-busting
+STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
 
 # Auto-create the bucket if it doesn't exist
-AWS_AUTO_CREATE_BUCKET = True
+# AWS_AUTO_CREATE_BUCKET = True
 
-AWS_HEADERS = {  # see http://developer.yahoo.com/performance/rules.html#expires
-    'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
-    'Cache-Control': 'max-age=94608000',
-}
+# AWS_HEADERS = {  # see http://developer.yahoo.com/performance/rules.html#expires
+#     'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
+#     'Cache-Control': 'max-age=94608000',
+# }
 
 # Having AWS_PRELOAD_META turned on breaks django-storages/s3 -
 # saving a new file doesn't update the metadata and exists() returns False
