@@ -9,7 +9,7 @@ FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 
 SECRET_KEY = 'dg0pdghh4andk^v=rw^l-i81yz-h2co%mlj4)+p(cqz@d&0i$2'  # @@TODO
 
-DEBUG = TEMPLATE_DEBUG = 'DJANGO_DEBUG' in os.environ
+DEBUG = 'DJANGO_DEBUG' in os.environ
 
 ALLOWED_HOSTS = []
 
