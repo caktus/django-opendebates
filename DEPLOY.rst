@@ -80,12 +80,14 @@ created.  (Or create it with that name to begin with.)
 Automation commands
 ~~~~~~~~~~~~~~~~~~~
 
-Now you can run this command to set up everything else::
+If you are creating a new environment and no servers exist
+yet, you can run this command to set them all up at once::
 
     fab create_environment:opendebates,<environment>
 
 It'll take a while (30 minutes? an hour?) but you only need to do it
-once per environment.
+once per environment.  After that, you can follow the instructions below
+for updating things.
 
 Updating code
 -------------
@@ -107,64 +109,37 @@ if your web servers are using a faster server.
 At the end of the output of that command, it'll print out a long string that
 is the name of the new launch configuration. Save that somewhere.
 
-Now, which order you do steps 2 and 3 in might depend on whether you
-have migrations and whether it's okay for the migration to run before
-the web servers have been updated, or for the web servers to be updated
-before the migrations are run, or whether they really really need to happen
-at the same time.
+Step 2: Update the servers
 
-If you can run migrations first, or don't have any, do step 2, then step 3.
+There are two ways to do this, and it's important to choose the right
+one.
 
-If you have to update webservers first, do step 3, then step 2.
+A "full" deployment should be used any time there are backwards-incompatible
+updates to the application, i.e., when having two versions of the code running
+simultaneously on different servers might have damaging results or raise errors
+for users of the site.  Note that this type of deployment requires downtime,
+which may need to be scheduled ahead of time.
 
-If you really have to update things all together, skip down a bit
-to "Updating everything at once".
+To perform a full deployment, including downtime::
 
-Step 2: Update your worker(s)::
+    fab deploy_full:opendebates,<environment>,<launch config name>
 
-    fab <environment> deploy_worker
+This'll put up an "upgrade in progress" notice on the site, take down all the
+webservers, create new ones using the new launch config, and take down the
+upgrade notice again once everything looks okay. In my testing a successful
+full deploy took about 4 minutes.
 
-This will also run migrations.
+A “serial” deployment can be used any time the changes being deployed are minimal enough that
+having both versions of the code running simultaneously will not cause problems. This is usually
+the case any time there are minor, code-only (non-schema) updates.
 
-Step 3: If the changes are minor, such that it's okay if some servers are
-temporarily running the newer code while others are still running the older,
-then you can update the web servers without downtime::
+To perform a serial deployment::
 
     fab deploy_serial:opendebates,<environment>,<launch config name>
 
 This will take the web servers down one at a time and bring up a replacement,
 waiting each time until the replacement is healthy before doing the next. It'll
 take quite a while if there are many servers, but no downtime is needed.
-
-If you need to update things all at the same time, some downtime will be needed.
-On the bright side, this command will run much faster than the other one.
-Here it is::
-
-    fab deploy_full:opendebates,<environment>,<launch config name>
-
-This'll put up an "upgrade in progress" notice on the site, take down all the
-webservers, create new ones using the new launch config, and take down the
-upgrade notice again once everything looks okay. In my testing it took about
-4 minutes each time.
-
-Updating everything at once
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you really have to take it all down, run migrations, update all the code,
-and only then bring things back up, do this::
-
-    fab <environment> begin_upgrade
-
-That'll stop sending requests to the Django web processes.  Wait a minute
-to let any requests in progress complete. Next::
-
-    fab <environment> deploy_worker
-
-That'll update the code on the workers and run the migrations.  Finally::
-
-    fab deploy_full:opendebates,<environment>,<launch config name>
-
-which will update the web servers and take down the upgrade page.
 
 Shortcuts
 ~~~~~~~~~
@@ -173,6 +148,10 @@ For test purposes, you can skip creating the new launch configuration and
 just update the servers in place::
 
     fab <environment> begin_upgrade deploy_worker deploy_web end_upgrade
+
+or::
+
+    fab deploy_full_without_autoscaling:opendebates,<environment>
 
 Just be aware that if the autoscaling group starts any new web servers,
 they'll be running the code from the old launch configuration, which could
