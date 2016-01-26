@@ -1,5 +1,4 @@
 import json
-from unittest import skip
 
 from django.test import TestCase
 
@@ -82,7 +81,7 @@ class VoteTest(TestCase):
             'zipcode': '12345',
         }
         # create an unauthed vote (which requires an unauthed Voter object)
-        anon_voter = VoterFactory(email=data['email'])
+        anon_voter = VoterFactory(email=data['email'], user=None)
         VoteFactory(submission=self.submission, voter=anon_voter)
         # now try to vote again
         rsp = self.client.post(self.submission_url, data=data,
@@ -94,7 +93,6 @@ class VoteTest(TestCase):
         self.assertEqual(self.votes + 0, json_rsp['tally'])
         self.assertEqual(self.votes + 0, refetched_sub.votes)
 
-    @skip("until OP-15 is addressed")
     def test_anon_cant_use_other_users_account(self):
         "Unauthenticated cannot use an authenticated user's account."
         self.client.logout()
@@ -106,11 +104,10 @@ class VoteTest(TestCase):
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         json_rsp = json.loads(rsp.content)
-        # votes is not incremented (in JSON response or in DB)
+        # votes is not incremented
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
-        self.assertEqual(self.votes + 0, json_rsp['tally'])
         self.assertEqual(self.votes + 0, refetched_sub.votes)
-        # could also consider a mechanism to redirect to login once we address?
+        self.assertIn('That email is registered', json_rsp['errors']['email'])
 
     def test_vote_user(self):
         "Authenticated user can vote."
