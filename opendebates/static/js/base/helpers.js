@@ -137,13 +137,20 @@
     }
 
     if ($("#recent-activity").length === 1) {
-      var fetch = function() {
-        $.get("/recent/", function(resp) {
-          $("#recent-activity").html(resp);
-          setTimeout(fetch, 2000);
-        });
+      var fetch = function(delay) {
+        $.get("/recent/")
+            .done(function (data) {
+              /* If successful, update page */
+              $("#recent-activity").html(data);
+            })
+            .always(function () {
+              /* Wait a little longer each time */
+              delay = delay + 2000;
+              setTimeout(fetch, delay, delay);
+            });
       };
-      setTimeout(fetch);
+      /* Run first time immediately, to fill in that part of the page */
+      setTimeout(fetch, 0, 0);
     }
   });
 
