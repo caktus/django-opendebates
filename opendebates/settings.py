@@ -8,7 +8,7 @@ import djcelery
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 
-SECRET_KEY = 'dg0pdghh4andk^v=rw^l-i81yz-h2co%mlj4)+p(cqz@d&0i$2'  # @@TODO
+SECRET_KEY = os.environ.get('SECRET_KEY', 'dg0pdghh4andk^v=rw^l-i81yz-h2co%mlj4)+p(cqz@d&0i$2')
 
 DEBUG = 'DJANGO_DEBUG' in os.environ
 
