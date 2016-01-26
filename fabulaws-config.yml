@@ -233,14 +233,14 @@
     # index usage optimizations
     random_page_cost: '2' # our DB servers have a lot of RAM and may tend to prefer Seq Scans if this is too high
 
-# More Postgres-related settings
-postgresql_packages:
-  - postgresql
-  - libpq-dev
-postgresql_tune: true
-postgresql_shmmax: 107374182400 # 100 GB
-postgresql_shmall: 26214400 # 100 GB / PAGE_SIZE (4096)
-postgresql_networks:
-  - '10.0.0.0/8'
-postgresql_tune_type: Web
-postgresql_disable_oom: true
+  # More Postgres-related settings
+  postgresql_packages:
+    - postgresql
+    - libpq-dev
+  postgresql_tune: true
+  postgresql_shmmax: 107374182400 # 100 GB
+  postgresql_shmall: 26214400 # 100 GB / PAGE_SIZE (4096)
+  postgresql_networks:
+    - '10.0.0.0/8'
+  postgresql_tune_type: Web
+  postgresql_disable_oom: true
