@@ -81,6 +81,7 @@
     staging:
     -
     testing:
+    - opendebates-testing.cakt.us
     - dualstack.opendebates-testing-lb-1802486946.us-east-1.elb.amazonaws.com
 
 ## ENVIRONMENT / ROLE SETTINGS ##
