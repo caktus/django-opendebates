@@ -50,7 +50,7 @@
           <div class="controls">
             <input id="citation" name="citation" type="text" class="input-large" value="{{ form.data.citation }}"
                    placeholder="{% blocktrans %}Citation{% endblocktrans %}">
-            {% if form.errors.idea %}
+            {% if form.errors.citation %}
             <p class="help-block">{{ form.errors.citation }}</p>
             {% endif %}
           </div>
