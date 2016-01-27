@@ -317,12 +317,16 @@ def questions(request):
 
     if 'opendebates.source' in request.COOKIES:
         idea.source = request.COOKIES['opendebates.source']
+        vote_source = request.COOKIES['opendebates.source']
+    else:
+        vote_source = None
 
     idea.save()
 
     Vote.objects.create(
         submission=idea,
         voter=voter,
+        source=vote_source,
         ip_address=get_ip_address_from_request(request),
         request_headers=get_headers_from_request(request),
         created_at=timezone.now())

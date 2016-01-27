@@ -93,3 +93,31 @@ class SubmissionTest(TestCase):
         rsp = self.client.get(questions_url)
         self.assertEqual(200, rsp.status_code)
         self.assertIn('form', rsp.context)
+
+    def test_post_submission_with_source(self):
+        "An opendebates.source cookie will be transmitted to the submission and vote."
+        source = "a-source-code"
+        self.client.cookies['opendebates.source'] = source
+        rsp = self.client.post(self.url, data=self.data)
+        submission = Submission.objects.first()
+        self.assertRedirects(rsp, submission.get_absolute_url())
+        # Check the Submission attributes
+        self.assertEqual(submission.voter, self.voter)
+        self.assertEqual(submission.source, source)
+
+        votes = Vote.objects.filter(voter=self.voter)
+        self.assertEqual(1, len(votes))
+        self.assertEqual(votes[0].source, source)
+
+    def test_post_submission_without_source(self):
+        "If no opendebates.source cookie is present, vote and submission source will be None"
+        rsp = self.client.post(self.url, data=self.data)
+        submission = Submission.objects.first()
+        self.assertRedirects(rsp, submission.get_absolute_url())
+        # Check the Submission attributes
+        self.assertEqual(submission.voter, self.voter)
+        self.assertEqual(submission.source, None)
+
+        votes = Vote.objects.filter(voter=self.voter)
+        self.assertEqual(1, len(votes))
+        self.assertEqual(votes[0].source, None)
