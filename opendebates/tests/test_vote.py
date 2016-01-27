@@ -2,7 +2,7 @@ import json
 
 from django.test import TestCase
 
-from opendebates.models import Submission
+from opendebates.models import Submission, Vote, Voter
 from .factories import UserFactory, SubmissionFactory, VoterFactory, VoteFactory
 
 
@@ -72,6 +72,54 @@ class VoteTest(TestCase):
         # .. and in the database
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes + 1, refetched_sub.votes)
+
+    def test_vote_anon_new_voter_source(self):
+        "New anon user with a opendebates.source cookie transmits source to vote and voter."
+        self.client.logout()
+
+        data = {
+            'email': 'anon_new_voter_source@example.com',
+            'zipcode': '12345',
+        }
+        self.assertEqual(0, Voter.objects.filter(email=data['email']).count())
+
+        source = 'my-source-code'
+        self.client.cookies['opendebates.source'] = source
+
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+
+        vote = Vote.objects.get(submission=self.submission, voter__email=data['email'])
+        self.assertEqual(source, vote.source)
+
+        voter = Voter.objects.get(email=data['email'])
+        self.assertEqual(source, voter.source)
+
+    def test_vote_anon_existing_voter_source(self):
+        "Existing unauthenticated user with a source cookie transmits source to vote only."
+        self.client.logout()
+
+        data = {
+            'email': 'anon_existing_voter_source@example.com',
+            'zipcode': '12345',
+        }
+
+        anon_voter = VoterFactory(email=data['email'], user=None)
+        self.assertEqual(None, anon_voter.source)
+
+        source = 'this-source-code'
+        self.client.cookies['opendebates.source'] = source
+
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+
+        vote = Vote.objects.get(submission=self.submission, voter__email=data['email'])
+        self.assertEqual(source, vote.source)
+
+        voter = Voter.objects.get(email=data['email'])
+        self.assertEqual(None, voter.source)
 
     def test_vote_twice_anon(self):
         "Unauthenticated user can only vote once on a submission."
