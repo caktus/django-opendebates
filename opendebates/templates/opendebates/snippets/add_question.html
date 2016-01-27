@@ -23,7 +23,7 @@
             <select name="category">
               <option>--</option>
               {% for iter_category in SUBMISSION_CATEGORIES %}
-              <option {% if category and iter_category.id == category.id %}selected{% endif %}
+              <option {% if iter_category.id|slugify == form.data.category or iter_category.id == category.id %}selected{% endif %}
                       value="{{ iter_category.id }}">{{ iter_category.name }}</option>
               {% endfor %}
             </select>
