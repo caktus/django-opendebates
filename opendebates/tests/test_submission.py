@@ -120,4 +120,4 @@ class SubmissionTest(TestCase):
 
         votes = Vote.objects.filter(voter=self.voter)
         self.assertEqual(1, len(votes))
-        self.assertEqual(votes[0].source, None)        
+        self.assertEqual(votes[0].source, None)
