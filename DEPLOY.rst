@@ -46,8 +46,7 @@ Please work *carefully and thoroughly* through the
 creating a load balancer, and creating an autoscaling group.
 
 You can skip most of the *Project Configuration* section because that's
-already been done for this project, except for
-`SSH Keys <http://fabulaws.readthedocs.org/en/latest/initial-setup.html#ssh-keys>`_.
+already been done for this project, but review it to be sure.
 
 Changes to project files
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -170,6 +169,16 @@ There's lots of good information in the Fabulaws
 and
 `Troubleshooting <http://fabulaws.readthedocs.org/en/latest/troubleshooting.html>`_
 pages.
+
+Monitoring
+----------
+
+After initial server setup and after deploys, be sure that you see servers for all roles in the
+'running' state in the `Amazon EC2 console
+<https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:tag:environment=staging;tag:Name=opendebates;sort=desc:launchTime>`_.
+
+You should also be able to view more detailed monitoring info at `NewRelic
+<https://rpm.newrelic.com/accounts/1218727/applications>`_.
 
 To be determined
 ----------------
