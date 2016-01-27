@@ -5,11 +5,9 @@
     admin_groups: [admin, sudo]
     run_upgrade: true
     # Secure directories, volume, and filesystem info
-    secure_root: #/secure # no trailing /
-    secure_home: #/home/secure
+    app_root: /opendebates # no trailing /
     fs_type: ext4
     fs_encrypt: false
-    ubuntu_mirror: us.archive.ubuntu.com
     # create swap of swap_multiplier * available RAM
     swap_multiplier: 1
 
@@ -18,7 +16,7 @@
   webserver_user: opendebates-web
   database_host: localhost
   database_user: dbuser
-  home: /home/opendebates/
+  home: /home/opendebates # no trailing /
   python: /usr/bin/python2.7
   log_host:
 
