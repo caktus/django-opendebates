@@ -2,6 +2,7 @@ from djangohelpers.lib import rendered_with, allow_http
 from django.http import HttpResponse
 from django.shortcuts import redirect
 
+from opendebates_emails.models import send_email
 from .models import Submission, Vote
 
 
@@ -46,15 +47,12 @@ def mark_duplicate(request):
         votes_to_merge.update(original_merged_submission=to_remove, submission=duplicate_of)
 
     if request.POST.get("send_email") == "yes":
-        # FIXME: `emails` was not defined, so I have commented it out for now. --vkurup
         if request.POST.get("handling") == "merge":
-            pass
-            # emails.idea_is_merged(to_remove)
+            send_email("your_idea_is_merged", {"idea": to_remove})
+            send_email("idea_merged_into_yours", {"idea": to_remove})
         else:
             if duplicate_of is not None:
-                pass
-                # emails.idea_is_duplicate(to_remove)
+                send_email("idea_is_duplicate", {"idea": to_remove})
             else:
-                pass
-                # emails.idea_is_removed(to_remove)
+                send_email("idea_is_removed", {"idea": to_remove})
     return redirect(".")

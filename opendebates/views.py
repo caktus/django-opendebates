@@ -19,7 +19,7 @@ from .utils import choose_sort, sort_list
 from .forms import OpenDebatesRegistrationForm
 from .forms import VoterForm, QuestionForm
 from opendebates_comments.forms import CommentForm
-
+from opendebates_emails.models import send_email
 
 def health_check(request):
     """
@@ -326,6 +326,9 @@ def questions(request):
         ip_address=get_ip_address_from_request(request),
         request_headers=get_headers_from_request(request),
         created_at=timezone.now())
+
+    send_email("submitted_new_idea", {"idea": idea})
+    
     url = reverse("vote", kwargs={'id': idea.id})
     return redirect(url)
 
