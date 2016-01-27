@@ -1,10 +1,10 @@
 {% load i18n %}
-<div id="sidebar_question_btn" onclick="$(this).hide(); $('.form-well').slideDown(); return false;">
+<div id="sidebar_question_btn" {% if form.errors %}class="hidden"{% endif %}>
   <a href="{% url 'questions' %}" class="btn btn-block btn-primary active" type="button">
     {% blocktrans %}Submit a New Question{% endblocktrans %}
   </a>
 </div>
-<div class="form-well">
+<div id="add_question_form_well" class="form-well{% if form.errors %} has-errors{% endif %}">
   <div id="add_question" name="add_question">
     
     <hr class="mic_icon"/>
