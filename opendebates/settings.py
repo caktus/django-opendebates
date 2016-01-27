@@ -128,9 +128,9 @@ CELERYBEAT_SCHEDULE = {
         'task': 'opendebates.tasks.update_recent_events',
         'schedule': timedelta(seconds=10),
         'options': {
-            # If no worker runs it within 10 seconds, throw it away; another
-            # task will already have been scheduled.
-            'expires': 10,  # seconds
+            # If no worker runs it within 60 seconds, throw it away; more
+            # tasks will already have been scheduled.
+            'expires': 60,  # seconds
         }
     },
 }
