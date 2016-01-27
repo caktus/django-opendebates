@@ -57,6 +57,10 @@ DATABASE_POOL = {
 }
 MASTER_DATABASE = '{{ master_database.database_key }}'
 
+DATABASE_ROUTERS = [
+    'balancer.routers.RoundRobinMasterSlaveRouter',
+]
+
 # media roots
 MEDIA_ROOT = "{{ media_root }}"
 STATIC_ROOT = "{{ static_root }}"
