@@ -2,6 +2,8 @@
 from django.core.mail import send_mail
 from django.db import models
 from django.template import Template, Context
+from djangohelpers.lib import register_admin
+
 
 class EmailTemplate(models.Model):
 
@@ -15,10 +17,10 @@ class EmailTemplate(models.Model):
 
     from_email = models.CharField(max_length=255)
     to_email = models.CharField(max_length=255)
-    
+
     def send(self, ctx):
         ctx = Context(ctx)
-        
+
         subject = Template(self.subject).render(ctx)
         subject = ' '.join(subject.splitlines())
 
@@ -27,10 +29,11 @@ class EmailTemplate(models.Model):
 
         to_email = Template(self.to_email).render(ctx)
         to_email = ' '.join(to_email.splitlines())
-    
+
         return send_mail(subject, message=Template(self.text).render(ctx),
                          from_email=from_email, recipient_list=[to_email],
                          html_message=Template(self.html).render(ctx))
+
 
 def send_email(type, ctx):
 
@@ -41,7 +44,6 @@ def send_email(type, ctx):
 
     return template.send(ctx)
 
-from djangohelpers.lib import register_admin
 register_admin(EmailTemplate)
 
 """

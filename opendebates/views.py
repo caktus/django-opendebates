@@ -21,6 +21,7 @@ from .forms import VoterForm, QuestionForm
 from opendebates_comments.forms import CommentForm
 from opendebates_emails.models import send_email
 
+
 def health_check(request):
     """
     Health check for the load balancer.
@@ -328,7 +329,7 @@ def questions(request):
         created_at=timezone.now())
 
     send_email("submitted_new_idea", {"idea": idea})
-    
+
     url = reverse("vote", kwargs={'id': idea.id})
     return redirect(url)
 
