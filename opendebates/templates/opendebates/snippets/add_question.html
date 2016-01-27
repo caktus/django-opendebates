@@ -37,8 +37,7 @@
         <div class="control-group">
           <div class="controls">
             <textarea id="question" name="question" type="text" rows="4" class="input-large"
-                      value="{{ form.data.question }}"
-                      placeholder="{% blocktrans %}Enter your question here. If you have multiple&nbsp;questions, please submit each one separately."{% endblocktrans %}></textarea>
+                      placeholder="{% blocktrans %}Enter your question here. If you have multiple&nbsp;questions, please submit each one separately."{% endblocktrans %}>{{ form.data.question }}</textarea>
             {% if form.errors.question %}
             <p class="help-block">{{ form.errors.question }}</p>
             {% endif %}
