@@ -20,7 +20,7 @@
   database_user: dbuser
   home: /home/opendebates/
   python: /usr/bin/python2.7
-  log_host: 
+  log_host:
 
 ## LOCAL / PROJECT SETTINGS ##
   disable_known_hosts: true
@@ -37,7 +37,7 @@
     healthcheck_override: deployment/templates/html/healthcheck.html
   localsettings_template: deployment/templates/local_settings.py
   logstash_config: deployment/templates/logstash.conf
-  backup_key_fingerprint: 
+  backup_key_fingerprint:
   vcs_cmd: git # or hg
   latest_changeset_cmd: git rev-parse HEAD # hg id -i # or git rev-parse HEAD
   repo: git@github.com:caktus/django-opendebates.git
@@ -77,9 +77,9 @@
 # Wildcard format used per ALLOWED_HOSTS setting
   site_domains_map:
     production:
-    - 
-    staging:
     -
+    staging:
+    - dualstack.opendebates-staging-lb-1737156337.us-east-1.elb.amazonaws.com
     testing:
     - dualstack.opendebates-testing-lb-1802486946.us-east-1.elb.amazonaws.com
 
@@ -123,11 +123,11 @@
       web: c3.large
       worker: m3.large
     staging:
-      cache: t1.micro
-      db-master: m1.small
-      db-slave: m1.small
-      web: m1.small
-      worker: m1.small
+      cache: c3.large
+      db-master: m3.xlarge
+      db-slave: m3.xlarge
+      web: c3.large
+      worker: m3.large
     testing:
       cache: t1.micro
       db-master: t1.micro
@@ -142,7 +142,7 @@
       production:
       - opendebates-production-1
       staging:
-      - opendebates-staging-1
+      - opendebates-staging-lb
       testing:
       - opendebates-testing-lb
 
