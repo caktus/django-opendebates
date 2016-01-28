@@ -1,9 +1,9 @@
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from datetime import timedelta
 import os
 import sys
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
-import djcelery
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'pipeline',
     'djangobower',
+    # Still using django-celery because that's how Fabulaws starts workers
+    'djcelery',
     'opendebates',
     'opendebates_comments',
     'djorm_pgfulltext',
@@ -117,9 +119,22 @@ USE_L10N = True
 USE_TZ = True
 
 # celery settings
-djcelery.setup_loader()
-
 CELERY_SEND_TASK_ERROR_EMAILS = True
+CELERY_ALWAYS_EAGER = DEBUG
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+CELERY_IGNORE_RESULT = True
+CELERYD_HIJACK_ROOT_LOGGER = False
+CELERYBEAT_SCHEDULE = {
+    'update_recent_events': {
+        'task': 'opendebates.tasks.update_recent_events',
+        'schedule': timedelta(seconds=10),
+        'options': {
+            # If no worker runs it within 60 seconds, throw it away; more
+            # tasks will already have been scheduled.
+            'expires': 60,  # seconds
+        }
+    },
+}
 
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
 
@@ -208,3 +223,13 @@ SITE_DOMAIN_WITH_PROTOCOL = os.environ.get("SITE_PROTOCOL", "http://") + SITE_DO
 if 'test' in sys.argv:
     PIPELINE_COMPILERS = ()
     PIPELINE_ENABLED = False
+
+# Cache settings for when we're not deployed. Otherwise, local_settings will override this.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+        'VERSION': '0',
+    },
+
+}

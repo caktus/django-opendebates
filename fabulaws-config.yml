@@ -5,11 +5,9 @@
     admin_groups: [admin, sudo]
     run_upgrade: true
     # Secure directories, volume, and filesystem info
-    secure_root: #/secure # no trailing /
-    secure_home: #/home/secure
+    app_root: /opendebates # no trailing /
     fs_type: ext4
     fs_encrypt: false
-    ubuntu_mirror: us.archive.ubuntu.com
     # create swap of swap_multiplier * available RAM
     swap_multiplier: 1
 
@@ -18,7 +16,7 @@
   webserver_user: opendebates-web
   database_host: localhost
   database_user: dbuser
-  home: /home/opendebates/
+  home: /home/opendebates # no trailing /
   python: /usr/bin/python2.7
   log_host:
 
@@ -69,7 +67,7 @@
 
 # Mapping of celery worker names to options
   celery_workers:
-    main: -c 10 -Q celeryd
+    main: -c 10
 
 # Mapping of environment names to domain names. Used to update the
 # primary site in the database after a refresh and to set ALLOWED_HOSTS
@@ -80,8 +78,10 @@
     production:
     -
     staging:
-    -
+    - dualstack.opendebates-staging-lb-1737156337.us-east-1.elb.amazonaws.com
     testing:
+    - testing.demopenforum.com
+    - opendebates-testing.cakt.us
     - dualstack.opendebates-testing-lb-1802486946.us-east-1.elb.amazonaws.com
 
 ## ENVIRONMENT / ROLE SETTINGS ##
@@ -124,11 +124,11 @@
       web: c3.large
       worker: m3.large
     staging:
-      cache: t1.micro
-      db-master: m1.small
-      db-slave: m1.small
-      web: m1.small
-      worker: m1.small
+      cache: c3.large
+      db-master: m3.xlarge
+      db-slave: m3.xlarge
+      web: c3.large
+      worker: m3.large
     testing:
       cache: t1.micro
       db-master: t1.micro
@@ -143,7 +143,7 @@
       production:
       - opendebates-production-1
       staging:
-      - opendebates-staging-1
+      - opendebates-staging-lb
       testing:
       - opendebates-testing-lb
 

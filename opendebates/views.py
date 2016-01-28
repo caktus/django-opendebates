@@ -1,7 +1,7 @@
 from django.contrib import messages
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import connections
-from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.http import Http404, HttpResponse, HttpResponseServerError
@@ -13,13 +13,12 @@ import logging
 
 from registration.backends.simple.views import RegistrationView
 
-from .models import Submission, Voter, Vote, Category, Candidate, ZipCode
+from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, RECENT_EVENTS_CACHE_ENTRY
 from .utils import get_ip_address_from_request, get_headers_from_request
 from .utils import choose_sort, sort_list
 from .forms import OpenDebatesRegistrationForm
 from .forms import VoterForm, QuestionForm
 from opendebates_comments.forms import CommentForm
-from opendebates_comments.models import Comment
 
 
 def health_check(request):
@@ -60,18 +59,7 @@ def test(request):
 @allow_http("GET")
 @rendered_with("opendebates/snippets/recent_activity.html")
 def recent_activity(request):
-    votes = Vote.objects.select_related(
-        "voter", "voter__user", "submission").exclude(
-        voter=F('submission__voter')).order_by("-id")[:10]
-    submissions = Submission.objects.select_related(
-        "voter", "voter__user").order_by("-id")[:10]
-    comments = Comment.objects.select_related(  # noqa FIXME: is this needed? --vkurup
-        "user", "user__voter", "object").exclude(
-            user__voter=F('object__voter')).order_by("-id")[:10]
-
-    entries = list(votes) + list(submissions)
-    entries = sorted(entries, key=lambda x: x.created_at, reverse=True)[:10]
-
+    entries = cache.get(RECENT_EVENTS_CACHE_ENTRY, default=[])
     return {
         "recent_activity": entries
     }
@@ -329,12 +317,16 @@ def questions(request):
 
     if 'opendebates.source' in request.COOKIES:
         idea.source = request.COOKIES['opendebates.source']
+        vote_source = request.COOKIES['opendebates.source']
+    else:
+        vote_source = None
 
     idea.save()
 
     Vote.objects.create(
         submission=idea,
         voter=voter,
+        source=vote_source,
         ip_address=get_ip_address_from_request(request),
         request_headers=get_headers_from_request(request),
         created_at=timezone.now())

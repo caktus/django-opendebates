@@ -46,8 +46,117 @@ Please work *carefully and thoroughly* through the
 creating a load balancer, and creating an autoscaling group.
 
 You can skip most of the *Project Configuration* section because that's
-already been done for this project, except for
-`SSH Keys <http://fabulaws.readthedocs.org/en/latest/initial-setup.html#ssh-keys>`_.
+already been done for this project, but review it to be sure.
+
+Autoscaling policies
+~~~~~~~~~~~~~~~~~~~~
+
+This part isn't covered in the Fabulaws docs. These are example policies
+to start with for the autoscaling group.
+
+Notifications
++++++++++++++
+
+These alarms are configured on the load balancer,
+actually.
+
+Alarm: Backend Connection Errors
+* Threshold: BackendConnectionErrors >= 1 for 5 minutes
+* Actions:
+  * in ALARM:
+    * Send message to topic "caktus" (xxx-team@caktusgroup.com)
+* Namespace: AWS/ELB
+* Metric name: BackendConnectionErrors
+* Dimensions: LoadBalancerName = xxxxxxxxxxxx
+* Statistic: Sum
+* Period: 5 minutes
+
+Alarm: Healthy Hosts
+* Description: Production healthy hosts <.95
+* Threshold: HealthHostCount < 0.95 for 5 minutes
+* Actions:
+  * in ALARM:
+    * Send message to topic "client" (foo@lists.example.com)
+    * Send message to topic "caktus" (xxx-team@caktusgroup.com)
+  * in OK:
+    * Send message to topic "client" (foo@lists.example.com)
+    * Send message to topic "caktus" (xxx-team@caktusgroup.com)
+  * in INSUFFICIENT DATA:
+    * Send message to topic "caktus" (xxx-team@caktusgroup.com)
+* Namespace: AWS/ELB
+* Metric name: HealthHostCount
+* Dimensions: LoadBalancerName = xxxxxxxxxxxx
+* Statistic: Average
+* Period: 1 minute
+
+Alarm: Project Production Latency
+* Description: Latency >= .5 seconds
+* Threshold: Latency >= 0.5 for 10 minutes
+* Actions:
+  * in ALARM:
+    * Send message to topic "client" (foo@lists.example.com)
+    * Send message to topic "caktus" (xxx-team@caktusgroup.com)
+  * in OK:
+    * Send message to topic "client" (foo@lists.example.com)
+    * Send message to topic "caktus" (xxx-team@caktusgroup.com)
+  * in INSUFFICIENT DATA:
+    * Send message to topic "client" (foo@lists.example.com)
+    * Send message to topic "caktus" (xxx-team@caktusgroup.com)
+* Namespace: AWS/ELB
+* Metric name: Latency
+* Dimensions: LoadBalancerName = xxxxxxxxxxxx
+* Statistic: Average
+* Period: 5 minutes
+
+Alarm: Prod RequestCount
+* Description: Prod RequestCount > 95000
+* Threshold: RequestCount > 25,000 for 5 minutes
+* Actions:
+  * in ALARM:
+    * Send message to topic "client" (foo@lists.example.com)
+    * Send message to topic "caktus" (xxx-team@caktusgroup.com)
+  * in OK:
+    * Send message to topic "client" (foo@lists.example.com)
+    * Send message to topic "caktus" (xxx-team@caktusgroup.com)
+  * in INSUFFICIENT DATA:
+    * Send message to topic "client" (foo@lists.example.com)
+    * Send message to topic "caktus" (xxx-team@caktusgroup.com)
+* Namespace: AWS/ELB
+* Metric name: RequestCount
+* Dimensions: LoadBalancerName = xxxxxxxxxxxx
+* Statistic: Sum
+* Period: 5 minutes
+
+Scale up/scale down actions
++++++++++++++++++++++++++++
+
+These are on the autoscaling group.
+
+Scale down:
+* Threshold: CPUUtilization <= 5 for 30 minutes
+* Actions:
+  * in ALARM:
+     * For group THIS_AUTOSCALING_GROUP use policy Decrease Group Size (Remove 2 instances)
+* Namespace: AWS/ELB
+* Metric name: CPUUtilization
+* Dimensions: AutoScalingGroupName = THIS_AUTOSCALING_GROUP
+* Statistic: Average
+* Period: 5 minutes
+
+Scale up:
+* Threshold: CPUUtilization >= 40 for 5 minutes
+* Actions:
+  * in ALARM:
+     * For group THIS_AUTOSCALING_GROUP use policy Increase Group Size (Add 2 instances)
+     * Send message to topic "XCGVDFSDFSDFS" (xxxx-team@caktusgroup.com)
+  * In INSUFFICIENT DATA:
+     * Send message to topic "XCGVDFSDFSDFS" (xxxx-team@caktusgroup.com)
+* Namespace: AWS/ELB
+* Metric name: CPUUtilization
+* Dimensions: AutoScalingGroupName = THIS_AUTOSCALING_GROUP
+* Statistic: Average
+* Period: 5 minutes
+
 
 Changes to project files
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -162,6 +271,10 @@ break things. You can suspend the autoscaling group to avoid that though::
 
 Of course, don't do this in production.
 
+Also - *don't forget to resume*!  Even a full deploy won't completely
+undo a suspend - actually, having the AG processes suspended will break
+deploys.
+
 Help
 ----
 
@@ -170,6 +283,16 @@ There's lots of good information in the Fabulaws
 and
 `Troubleshooting <http://fabulaws.readthedocs.org/en/latest/troubleshooting.html>`_
 pages.
+
+Monitoring
+----------
+
+After initial server setup and after deploys, be sure that you see servers for all roles in the
+'running' state in the `Amazon EC2 console
+<https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:tag:environment=staging;tag:Name=opendebates;sort=desc:launchTime>`_.
+
+You should also be able to view more detailed monitoring info at `NewRelic
+<https://rpm.newrelic.com/accounts/1218727/applications>`_.
 
 To be determined
 ----------------
