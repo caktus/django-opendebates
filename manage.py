@@ -8,7 +8,9 @@ dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".env"))
 dotenv.read_dotenv(dotenv_path)
 
 if __name__ == "__main__":
-    if os.path.exists('opendebates/local_settings.py'):
+    code_root = os.path.dirname(__file__)
+    local_settings = os.path.join(code_root, 'opendebates', 'local_settings.py')
+    if os.path.exists(local_settings):
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "opendebates.local_settings")
     else:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "opendebates.settings")
