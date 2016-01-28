@@ -8,7 +8,8 @@ import dj_database_url
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 
-SECRET_KEY = 'dg0pdghh4andk^v=rw^l-i81yz-h2co%mlj4)+p(cqz@d&0i$2'  # @@TODO
+# SECRET_KEY is overriden in deploy settings
+SECRET_KEY = 'secret-key-for-local-use-only'
 
 DEBUG = 'DJANGO_DEBUG' in os.environ
 
