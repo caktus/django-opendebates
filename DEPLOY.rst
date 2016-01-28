@@ -271,6 +271,10 @@ break things. You can suspend the autoscaling group to avoid that though::
 
 Of course, don't do this in production.
 
+Also - *don't forget to resume*!  Even a full deploy won't completely
+undo a suspend - actually, having the AG processes suspended will break
+deploys.
+
 Help
 ----
 
