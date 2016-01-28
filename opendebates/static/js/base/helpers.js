@@ -63,6 +63,12 @@
     });
   };
 
+  $("#sidebar_question_btn").on("click", function() {
+    $(this).hide();
+    $('#add_question_form_well').slideDown();
+    return false;
+  });
+
   $(".search-only form .input-group-addon").on("click", function () {
     $(this).closest("form").submit();
   });
