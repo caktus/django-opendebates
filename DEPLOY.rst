@@ -60,7 +60,7 @@ Notifications
 These alarms are configured on the load balancer,
 actually.
 
-Alarm: ccsr-sam-production-backend-connection-errors
+Alarm: Backend Connection Errors
 * Threshold: BackendConnectionErrors >= 1 for 5 minutes
 * Actions:
   * in ALARM:
@@ -71,7 +71,7 @@ Alarm: ccsr-sam-production-backend-connection-errors
 * Statistic: Sum
 * Period: 5 minutes
 
-Alarm: Healthy HOsts
+Alarm: Healthy Hosts
 * Description: Production healthy hosts <.95
 * Threshold: HealthHostCount < 0.95 for 5 minutes
 * Actions:
