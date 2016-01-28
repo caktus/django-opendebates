@@ -10,6 +10,9 @@ from django.utils.translation import ugettext_lazy as _
 from djangohelpers.lib import register_admin
 
 
+RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry'
+
+
 class Category(models.Model):
 
     name = models.CharField(max_length=255)

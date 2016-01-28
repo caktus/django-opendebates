@@ -1,9 +1,8 @@
 import json
-from unittest import skip
 
 from django.test import TestCase
 
-from opendebates.models import Submission
+from opendebates.models import Submission, Vote, Voter
 from .factories import UserFactory, SubmissionFactory, VoterFactory, VoteFactory
 
 
@@ -74,6 +73,54 @@ class VoteTest(TestCase):
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes + 1, refetched_sub.votes)
 
+    def test_vote_anon_new_voter_source(self):
+        "New anon user with a opendebates.source cookie transmits source to vote and voter."
+        self.client.logout()
+
+        data = {
+            'email': 'anon_new_voter_source@example.com',
+            'zipcode': '12345',
+        }
+        self.assertEqual(0, Voter.objects.filter(email=data['email']).count())
+
+        source = 'my-source-code'
+        self.client.cookies['opendebates.source'] = source
+
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+
+        vote = Vote.objects.get(submission=self.submission, voter__email=data['email'])
+        self.assertEqual(source, vote.source)
+
+        voter = Voter.objects.get(email=data['email'])
+        self.assertEqual(source, voter.source)
+
+    def test_vote_anon_existing_voter_source(self):
+        "Existing unauthenticated user with a source cookie transmits source to vote only."
+        self.client.logout()
+
+        data = {
+            'email': 'anon_existing_voter_source@example.com',
+            'zipcode': '12345',
+        }
+
+        anon_voter = VoterFactory(email=data['email'], user=None)
+        self.assertEqual(None, anon_voter.source)
+
+        source = 'this-source-code'
+        self.client.cookies['opendebates.source'] = source
+
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+
+        vote = Vote.objects.get(submission=self.submission, voter__email=data['email'])
+        self.assertEqual(source, vote.source)
+
+        voter = Voter.objects.get(email=data['email'])
+        self.assertEqual(None, voter.source)
+
     def test_vote_twice_anon(self):
         "Unauthenticated user can only vote once on a submission."
         self.client.logout()
@@ -82,7 +129,7 @@ class VoteTest(TestCase):
             'zipcode': '12345',
         }
         # create an unauthed vote (which requires an unauthed Voter object)
-        anon_voter = VoterFactory(email=data['email'])
+        anon_voter = VoterFactory(email=data['email'], user=None)
         VoteFactory(submission=self.submission, voter=anon_voter)
         # now try to vote again
         rsp = self.client.post(self.submission_url, data=data,
@@ -94,7 +141,6 @@ class VoteTest(TestCase):
         self.assertEqual(self.votes + 0, json_rsp['tally'])
         self.assertEqual(self.votes + 0, refetched_sub.votes)
 
-    @skip("until OP-15 is addressed")
     def test_anon_cant_use_other_users_account(self):
         "Unauthenticated cannot use an authenticated user's account."
         self.client.logout()
@@ -106,11 +152,10 @@ class VoteTest(TestCase):
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         json_rsp = json.loads(rsp.content)
-        # votes is not incremented (in JSON response or in DB)
+        # votes is not incremented
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
-        self.assertEqual(self.votes + 0, json_rsp['tally'])
         self.assertEqual(self.votes + 0, refetched_sub.votes)
-        # could also consider a mechanism to redirect to login once we address?
+        self.assertIn('That email is registered', json_rsp['errors']['email'])
 
     def test_vote_user(self):
         "Authenticated user can vote."

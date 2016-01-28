@@ -1,3 +1,4 @@
+import random
 import string
 
 from django.contrib.auth import get_user_model
@@ -6,6 +7,9 @@ import factory
 import factory.fuzzy
 
 from opendebates import models
+
+
+_random = random.Random()
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -33,11 +37,18 @@ class CategoryFactory(factory.DjangoModelFactory):
         model = models.Category
 
 
+class FuzzyEmail(factory.fuzzy.FuzzyText):
+    def fuzz(self):
+        chars = [_random.choice(self.chars) for _i in range(self.length)]
+        return "%s@example.com" % chars
+
+
 class VoterFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.Voter
 
     user = factory.SubFactory(UserFactory)
+    email = FuzzyEmail()
     zip = factory.fuzzy.FuzzyText(length=5, chars=string.digits)
 
 
