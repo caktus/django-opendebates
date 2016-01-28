@@ -57,6 +57,9 @@ to start with for the autoscaling group.
 Notifications
 +++++++++++++
 
+These alarms are configured on the load balancer,
+actually.
+
 Alarm: ccsr-sam-production-backend-connection-errors
 * Threshold: BackendConnectionErrors >= 1 for 5 minutes
 * Actions:
@@ -126,6 +129,8 @@ Alarm: Prod RequestCount
 
 Scale up/scale down actions
 +++++++++++++++++++++++++++
+
+These are on the autoscaling group.
 
 Scale down:
 * Threshold: CPUUtilization <= 5 for 30 minutes
