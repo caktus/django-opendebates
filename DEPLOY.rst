@@ -194,9 +194,11 @@ yet, you can run this command to set them all up at once::
 
     fab create_environment:opendebates,<environment>
 
-It'll take a while (30 minutes? an hour?) but you only need to do it
-once per environment.  After that, you can follow the instructions below
-for updating things.
+This took 17 minutes the last time I tried it, which doesn't seem bad
+at all (with system sizes like c3.large and m3.large or faster).
+
+You only need to do it once per environment.  After that, you can follow
+the instructions below for updating things.
 
 Updating code
 -------------
