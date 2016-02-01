@@ -78,11 +78,11 @@
     production:
     -
     staging:
-    - dualstack.opendebates-staging-lb-1737156337.us-east-1.elb.amazonaws.com
+    -
     testing:
+    - opendebates-testing-lb-476601241.us-east-1.elb.amazonaws.com
+    - testing.openforum2016.com
     - testing.demopenforum.com
-    - opendebates-testing.cakt.us
-    - dualstack.opendebates-testing-lb-1802486946.us-east-1.elb.amazonaws.com
 
 ## ENVIRONMENT / ROLE SETTINGS ##
 
@@ -105,7 +105,7 @@
   region: us-east-1
   avail_zones:
   - b
-  - c
+  - d
 
 # Mapping of role to security group(s):
   security_groups:
@@ -123,13 +123,13 @@
       db-slave: m3.xlarge
       web: c3.large
       worker: m3.large
-    staging:
+    testing:
       cache: c3.large
       db-master: m3.xlarge
       db-slave: m3.xlarge
       web: c3.large
       worker: m3.large
-    testing:
+    staging:
       cache: t1.micro
       db-master: t1.micro
       db-slave: t1.micro
@@ -141,7 +141,7 @@
   load_balancers:
     opendebates:
       production:
-      - opendebates-production-1
+      - opendebates-production-lb
       staging:
       - opendebates-staging-lb
       testing:
@@ -163,13 +163,13 @@
       db-slave: 100
       web: 10
       worker: 50
-    staging:
+    testing:
       cache: 10
       db-master: 100
       db-slave: 100
       web: 10
       worker: 50
-    testing:
+    staging:
       cache: 10
       db-master: 100
       db-slave: 100
@@ -197,9 +197,15 @@
     - stunnel4
     - pgbouncer
 
-# Settings to apply to Postgres servers
   db_settings:
+    # for help adjusting these settings, see:
+    # http://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server
+    # http://wiki.postgresql.org/wiki/Number_Of_Database_Connections
+    # http://thebuild.com/presentations/not-my-job-djangocon-us.pdf
     postgresql_settings:
+      # Settings to apply to Postgres servers
+      # You can put anything here from postgresql.conf
+
       # connections
       max_connections: '80' # _active_ connections are limited by pgbouncer
 
@@ -235,14 +241,21 @@
       # index usage optimizations
       random_page_cost: '2' # our DB servers have a lot of RAM and may tend to prefer Seq Scans if this is too high
 
-    # More Postgres-related settings
+    # More Postgres-related settings.
+    # How to install Postgres:
     postgresql_packages:
       - postgresql
       - libpq-dev
+    # Whether and how to apply pgtune
     postgresql_tune: true
-    postgresql_shmmax: 107374182400 # 100 GB
-    postgresql_shmall: 26214400 # 100 GB / PAGE_SIZE (4096)
-    postgresql_networks:
-      - '10.0.0.0/8'
     postgresql_tune_type: Web
+    # Kernel sysctl settings to change
+    postgresql_shmmax: 107374182400  # 100 GB
+    postgresql_shmall: 26214400  # 100 GB / PAGE_SIZE (4096)
+    # Networks to allow connections from
+    postgresql_networks:
+      - '0.0.0.0/0'
+      - '10.0.0.0/8'
+      - '172.0.0.0/8'
+    # Whether to disable the Linux out-of-memory killer
     postgresql_disable_oom: true
