@@ -22,7 +22,7 @@
 <div class="col-sm-6">
   <h3>This is the idea you are REMOVING:</h3>
   <blockquote>{{ to_remove.idea }}</blockquote>
-  <div>Submitted on {{ to_remove.created_at }} by {{ to_remove.user.username }} (&laquo;{{ to_remove.user.email }}&raquo;)</div>
+  <div>Submitted on {{ to_remove.created_at }} by {{ to_remove.user_display_name }} (&laquo;{{ to_remove.voter.email }}&raquo;)</div>
   <div>{{ to_remove.votes }} votes</div>
   <div>{{ to_remove.citation|default:''|urlize }}</div>
 </div>
@@ -31,7 +31,7 @@
 <div class="col-sm-6">
   <h3>This is the idea you are KEEPING:</h3>
   <blockquote>{{ duplicate_of.idea }}</blockquote>
-  <div>Submitted on {{ duplicate_of.created_at }} by {{ duplicate_of.user.username }} (&laquo;{{ duplicate_of.user.email }}&raquo;)</div>
+  <div>Submitted on {{ duplicate_of.created_at }} by {{ duplicate_of.user_display_name }} (&laquo;{{ duplicate_of.voter.email }}&raquo;)</div>
   <div>{{ duplicate_of.votes }} votes</div>
   <div>{{ duplicate_of.citation|default:''|urlize }}</div>
 </div>
