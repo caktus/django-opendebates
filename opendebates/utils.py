@@ -1,6 +1,14 @@
 import json
 import random
-from .models import Voter
+
+from django.core.cache import cache
+
+from .models import Voter, NUMBER_OF_VOTES_CACHE_ENTRY
+
+
+def get_number_of_votes():
+    number = cache.get(NUMBER_OF_VOTES_CACHE_ENTRY)
+    return number or 0
 
 
 def get_voter(request):

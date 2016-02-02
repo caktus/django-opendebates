@@ -4,7 +4,7 @@ from django.test import TestCase
 
 import mock
 
-from opendebates.models import RECENT_EVENTS_CACHE_ENTRY
+from opendebates.models import RECENT_EVENTS_CACHE_ENTRY, NUMBER_OF_VOTES_CACHE_ENTRY, Vote
 from opendebates.tasks import update_recent_events
 from opendebates.tests.factories import VoteFactory
 
@@ -17,11 +17,13 @@ class RecentEventsTest(TestCase):
         mock_cache = mock.MagicMock()
         with mock.patch('opendebates.tasks.cache', new=mock_cache):
             update_recent_events()
-        mock_cache.set.assert_called_with(
+        mock_cache.set.assert_any_call(
             RECENT_EVENTS_CACHE_ENTRY,
             [self.vote, self.vote.submission],
             30
         )
+        num = Vote.objects.count()
+        mock_cache.set.assert_any_call(NUMBER_OF_VOTES_CACHE_ENTRY, num, 30)
 
     def test_view_returns_events(self):
         mock_cache = mock.MagicMock()
