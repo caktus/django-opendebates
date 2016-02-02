@@ -28,10 +28,10 @@ def update_recent_events():
     entries = list(votes) + list(submissions)
     entries = sorted(entries, key=lambda x: x.created_at, reverse=True)[:10]
 
-    cache.set(RECENT_EVENTS_CACHE_ENTRY, entries, 30)
+    cache.set(RECENT_EVENTS_CACHE_ENTRY, entries, 300)
 
     number_of_votes = Vote.objects.count()
-    cache.set(NUMBER_OF_VOTES_CACHE_ENTRY, number_of_votes, 30)
+    cache.set(NUMBER_OF_VOTES_CACHE_ENTRY, number_of_votes, 300)
 
     logger.debug("There are %d entries" % len(entries))
     logger.debug("There are %d votes" % number_of_votes)
