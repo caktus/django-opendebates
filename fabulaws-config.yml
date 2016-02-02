@@ -1,6 +1,5 @@
   instance_settings:
     # http://uec-images.ubuntu.com/releases/trusty/release/
-    ami: ami-b2e3c6d8 # us-east-1 14.04.3 LTS 64-bit w/EBS-SSD root store
     ami: ami-35d6f95f # us-east-1 14.04.3 LTS 64-bit hvm-ssd
     key_prefix: 'opendebates-'
     admin_groups: [admin, sudo]
