@@ -69,6 +69,9 @@
   celery_workers:
     main: -c 10
 
+# Start this many Gunicorn workers for each CPU core
+  gunicorn_worker_multipler: 8
+
 # Mapping of environment names to domain names. Used to update the
 # primary site in the database after a refresh and to set ALLOWED_HOSTS
 # Note that the first domain in the list must not be a wildcard as it
