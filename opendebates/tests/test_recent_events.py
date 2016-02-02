@@ -20,10 +20,10 @@ class RecentEventsTest(TestCase):
         mock_cache.set.assert_any_call(
             RECENT_EVENTS_CACHE_ENTRY,
             [self.vote, self.vote.submission],
-            30
+            300
         )
         num = Vote.objects.count()
-        mock_cache.set.assert_any_call(NUMBER_OF_VOTES_CACHE_ENTRY, num, 30)
+        mock_cache.set.assert_any_call(NUMBER_OF_VOTES_CACHE_ENTRY, num, 300)
 
     def test_view_returns_events(self):
         mock_cache = mock.MagicMock()
