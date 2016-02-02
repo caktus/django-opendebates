@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from djangohelpers.lib import register_admin
 
 
+NUMBER_OF_VOTES_CACHE_ENTRY = 'number_of_votes'
 RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry'
 
 

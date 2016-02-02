@@ -3,7 +3,7 @@ from django.utils.functional import SimpleLazyObject
 from django.utils.html import mark_safe
 import json
 from .models import Category, Vote
-from .utils import get_voter
+from .utils import get_voter, get_number_of_votes
 
 
 def voter(request):
@@ -30,6 +30,7 @@ def global_vars(request):
 
     return {
         'DEBUG': settings.DEBUG,
+        'NUMBER_OF_VOTES': get_number_of_votes(),
         'STATIC_URL': settings.STATIC_URL,
         'SITE_DOMAIN': settings.SITE_DOMAIN,
         'SUBMISSION_CATEGORIES': SimpleLazyObject(_get_categories)
