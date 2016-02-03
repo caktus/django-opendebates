@@ -10,8 +10,10 @@ _locals = threading.local()
 def is_thread_readwrite():
     return getattr(_locals, 'is_readwrite', True)
 
+
 def set_thread_readonly_db():
     _locals.is_readwrite = False
+
 
 def set_thread_readwrite_db():
     _locals.is_readwrite = True
@@ -19,12 +21,13 @@ def set_thread_readwrite_db():
 
 class DBRouter(object):
     def __init__(self):
+        self.master_db = settings.MASTER_DATABASE
         self.read_dbs = list(settings.DATABASE_POOL.keys())
         random.shuffle(self.read_dbs)
         self.next_db_index = 0
 
     def readwrite_db(self):
-        return settings.MASTER_DATABASE
+        return self.master_db
 
     def readonly_db(self):
         # Round-robin through the read DBs
