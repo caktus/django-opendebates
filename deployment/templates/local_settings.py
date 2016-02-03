@@ -58,6 +58,9 @@ DATABASE_POOL = {
     '{{ server.database_key }}': 1,{% endfor %}
 }
 MASTER_DATABASE = '{{ master_database.database_key }}'
+DATABASE_ROUTERS = [
+    'opendebates.routing.DBRouter',
+]
 
 # media roots
 MEDIA_ROOT = "{{ media_root }}"
