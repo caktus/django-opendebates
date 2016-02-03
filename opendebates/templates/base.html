@@ -21,22 +21,26 @@
       <img src="{% static "images/logo-progressive-change-institute.png" %}">
       <img src="{% static "images/logo-cnn.png" %}">
     </div>
+    <div class="login-container">
+      {% if request.user.is_authenticated %}
+        <a href="{# url 'user_profile' #}">
+          {% blocktrans with username=request.user.username %}Welcome, {{ username }}!{% endblocktrans %}
+        </a>
+        <span>/</span>
+        <a href="{% url 'auth_logout' %}">{% blocktrans %}Log out{% endblocktrans %}</a>
+        {% else %}
+        <a href="{% url 'auth_login' %}">{% blocktrans %}Log in{% endblocktrans %}</a> <span> / </span>
+        <a href="{% url 'registration_register' %}">{% blocktrans %}Register{% endblocktrans %}</a>
+      {% endif %}
+    </div>
     <div class="header-title">
-      <div class="login-container">
-        {% if request.user.is_authenticated %}
-          <a href="{# url 'user_profile' #}">
-            {% blocktrans with username=request.user.username %}Welcome, {{ username }}!{% endblocktrans %}
-          </a>
-          <span>/</span>
-          <a href="{% url 'auth_logout' %}">{% blocktrans %}Log out{% endblocktrans %}</a>
-          {% else %}
-          <a href="{% url 'auth_login' %}">{% blocktrans %}Log in{% endblocktrans %}</a> <span> / </span>
-          <a href="{% url 'registration_register' %}">{% blocktrans %}Register{% endblocktrans %}</a>
-        {% endif %}
-      </div>
       <h1>Welcome to the <br/>Democratic Open Forum</h1>
       <div class="header-copy">
         Ask Bernie and Hillary about the issues that are most important to you. Then tune in here to watch the Democratic Open Forum on Thursday, March 3 at 9:00 pm EST. All questions will be chosen from among those that receive the most votes.
+      </div>
+      <div class="header-small-logos">
+        <img src="{% static "images/logo-progressive-change-institute.png" %}">
+        <img src="{% static "images/logo-cnn.png" %}">
       </div>
       <div class="header-votes">
         <span class="number">1943902</span>total votes
