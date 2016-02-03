@@ -15,4 +15,4 @@ class TestScores(TestCase):
         update_trending_scores()
         sub1 = Submission.objects.get(pk=sub1.pk)
         self.assertNotEqual(0, sub1.random_id)
-        self.assertGreater(sub1.score, 100000)
+        self.assertGreater(sub1.score, 0.0)
