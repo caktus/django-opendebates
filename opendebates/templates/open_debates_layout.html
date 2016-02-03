@@ -1,0 +1,47 @@
+<html>
+<head>
+  <title>
+    {% block title %}Open Debates{% endblock %}
+  </title>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+	<div class="row">
+		<div class="col-md-12 card">
+            <h3 style="display: inline-block; vertical-align: center" class="search_label"><a style="font-size: 16px" name="search">Search for a topic</a></h3>
+            <form style="vertical-align: center; display: inline-block;
+                         margin-left: 0.8em; width: 60%" onsubmit="return false;">
+              <input type="text" id="search" style="vertical-align: center; width: 100%" placeholder="Search current questions" onkeyup="var text=$(this).val().trim(); if( text &amp;&amp; text.length >= 4 ) { opendebate.search(text); } return false;">
+            </form>
+
+          <span style="display: inline-block; width: auto">Show:</span>
+          <span style="text-align: center; display: inline-block; width: 80%">
+          <a data-sort="recent_votes" onclick="$('#search').val(''); opendebate.clearSearch();" href="#/sort/recent_votes/p1/" style="font-weight: normal;">Trending</a>
+          ⋅
+          <a data-sort="date" onclick="$('#search').val(''); opendebate.clearSearch();" href="#/sort/date/p1/" style="font-weight: normal;">Newest</a>
+          ⋅
+          <a data-sort="votes" onclick="$('#search').val(''); opendebate.clearSearch();" href="#/sort/votes/p1/" style="font-weight: bold;">Popular</a>
+          ⋅
+          <a data-sort="state_votes" onclick="$('#search').val(''); opendebate.clearSearch();" href="#/sort/state_votes/p1/" style="font-weight: normal;">Popular in MA</a>
+          ⋅
+</span>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-7">
+		</div>
+		<div class="col-md-5">
+			 <a href="#" class="btn btn-block btn-primary active" type="button">Submit a New Question</a>
+		</div>
+	</div>
+</div>
+</body>
+</html>

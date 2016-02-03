@@ -1,0 +1,135 @@
+{% load i18n %}
+{% load static from staticfiles %}
+<html>
+<head>
+  <title>
+    {% block title %}Open Debates{% endblock %}
+  </title>
+  {% load pipeline %}
+  {% stylesheet 'base' %}
+  {% block loading_stylesheets %}
+  {% endblock %}
+  <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,300,600,400|Open+Sans+Condensed:700"
+        rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-logos">
+      <img src="{% static "images/badge-democratic-open-forum.png" %}">
+      <img src="{% static "images/logo-progressive-change-institute.png" %}">
+      <img src="{% static "images/logo-cnn.png" %}">
+    </div>
+    <div class="login-container">
+      {% if request.user.is_authenticated %}
+        <a href="{# url 'user_profile' #}">
+          {% blocktrans with username=request.user.username %}Welcome, {{ username }}!{% endblocktrans %}
+        </a>
+        <span>/</span>
+        <a href="{% url 'auth_logout' %}">{% blocktrans %}Log out{% endblocktrans %}</a>
+        {% else %}
+        <a href="{% url 'auth_login' %}">{% blocktrans %}Log in{% endblocktrans %}</a> <span> / </span>
+        <a href="{% url 'registration_register' %}">{% blocktrans %}Register{% endblocktrans %}</a>
+      {% endif %}
+    </div>
+    <div class="header-title">
+      <h1>Welcome to the <br/>Democratic Open Forum</h1>
+      <div class="header-copy">
+        Ask Bernie and Hillary about the issues that are most important to you. Then tune in here to watch the Democratic Open Forum on Thursday, March 3 at 9:00 pm EST. All questions will be chosen from among those that receive the most votes.
+      </div>
+      <div class="header-small-logos">
+        <img src="{% static "images/logo-progressive-change-institute.png" %}">
+        <img src="{% static "images/logo-cnn.png" %}">
+      </div>
+      <div class="header-votes">
+        <span class="number">1943902</span>total votes
+      </div>
+      <div class="header-count-down">
+        <span class="number">30</span> days
+        <span class="number">12</span> hours
+        <span class="number">5</span> minutes
+        until the forum
+      </div>
+    </div>
+  </header>
+  <!-- TODO: Pull in old mark up to new layout -->
+
+  <div class="row white">
+    <div class="col-md-12 messages">
+      {% include "opendebates/snippets/messages.html" %}
+    </div>
+  </div>
+  <div class="row white">
+    <div class="col-md-12">
+      {% block pre_content %}{% endblock %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      &nbsp;
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      {% block content %}
+      {% endblock %}
+    </div>
+  </div>
+
+  {% include "opendebates/snippets/vote_modal.html" %}
+
+</div>
+<script type="text/javascript">
+  var ODebates = ODebates || {};
+  ODebates.configs = ODebates.configs || {};
+  ODebates.paths = ODebates.paths || {};
+
+  ODebates.paths.static = "{{ STATIC_URL }}";
+
+  {% if DEBUG %}
+    ODebates.configs.debug = true;
+  {% else %}
+    ODebates.configs.debug = false;
+  {% endif %}
+
+  {% if VOTER %}
+  ODebates.voter = {"email": "{{ VOTER.email }}",
+                    "zip": "{{ VOTER.zip }}",
+                    "first_name": "{{ request.user.first_name|default:'' }}",
+                    "last_name": "{{ request.user.last_name|default:'' }}",
+                    "has_account": {% if request.user.is_authenticated %}true{% else %}false{% endif %}
+  };
+  {% endif %}
+
+  {% if stashed_submission %}
+  ODebates.stashedSubmission = {
+    "category": {{ stashed_submission.category }},
+    "question": "{{ stashed_submission.question }}",
+    "citation": {% if stashed_submission.citation %}"{{ stashed_submission.citation }}"{% else %}null{% endif %}
+  };
+  {% endif %}
+</script>
+<script id="my-votes-cast" type="application/json">
+  {{ VOTES_CAST }}
+</script>
+
+
+<script type="text/javascript" src='{% static 'jquery/dist/jquery.min.js' %}'></script>
+<script type="text/javascript" src='{% static 'js/jquery.cookie.js' %}'></script>
+<script type="text/javascript" src='{% static 'handlebars/handlebars.min.js' %}'></script>
+<script type="text/javascript" src='{% static 'bootstrap/dist/js/bootstrap.min.js' %}'></script>
+<script type="text/javascript" src='{% static 'moment/min/moment-with-locales.min.js' %}'></script>
+{% javascript 'base' %}
+{% block loading_javascript %}
+{% endblock %}
+
+<script type="text/javascript">
+  $(window).load(function() {
+    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="popover"]').popover();
+  });
+</script>
+
+</body>
+</html>
