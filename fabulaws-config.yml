@@ -47,6 +47,7 @@
       production: master
       staging: develop
       testing: develop
+      dan: dan_routing
 
 ## SERVER SETTINGS ##
 
@@ -60,6 +61,7 @@
     staging: 8000
     production: 8001
     testing: 8002
+    dan: 8003
 
 # Whether we're hosting static files on our webservers ('local')
 # or somewhere else ('remote')
@@ -86,6 +88,10 @@
     - opendebates-testing-lb-476601241.us-east-1.elb.amazonaws.com
     - testing.openforum2016.com
     - testing.demopenforum.com
+    dan:
+    - opendebates-dan-lb-1841076677.us-east-1.elb.amazonaws.com
+    - dan.demopenforum.com
+    - dan.openforum2016.com
 
 ## ENVIRONMENT / ROLE SETTINGS ##
 
@@ -96,6 +102,7 @@
   - staging
   - production
   - testing
+  - dan
   valid_roles:
   - cache
   - db-master
@@ -138,6 +145,12 @@
       db-slave: t1.micro
       web: m1.small
       worker: m1.small
+    dan:
+      cache: t1.micro
+      db-master: t1.micro
+      db-slave: t1.micro
+      web: m1.small
+      worker: m1.small
 
 # Mapping of Fabric environment names to AWS load balancer names.  Load
 # balancers can be configured in the AWS Management Console.
@@ -149,6 +162,8 @@
       - opendebates-staging-lb
       testing:
       - opendebates-testing-lb
+      dan:
+      - opendebates-dan-lb
 
 # Mapping of Fabric environment names to AWS auto scaling group names. Auto
 # scaling groups can be configured in the AWS Management Console.
@@ -157,6 +172,7 @@
       production: opendebates-production-ag
       staging: opendebates-staging-ag
       testing: opendebates-testing-ag
+      dan: opendebates-dan-ag
 
 # Mapping of Fabric environment and role to Elastic Block Device sizes (in GB)
   volume_sizes:
@@ -173,6 +189,12 @@
       web: 10
       worker: 50
     staging:
+      cache: 10
+      db-master: 100
+      db-slave: 100
+      web: 10
+      worker: 50
+    dan:
       cache: 10
       db-master: 100
       db-slave: 100
