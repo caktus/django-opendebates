@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -46,6 +47,12 @@ class DBRouterTest(TestCase):
             settings.MASTER_DATABASE = ''
         if not hasattr(settings, 'DATABASE_POOL'):
             settings.DATABASE_POOL = {}
+
+    def test_middleware_validation(self):
+        # The router raises an error if the necessary middleware is not configured.
+        with override_settings(MIDDLEWARE_CLASSES=[]):
+            with self.assertRaises(ImproperlyConfigured):
+                DBRouter()
 
     def test_readwrite(self):
         set_thread_readwrite_db()

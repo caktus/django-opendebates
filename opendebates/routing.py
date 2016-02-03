@@ -2,6 +2,7 @@ import random
 import threading
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
 
 _locals = threading.local()
@@ -21,6 +22,12 @@ def set_thread_readwrite_db():
 
 class DBRouter(object):
     def __init__(self):
+        midware = 'opendebates.middleware.DBRoutingMiddleware'
+        if midware not in settings.MIDDLEWARE_CLASSES:
+            msg = ("'{}' not in settings MIDDLEWARE_CLASSES. The DBRouter will not work."
+                   .format(midware))
+            raise ImproperlyConfigured(msg)
+
         self.master_db = settings.MASTER_DATABASE
         self.read_dbs = list(settings.DATABASE_POOL.keys())
         random.shuffle(self.read_dbs)
