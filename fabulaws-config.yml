@@ -1,6 +1,6 @@
   instance_settings:
     # http://uec-images.ubuntu.com/releases/trusty/release/
-    ami: ami-b2e3c6d8 # us-east-1 14.04.3 LTS 64-bit w/EBS-SSD root store
+    ami: ami-35d6f95f # us-east-1 14.04.3 LTS 64-bit hvm-ssd
     key_prefix: 'opendebates-'
     admin_groups: [admin, sudo]
     run_upgrade: true
@@ -70,7 +70,7 @@
     main: -c 10
 
 # Start this many Gunicorn workers for each CPU core
-  gunicorn_worker_multipler: 8
+  gunicorn_worker_multiplier: 4
 
 # Mapping of environment names to domain names. Used to update the
 # primary site in the database after a refresh and to set ALLOWED_HOSTS
@@ -127,11 +127,11 @@
       web: c3.large
       worker: m3.large
     testing:
-      cache: c3.large
-      db-master: m3.xlarge
-      db-slave: m3.xlarge
+      cache: c4.large
+      db-master: m4.2xlarge
+      db-slave: m4.2xlarge
       web: c3.large
-      worker: m3.large
+      worker: m4.large
     staging:
       cache: t1.micro
       db-master: t1.micro
