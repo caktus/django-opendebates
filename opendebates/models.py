@@ -8,15 +8,18 @@ from djorm_pgfulltext.fields import VectorField
 from urllib import quote_plus
 from django.utils.translation import ugettext_lazy as _
 from djangohelpers.lib import register_admin
+from caching.base import CachingManager, CachingMixin
 
 
 NUMBER_OF_VOTES_CACHE_ENTRY = 'number_of_votes'
 RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry'
 
 
-class Category(models.Model):
+class Category(CachingMixin, models.Model):
 
     name = models.CharField(max_length=255)
+
+    objects = CachingManager()
 
     def __unicode__(self):
         return self.name
@@ -47,8 +50,8 @@ class Submission(models.Model):
     ip_address = models.CharField(max_length=255, db_index=True)
 
     editors_pick = models.BooleanField(default=False)
-    approved = models.BooleanField(default=False)
-    has_duplicates = models.BooleanField(default=False)
+    approved = models.BooleanField(default=False, db_index=True)
+    has_duplicates = models.BooleanField(default=False, db_index=True)
 
     duplicate_of = models.ForeignKey('opendebates.Submission', null=True, blank=True,
                                      related_name="duplicates")
@@ -133,10 +136,12 @@ class Submission(models.Model):
             }
 
 
-class ZipCode(models.Model):
+class ZipCode(CachingMixin, models.Model):
     zip = models.CharField(max_length=10, unique=True)
     city = models.CharField(max_length=255, null=True, blank=True)
     state = models.CharField(max_length=255, null=True, blank=True)
+
+    objects = CachingManager()
 
 
 class Voter(models.Model):
