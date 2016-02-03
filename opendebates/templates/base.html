@@ -15,65 +15,41 @@
 <body>
 
 <div class="container">
-  <div class="row white">
-    <div class="login-container pull-right">
-      {% if request.user.is_authenticated %}
-      <a href="{# url 'user_profile' #}">
-        {% blocktrans with username=request.user.username %}Welcome, {{ username }}!{% endblocktrans %}
-      </a>
-      <span>||</span>
-      <a href="{% url 'auth_logout' %}">{% blocktrans %}Log out{% endblocktrans %}</a>
-      {% else %}
-      <a href="{% url 'auth_login' %}">{% blocktrans %}Log in{% endblocktrans %}</a> <span> / </span>
-      <a href="{% url 'registration_register' %}">{% blocktrans %}Register{% endblocktrans %}</a>
-      {% endif %}
+  <header>
+    <div class="header-logos">
+      <img src="{% static "images/badge-democratic-open-forum.png" %}">
+      <img src="{% static "images/logo-progressive-change-institute.png" %}">
+      <img src="{% static "images/logo-cnn.png" %}">
     </div>
-  </div>
-  <div class="row white">
-    <nav class="navbar navbar-default navbar-static-top" role="navigation">
-      <div class="navbar-header">
-
-        <button type="button" class="navbar-toggle" data-toggle="collapse"
-                data-target="#bs-example-navbar-collapse-1">
-          <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span
-            class="icon-bar"></span><span class="icon-bar"></span>
-        </button>
+    <div class="header-title">
+      <div class="login-container pull-right">
+        {% if request.user.is_authenticated %}
+          <a href="{# url 'user_profile' #}">
+            {% blocktrans with username=request.user.username %}Welcome, {{ username }}!{% endblocktrans %}
+          </a>
+          <span>/</span>
+          <a href="{% url 'auth_logout' %}">{% blocktrans %}Log out{% endblocktrans %}</a>
+          {% else %}
+          <a href="{% url 'auth_login' %}">{% blocktrans %}Log in{% endblocktrans %}</a> <span> / </span>
+          <a href="{% url 'registration_register' %}">{% blocktrans %}Register{% endblocktrans %}</a>
+        {% endif %}
       </div>
-
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <ul class="nav navbar-nav pull-right">
-          <li>
-            <a href="#">{% blocktrans %}Home{% endblocktrans %}</a>
-          </li>
-          <li>
-            <a href="{% url 'candidates' %}">{% blocktrans %}Candidates{% endblocktrans %}</a>
-          </li>
-          <li>
-            <a href="#">{% blocktrans %}The District{% endblocktrans %}</a>
-          </li>
-          <li>
-            <a href="#">{% blocktrans %}About{% endblocktrans %}</a>
-          </li>
-          <li>
-            <a href="{% url 'list_ideas' %}">{% blocktrans %}Participate{% endblocktrans %}</a>
-          </li>
-        </ul>
+      <h1>Welcome to the <br/>Democratic Open Forum</h1>
+      <div class="header-copy">
+        Ask Bernie and Hillary about the issues that are most important to you. Then tune in here to watch the Democratic Open Forum on Thursday, March 3 at 9:00 pm EST. All questions will be chosen from among those that receive the most votes.
       </div>
-    </nav>
-  </div>
-
-  <div class="row white">
-    <div class="col-md-12">
-      <div id="logo">
-        <a href="{% url 'list_ideas' %}">
-          <img
-              src="{% static "images/Screen_Shot_2015-03-16_at_7.52.05_.focus-none.width-1000_lSJC5o7.png" %}"
-              alt="Open Debates Logo"
-              class="img-responsive center-block">
-        </a>
+      <div class="header-votes">
+        <span class="number">1943902</span>total votes
+      </div>
+      <div class="header-count-down">
+        <span class="number">30</span> days
+        <span class="number">12</span> hours
+        <span class="number">5</span> minutes
+        until the forum
       </div>
     </div>
-  </div>
+  </header>
+  <!-- TODO: Pull in old mark up to new layout -->
 
   <div class="row white">
     <div class="col-md-12 messages">

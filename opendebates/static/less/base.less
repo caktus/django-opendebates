@@ -1,5 +1,124 @@
 @import "bootstrap_import";
 
+body > .container {
+  max-width: 1030px;
+  width: 100%;
+  padding: 0;
+
+  > header {
+    background-image: url(/static/images/header-bg.png);
+    min-height: 100px;
+    max-height: 370px;
+    height: 370px;
+
+    @header-logo-width: 26.5%;
+    @header-top-padding: 25px;
+
+    .header-lower {
+      position: absolute;
+      bottom: 20px;
+    }
+
+    .header-logos, .header-title {
+      display: inline-block;
+      padding-top: @header-top-padding;
+    }
+
+    .header-logos {
+      width: @header-logo-width;
+      text-align: center;
+      position: relative;
+      height: 100%;
+
+      img:first-child {
+        width: 100%;
+        max-width: 250px;
+        height: auto;
+        margin-bottom: 20px;
+      }
+      img:nth-child(2), img:nth-child(3) {
+        width: auto;
+        height: 25px;
+        margin: auto 10px;
+        .header-lower();
+
+        @small-logo-spacing: 10%;
+        &:nth-child(2) {
+          left: @small-logo-spacing;
+        }
+        &:nth-child(3) {
+          right: @small-logo-spacing;
+        }
+      }
+    }
+
+    .header-title {
+      text-transform: uppercase;
+      width: 99.5% - @header-logo-width;
+      padding-right: 10px;
+      color: white;
+      vertical-align: top;
+      font-size: 16px;
+      height: 100%;
+      position: relative;
+
+      h1 {
+        position: relative;
+        top: 0 - @header-top-padding;
+        font-size: 54px;
+      }
+
+      .header-copy {
+        text-transform: none;
+      }
+
+      .header-votes, .header-count-down {
+        display: inline-block;
+        .header-lower();
+      }
+
+      @header-number-color: #6195a6;
+      @header-side-padding: 10px;
+
+      .header-votes .number {
+        padding-right: @header-side-padding;
+
+        > span {
+          @number-height: 25px;
+
+          background: white;
+          color: @header-number-color;
+          width: @number-height;
+          height: @number-height;
+          margin-left: 1px;
+          margin-right: 1px;
+          display: inline-block;
+          text-align: center;
+        }
+      }
+
+      .header-count-down {
+        right: @header-side-padding;
+
+        .number {
+          color: @header-number-color;
+        }
+      }
+    }
+
+    .login-container {
+      text-transform: uppercase;
+      color: white;
+
+      a {
+        color: white;
+      }
+    }
+  }
+}
+
+/* TODO: Review original Stylesheet below */
+
 .recent-activity-entry {
   margin-bottom: 2px;
   border-bottom: 1px dotted #ddd;
@@ -62,12 +181,6 @@ body {
   padding-bottom: 15px;
   // margin-bottom: 35px;
   border-bottom: 10px solid black;
-}
-
-.category-only .active-category-nav a {
-  font-weight: normal;
-  font-style: italic;
-  border-bottom: 4px solid @brand-primary;
 }
 
 .category-only .vcenter {
@@ -306,7 +419,7 @@ hr.mic_icon:after {
     vertical-align: middle;
   }
 
-  
+
 }
 
 .popover {
@@ -337,12 +450,12 @@ hr.mic_icon:after {
   font-size: 13px;
   border-top: 2px solid #ccc;
   padding: 14px 5px;
-  
+
   .comment-list-entry {
     margin-bottom: 5px;
     border-bottom: 1px dashed #ccc;
     padding-bottom: 5px;
-    
+
     .author {
       font-weight: 600;
     }
@@ -402,7 +515,7 @@ hr.mic_icon:after {
     .comments:hover:before {
       background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -30px -15px no-repeat;
     }
-    
+
     .tweet-button:hover:before {
       background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') 0px -15px no-repeat;
     }
@@ -432,22 +545,6 @@ hr.mic_icon:after {
   font-size: .9em;
 }
 
-.navbar-default {
-  background-color: darken(@brand-primary, 3%);
-}
-
-.navbar-default .navbar-nav > li > a {
-  color: @colorless;
-  text-transform: uppercase;
-  font-family: @font-family-2;
-  &:hover, &:active {color:@reverse-text-hover;}
-}
-
-#logo {
-  width:40%;
-  margin: 0 0 24px 18px;
-
-}
 
 /* http://codepen.io/lucien144/blog/highlight-asterix-in-placeholder-w-different-color */
 
@@ -518,7 +615,7 @@ a:hover.web { background-position: -45px -15px; }
     margin-left: 0;
     margin-right: 0;
   }
-  
+
   .big-idea .question {
     margin-top: 15px;
   }
@@ -541,4 +638,3 @@ a:hover.web { background-position: -45px -15px; }
     }
   }
 }
-
