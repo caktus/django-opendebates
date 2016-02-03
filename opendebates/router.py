@@ -16,6 +16,8 @@ PINNING_KEY = getattr(settings, 'MASTER_PINNING_KEY', 'master_db_pinned')
 PINNING_SECONDS = int(getattr(settings, 'MASTER_PINNING_SECONDS', 10))
 READONLY_METHODS = ['GET', 'HEAD']
 
+READMOSTLY_MODELS = ['Zipcode', 'Category']
+
 
 class RoutingState(threading.local):
     """
@@ -107,6 +109,9 @@ class DBRouter(object):
         self.read_dbs = list(settings.DATABASE_POOL.keys())
         random.shuffle(self.read_dbs)
         self.next_db_index = 0
+        if not self.read_dbs:
+            # No replicas?  Punt.
+            self.read_dbs = [self.master_db]
 
     def roundrobin_readonly_db(self):
         # Round-robin through the read DBs
@@ -114,15 +119,19 @@ class DBRouter(object):
         self.next_db_index = (self.next_db_index + 1) % len(self.read_dbs)
         return db
 
-    def db_to_use(self):
+    def db_to_use(self, model):
         if is_thread_readwrite():
             return self.master_db
         else:
             return self.roundrobin_readonly_db()
 
     def db_for_read(self, model, **hints):
-        return self.db_to_use()
+        # For a few models that hardly ever ever change, ignore pinning
+        # and if we're reading, always go to the replica DB.
+        if model._meta.object_name in READMOSTLY_MODELS:
+            return self.roundrobin_readonly_db()
+        return self.db_to_use(model)
 
     def db_for_write(self, model, **hints):
         set_db_written_flag()
-        return self.db_to_use()
+        return self.db_to_use(model)

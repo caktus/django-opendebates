@@ -7,6 +7,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from mock import Mock
 
+from opendebates.models import Submission
 from opendebates.router import DBRouter, is_thread_readwrite, set_thread_readwrite_db, \
     set_thread_readonly_db, set_db_written_flag, was_db_written, clear_db_written_flag, \
     DBRoutingMiddleware, PINNING_KEY
@@ -94,12 +95,12 @@ class DBRouterTest(TestCase):
 
     def test_writing_sets_db_written_flag(self):
         router = DBRouter()
-        router.db_for_read(None)
+        router.db_for_read(Submission)
         self.assertFalse(was_db_written())
-        router.db_for_write(None)
+        router.db_for_write(Submission)
         self.assertTrue(was_db_written())
         # A read won't reset the flag
-        router.db_for_read(None)
+        router.db_for_read(Submission)
         self.assertTrue(was_db_written())
 
     def test_readwrite(self):
@@ -108,9 +109,9 @@ class DBRouterTest(TestCase):
         master = 'my_master_db'
         with override_settings(MASTER_DATABASE=master):
             router = DBRouter()
-            out = router.db_for_read(None)
+            out = router.db_for_read(Submission)
             self.assertEqual(master, out)
-            out = router.db_for_write(None)
+            out = router.db_for_write(Submission)
             self.assertEqual(master, out)
         self.assertTrue(was_db_written())
 
@@ -122,9 +123,9 @@ class DBRouterTest(TestCase):
         }
         with override_settings(DATABASE_POOL=pool):
             router = DBRouter()
-            out = router.db_for_read(None)
+            out = router.db_for_read(Submission)
             self.assertEqual(replica, out)
-            out = router.db_for_read(None)
+            out = router.db_for_read(Submission)
             self.assertEqual(replica, out)
         self.assertFalse(was_db_written())
 
@@ -141,15 +142,15 @@ class DBRouterTest(TestCase):
         replicas = pool.keys()
         with override_settings(DATABASE_POOL=pool):
             router = DBRouter()
-            out0 = router.db_for_read(None)
+            out0 = router.db_for_read(Submission)
             self.assertIn(out0, replicas)
-            out1 = router.db_for_read(None)
+            out1 = router.db_for_read(Submission)
             self.assertIn(out1, replicas)
             self.assertNotEqual(out0, out1)
-            out2 = router.db_for_read(None)
+            out2 = router.db_for_read(Submission)
             self.assertIn(out2, replicas)
             self.assertNotEqual(out1, out2)
-            out3 = router.db_for_read(None)
+            out3 = router.db_for_read(Submission)
             # Round-robin should have come around by now
             self.assertEqual(out3, out0)
         self.assertFalse(was_db_written())
