@@ -22,7 +22,7 @@
       <img src="{% static "images/logo-cnn.png" %}">
     </div>
     <div class="header-title">
-      <div class="login-container pull-right">
+      <div class="login-container">
         {% if request.user.is_authenticated %}
           <a href="{# url 'user_profile' #}">
             {% blocktrans with username=request.user.username %}Welcome, {{ username }}!{% endblocktrans %}

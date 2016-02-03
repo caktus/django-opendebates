@@ -135,7 +135,7 @@
       var text = $el.text();
       $el.html("");
       for (var i=0; i<text.length; i++) {
-        $el.append("<span>"+text[i]+"</span>");
+        $el.append("<span><span>"+text[i]+"</span></span>");
       }
     })
 

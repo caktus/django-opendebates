@@ -1,5 +1,11 @@
 @import "bootstrap_import";
 
+@font-face {
+  font-family: Knockout;
+  font-weight: bold;
+  src: url("/static/fonts/Knockout-HTF48-Featherweight.otf") format("opentype");
+}
+
 body > .container {
   max-width: 1030px;
   width: 100%;
@@ -10,13 +16,15 @@ body > .container {
     min-height: 100px;
     max-height: 370px;
     height: 370px;
+    font-family: Knockout;
+    font-weight: bold;
 
-    @header-logo-width: 26.5%;
+    @header-logo-width: 28.5%;
     @header-top-padding: 25px;
 
-    .header-lower {
+    .header-lower(@bottom-extra: 0px) {
       position: absolute;
-      bottom: 20px;
+      bottom: 20px + @bottom-extra;
     }
 
     .header-logos, .header-title {
@@ -34,13 +42,13 @@ body > .container {
         width: 100%;
         max-width: 250px;
         height: auto;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
       }
       img:nth-child(2), img:nth-child(3) {
         width: auto;
-        height: 25px;
+        height: 35px;
         margin: auto 10px;
-        .header-lower();
+        .header-lower(@bottom-extra: 5px);
 
         @small-logo-spacing: 10%;
         &:nth-child(2) {
@@ -63,17 +71,20 @@ body > .container {
       position: relative;
 
       h1 {
-        position: relative;
-        top: 0 - @header-top-padding;
-        font-size: 54px;
+        margin: 0;
+        font-size: 75px;
+        letter-spacing: 6px;
       }
 
       .header-copy {
         text-transform: none;
+        font-family: Helvetica;
       }
 
       .header-votes, .header-count-down {
         display: inline-block;
+        font-size: 26px;
+        letter-spacing: 1px;
         .header-lower();
       }
 
@@ -94,6 +105,14 @@ body > .container {
           margin-right: 1px;
           display: inline-block;
           text-align: center;
+          font-size: 16px;
+
+          > span {
+            position: relative;
+            top: -3px;
+            left: 1px;
+            font-size: 20px;
+          }
         }
       }
 
@@ -109,6 +128,11 @@ body > .container {
     .login-container {
       text-transform: uppercase;
       color: white;
+      font-size: 23px;
+      letter-spacing: 1px;
+      position: absolute;
+      right: 0;
+      top: @header-top-padding;
 
       a {
         color: white;
