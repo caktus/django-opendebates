@@ -73,8 +73,6 @@ LOGIN_URL = LOGIN_ERROR_URL = "/registration/login/"
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -83,6 +81,11 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'opendebates.context_processors.global_vars',
                 'opendebates.context_processors.voter',
+            ],
+            'loaders': [
+                ('django.template.loaders.cached.Loader', [
+                    'django.template.loaders.app_directories.Loader',
+                ]),
             ],
         },
     },
