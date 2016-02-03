@@ -56,6 +56,13 @@
         $(".big-idea[data-idea-id="+resp.id+"]").find(".vote-button").hide();
         $(".big-idea[data-idea-id="+resp.id+"]").find(".already-voted-button").css("display", "block");
 
+      } else {
+        $.each(resp.errors, function(key, vals) {
+          $('#modal-vote').find(':input[name='+key+']')
+            .closest('.controls')
+            .find('.help-block')
+            .html(vals.join(' '));
+        });
       }
       if (typeof callback === 'function') {
         callback(resp);
