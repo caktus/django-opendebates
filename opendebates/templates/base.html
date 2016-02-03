@@ -139,12 +139,11 @@
   {{ VOTES_CAST }}
 </script>
 
-
-<script type="text/javascript" src='{% static 'jquery/dist/jquery.min.js' %}'></script>
-<script type="text/javascript" src='{% static 'js/jquery.cookie.js' %}'></script>
-<script type="text/javascript" src='{% static 'handlebars/handlebars.min.js' %}'></script>
-<script type="text/javascript" src='{% static 'bootstrap/dist/js/bootstrap.min.js' %}'></script>
-<script type="text/javascript" src='{% static 'moment/min/moment-with-locales.min.js' %}'></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js'></script>
+<script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.3/handlebars.min.js'></script>
+<script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js'></script>
+<script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment-with-locales.js'></script>
 {% javascript 'base' %}
 {% block loading_javascript %}
 {% endblock %}
