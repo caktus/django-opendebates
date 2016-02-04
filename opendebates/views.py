@@ -152,11 +152,8 @@ def category_search(request, cat_id):
 def vote(request, id):
     try:
         with readonly_db():
-            idea = Submission.objects.get(id=id)
+            idea = Submission.objects.get(id=id, approved=True)
     except Submission.DoesNotExist:
-        raise Http404
-
-    if not idea.approved:
         raise Http404
 
     if idea.duplicate_of_id:
