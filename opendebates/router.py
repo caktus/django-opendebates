@@ -113,6 +113,8 @@ class DBRouter(object):
             # No replicas?  Punt.
             self.read_dbs = [self.master_db]
 
+        self.pool = self.read_dbs + [self.master_db]
+
     def roundrobin_readonly_db(self):
         # Round-robin through the read DBs
         db = self.read_dbs[self.next_db_index]
@@ -135,3 +137,17 @@ class DBRouter(object):
     def db_for_write(self, model, **hints):
         set_db_written_flag()
         return self.db_to_use(model)
+
+    def allow_relation(self, obj1, obj2, **hints):
+        """Allow any relation between two objects in the pool"""
+        if obj1._state.db in self.pool and obj2._state.db in self.pool:
+            return True
+        return None
+
+    def allow_syncdb(self, db, model):
+        """Explicitly put all models on all databases"""
+        return True
+
+    def allow_migrate(self, db, model):
+        """Explicitly put all models on all databases"""
+        return True

@@ -68,8 +68,13 @@ STATIC_ROOT = "{{ static_root }}"
 
 
 # email settings
-EMAIL_HOST_PASSWORD = '{{ smtp_password }}'
+#EMAIL_HOST_PASSWORD = '{{ smtp_password }}'
 EMAIL_SUBJECT_PREFIX = '[{{ deployment_tag }} {{ environment }}] '
+ADMINS = [
+    ('Caktus Opendebates team', 'opendebates-team@caktusgroup.com'),
+]
+DEFAULT_FROM_EMAIL = 'opendebates-team@caktusgroup.com'
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Redis DB map:
 # 0 = cache

@@ -3,6 +3,7 @@ import logging
 
 from celery import shared_task
 from django.core.cache import cache
+from django.db import connection
 from django.db.models import F
 
 from opendebates.models import Vote, Submission, RECENT_EVENTS_CACHE_ENTRY, \
@@ -10,7 +11,36 @@ from opendebates.models import Vote, Submission, RECENT_EVENTS_CACHE_ENTRY, \
 from opendebates.router import set_thread_readonly_db, set_thread_readwrite_db
 
 
+sql2 = """
+UPDATE opendebates_submission
+SET random_id=random()
+"""
+
+sql = """
+UPDATE opendebates_submission
+SET score=q.score
+FROM
+(
+SELECT
+s."id",
+CASE WHEN
+(COUNT(v.id) < 15) THEN 0 ELSE
+((Count(v."id") + Sum(CASE WHEN v.created_at > NOW() - INTERVAL '2 HOUR' THEN 1 ELSE 0 END)*200 + Sum(CASE WHEN v.created_at > NOW() - INTERVAL '4 HOUR' THEN 1 ELSE 0 END)*100)) / EXTRACT(EPOCH FROM (NOW() - MIN(s.created_at)))^1.5*(1+RANDOM()) END AS score
+FROM
+opendebates_submission AS s
+INNER JOIN opendebates_vote AS v ON v.submission_id = s."id"
+GROUP BY
+s."id"
+) q
+WHERE
+q."id" = opendebates_submission."id";
+"""  # noqa
+
+
 logger = logging.getLogger(__name__)
+
+
+exception_logged = False
 
 
 @shared_task
@@ -42,6 +72,24 @@ def update_recent_events():
 
         logger.debug("There are %d entries" % len(entries))
         logger.debug("There are %d votes" % number_of_votes)
+    except:
+        # This task runs too frequently to report a recurring problem every time
+        # it happens.
+        global exception_logged
+        if not exception_logged:
+            logger.exception("Unexpected exception in update_recent_events")
+            exception_logged = True
     finally:
         # Be a good citizen and reset the worker's thread to the default state
         set_thread_readwrite_db()
+
+
+@shared_task
+def update_trending_scores():
+    logger.debug("update_trending_scores: started")
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(sql)
+            cursor.execute(sql2)
+    except:
+        logger.exception("Unexpected error in update_trending_scores")

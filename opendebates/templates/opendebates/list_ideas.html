@@ -9,14 +9,10 @@
 <div class="row white search-only hidden-xs">
   <div class="col-sm-10 col-sm-offset-1 text-center">
     <form action="{% url 'search_ideas' %}" method="GET">
-      <div>
-        <label class="hidden-xs"
-               for="q">{% blocktrans %}Find questions and vote for the ones you support.{% endblocktrans %}</label>
-      </div>
       <div class="form-group">
         <div class="input-group">
           <input name="q" id="q" class="form-control"
-                 placeholder="{% blocktrans %}Enter search terms{% endblocktrans %}"
+                 placeholder="{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked{% endblocktrans %}"
                  value="{{ search_term|default:'' }}">
           <span class="input-group-addon">
             <span class="glyphicon glyphicon-search"></span>
@@ -85,7 +81,7 @@
   <div class="row idea-list">
     <div class="col-md-12">
       {% paginate 2 ideas %}
-      
+
       {% for idea in ideas %}
         {% include "opendebates/snippets/idea.html" %}
       {% endfor %}
