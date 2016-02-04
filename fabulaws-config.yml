@@ -137,7 +137,7 @@
       cache: c4.large
       db-master: m4.2xlarge
       db-slave: m4.2xlarge
-      web: c3.large
+      web: c4.xlarge
       worker: m4.large
     staging:
       cache: t1.micro
