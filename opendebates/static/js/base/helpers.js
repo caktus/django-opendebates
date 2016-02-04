@@ -136,6 +136,16 @@
 
   $(window).load(function() {
 
+    // Break vote count into spans for styling
+    $(".header-votes .number").each(function(){
+      var $el = $(this);
+      var text = $el.text();
+      $el.html("");
+      for (var i=0; i<text.length; i++) {
+        $el.append("<span><span>"+text[i]+"</span></span>");
+      }
+    })
+
     var src = ODebates.helpers.getParameterByName("source");
     if (typeof src === "string") {
       $.cookie("opendebates.source", src, { path: "/" });
