@@ -106,23 +106,12 @@ body > .container {
         margin: auto 10px;
         .header-lower(@bottom-extra: 5px);
 
-        @small-logo-spacing: 10%;
-        .full({
-          &:nth-child(2) {
-            left: @small-logo-spacing;
-          }
-          &:nth-child(3) {
-            right: @small-logo-spacing;
-          }
-        });
-        .not-full({
-          &:nth-child(2) {
-            left: 0;
-          }
-          &:nth-child(3) {
-            right: 0;
-          }
-        });
+        &:nth-child(2) {
+          left: 0;
+        }
+        &:nth-child(3) {
+          right: 0;
+        }
 
         @media (max-width: 800px) {
           display: none;
