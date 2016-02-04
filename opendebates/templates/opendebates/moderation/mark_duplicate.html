@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Admin - Moderation Panel</h2>
+
+<form method="POST">
+  {% csrf_token %}
+  <div>
+    <label>ID of submission to remove:
+      <input name="to_remove" value="{{ to_remove.id|default:to_remove_default }}">
+    </label>
+  </div>
+  <div>
+    <label>(Optional) ID of submission it is a duplicate of:
+      <input name="duplicate_of" value="{{ duplicate_of.id }}">
+    </label>
+  </div>
+  <input class="btn btn-default" type="submit" />
+</form>
+
+{% if to_remove %}
+<div class="col-sm-6">
+  <h3>This is the idea you are REMOVING:</h3>
+  <blockquote>{{ to_remove.idea }}</blockquote>
+  <div>Submitted on {{ to_remove.created_at }} by {{ to_remove.user_display_name }} (&laquo;{{ to_remove.voter.email }}&raquo;)</div>
+  <div>{{ to_remove.votes }} votes</div>
+  <div>{{ to_remove.citation|default:''|urlize }}</div>
+</div>
+
+{% if duplicate_of %}
+<div class="col-sm-6">
+  <h3>This is the idea you are KEEPING:</h3>
+  <blockquote>{{ duplicate_of.idea }}</blockquote>
+  <div>Submitted on {{ duplicate_of.created_at }} by {{ duplicate_of.user_display_name }} (&laquo;{{ duplicate_of.voter.email }}&raquo;)</div>
+  <div>{{ duplicate_of.votes }} votes</div>
+  <div>{{ duplicate_of.citation|default:''|urlize }}</div>
+</div>
+{% endif %}
+
+<form method="POST">
+  {% csrf_token %}
+  <input type="hidden" name="to_remove" value="{{ to_remove.id }}">
+  {% if duplicate_of %}
+  <input type="hidden" name="duplicate_of" value="{{ duplicate_of.id }}">
+  {% endif %}
+  <input type="hidden" name="confirm" value="confirm">
+  {% if duplicate_of %}
+  <div style="clear: left; font-size: 16px">
+    <hr />
+    <label>
+      Unmoderate
+      <input type="radio" name="handling" value="unmoderate" checked>
+    </label>
+    |
+    <label>
+      Merge
+      <input type="radio" name="handling" value="merge">
+    </label>
+    |
+    <label>
+      Do nothing
+      <input type="radio" name="handling" value="neither">
+    </label>
+  </div>
+  {% else %}
+  <input type="hidden" name="handling" value="unmoderate">
+  {% endif %}
+
+  <div style="clear: left; font-size: 16px">
+    <hr />
+    <label>
+      Send email?
+      <input type="checkbox" checked name="send_email" value="yes">
+    </label>
+  </div>
+
+  <div>
+    <input type="submit" class="btn btn-danger" value="Confirm">
+  </div>
+</form>
+{% endif %}
+
+{% endblock %}

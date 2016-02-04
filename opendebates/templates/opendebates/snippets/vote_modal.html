@@ -1,0 +1,55 @@
+{% load i18n %}
+
+<div class="modal-vote modal fade" id="modal-vote"
+     role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+      </div>
+      <hr class="mic_icon">
+      <div class="modal-body">
+        <form class="form-inline">
+          {% csrf_token %}
+          <fieldset>
+            <div class="control-group">
+              <label class="control-label" for="email"></label>
+              <div class="controls">
+                <p class="help-block"></p>
+                <input name="email" type="text" class="input-large required"
+                       placeholder="{% blocktrans %}Email{% endblocktrans %}">
+              </div>
+            </div>
+            
+            <div class="control-group">
+              <label class="control-label" for="zipcode"></label>
+              <div class="controls">
+                <p class="help-block"></p>
+                <input name="zipcode" type="text" class="input-large required"
+                       placeholder="{% blocktrans %}Zip code{% endblocktrans %}">
+              </div>
+            </div>
+            
+            <div class="control-group">
+              <label class="control-label" for="votebutton"></label>
+              <div class="controls">
+                <button
+                   data-vote-url
+                   name="votebutton"
+                   class="btn btn-primary votebutton">
+                  {% blocktrans %}Vote!{% endblocktrans %}
+                </button>
+              </div>
+            </div>
+            
+            <div class="hidden">
+              {% blocktrans %}Unable to submit your vote{% endblocktrans %}
+            </div>
+            
+          </fieldset>
+        </form>
+      </div>
+    </div>
+    
+  </div>
+</div>

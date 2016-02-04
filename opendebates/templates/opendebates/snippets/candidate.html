@@ -1,0 +1,29 @@
+{% load i18n %}
+{% load static from staticfiles %}
+
+
+<div id="i{{ candidate.id }}" data-candidate-id="{{ candidate.id }}" class="candidate clearfix">
+  <section class="col-md-3 center">
+    <img src="{% static "images/110x110.png" %}">
+    <div class="candidate-links">
+      {% if candidate.url %}
+      <a target="_blank" class="web" href="{{ candidate.url }}">&nbsp;&nbsp;&nbsp;&nbsp;</a>
+      {% endif %}
+      {% if candidate.facebook %}
+      <a target="_blank" class="fb" href="{{ candidate.facebook }}">&nbsp;&nbsp;&nbsp;&nbsp;</a>
+      {% endif %}
+      {% if candidate.twitter_handle %}
+      <a target="_blank" class="tw" href="https://twitter.com/{{ candidate.twitter_handle }}">&nbsp;&nbsp;&nbsp;&nbsp;</a>
+      {% endif %}
+    </div>
+  </section>
+  <section class="col-md-8 candidate-detail">
+    <p class="candidate-name">{{ candidate.display_name }}
+    </p>
+    <p class="candidate-title">{{ candidate.current_title }}
+    </p>
+    <p class="candidate-bio">{{ candidate.bio }}
+    </p>
+  </section>
+</div>
+
