@@ -139,6 +139,15 @@ CELERYBEAT_SCHEDULE = {
             'expires': 60,  # seconds
         }
     },
+    'update_trending_scores': {
+        'task': 'opendebates.tasks.update_trending_scores',
+        'schedule': timedelta(minutes=10),
+        'options': {
+            # If no worker runs it within 10 minutes, throw it away; more
+            # tasks will already have been scheduled.
+            'expires': 60 * 10,  # seconds
+        }
+    },
 }
 
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
