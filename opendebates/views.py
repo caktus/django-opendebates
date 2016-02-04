@@ -13,11 +13,10 @@ import logging
 
 from registration.backends.simple.views import RegistrationView
 
+from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm
 from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, RECENT_EVENTS_CACHE_ENTRY
-from .utils import get_ip_address_from_request, get_headers_from_request
-from .utils import choose_sort, sort_list
-from .forms import OpenDebatesRegistrationForm
-from .forms import VoterForm, QuestionForm
+from .router import readonly_db
+from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list
 from opendebates_comments.forms import CommentForm
 from opendebates_emails.models import send_email
 
@@ -152,11 +151,9 @@ def category_search(request, cat_id):
 @allow_http("GET", "POST")
 def vote(request, id):
     try:
-        idea = Submission.objects.get(id=id)
+        with readonly_db():
+            idea = Submission.objects.get(id=id, approved=True)
     except Submission.DoesNotExist:
-        raise Http404
-
-    if not idea.approved:
         raise Http404
 
     if idea.duplicate_of_id:
