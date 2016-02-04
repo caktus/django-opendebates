@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import connections
+from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.http import Http404, HttpResponse, HttpResponseServerError
@@ -236,8 +237,10 @@ def vote(request, id):
         )
     )
     if created:
+        # update the DB with the real tally
+        Submission.objects.filter(id=id, approved=True).update(votes=F('votes')+1)
+        # also calculate a simple increment tally for the client
         idea.votes += 1
-        idea.save()
 
     if 'voter' not in request.session:
         request.session['voter'] = {"email": voter.email, "zip": voter.zip}
