@@ -68,12 +68,17 @@ STATIC_ROOT = "{{ static_root }}"
 
 
 # email settings
-#EMAIL_HOST_PASSWORD = '{{ smtp_password }}'
+EMAIL_HOST = 'smtp.postmarkapp.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = '{{ smtp_password }}'
+EMAIL_HOST_PASSWORD = '{{ smtp_password }}'
+EMAIL_USE_TLS = True
+
 EMAIL_SUBJECT_PREFIX = '[{{ deployment_tag }} {{ environment }}] '
 ADMINS = [
     ('Caktus Opendebates team', 'opendebates-team@caktusgroup.com'),
 ]
-DEFAULT_FROM_EMAIL = 'opendebates-team@caktusgroup.com'
+DEFAULT_FROM_EMAIL = 'ethan@opendebatecoalition.com'  # FIXME: update when domain finalized
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Redis DB map:
