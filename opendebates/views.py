@@ -48,6 +48,13 @@ def health_check(request):
         return HttpResponseServerError('Configuration Error')
 
 
+def state_from_zip(zip):
+    try:
+        return ZipCode.objects.get(zip=zip).state
+    except ZipCode.DoesNotExist:
+        return ''
+
+
 @allow_http("GET")
 @rendered_with("opendebates/test.html")
 def test(request):
@@ -157,21 +164,13 @@ def vote(request, id):
         url = url + "#i"+str(idea.id)
         return redirect(url)
 
-    try:
-        related1 = Submission.objects.filter(category=idea.category,
-                                             duplicate_of__isnull=True,
-                                             approved=True).exclude(id=idea.id)[0]
-    except IndexError:
-        related1 = None
-    try:
-        related2 = Submission.objects.filter(category=idea.category,
-                                             duplicate_of__isnull=True,
-                                             approved=True).exclude(
-                                                 id=idea.id).exclude(id=related1.id)[0]
-    except (IndexError, AttributeError):  # if related1 is None -> related1.id
-        related2 = None
-
     if request.method == "GET":
+        two_other_approved_ideas = list(Submission.objects.filter(
+            category=idea.category,
+            duplicate_of=None,
+            approved=True).exclude(id=idea.id)[:2]) + [None, None]
+        related1 = two_other_approved_ideas[0]
+        related2 = two_other_approved_ideas[1]
         return {
             'idea': idea,
             'show_duplicates': True,
@@ -197,11 +196,17 @@ def vote(request, id):
             'idea': idea,
             'comment_form': CommentForm(idea),
             }
-    voter, created = Voter.objects.get_or_create(email=form.cleaned_data['email'])
 
-    if created and 'opendebates.source' in request.COOKIES:
-        voter.source = request.COOKIES['opendebates.source']
-        voter.save()
+    state = state_from_zip(form.cleaned_data['zipcode'])
+
+    voter, created = Voter.objects.get_or_create(
+        email=form.cleaned_data['email'],
+        defaults=dict(
+            source=request.COOKIES.get('opendebates.source'),
+            state=state,
+            zip=form.cleaned_data['zipcode'],
+        )
+    )
 
     if voter.user and voter.user != request.user:
         # anonymous user can't use the email of a registered user
@@ -217,36 +222,25 @@ def vote(request, id):
             'comment_form': CommentForm(idea),
         }
 
-    if voter.zip != form.cleaned_data['zipcode']:
+    if not created and voter.zip != form.cleaned_data['zipcode']:
         voter.zip = form.cleaned_data['zipcode']
-        try:
-            voter.state = ZipCode.objects.get(zip=form.cleaned_data['zipcode']).state
-        except Exception:
-            pass
+        voter.state = state
         voter.save()
 
-    votes = idea.vote_set.filter(voter=voter)
-    if len(votes) == 0:
+    vote, created = Vote.objects.get_or_create(
+        submission=idea,
+        voter=voter,
+        defaults=dict(
+            ip_address=get_ip_address_from_request(request),
+            created_at=timezone.now(),
+            source=request.COOKIES.get('opendebates.source'),
+            request_headers=get_headers_from_request(request),
 
-        if 'opendebates.source' in request.COOKIES:
-            vote_source = request.COOKIES['opendebates.source']
-        else:
-            vote_source = None
-
-        try:
-            Vote.objects.create(  # or idea.voter_set.create(voter=voter)
-                submission=idea,
-                voter=voter,
-                ip_address=get_ip_address_from_request(request),
-                created_at=timezone.now(),
-                source=vote_source,
-                request_headers=get_headers_from_request(request),
-            )
-        except Exception:  # lazy handling of race condition
-            pass
-        else:
-            idea.votes += 1
-            idea.save()
+        )
+    )
+    if created:
+        idea.votes += 1
+        idea.save()
 
     if 'voter' not in request.session:
         request.session['voter'] = {"email": voter.email, "zip": voter.zip}
