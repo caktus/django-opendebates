@@ -263,14 +263,13 @@ def vote(request, id):
 @rendered_with("opendebates/list_ideas.html")
 @allow_http("GET", "POST")
 def questions(request):
-    categories = Category.objects.all()
 
     if request.method == 'GET':
         form = QuestionForm()
 
         return {
             'form': form,
-            'categories': categories,
+            'categories': Category.objects.all(),
             'ideas': [],
             'stashed_submission': request.session.pop(
                 "opendebates.stashed_submission", None)
@@ -285,7 +284,7 @@ def questions(request):
 
         return {
             'form': form,
-            'categories': categories,
+            'categories': Category.objects.all(),
             'ideas': [],
         }
 
@@ -300,34 +299,29 @@ def questions(request):
     category = request.POST.get('category')
     form_data = form.cleaned_data
 
-    voter, created = Voter.objects.get_or_create(email=request.user.email)
-    if created and 'opendebates.source' in request.COOKIES:
-        voter.source = request.COOKIES['opendebates.source']
-        voter.save()
+    voter, created = Voter.objects.get_or_create(
+        email=request.user.email,
+        defaults=dict(
+            source=request.COOKIES.get('opendebates.source')
+        )
+    )
 
-    idea = Submission()
-    idea.voter = voter
-    idea.category = Category.objects.get(pk=category)
-    idea.idea = form_data['question']
-    idea.citation = form_data['citation']
-
-    idea.created_at = timezone.now()
-    idea.ip_address = get_ip_address_from_request(request)
-    idea.approved = True
-    idea.votes += 1
-
-    if 'opendebates.source' in request.COOKIES:
-        idea.source = request.COOKIES['opendebates.source']
-        vote_source = request.COOKIES['opendebates.source']
-    else:
-        vote_source = None
-
-    idea.save()
+    idea = Submission.objects.create(
+        voter=voter,
+        category_id=category,
+        idea=form_data['question'],
+        citation=form_data['citation'],
+        created_at=timezone.now(),
+        ip_address=get_ip_address_from_request(request),
+        approved=True,
+        votes=1,
+        source=request.COOKIES.get('opendebates.source'),
+    )
 
     Vote.objects.create(
         submission=idea,
         voter=voter,
-        source=vote_source,
+        source=idea.source,
         ip_address=get_ip_address_from_request(request),
         request_headers=get_headers_from_request(request),
         created_at=timezone.now())

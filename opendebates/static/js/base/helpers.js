@@ -144,7 +144,7 @@
       for (var i=0; i<text.length; i++) {
         $el.append("<span><span>"+text[i]+"</span></span>");
       }
-    })
+    });
 
     var src = ODebates.helpers.getParameterByName("source");
     if (typeof src === "string") {
