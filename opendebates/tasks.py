@@ -3,6 +3,7 @@ import logging
 
 from celery import shared_task
 from django.core.cache import cache
+from django.core import management
 from django.db import connection
 from django.db.models import F
 
@@ -93,3 +94,11 @@ def update_trending_scores():
             cursor.execute(sql2)
     except:
         logger.exception("Unexpected error in update_trending_scores")
+
+
+@shared_task(ignore_result=True)
+def backup_database():
+    """ Backup the database using django-dbbackup """
+    logger.info("start database_backup")
+    management.call_command('dbbackup')
+    logger.info("end database_backup")

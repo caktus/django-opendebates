@@ -25,7 +25,7 @@
   ssh_keys: deployment/users/
   password_names: [database_password, broker_password, smtp_password,
                    newrelic_license_key, newrelic_api_key, s3_secret,
-                   secret_key]
+                   secret_key, dbbackup_access_key, dbbackup_access_secret]
   project: opendebates
   wsgi_app: opendebates.wsgi:application
   requirements_file: requirements/base.txt

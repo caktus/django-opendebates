@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'pipeline',
     'djangobower',
+    'dbbackup',
     # Still using django-celery because that's how Fabulaws starts workers
     'djcelery',
     'opendebates',
@@ -248,3 +249,8 @@ CACHES = {
     },
 
 }
+
+# For running 'dbbackup' locally
+DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
+DBBACKUP_STORAGE_OPTIONS = {'location': '.'}
+DBBACKUP_FILENAME_TEMPLATE = 'local/{datetime}.{extension}'
