@@ -238,7 +238,7 @@ def vote(request, id):
     )
     if created:
         # update the DB with the real tally
-        Submission.objects.filter(id=id, approved=True).update(votes=F('votes')+1)
+        Submission.objects.filter(id=id).update(votes=F('votes')+1)
         # also calculate a simple increment tally for the client
         idea.votes += 1
 
