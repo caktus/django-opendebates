@@ -70,64 +70,65 @@
       </div>
     </div>
     {% endif %}
-    
-    {% if comment_list|length %}
-    <div class="comment-count">
-      <h4>
-        {% if comment_list|length == 1 %}
-        {{ comment_list|length }} Comment
-        {% else %}
-        {{ comment_list|length }} Comments
-        {% endif %}
-      </h4>
-    </div>
-    
-    <div class="comment-list">
-      
-      {% for comment in comment_list %}
-      <div class="comment-list-entry">
-        <div class="author">
-          {{ comment.user.voter.user_display_name }}
-        </div>
-        <div class="body">
-          {{ comment.comment }}
-        </div>
-        <div class="timestamp">
-          <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-          {{ comment.submit_date }}
-        </div>
-      </div>
-      {% endfor %}
-      
-    </div>
-    {% endif %}
 
-    <h5>Add a Comment</h5>
-    {% if request.user.is_authenticated %}
-    <form class="comment-form"
-          action="{% url 'comment' %}" method="post">
-      {% csrf_token %}
-      <input type="hidden" name="next" 
-             value="{% url 'show_idea' idea.id %}" />
-      
-      <div class="row">
-        <div class="col-sm-9">
-          {{ comment_form|bootstrap }}
-        </div>
-        <div class="col-sm-3">
-          <input class="btn btn-default" 
-                 type="submit" name="submit" value="Post Comment">
-        </div>
+    {% comment %}
+      {% if comment_list|length %}
+      <div class="comment-count">
+        <h4>
+          {% if comment_list|length == 1 %}
+          {{ comment_list|length }} Comment
+          {% else %}
+          {{ comment_list|length }} Comments
+          {% endif %}
+        </h4>
       </div>
 
-    </form>
-    {% else %}
-    <a href="{% url 'auth_login' %}" 
-       class="btn btn-default">Log In</a>
-    <a href="{% url 'registration_register' %}"
-       class="btn btn-default">Create an Account</a>
-    {% endif %}
-    
+      <div class="comment-list">
+
+        {% for comment in comment_list %}
+        <div class="comment-list-entry">
+          <div class="author">
+            {{ comment.user.voter.user_display_name }}
+          </div>
+          <div class="body">
+            {{ comment.comment }}
+          </div>
+          <div class="timestamp">
+            <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+            {{ comment.submit_date }}
+          </div>
+        </div>
+        {% endfor %}
+
+      </div>
+      {% endif %}
+
+      <h5>Add a Comment</h5>
+      {% if request.user.is_authenticated %}
+      <form class="comment-form"
+            action="{% url 'comment' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next"
+               value="{% url 'show_idea' idea.id %}" />
+
+        <div class="row">
+          <div class="col-sm-9">
+            {{ comment_form|bootstrap }}
+          </div>
+          <div class="col-sm-3">
+            <input class="btn btn-default"
+                   type="submit" name="submit" value="Post Comment">
+          </div>
+        </div>
+
+      </form>
+      {% else %}
+      <a href="{% url 'auth_login' %}"
+         class="btn btn-default">Log In</a>
+      <a href="{% url 'registration_register' %}"
+         class="btn btn-default">Create an Account</a>
+      {% endif %}
+    {% endcomment %}
     <form action="{% url 'vote' id=idea.id %}" method="POST" class="hidden form-inline">
       {% csrf_token %}
       <fieldset>

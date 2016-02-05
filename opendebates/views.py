@@ -18,7 +18,7 @@ from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm
 from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, RECENT_EVENTS_CACHE_ENTRY
 from .router import readonly_db
 from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list
-from opendebates_comments.forms import CommentForm
+# from opendebates_comments.forms import CommentForm
 from opendebates_emails.models import send_email
 
 
@@ -176,10 +176,10 @@ def vote(request, id):
             'related2': related2,
             'duplicates': (Submission.objects.filter(approved=True, duplicate_of=idea)
                            if idea.has_duplicates else []),
-            'comment_form': CommentForm(idea),
-            'comment_list': idea.comments.filter(
-                is_public=True, is_removed=False
-            ).select_related("user", "user__voter"),
+            # 'comment_form': CommentForm(idea),
+            # 'comment_list': idea.comments.filter(
+            #     is_public=True, is_removed=False
+            # ).select_related("user", "user__voter"),
         }
 
     form = VoterForm(request.POST)
@@ -192,7 +192,7 @@ def vote(request, id):
         return {
             'form': form,
             'idea': idea,
-            'comment_form': CommentForm(idea),
+            # 'comment_form': CommentForm(idea),
             }
 
     state = state_from_zip(form.cleaned_data['zipcode'])
@@ -217,7 +217,7 @@ def vote(request, id):
         return {
             'form': form,
             'idea': idea,
-            'comment_form': CommentForm(idea),
+            # 'comment_form': CommentForm(idea),
         }
 
     if not created and voter.zip != form.cleaned_data['zipcode']:
