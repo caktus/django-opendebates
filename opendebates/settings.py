@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     # Still using django-celery because that's how Fabulaws starts workers
     'djcelery',
     'opendebates',
-    'opendebates_comments',
     'opendebates_emails',
     'djorm_pgfulltext',
     'endless_pagination',
