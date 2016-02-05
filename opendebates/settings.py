@@ -12,6 +12,7 @@ FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 SECRET_KEY = 'secret-key-for-local-use-only'
 
 DEBUG = 'DJANGO_DEBUG' in os.environ
+TRAVIS = 'TRAVIS' in os.environ
 
 ALLOWED_HOSTS = []
 
@@ -125,7 +126,7 @@ USE_TZ = True
 
 # celery settings
 CELERY_SEND_TASK_ERROR_EMAILS = True
-CELERY_ALWAYS_EAGER = DEBUG
+CELERY_ALWAYS_EAGER = DEBUG or TRAVIS
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_IGNORE_RESULT = True
 CELERYD_HIJACK_ROOT_LOGGER = False
