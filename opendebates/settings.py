@@ -254,3 +254,4 @@ CACHES = {
 DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
 DBBACKUP_STORAGE_OPTIONS = {'location': '.'}
 DBBACKUP_FILENAME_TEMPLATE = 'local/{datetime}.{extension}'
+DBBACKUP_SEND_EMAIL = False
