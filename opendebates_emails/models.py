@@ -4,6 +4,9 @@ from django.db import models
 from django.template import Template, Context
 from djangohelpers.lib import register_admin
 
+from opendebates.models import Submission
+from opendebates_emails.tasks import send_email_task
+
 
 class EmailTemplate(models.Model):
 
@@ -36,13 +39,15 @@ class EmailTemplate(models.Model):
 
 
 def send_email(type, ctx):
+    if not EmailTemplate.objects.filter(type=type).exists():
+        raise ValueError("send_mail called with non-existent mail template: %r" % type)
+    if ctx.keys() != ['idea']:
+        raise ValueError("send_email assumes context contains one key named 'idea'")
+    idea = ctx['idea']
+    if not isinstance(idea, Submission):
+        raise ValueError("send_email assumes context['idea'] is a Submission object")
+    send_email_task.delay(type, idea.pk)
 
-    try:
-        template = EmailTemplate.objects.filter(type=type).order_by("?")[0]
-    except IndexError:
-        return False
-
-    return template.send(ctx)
 
 register_admin(EmailTemplate)
 
