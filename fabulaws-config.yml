@@ -178,15 +178,15 @@
   volume_sizes:
     production:
       cache: 10
-      db-master: 100
-      db-slave: 100
-      web: 10
+      db-master: 250
+      db-slave: 250
+      web: 30
       worker: 50
     testing:
       cache: 10
-      db-master: 100
-      db-slave: 100
-      web: 10
+      db-master: 250
+      db-slave: 250
+      web: 30
       worker: 50
     staging:
       cache: 10
