@@ -180,13 +180,13 @@
       cache: 10
       db-master: 250
       db-slave: 250
-      web: 10
+      web: 30
       worker: 50
     testing:
       cache: 10
       db-master: 250
       db-slave: 250
-      web: 10
+      web: 30
       worker: 50
     staging:
       cache: 10
