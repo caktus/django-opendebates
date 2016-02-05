@@ -1,3 +1,5 @@
+from celery.schedules import crontab
+
 from opendebates.settings import *
 
 DEBUG = False
@@ -162,3 +164,20 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+
+CELERYBEAT_SCHEDULE["backup-database"] = {
+    "task": "opendebates.tasks.backup_database",
+    "schedule": crontab(minute=0, hour="*/4"), # backup database every 4 hours
+}
+
+DBBACKUP_DATABASES = [MASTER_DATABASE]
+
+DBBACKUP_STORAGE = 'dbbackup.storage.s3_storage'
+DBBACKUP_STORAGE_OPTIONS = {
+    'access_key': '{{ dbbackup_access_key }}',
+    'secret_key': '{{ dbbackup_access_secret }}',
+    'bucket_name': 'opendebates-backups'
+}
+
+DBBACKUP_FILENAME_TEMPLATE = '{{ environment }}/{datetime}.{extension}'
