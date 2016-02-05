@@ -183,3 +183,6 @@ DBBACKUP_STORAGE_OPTIONS = {
 }
 
 DBBACKUP_FILENAME_TEMPLATE = '{{ environment }}/{datetime}.{extension}'
+DBBACKUP_SEND_EMAIL = True
+# dbbackup needs this to send email
+DBBACKUP_HOSTNAME = ALLOWED_HOSTS[0]

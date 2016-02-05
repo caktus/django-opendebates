@@ -221,6 +221,7 @@
     - build-essential
     - stunnel4
     - pgbouncer
+    - postgresql-client-9.3
 
   db_settings:
     # for help adjusting these settings, see:
