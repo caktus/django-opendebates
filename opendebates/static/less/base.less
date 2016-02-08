@@ -484,9 +484,17 @@ body > .container {
         .share-button();
         background: url('/static/images/icon-share-email.png') 0px 0px no-repeat;
       }
-      .sms-button:before {
-        .share-button();
-        background: url('/static/images/icon-share-sms.png') 0px 0px no-repeat;
+      .sms-button {
+        .responsive({
+          display: none;
+        }, {
+          display: inline-block;
+        });
+
+        &:before {
+          .share-button();
+          background: url('/static/images/icon-share-sms.png') 0px 0px no-repeat;
+        }
       }
 
       [class$=-button] {
