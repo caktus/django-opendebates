@@ -110,20 +110,36 @@ class Submission(models.Model):
             "idea_url": quote_plus(self.really_absolute_url()),
             }
 
-    def really_absolute_url(self):
-        return settings.SITE_DOMAIN_WITH_PROTOCOL + self.get_absolute_url()
-
-    def email_subject_text(self):
-        return _("Vote+for+my+Big+Idea!")
-
-    def email_body_text(self):
-        return _("I+posted+an+idea+on+The+Big+Ideas+Project+--+30+members+of+Congress"
-                 "+will+see+the+top+20+ideas!+Please+click+here+to+see+it+and+vote+on"
-                 "+my+idea+--+and+share+it+with+your+friends!")
+    def reddit_url(self):
+        return u"//www.reddit.com/submit?url=%s" % (quote_plus(self.really_absolute_url()),)
 
     def email_url(self):
-        return u"mailto:?subject=%s&body=%s" % (
-            self.email_subject_text(), self.email_body_text(), self.really_absolute_url())
+        params = {
+            "headline": self.headline,
+            "idea": self.idea,
+            "url": self.really_absolute_url(),
+        }
+        subject = _(u"Vote for my progressive idea for @OpenDebate2016 #OpenDebate2016. ")
+        body = _(
+            """Vote for my progressive idea for @OpenDebate2016 #OpenDebate2016.
+
+            %(headline)s
+            %(idea)s
+
+            %(url)s
+            """ % params
+        )
+        return u"mailto:?subject=%s&body=%s" % (quote_plus(subject), quote_plus(body))
+
+    def sms_url(self):
+        body = _(
+            u"Vote for my progressive idea for @OpenDebate2016 #OpenDebate2016. %(url)s"
+            % {"url": self.really_absolute_url()}
+        )
+        return u"sms:;?body=%s" % (quote_plus(body),)
+
+    def really_absolute_url(self):
+        return settings.SITE_DOMAIN_WITH_PROTOCOL + self.get_absolute_url()
 
     def twitter_url(self):
         url_tmpl = u"https://twitter.com/intent/tweet?url=" + \

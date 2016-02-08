@@ -6,10 +6,11 @@
 @alert-danger-border: grey;
 @alert-danger-text: grey;
 @colorless: grey;
-@brand-primary: pink;
 @brand-secondary: lightpink;
 @button-color: pink;
 @muted-color: purple;
+
+@brand-primary: #00304d;
 
 // Theming
 @separationColor: #d7e4e9;
@@ -326,6 +327,7 @@ body > .container {
 
 // Question styling
 .big-idea {
+  color: #00304d;
   border-bottom: 1px solid @separationColor;
 
   .vote-tally {
@@ -400,55 +402,62 @@ body > .container {
       line-height: 114%;
     }
 
-    .created-by, .created-at, .social_links {
+    .idea-info {
       margin: 10px auto;
       font-size: 12px;
     }
 
-    .social_links {
+    .social-links {
       padding-top: 5px;
-      border-top: solid 1px rgb(215,215,215);
 
-      .fb-button:before,
-      .tweet-button:before,
-      .comments:before {
+      @socialIconWidth: 30px;
+
+      .share-button {
         content: "";
         position: absolute;
         left: 0px;
         top: -1px;
-        width: 15px;
-        height: 15px;
+        width: @socialIconWidth;
+        height: 20px;
+      }
+      .tweet-button {
+        color: #50abf1;
       }
       .tweet-button:before {
-        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') 0px 0px no-repeat;
+        .share-button();
+        background: url('/static/images/icon-share-twitter.png') 0px 0px no-repeat;
+      }
+      .fb-button {
+        color: #3b5998;
       }
       .fb-button:before {
-        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -15px 0 no-repeat;
+        .share-button();
+        background: url('/static/images/icon-share-fb.png') 0px 0px no-repeat;
       }
-      .comments:before {
-        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -30px 0 no-repeat;
+      .reddit-button:before {
+        .share-button();
+        background: url('/static/images/icon-share-reddit.png') 0px 0px no-repeat;
       }
-      .fb-button:hover:before {
-        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -15px -15px no-repeat;
+      .email-button:before {
+        .share-button();
+        background: url('/static/images/icon-share-email.png') 0px 0px no-repeat;
       }
-      .comments:hover:before {
-        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -30px -15px no-repeat;
+      .sms-button:before {
+        .share-button();
+        background: url('/static/images/icon-share-sms.png') 0px 0px no-repeat;
       }
 
-      .tweet-button:hover:before {
-        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') 0px -15px no-repeat;
-      }
-      .tweet-button, .fb-button, .comments {
+      [class$=-button] {
         position: relative;
 
         a {
           display: inline-block;
-          padding: 4px 7px 2px 18px;
+          padding: 4px 7px 2px @socialIconWidth;
           border-bottom: none;
           text-decoration: none;
           border: none;
           vertical-align: middle;
-          color: @muted-color;
+          font-size: 16px;
         }
         a:hover {
           // color: @link-color;

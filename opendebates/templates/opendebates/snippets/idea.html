@@ -55,32 +55,38 @@
       <p class="idea">
         {{ idea.idea }}
       </p>
-      <p class="created-by">
-        {% blocktrans with user_display_name=idea.user_display_name %}Submitted by {{ user_display_name }}{% endblocktrans %}
-      </p>
-      <p class="created-at">
-        {{ idea.created_at }}
+      <p class="idea-info">
+        {% blocktrans with user_display_name=idea.user_display_name %}Submitted by: <strong>{{ user_display_name }}</strong>{% endblocktrans %}<br />
+        {{ idea.created_at }}<br />
+        {% trans "Issue are" %}: <strong>{{ idea.category.name }}</strong>
       </p>
 
-      <div class="social_links">
-
-        <span class="tweet-button">
-          <a class="twitter" href="{{ idea.twitter_url }}" target="_blank">
-            {% blocktrans %}Tweet{% endblocktrans %}
-          </a>
-        </span>
+      <div class="social-links">
         <span class="fb-button">
           <a class="facebook" href="{{ idea.facebook_url }}" target="_blank">
             {% blocktrans %}Share{% endblocktrans %}
           </a>
         </span>
-        {% comment %}
-          <span class="comments">
-            <a href="{{ idea.get_absolute_url }}">
-              {% blocktrans with idea.num_comments as num_comments %}{{ num_comments }} Comments{% endblocktrans %}
-            </a>
-          </span>
-        {% endcomment %}
+        <span class="tweet-button">
+          <a class="twitter" href="{{ idea.twitter_url }}" target="_blank">
+            {% blocktrans %}Tweet{% endblocktrans %}
+          </a>
+        </span>
+        <span class="reddit-button">
+          <a class="reddit" href="{{ idea.reddit_url }}" target="_blank">
+            {% blocktrans %}Share{% endblocktrans %}
+          </a>
+        </span>
+        <span class="email-button">
+          <a class="email" href="{{ idea.email_url }}" target="_blank">
+            {% blocktrans %}Share{% endblocktrans %}
+          </a>
+        </span>
+        <span class="sms-button">
+          <a class="sms" href="{{ idea.sms_url }}" target="_blank">
+            {% blocktrans %}Share{% endblocktrans %}
+          </a>
+        </span>
       </div>
 
       {% if idea.citation and idea.citation_verified %}
