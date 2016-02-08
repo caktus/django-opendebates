@@ -34,7 +34,7 @@
       {% endif %}
     </div>
     <div class="header-title">
-      <h1>{% blocktrans %}Welcome to the{% endblocktrans %}<br/>{% blocktrans %}Democratic Open Forum{% endblocktrans %}</h1>
+      <h1><a href="/">{% blocktrans %}Welcome to the{% endblocktrans %}<br/>{% blocktrans %}Democratic Open Forum{% endblocktrans %}</a></h1>
       <div class="header-copy">
         {% blocktrans %}Ask Bernie and Hillary about the issues that are most important to you. Then tune in here to watch the Democratic Open Forum on Thursday, March 3 at 9:00 pm EST. All questions will be chosen from among those that receive the most votes.{% endblocktrans %}
       </div>
@@ -46,9 +46,9 @@
         <span class="number">{{ NUMBER_OF_VOTES|stringformat:"07d" }}</span>{% blocktrans %}total votes{% endblocktrans %}
       </div>
       <div class="header-count-down">
-        <span class="number">30</span> {% blocktrans %}days{% endblocktrans %}
-        <span class="number">12</span> {% blocktrans %}hours{% endblocktrans %}
-        <span class="number">5</span> {% blocktrans %}minutes{% endblocktrans %}
+        <span class="number days">30</span> {% blocktrans %}days{% endblocktrans %}
+        <span class="number hours">12</span> {% blocktrans %}hours{% endblocktrans %}
+        <span class="number minutes">5</span> {% blocktrans %}minutes{% endblocktrans %}
         until the forum
       </div>
     </div>
@@ -71,10 +71,8 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-sm-12">
       {% block content %}
       {% endblock %}
-    </div>
   </div>
 
   {% include "opendebates/snippets/vote_modal.html" %}

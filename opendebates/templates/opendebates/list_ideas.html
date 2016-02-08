@@ -28,8 +28,8 @@
 
 
 {% block primary_content %}
-  <div class="sort-column row">
-    <div class="col-md-10 text-center">
+  <div class="sort-column">
+    <div class="col-md-12 text-center">
       <form action="{{ url_name }}" method="GET" class="form-inline">
         <label class="hidden-xs" for="q">
           {% blocktrans %}Sort questions by{% endblocktrans %}
@@ -58,19 +58,18 @@
             {% blocktrans %}Fewest Votes{% endblocktrans %}
           </option>
         </select>
+        Displaying <strong>{{ ideas|length }} Questions</strong>
       </form>
     </div>
   </div>
   <div class="row idea-list">
-    <div class="col-md-12">
-      {% paginate 2 ideas %}
+    {% paginate 50 ideas %}
 
-      {% for idea in ideas %}
-        {% include "opendebates/snippets/idea.html" %}
-      {% endfor %}
+    {% for idea in ideas %}
+      {% include "opendebates/snippets/idea.html" %}
+    {% endfor %}
 
-      {% show_pages %}
-    </div>
+    {% show_pages %}
   </div>
 
 {% endblock %}
