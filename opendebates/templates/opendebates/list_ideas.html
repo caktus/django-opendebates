@@ -6,22 +6,15 @@
 {% endblock %}
 
 {% block pre_content %}
-<div class="row white search-only hidden-xs">
-  <div class="col-sm-10 col-sm-offset-1 text-center">
-    <form action="{% url 'search_ideas' %}" method="GET">
-      <div class="form-group">
-        <div class="input-group">
-          <input name="q" id="q" class="form-control"
-                 placeholder="{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked{% endblocktrans %}"
-                 value="{{ search_term|default:'' }}">
-          <span class="input-group-addon">
-            <span class="glyphicon glyphicon-search"></span>
-          </span>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
+<form action="{% url 'search_ideas' %}" method="GET" id="top-search">
+  <input name="q" id="q" class="form-control"
+         placeholder="{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked{% endblocktrans %}"
+         value="{{ search_term|default:'' }}">
+  <span class="input-group-addon">
+    <span class="glyphicon glyphicon-search"></span>
+  </span>
+</form>
+
 <div class="row white category-only hidden-xs text-center">
   <div class="vcenter {% if not category %}active-category-nav{% endif %}">
     <a href="/">{% blocktrans %}All Categories{% endblocktrans %}</a>
@@ -41,40 +34,47 @@
   <div class="sort-column row">
     <div class="col-md-10 text-center">
       <form action="{{ url_name }}" method="GET" class="form-inline">
-        <label class="hidden-xs"
-               for="q">{% blocktrans %}Sort by:{% endblocktrans %}</label>
-
-        <div class="form-group">
-          <div class="input-group">
-            <select onchange="this.form.submit()"
-                    name="sort" class="form-control">
-              <option value="">
-                ---
-              </option>
-              <option value="trending" {% if sort == "trending" %}selected{% endif %}>
-                {% blocktrans %}Trending Now{% endblocktrans %}
-              </option>
-              <option value="random" {% if sort == "random" %}selected{% endif %}>
-                {% blocktrans %}Random{% endblocktrans %}
-              </option>
-              <option value="-date" {% if sort == "-date" %}selected{% endif %}>
-                {% blocktrans %}Newest First{% endblocktrans %}
-              </option>
-              <option value="+date" {% if sort == "+date" %}selected{% endif %}>
-                {% blocktrans %}Oldest First{% endblocktrans %}
-              </option>
-              <option value="-votes" {% if sort == "-votes" %}selected{% endif %}>
-                {% blocktrans %}Most Votes{% endblocktrans %}
-              </option>
-              <option value="+votes" {% if sort == "+votes" %}selected{% endif %}>
-                {% blocktrans %}Fewest Votes{% endblocktrans %}
-              </option>
-            </select>
-            <noscript>
-              <input class="btn btn-default" type="submit"/>
-            </noscript>
-          </div>
+        <label class="hidden-xs" for="q">
+          {% blocktrans %}Sort questions by{% endblocktrans %}
+        </label>
+        <div class="dropdown">
+          <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            Dropdown
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+            <option value="">
+              ---
+            </option>
+            <option value="trending" {% if sort == "trending" %}selected{% endif %}>
+              {% blocktrans %}Trending Now{% endblocktrans %}
+            </option>
+            <option value="random" {% if sort == "random" %}selected{% endif %}>
+              {% blocktrans %}Random{% endblocktrans %}
+            </option>
+            <option value="-date" {% if sort == "-date" %}selected{% endif %}>
+              {% blocktrans %}Newest First{% endblocktrans %}
+            </option>
+            <option value="+date" {% if sort == "+date" %}selected{% endif %}>
+              {% blocktrans %}Oldest First{% endblocktrans %}
+            </option>
+            <option value="-votes" {% if sort == "-votes" %}selected{% endif %}>
+              {% blocktrans %}Most Votes{% endblocktrans %}
+            </option>
+            <option value="+votes" {% if sort == "+votes" %}selected{% endif %}>
+              {% blocktrans %}Fewest Votes{% endblocktrans %}
+            </option>
+          </ul>
         </div>
+        <!-- <select onchange="this.form.submit()"
+                name="sort" class="form-control">
+
+        </select> -->
       </form>
     </div>
   </div>

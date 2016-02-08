@@ -43,7 +43,7 @@
         <img src="{% static "images/logo-cnn.png" %}">
       </div>
       <div class="header-votes">
-        <span class="number">1943902</span>{% blocktrans %}total votes{% endblocktrans %}
+        <span class="number">{{ NUMBER_OF_VOTES|stringformat:"07d" }}</span>{% blocktrans %}total votes{% endblocktrans %}
       </div>
       <div class="header-count-down">
         <span class="number">30</span> {% blocktrans %}days{% endblocktrans %}
@@ -58,11 +58,6 @@
   <div class="row white">
     <div class="col-md-12 messages">
       {% include "opendebates/snippets/messages.html" %}
-    </div>
-  </div>
-  <div class="row white">
-    <div class="col-md-12">
-      fixme: Number of votes {{ NUMBER_OF_VOTES }}
     </div>
   </div>
   <div class="row white">
@@ -124,6 +119,7 @@
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.3/handlebars.min.js'></script>
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js'></script>
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment-with-locales.js'></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.4/css/bootstrap-select.css"></script>
 {% javascript 'base' %}
 {% block loading_javascript %}
 {% endblock %}
