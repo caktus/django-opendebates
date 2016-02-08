@@ -122,6 +122,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+USE_THOUSAND_SEPARATOR = True 
 
 # celery settings
 CELERY_SEND_TASK_ERROR_EMAILS = True
@@ -226,6 +227,7 @@ BOWER_INSTALLED_APPS = (
     'jquery',
     'lodash',
     'bootstrap',
+    'bootstrap-select',
     'moment',
     'handlebars',
 )

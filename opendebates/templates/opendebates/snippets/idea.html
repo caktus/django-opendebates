@@ -1,31 +1,27 @@
 {% load i18n %}
+{% load l10n %}
 
 <div id="i{{ idea.id }}" data-idea-id="{{ idea.id }}" class="big-idea clearfix">
-  <div class="row">
-    <div class="votes {% if is_related %}col-md-3{% else %}col-md-2{% endif %}">
+    <div class="votes {% if is_related %}col-md-3{% else %}col-md-3{% endif %}">
       {% if is_duplicate %}
       <small class="duplicate-merged-link"><a href="{% url 'show_idea' idea.duplicate_of_id %}">&#8679; Merged</a></small>
       {% else %}
       <div class="vote-tally text-center">
-        <div
-           style="font-size: 10px; font-family: 'Open Sans', helvetica, arial, sans-serif; padding-top: 0; margin-top: -10px; font-weight: lighter; text-transform: uppercase">
-          {% blocktrans %}Score{% endblocktrans %}
-        </div>
-        <span class="vote-tally-number">{{ idea.votes }}</span>
+        <span class="vote-tally-number">{{ idea.votes|localize }}</span>
       </div>
       <div class="vote-bottom center-block center-text">
         <a id="vote-button-{{ idea.id }}"
            data-target="#modal-vote"
            role="button"
            class="vote-button"
-           data-vote-url="{% url 'vote' idea.id %}"           
+           data-vote-url="{% url 'vote' idea.id %}"
            data-toggle="modal">{% blocktrans %}Vote!{% endblocktrans %}</a>
         <a class="already-voted-button">{% blocktrans %}Voted{% endblocktrans %}</a>
       </div>
       {% endif %}
     </div>
-    
-    <div class="{% if is_related %}col-md-9{% else %}col-md-10{% endif %} question">
+
+    <div class="{% if is_related %}col-md-9{% else %}col-md-9{% endif %} question">
 
         {% if idea.has_duplicates %}
         <div class="idea-duplicates" data-toggle="popover" data-placement="bottom"
@@ -50,7 +46,7 @@
         </div>
         <div class="idea-duplicates-spacing"></div>
         {% endif %}
-      
+
       {% if idea.headline %}
       <p><strong class="headline">
           {% blocktrans with headline=idea.headline %}{{ headline }}{% endblocktrans %}</strong>
@@ -83,15 +79,15 @@
             {% blocktrans with idea.num_comments as num_comments %}{{ num_comments }} Comments{% endblocktrans %}
           </a>
         </span>
-        
+
       </div>
 
       {% if idea.citation and idea.citation_verified %}
-      <a class="citation" target="_blank" href="{{ idea.citation }}" 
+      <a class="citation" target="_blank" href="{{ idea.citation }}"
          data-placement="left"
          data-toggle="tooltip" title="{% blocktrans %}Has a citation &ndash; click to open{% endblocktrans %}">
-        <svg class="citation" 
-             width="17" height="21" viewBox="0 0 34 42" 
+        <svg class="citation"
+             width="17" height="21" viewBox="0 0 34 42"
              version="1.1" xml:space="preserve">
           <g>
             <g>
@@ -110,16 +106,15 @@
               <rect x="7" y="30.1" fill="#010101" width="11.1" height="3.3"/>
             </g>
             <g>
-              <path fill="#010101" 
+              <path fill="#010101"
                     d="M0,0v41.9h25l9-9V0H0z M31,29.9h-9v9H3V3h28V29.9z"/>
             </g>
           </g>
         </svg>
       </a>
       {% endif %}
-      
+
     </div>
-  </div>
 </div>
 
 {% if show_duplicates and idea.has_duplicates %}

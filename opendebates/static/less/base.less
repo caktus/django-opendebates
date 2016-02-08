@@ -1,4 +1,5 @@
 @import "bootstrap_import";
+@import "../bower_components/bootstrap-select/less/bootstrap-select.less";
 
 // Old variables
 @alert-danger-bg: grey;
@@ -10,6 +11,8 @@
 @button-color: pink;
 @muted-color: purple;
 
+// Theming
+@separationColor: #d7e4e9;
 
 // Responsive Setup
 
@@ -62,6 +65,7 @@
 
 body {
   margin: 0;
+  background: white;
 }
 
 body > .container {
@@ -302,9 +306,155 @@ body > .container {
   vertical-align: top;
 }
 
+// Question order sorting
 .sort-column {
-  .dropdown {
+  .bootstrap-select.form-control {
     display: inline-block;
+    width: auto;
+    min-width: 200px;
+
+    .bs-caret {
+      background-image: url(/static/images/icon-option-toggle.png);
+      color: transparent;
+      width: 12px;
+      height: 20px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}
+
+// Question styling
+.big-idea {
+  border-bottom: 1px solid @separationColor;
+
+  .vote-tally {
+    // font-family: @font-family-2-narrow;
+    display: block;
+    font-weight: bold;
+    margin-bottom: 2px;
+    font-size: 30px;
+  }
+
+  .votes .vote-bottom {
+    margin: auto;
+    background: #d61820;
+    line-height: 18px !important;
+    width: 100%;
+    height: 50px;
+    text-transform: uppercase;
+    text-align: center;
+
+    a {
+      font-weight: 600;
+      width: 100%;
+      text-decoration: none;
+      color: white;
+      font-size: 16px;
+      padding: 13% 0 0;
+      display: block;
+    }
+    a.already-voted-button {
+      background-color: darken(@brand-primary, 3%);
+      margin-top: -5px;
+      border-top: 1px solid @colorless;
+      display: none;
+    }
+  }
+
+  .vote-bottom .vote-button:hover {
+    // background-color: darken(@brand-primary, 20%);
+  }
+
+  a.citation {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+  .idea-duplicates {
+    float: right;
+    cursor: pointer;
+
+    span {
+      font-size: 10px;
+      font-weight: 500;
+      vertical-align: top;
+    }
+  }
+  .idea-duplicates-spacing {
+    height: 5px;
+  }
+
+  .question {
+    .headline {
+      margin: 0;
+      line-height: 114%;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .idea {
+      margin: 0;
+      font-size: 18px;
+      // font-weight: 400;
+      line-height: 114%;
+    }
+
+    .created-by, .created-at, .social_links {
+      margin: 10px auto;
+      font-size: 12px;
+    }
+
+    .social_links {
+      padding-top: 5px;
+      border-top: solid 1px rgb(215,215,215);
+
+      .fb-button:before,
+      .tweet-button:before,
+      .comments:before {
+        content: "";
+        position: absolute;
+        left: 0px;
+        top: -1px;
+        width: 15px;
+        height: 15px;
+      }
+      .tweet-button:before {
+        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') 0px 0px no-repeat;
+      }
+      .fb-button:before {
+        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -15px 0 no-repeat;
+      }
+      .comments:before {
+        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -30px 0 no-repeat;
+      }
+      .fb-button:hover:before {
+        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -15px -15px no-repeat;
+      }
+      .comments:hover:before {
+        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -30px -15px no-repeat;
+      }
+
+      .tweet-button:hover:before {
+        background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') 0px -15px no-repeat;
+      }
+      .tweet-button, .fb-button, .comments {
+        position: relative;
+
+        a {
+          display: inline-block;
+          padding: 4px 7px 2px 18px;
+          border-bottom: none;
+          text-decoration: none;
+          border: none;
+          vertical-align: middle;
+          color: @muted-color;
+        }
+        a:hover {
+          // color: @link-color;
+        }
+      }
+    }
   }
 }
 
@@ -378,6 +528,7 @@ body {
     font-family: Helvetica, sans-serif;
     color: #00304d;
     text-decoration: none;
+    display: inline-block;
   }
 
   .active-category-nav a {
@@ -394,50 +545,6 @@ body {
   vertical-align: middle;
   float: none;
   max-width: 10%;
-}
-
-.vote-tally {
-  // font-family: @font-family-2-narrow;
-  display: block;
-  padding: 10px 0;
-  font-weight: bold;
-  background-color: darken(@brand-primary, 3%);
-  margin-bottom: 2px;
-  color: @colorless;
-  font-size: 30px;
-  height: 64px;
-}
-
-.votes .vote-bottom {
-  display: block;
-  margin: auto;
-  color: @colorless;
-  background: @brand-secondary;
-  font-size: 11px;
-  line-height: 18px !important;
-  width: 100%;
-  text-transform: uppercase;
-  text-align: center;
-
-  a {
-    display: block;
-    font-weight: 600;
-    font-size: 10px;
-    width: 100%;
-    text-decoration: none;
-    color: @colorless;
-    padding: 2px 0;
-  }
-  a.already-voted-button {
-    background-color: darken(@brand-primary, 3%);
-    margin-top: -5px;
-    border-top: 1px solid @colorless;
-    display: none;
-  }
-}
-
-.vote-bottom .vote-button:hover {
-  background-color: darken(@brand-primary, 20%);
 }
 
 .btn-primary.active {
@@ -559,22 +666,9 @@ hr.mic_icon:after {
 }
 
 .row.white {
-  background-color: @colorless;
+  background-color: white;
 }
 
-.big-idea .idea-duplicates {
-  float: right;
-  cursor: pointer;
-
-  span {
-    font-size: 10px;
-    font-weight: 500;
-    vertical-align: top;
-  }
-}
-.big-idea .idea-duplicates-spacing {
-  height: 5px;
-}
 .idea-duplicates-list {
   border-left: 1px solid #ccc;
   margin-top: -30px;
@@ -588,12 +682,6 @@ hr.mic_icon:after {
   color: black !important;
   font-size: smaller !important;
   font-weight: bold;
-}
-
-.big-idea a.citation {
-  position: absolute;
-  top: 5px;
-  right: 5px;
 }
 
 .tooltip {
@@ -624,17 +712,6 @@ hr.mic_icon:after {
   font-size: 80%;
 }
 
-.big-idea .row {
-  display: block;
-  margin: 1em;
-  padding: 10px;
-  background-color: @colorless;
-  -moz-box-shadow: 0px 0px 1px 1px #aaa !important;
-  -webkit-box-shadow: 0px 0px 1px 1px #aaa !important;
-  box-shadow: 0px 0px 1px 1px #aaa !important;
-
-}
-
 .comment-form {
   textarea {
     height: 42px;
@@ -662,76 +739,6 @@ hr.mic_icon:after {
     }
     .timestamp {
       color: #999;
-    }
-  }
-}
-
-.question {
-  .headline {
-    margin: 0;
-    line-height: 114%;
-  }
-
-  .idea {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 114%;
-  }
-
-  .created-by, .created-at, .social_links {
-    margin: 10px auto;
-    font-size: 12px;
-  }
-
-  .social_links {
-    padding-top: 5px;
-    border-top: solid 1px rgb(215,215,215);
-
-    .fb-button:before,
-    .tweet-button:before,
-    .comments:before {
-      content: "";
-      position: absolute;
-      left: 0px;
-      top: -1px;
-      width: 15px;
-      height: 15px;
-    }
-    .tweet-button:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') 0px 0px no-repeat;
-    }
-    .fb-button:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -15px 0 no-repeat;
-    }
-    .comments:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -30px 0 no-repeat;
-    }
-    .fb-button:hover:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -15px -15px no-repeat;
-    }
-    .comments:hover:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -30px -15px no-repeat;
-    }
-
-    .tweet-button:hover:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') 0px -15px no-repeat;
-    }
-    .tweet-button, .fb-button, .comments {
-      position: relative;
-
-      a {
-        display: inline-block;
-        padding: 4px 7px 2px 18px;
-        border-bottom: none;
-        text-decoration: none;
-        border: none;
-        vertical-align: middle;
-        color: @muted-color;
-      }
-      a:hover {
-        // color: @link-color;
-      }
     }
   }
 }
