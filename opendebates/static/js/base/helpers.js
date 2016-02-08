@@ -144,7 +144,7 @@
       for (var i=0; i<text.length; i++) {
         $el.append("<span><span>"+text[i]+"</span></span>");
       }
-    })
+    });
 
     var src = ODebates.helpers.getParameterByName("source");
     if (typeof src === "string") {
@@ -176,5 +176,26 @@
       setTimeout(fetch, 0, 0);
     }
   });
+
+  function setCountDown() {
+    var now = new Date();
+    var target = new Date(2016, 3, 1, 18, 0);
+    var d = target - now;
+    if (d < 0) {
+      $('.header-count-down .number').text('0');
+    } else {
+      var days = parseInt(d / (1000 * 60 * 60 * 24));
+      var hours = parseInt((d - (days*24*60*60*1000)) / (1000 * 60 * 60));
+      var minutes = parseInt((d - (days*24*60*60*1000) - (hours*60*60*1000)) / (1000 * 60));
+
+      $('.header-count-down .days').text(days);
+      $('.header-count-down .hours').text(hours);
+      $('.header-count-down .minutes').text(minutes);
+    }
+  }
+  setInterval(setCountDown, 60000);
+  setCountDown();
+
+  $('.selectpicker').selectpicker();
 
 })();

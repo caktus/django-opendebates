@@ -1,4 +1,21 @@
 @import "bootstrap_import";
+@import "../bower_components/bootstrap-select/less/bootstrap-select.less";
+
+// Old variables
+@alert-danger-bg: grey;
+@alert-danger-border: grey;
+@alert-danger-text: grey;
+@colorless: grey;
+@brand-secondary: lightpink;
+@button-color: pink;
+@muted-color: purple;
+
+@brand-primary: #00304d;
+
+// Theming
+@separationColor: #d7e4e9;
+
+// Responsive Setup
 
 @responsive-small-max: 799px;
 @responsive-shim-min: 800px;
@@ -37,16 +54,40 @@
   }
 }
 
+// Fonts
+
 @font-face {
   font-family: Knockout;
   font-weight: bold;
   src: url("/static/fonts/Knockout-HTF48-Featherweight.otf") format("opentype");
 }
 
+// Default Styling
+
+body {
+  margin: 0;
+  background: white;
+  color: #00304d;
+
+  p {
+    font-size: 22px;
+    line-height: 120%;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  .row {
+    margin: 0;
+  }
+}
+
 body > .container {
   max-width: 1030px;
   width: 100%;
   padding: 0;
+  margin: 0 auto;
 
   > header {
     .responsive({
@@ -78,7 +119,6 @@ body > .container {
 
     .header-logos, .header-title {
       display: inline-block;
-      padding-top: @header-top-padding;
     }
 
     .header-logos {
@@ -95,6 +135,7 @@ body > .container {
         max-width: 250px;
         height: auto;
         margin-bottom: 10px;
+        margin-top: @header-top-padding;
 
         @media (max-width: 800px) {
           max-width: 33vw;
@@ -140,6 +181,7 @@ body > .container {
 
       h1 {
         margin: 0;
+        margin-top: @header-top-padding;
         .responsive({
           letter-spacing: 6px;
           font-size: 75px;
@@ -147,6 +189,17 @@ body > .container {
           letter-spacing: 4px;
           font-size: 50px;
         });
+
+        a {
+          color: inherit;
+          &:hover {
+            color: inherit;
+            text-decoration: none;
+          }
+          &:visited {
+            color: inherit;
+          }
+        }
       }
 
       @media (min-width: 800px) and (max-width: 1000px) {
@@ -207,10 +260,12 @@ body > .container {
           display: inline-block;
           text-align: center;
           font-size: 16px;
+          position: relative;
+          top: -3px;
 
           > span {
             position: relative;
-            top: -3px;
+            top: 1px;
             left: 1px;
             font-size: 20px;
           }
@@ -231,11 +286,13 @@ body > .container {
       .responsive({
         text-transform: uppercase;
         color: white;
+        padding: 5px 15px 3px 0;
         font-size: 23px;
         letter-spacing: 1px;
         position: absolute;
         right: 0;
         top: @header-top-padding;
+        z-index: 100;
       }, {
         font-size: 30px;
         top: @header-top-padding + 50px;
@@ -243,6 +300,222 @@ body > .container {
 
       a {
         color: white;
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+/* Search bar */
+#top-search {
+  margin: 10px;
+
+  input {
+    width: 100%;
+    height: 40px;
+    background-image: url(/static/images/icon-search.png);
+    background-position: 99% center;
+    background-repeat: no-repeat;
+    border: 1px solid lightgrey;
+    font-size: 17px;
+    padding-left: 10px;
+  }
+}
+
+.main {
+  width: 66%;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.aside {
+  width: 33%;
+  display: inline-block;
+  vertical-align: top;
+}
+
+// Question order sorting
+.sort-column {
+  font-weight: 100;
+  font-size: 14px;
+
+  label {
+    font-weight: inherit;
+    font-size: inherit;
+  }
+
+  form {
+    margin-bottom: 20px;
+  }
+
+  .bootstrap-select.form-control {
+    display: inline-block;
+    width: auto;
+    min-width: 200px;
+    margin: 0 1.5em;
+
+    .bs-caret {
+      background-image: url(/static/images/icon-option-toggle.png);
+      color: transparent;
+      width: 12px;
+      height: 20px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+}
+
+// Question styling
+.big-idea {
+  color: #00304d;
+  border-bottom: 1px solid @separationColor;
+  padding: 25px 0;
+
+  .vote-tally {
+    // font-family: @font-family-2-narrow;
+    display: block;
+    font-weight: bold;
+    font-size: 40px;
+    line-height: 38px;
+  }
+
+  .votes .vote-bottom {
+    margin: auto;
+    background: #d61820;
+    line-height: 18px !important;
+    width: 100%;
+    height: 50px;
+    text-transform: uppercase;
+    text-align: center;
+
+    a {
+      font-weight: 600;
+      width: 100%;
+      text-decoration: none;
+      color: white;
+      font-size: 16px;
+      padding: 13% 0 0;
+      display: block;
+    }
+    a.already-voted-button {
+      background-color: darken(@brand-primary, 3%);
+      margin-top: -5px;
+      border-top: 1px solid @colorless;
+      display: none;
+      height: 100%;
+    }
+  }
+
+  .vote-bottom .vote-button:hover {
+    // background-color: darken(@brand-primary, 20%);
+  }
+
+  .idea-duplicates {
+    float: right;
+    cursor: pointer;
+
+    span {
+      font-size: 10px;
+      font-weight: 500;
+      vertical-align: top;
+    }
+  }
+  .idea-duplicates-spacing {
+    height: 5px;
+  }
+
+  .question {
+    .headline {
+      margin: 0;
+      line-height: 114%;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .idea {
+      margin: 0;
+      font-size: 16px;
+      line-height: 114%;
+      font-weight: 100;
+
+      .citation {
+        font-weight: 400;
+        text-decoration: none;
+        font-weight: -2px;
+        display: inline-block;
+        border-bottom-width: 1px;
+        border-bottom-style: solid;
+        padding-bottom: 1px;
+        padding-top: 2px;
+      }
+    }
+
+    .idea-info {
+      margin: 10px auto;
+      font-size: 12px;
+    }
+
+    .social-links {
+      padding-top: 5px;
+
+      @socialIconWidth: 30px;
+
+      .share-button(@iconURL) {
+        content: "";
+        position: absolute;
+        left: 0px;
+        top: -1px;
+        width: @socialIconWidth;
+        height: 20px;
+        background-position: 50%;
+        background-image: url(@iconURL);
+        background-repeat: no-repeat;
+      }
+      .tweet-button {
+        color: #50abf1;
+      }
+      .tweet-button:before {
+        .share-button('/static/images/icon-share-twitter.png');
+      }
+      .fb-button {
+        color: #3b5998;
+      }
+      .fb-button:before {
+        .share-button('/static/images/icon-share-fb.png');
+      }
+      .reddit-button:before {
+        .share-button('/static/images/icon-share-reddit.png');
+      }
+      .email-button:before {
+        .share-button('/static/images/icon-share-email.png');
+      }
+      .sms-button {
+        .responsive({
+          display: none;
+        }, {
+          display: inline-block;
+        });
+
+        &:before {
+          .share-button('/static/images/icon-share-sms.png');
+        }
+      }
+
+      [class$=-button] {
+        position: relative;
+
+        a {
+          display: inline-block;
+          padding: 4px 7px 2px @socialIconWidth;
+          border-bottom: none;
+          text-decoration: none;
+          border: none;
+          vertical-align: middle;
+          font-size: 16px;
+        }
+        a:hover {
+          // color: @link-color;
+        }
       }
     }
   }
@@ -267,36 +540,20 @@ body > .container {
 }
 
 .errorlist {
-  .alert-variant(@alert-danger-bg; @alert-danger-border; @alert-danger-text);
+  // .alert-variant(@alert-danger-bg; @alert-danger-border; @alert-danger-text);
   list-style-type: none;
   margin-bottom: -20px;
 }
 
 body {
 
-  p {
-    color: #222;
-    font-family: @font-family-2;
-    font-size: 22px;
-    line-height: 120%;
-  }
-
-  .row {
-    background-color: @row-bg;
-  }
-
   .glyphicon {
     cursor: pointer;
   }
 }
 
-.login-container {
-  padding: 5px 15px 3px 0;
-  font-size: 85%;
-}
-
 .alert-error {
-  .alert-variant(@alert-danger-bg; @alert-danger-border; @alert-danger-text);
+  // .alert-variant(@alert-danger-bg; @alert-danger-border; @alert-danger-text);
 }
 
 .card {
@@ -310,8 +567,22 @@ body {
 
 .category-only {
   padding-bottom: 15px;
-  // margin-bottom: 35px;
-  border-bottom: 10px solid black;
+
+  a {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: bold;
+    font-family: Helvetica, sans-serif;
+    color: #00304d;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .active-category-nav a {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    padding-bottom: 5px;
+  }
 }
 
 .category-only .vcenter {
@@ -321,56 +592,6 @@ body {
   vertical-align: middle;
   float: none;
   max-width: 10%;
-}
-
-.category-only a {
-  text-transform: uppercase;
-  font-size: 11px;
-  font-weight: bold;
-}
-
-.vote-tally {
-  font-family: @font-family-2-narrow;
-  display: block;
-  padding: 10px 0;
-  font-weight: bold;
-  background-color: darken(@brand-primary, 3%);
-  margin-bottom: 2px;
-  color: @colorless;
-  font-size: 30px;
-  height: 64px;
-}
-
-.votes .vote-bottom {
-  display: block;
-  margin: auto;
-  color: @colorless;
-  background: @brand-secondary;
-  font-size: 11px;
-  line-height: 18px !important;
-  width: 100%;
-  text-transform: uppercase;
-  text-align: center;
-
-  a {
-    display: block;
-    font-weight: 600;
-    font-size: 10px;
-    width: 100%;
-    text-decoration: none;
-    color: @colorless;
-    padding: 2px 0;
-  }
-  a.already-voted-button {
-    background-color: darken(@brand-primary, 3%);
-    margin-top: -5px;
-    border-top: 1px solid @colorless;
-    display: none;
-  }
-}
-
-.vote-bottom .vote-button:hover {
-  background-color: darken(@brand-primary, 20%);
 }
 
 .btn-primary.active {
@@ -397,7 +618,7 @@ body {
 }
 
 .modal-header .close:hover {
-  background: @row-bg;
+  // background: @row-bg;
 }
 
 .modal-content, .form-well {
@@ -433,7 +654,7 @@ body {
 }
 
 .modal-content input[type="text"], #add_question input, #add_question textarea {
-  background: @row-bg;
+  // background: @row-bg;
   padding: 6px 10px;
   font-size: 16px;
   margin: 10px 2px;
@@ -492,22 +713,9 @@ hr.mic_icon:after {
 }
 
 .row.white {
-  background-color: @colorless;
+  background-color: white;
 }
 
-.big-idea .idea-duplicates {
-  float: right;
-  cursor: pointer;
-
-  span {
-    font-size: 10px;
-    font-weight: 500;
-    vertical-align: top;
-  }
-}
-.big-idea .idea-duplicates-spacing {
-  height: 5px;
-}
 .idea-duplicates-list {
   border-left: 1px solid #ccc;
   margin-top: -30px;
@@ -518,54 +726,17 @@ hr.mic_icon:after {
   margin-bottom: 25px;
 }
 .duplicate-merged-link a {
-  color: black !important;
+  // color: black !important;
   font-size: smaller !important;
   font-weight: bold;
-}
-
-.big-idea a.citation {
-  position: absolute;
-  top: 5px;
-  right: 5px;
 }
 
 .tooltip {
   font-size: 12px;
 }
 
-.block-citation {
-  margin-bottom: 35px;
-  margin-top: -15px;
-  margin-left: 5px;
-  vertical-align: middle;
-
-  a, a:visited, a:hover {
-    font-weight: normal;
-    color: black;
-    font-size: 14px;
-  }
-
-  & > div {
-    display: inline-block;
-    vertical-align: middle;
-  }
-
-
-}
-
 .popover {
   font-size: 80%;
-}
-
-.big-idea .row {
-  display: block;
-  margin: 1em;
-  padding: 10px;
-  background-color: @colorless;
-  -moz-box-shadow: 0px 0px 1px 1px #aaa !important;
-  -webkit-box-shadow: 0px 0px 1px 1px #aaa !important;
-  box-shadow: 0px 0px 1px 1px #aaa !important;
-
 }
 
 .comment-form {
@@ -599,79 +770,9 @@ hr.mic_icon:after {
   }
 }
 
-.question {
-  .headline {
-    margin: 0;
-    line-height: 114%;
-  }
-
-  .idea {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 114%;
-  }
-
-  .created-by, .created-at, .social_links {
-    margin: 10px auto;
-    font-size: 12px;
-  }
-
-  .social_links {
-    padding-top: 5px;
-    border-top: solid 1px rgb(215,215,215);
-
-    .fb-button:before,
-    .tweet-button:before,
-    .comments:before {
-      content: "";
-      position: absolute;
-      left: 0px;
-      top: -1px;
-      width: 15px;
-      height: 15px;
-    }
-    .tweet-button:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') 0px 0px no-repeat;
-    }
-    .fb-button:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -15px 0 no-repeat;
-    }
-    .comments:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -30px 0 no-repeat;
-    }
-    .fb-button:hover:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -15px -15px no-repeat;
-    }
-    .comments:hover:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') -30px -15px no-repeat;
-    }
-
-    .tweet-button:hover:before {
-      background: url('https://s3.amazonaws.com/s3.boldprogressives.org/images/debate-sprites.png') 0px -15px no-repeat;
-    }
-    .tweet-button, .fb-button, .comments {
-      position: relative;
-
-      a {
-        display: inline-block;
-        padding: 4px 7px 2px 18px;
-        border-bottom: none;
-        text-decoration: none;
-        border: none;
-        vertical-align: middle;
-        color: @muted-color;
-      }
-      a:hover {
-        color: @link-color;
-      }
-    }
-  }
-}
-
 .control-label.category {
   color: @colorless;
-  font-family: @font-family-2;
+  // font-family: @font-family-2;
   font-weight: 200;
   font-size: .9em;
 }
@@ -707,15 +808,15 @@ a.web, a.comment, a.fb, a.tw, a:hover.web, a:hover.comment, a:hover.fb, a:hover.
 }
 
 
-a.tw { background-position: 0 0;}
-a.fb { background-position: -15px 0; }
-a.comment { background-position: -30px 0; }
-a.web { background-position: -45px 0; }
-
-a:hover.tw { background-position: 0px -15px; }
-a:hover.fb { background-position: -15px -15px; }
-a:hover.comment { background-position: -30px -15px; }
-a:hover.web { background-position: -45px -15px; }
+// a.tw { background-position: 0 0;}
+// a.fb { background-position: -15px 0; }
+// a.comment { background-position: -30px 0; }
+// a.web { background-position: -45px 0; }
+//
+// a:hover.tw { background-position: 0px -15px; }
+// a:hover.fb { background-position: -15px -15px; }
+// a:hover.comment { background-position: -30px -15px; }
+// a:hover.web { background-position: -45px -15px; }
 
 .candidate {
   margin: 23px;
@@ -742,36 +843,36 @@ a:hover.web { background-position: -45px -15px; }
 }
 .candidate-title {margin-bottom: 6px;}
 
-@media (min-width: @screen-md-min) {
-  .idea-list {
-    min-height: 800px;
-  }
-}
-@media (max-width: @screen-sm-max) {
-  .big-idea > .row {
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .big-idea .question {
-    margin-top: 15px;
-  }
-
-  .big-idea .votes {
-    width: 30%;
-    margin: 0 auto;
-
-    .vote-tally {
-      margin-bottom: 0;
-    }
-    .vote-bottom {
-      padding: 15px 0;
-
-      .already-voted-button {
-        margin: -15px 0;
-        padding: 15px 0;
-        border-top: none;
-      }
-    }
-  }
-}
+// @media (min-width: @screen-md-min) {
+//   .idea-list {
+//     min-height: 800px;
+//   }
+// }
+// @media (max-width: @screen-sm-max) {
+//   .big-idea > .row {
+//     margin-left: 0;
+//     margin-right: 0;
+//   }
+//
+//   .big-idea .question {
+//     margin-top: 15px;
+//   }
+//
+//   .big-idea .votes {
+//     width: 30%;
+//     margin: 0 auto;
+//
+//     .vote-tally {
+//       margin-bottom: 0;
+//     }
+//     .vote-bottom {
+//       padding: 15px 0;
+//
+//       .already-voted-button {
+//         margin: -15px 0;
+//         padding: 15px 0;
+//         border-top: none;
+//       }
+//     }
+//   }
+// }

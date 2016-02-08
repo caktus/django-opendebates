@@ -12,6 +12,7 @@ FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 SECRET_KEY = 'secret-key-for-local-use-only'
 
 DEBUG = 'DJANGO_DEBUG' in os.environ
+TRAVIS = 'TRAVIS' in os.environ
 
 ALLOWED_HOSTS = []
 
@@ -26,10 +27,10 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'pipeline',
     'djangobower',
+    'dbbackup',
     # Still using django-celery because that's how Fabulaws starts workers
     'djcelery',
     'opendebates',
-    'opendebates_comments',
     'opendebates_emails',
     'djorm_pgfulltext',
     'endless_pagination',
@@ -122,10 +123,11 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+USE_THOUSAND_SEPARATOR = True 
 
 # celery settings
 CELERY_SEND_TASK_ERROR_EMAILS = True
-CELERY_ALWAYS_EAGER = DEBUG
+CELERY_ALWAYS_EAGER = DEBUG or TRAVIS
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_IGNORE_RESULT = True
 CELERYD_HIJACK_ROOT_LOGGER = False
@@ -226,6 +228,7 @@ BOWER_INSTALLED_APPS = (
     'jquery',
     'lodash',
     'bootstrap',
+    'bootstrap-select',
     'moment',
     'handlebars',
 )
@@ -247,3 +250,9 @@ CACHES = {
     },
 
 }
+
+# For running 'dbbackup' locally
+DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
+DBBACKUP_STORAGE_OPTIONS = {'location': '.'}
+DBBACKUP_FILENAME_TEMPLATE = 'local/{datetime}.{extension}'
+DBBACKUP_SEND_EMAIL = False

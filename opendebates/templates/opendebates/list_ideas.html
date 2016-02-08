@@ -6,22 +6,12 @@
 {% endblock %}
 
 {% block pre_content %}
-<div class="row white search-only hidden-xs">
-  <div class="col-sm-10 col-sm-offset-1 text-center">
-    <form action="{% url 'search_ideas' %}" method="GET">
-      <div class="form-group">
-        <div class="input-group">
-          <input name="q" id="q" class="form-control"
-                 placeholder="{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked{% endblocktrans %}"
-                 value="{{ search_term|default:'' }}">
-          <span class="input-group-addon">
-            <span class="glyphicon glyphicon-search"></span>
-          </span>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
+<form action="{% url 'search_ideas' %}" method="GET" id="top-search">
+  <input name="q" id="q" class="form-control"
+         placeholder="{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked{% endblocktrans %}"
+         value="{{ search_term|default:'' }}">
+</form>
+
 <div class="row white category-only hidden-xs text-center">
   <div class="vcenter {% if not category %}active-category-nav{% endif %}">
     <a href="/">{% blocktrans %}All Categories{% endblocktrans %}</a>
@@ -38,56 +28,48 @@
 
 
 {% block primary_content %}
-  <div class="sort-column row">
-    <div class="col-md-10 text-center">
+  <div class="sort-column">
+    <div class="col-md-12 text-center">
       <form action="{{ url_name }}" method="GET" class="form-inline">
-        <label class="hidden-xs"
-               for="q">{% blocktrans %}Sort by:{% endblocktrans %}</label>
-
-        <div class="form-group">
-          <div class="input-group">
-            <select onchange="this.form.submit()"
-                    name="sort" class="form-control">
-              <option value="">
-                ---
-              </option>
-              <option value="trending" {% if sort == "trending" %}selected{% endif %}>
-                {% blocktrans %}Trending Now{% endblocktrans %}
-              </option>
-              <option value="random" {% if sort == "random" %}selected{% endif %}>
-                {% blocktrans %}Random{% endblocktrans %}
-              </option>
-              <option value="-date" {% if sort == "-date" %}selected{% endif %}>
-                {% blocktrans %}Newest First{% endblocktrans %}
-              </option>
-              <option value="+date" {% if sort == "+date" %}selected{% endif %}>
-                {% blocktrans %}Oldest First{% endblocktrans %}
-              </option>
-              <option value="-votes" {% if sort == "-votes" %}selected{% endif %}>
-                {% blocktrans %}Most Votes{% endblocktrans %}
-              </option>
-              <option value="+votes" {% if sort == "+votes" %}selected{% endif %}>
-                {% blocktrans %}Fewest Votes{% endblocktrans %}
-              </option>
-            </select>
-            <noscript>
-              <input class="btn btn-default" type="submit"/>
-            </noscript>
-          </div>
-        </div>
+        <label class="hidden-xs" for="q">
+          {% blocktrans %}Sort questions by{% endblocktrans %}
+        </label>
+        <select onchange="this.form.submit()"
+                name="sort" class="form-control selectpicker">
+          <option value="">
+            ---
+          </option>
+          <option value="trending" {% if sort == "trending" %}selected{% endif %}>
+            {% blocktrans %}Trending Now{% endblocktrans %}
+          </option>
+          <option value="random" {% if sort == "random" %}selected{% endif %}>
+            {% blocktrans %}Random{% endblocktrans %}
+          </option>
+          <option value="-date" {% if sort == "-date" %}selected{% endif %}>
+            {% blocktrans %}Newest First{% endblocktrans %}
+          </option>
+          <option value="+date" {% if sort == "+date" %}selected{% endif %}>
+            {% blocktrans %}Oldest First{% endblocktrans %}
+          </option>
+          <option value="-votes" {% if sort == "-votes" %}selected{% endif %}>
+            {% blocktrans %}Most Votes{% endblocktrans %}
+          </option>
+          <option value="+votes" {% if sort == "+votes" %}selected{% endif %}>
+            {% blocktrans %}Fewest Votes{% endblocktrans %}
+          </option>
+        </select>
+        Displaying <strong>{{ ideas|length }} Questions</strong>
       </form>
     </div>
   </div>
   <div class="row idea-list">
-    <div class="col-md-12">
-      {% paginate 2 ideas %}
+    {% paginate 50 ideas %}
 
-      {% for idea in ideas %}
-        {% include "opendebates/snippets/idea.html" %}
-      {% endfor %}
+    {% for idea in ideas %}
+      {% include "opendebates/snippets/idea.html" %}
+    {% endfor %}
 
-      {% show_pages %}
-    </div>
+    {% show_pages %}
   </div>
 
 {% endblock %}

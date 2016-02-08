@@ -25,7 +25,7 @@
   ssh_keys: deployment/users/
   password_names: [database_password, broker_password, smtp_password,
                    newrelic_license_key, newrelic_api_key, s3_secret,
-                   secret_key]
+                   secret_key, dbbackup_access_key, dbbackup_access_secret]
   project: opendebates
   wsgi_app: opendebates.wsgi:application
   requirements_file: requirements/base.txt
@@ -178,15 +178,15 @@
   volume_sizes:
     production:
       cache: 10
-      db-master: 100
-      db-slave: 100
-      web: 10
+      db-master: 250
+      db-slave: 250
+      web: 30
       worker: 50
     testing:
       cache: 10
-      db-master: 100
-      db-slave: 100
-      web: 10
+      db-master: 250
+      db-slave: 250
+      web: 30
       worker: 50
     staging:
       cache: 10
@@ -221,6 +221,7 @@
     - build-essential
     - stunnel4
     - pgbouncer
+    - postgresql-client-9.3
 
   db_settings:
     # for help adjusting these settings, see:

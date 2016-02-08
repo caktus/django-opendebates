@@ -40,7 +40,7 @@ class CategoryFactory(factory.DjangoModelFactory):
 class FuzzyEmail(factory.fuzzy.FuzzyText):
     def fuzz(self):
         chars = [_random.choice(self.chars) for _i in range(self.length)]
-        return "%s@example.com" % chars
+        return "%s@example.com" % ''.join(chars)
 
 
 class VoterFactory(factory.DjangoModelFactory):

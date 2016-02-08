@@ -1,5 +1,6 @@
 import random
 import threading
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -151,3 +152,39 @@ class DBRouter(object):
     def allow_migrate(self, db, model):
         """Explicitly put all models on all databases"""
         return True
+
+
+@contextmanager
+def readwrite_db():
+    """
+    Usage:
+
+        with readwrite_db():
+           do some queries
+
+        continue on
+    """
+    was_readwrite = is_thread_readwrite()
+    if not was_readwrite:
+        set_thread_readwrite_db()
+    yield
+    if not was_readwrite:
+        set_thread_readonly_db()
+
+
+@contextmanager
+def readonly_db():
+    """
+    Usage:
+
+        with readonly_db():
+           do some queries
+
+        continue on
+    """
+    was_read_only = not is_thread_readwrite()
+    if not was_read_only:
+        set_thread_readonly_db()
+    yield
+    if not was_read_only:
+        set_thread_readwrite_db()
