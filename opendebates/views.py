@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import connections
+from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.http import Http404, HttpResponse, HttpResponseServerError
@@ -13,12 +14,11 @@ import logging
 
 from registration.backends.simple.views import RegistrationView
 
+from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm
 from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, RECENT_EVENTS_CACHE_ENTRY
-from .utils import get_ip_address_from_request, get_headers_from_request
-from .utils import choose_sort, sort_list
-from .forms import OpenDebatesRegistrationForm
-from .forms import VoterForm, QuestionForm
-from opendebates_comments.forms import CommentForm
+from .router import readonly_db
+from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list
+# from opendebates_comments.forms import CommentForm
 from opendebates_emails.models import send_email
 
 
@@ -152,11 +152,9 @@ def category_search(request, cat_id):
 @allow_http("GET", "POST")
 def vote(request, id):
     try:
-        idea = Submission.objects.get(id=id)
+        with readonly_db():
+            idea = Submission.objects.get(id=id, approved=True)
     except Submission.DoesNotExist:
-        raise Http404
-
-    if not idea.approved:
         raise Http404
 
     if idea.duplicate_of_id:
@@ -178,10 +176,10 @@ def vote(request, id):
             'related2': related2,
             'duplicates': (Submission.objects.filter(approved=True, duplicate_of=idea)
                            if idea.has_duplicates else []),
-            'comment_form': CommentForm(idea),
-            'comment_list': idea.comments.filter(
-                is_public=True, is_removed=False
-            ).select_related("user", "user__voter"),
+            # 'comment_form': CommentForm(idea),
+            # 'comment_list': idea.comments.filter(
+            #     is_public=True, is_removed=False
+            # ).select_related("user", "user__voter"),
         }
 
     form = VoterForm(request.POST)
@@ -194,7 +192,7 @@ def vote(request, id):
         return {
             'form': form,
             'idea': idea,
-            'comment_form': CommentForm(idea),
+            # 'comment_form': CommentForm(idea),
             }
 
     state = state_from_zip(form.cleaned_data['zipcode'])
@@ -219,7 +217,7 @@ def vote(request, id):
         return {
             'form': form,
             'idea': idea,
-            'comment_form': CommentForm(idea),
+            # 'comment_form': CommentForm(idea),
         }
 
     if not created and voter.zip != form.cleaned_data['zipcode']:
@@ -239,8 +237,10 @@ def vote(request, id):
         )
     )
     if created:
+        # update the DB with the real tally
+        Submission.objects.filter(id=id).update(votes=F('votes')+1)
+        # also calculate a simple increment tally for the client
         idea.votes += 1
-        idea.save()
 
     if 'voter' not in request.session:
         request.session['voter'] = {"email": voter.email, "zip": voter.zip}
@@ -257,14 +257,13 @@ def vote(request, id):
 @rendered_with("opendebates/list_ideas.html")
 @allow_http("GET", "POST")
 def questions(request):
-    categories = Category.objects.all()
 
     if request.method == 'GET':
         form = QuestionForm()
 
         return {
             'form': form,
-            'categories': categories,
+            'categories': Category.objects.all(),
             'ideas': [],
             'stashed_submission': request.session.pop(
                 "opendebates.stashed_submission", None)
@@ -279,7 +278,7 @@ def questions(request):
 
         return {
             'form': form,
-            'categories': categories,
+            'categories': Category.objects.all(),
             'ideas': [],
         }
 
@@ -294,34 +293,29 @@ def questions(request):
     category = request.POST.get('category')
     form_data = form.cleaned_data
 
-    voter, created = Voter.objects.get_or_create(email=request.user.email)
-    if created and 'opendebates.source' in request.COOKIES:
-        voter.source = request.COOKIES['opendebates.source']
-        voter.save()
+    voter, created = Voter.objects.get_or_create(
+        email=request.user.email,
+        defaults=dict(
+            source=request.COOKIES.get('opendebates.source')
+        )
+    )
 
-    idea = Submission()
-    idea.voter = voter
-    idea.category = Category.objects.get(pk=category)
-    idea.idea = form_data['question']
-    idea.citation = form_data['citation']
-
-    idea.created_at = timezone.now()
-    idea.ip_address = get_ip_address_from_request(request)
-    idea.approved = True
-    idea.votes += 1
-
-    if 'opendebates.source' in request.COOKIES:
-        idea.source = request.COOKIES['opendebates.source']
-        vote_source = request.COOKIES['opendebates.source']
-    else:
-        vote_source = None
-
-    idea.save()
+    idea = Submission.objects.create(
+        voter=voter,
+        category_id=category,
+        idea=form_data['question'],
+        citation=form_data['citation'],
+        created_at=timezone.now(),
+        ip_address=get_ip_address_from_request(request),
+        approved=True,
+        votes=1,
+        source=request.COOKIES.get('opendebates.source'),
+    )
 
     Vote.objects.create(
         submission=idea,
         voter=voter,
-        source=vote_source,
+        source=idea.source,
         ip_address=get_ip_address_from_request(request),
         request_headers=get_headers_from_request(request),
         created_at=timezone.now())

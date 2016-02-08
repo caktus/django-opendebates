@@ -7,7 +7,6 @@ from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
 from urllib import quote_plus
 from django.utils.translation import ugettext_lazy as _
-from djangohelpers.lib import register_admin
 from caching.base import CachingManager, CachingMixin
 
 
@@ -231,9 +230,3 @@ class Candidate(models.Model):
 
     def __unicode__(self):
         return self.display_name
-
-register_admin(Category)
-register_admin(Submission)
-register_admin(Voter)
-register_admin(Vote)
-register_admin(Candidate)

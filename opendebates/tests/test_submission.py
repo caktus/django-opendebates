@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from opendebates.models import Submission, Vote
+from opendebates_emails.models import EmailTemplate
 from .factories import CategoryFactory, UserFactory, VoterFactory, SubmissionFactory
 
 
@@ -19,6 +20,13 @@ class SubmissionTest(TestCase):
             'question': 'My great question?',
             'citation': 'https://www.google.com',
         }
+        EmailTemplate(type="submitted_new_idea",
+                      name="Email Submitter",
+                      subject="Thanks for your idea, {{ idea.voter.user.first_name }}",
+                      html="Your idea was {{ idea.idea }}",
+                      text="Your idea citation was {{ idea.citation }}",
+                      from_email="{{ idea.voter.email }}",
+                      to_email="{{ idea.voter.email }}").save()
 
     # failures
 

@@ -8,8 +8,8 @@ urlpatterns = [
 
     url(r'^recent/$', 'opendebates.views.recent_activity', name='recent_activity'),
     url('^questions/(?P<id>\d+)/vote/$', 'opendebates.views.vote', name="vote"),
-    url('^comment/$', 'opendebates_comments.views.post_comment',
-        name="comment"),
+    # url('^comment/$', 'opendebates_comments.views.post_comment',
+    #     name="comment"),
     url('^questions/(?P<id>\d+)/$', 'opendebates.views.vote', name="show_idea"),
 
     url('^category/(?P<cat_id>\d+)/$', 'opendebates.views.list_category', name="list_category"),

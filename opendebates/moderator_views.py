@@ -30,7 +30,9 @@ def mark_duplicate(request):
     if request.POST.get("handling") == "unmoderate":
         to_remove.moderated = False
     elif request.POST.get("handling") == "merge":
-        duplicate_of.keywords = (duplicate_of.keywords or '') + " " + to_remove.idea
+        duplicate_of.keywords = (duplicate_of.keywords or '') \
+                                + " " + to_remove.idea \
+                                + " " + (to_remove.keywords or '')
         duplicate_of.has_duplicates = True
         duplicate_of.save()
     if duplicate_of is not None:

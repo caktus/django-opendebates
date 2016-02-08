@@ -74,12 +74,13 @@
             {% blocktrans %}Share{% endblocktrans %}
           </a>
         </span>
-        <span class="comments">
-          <a href="{{ idea.get_absolute_url }}">
-            {% blocktrans with idea.num_comments as num_comments %}{{ num_comments }} Comments{% endblocktrans %}
-          </a>
-        </span>
-
+        {% comment %}
+          <span class="comments">
+            <a href="{{ idea.get_absolute_url }}">
+              {% blocktrans with idea.num_comments as num_comments %}{{ num_comments }} Comments{% endblocktrans %}
+            </a>
+          </span>
+        {% endcomment %}
       </div>
 
       {% if idea.citation and idea.citation_verified %}
