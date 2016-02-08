@@ -303,6 +303,7 @@ def questions(request):
     idea = Submission.objects.create(
         voter=voter,
         category_id=category,
+        headline=form_data['headline'],
         idea=form_data['question'],
         citation=form_data['citation'],
         created_at=timezone.now(),

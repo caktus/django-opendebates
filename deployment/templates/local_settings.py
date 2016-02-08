@@ -95,16 +95,11 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # Cache settings
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '{{ cache_server.internal_ip }}:11211',
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'VERSION': '{{ current_changeset }}',
     },
     'session': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': '{{ cache_server.internal_ip }}:6379',
-        'OPTIONS': {
-            'DB': 3,
-        },
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     },
 }
 

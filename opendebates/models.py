@@ -36,7 +36,7 @@ class Submission(models.Model):
     category = models.ForeignKey(Category)
     idea = models.TextField(verbose_name=_('Question'))
 
-    headline = models.TextField(null=True, blank=True)
+    headline = models.TextField(null=False, blank=False)
     followup = models.TextField(null=True, blank=True)
 
     citation = models.URLField(null=True, blank=True, db_index=True,

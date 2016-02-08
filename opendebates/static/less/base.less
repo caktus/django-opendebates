@@ -67,11 +67,15 @@
 body {
   margin: 0;
   background: white;
+  color: #00304d;
 
   p {
-    color: #222;
     font-size: 22px;
     line-height: 120%;
+  }
+
+  a {
+    color: inherit;
   }
 
   .row {
@@ -365,6 +369,7 @@ body > .container {
 .big-idea {
   color: #00304d;
   border-bottom: 1px solid @separationColor;
+  padding: 25px 0;
 
   .vote-tally {
     // font-family: @font-family-2-narrow;
@@ -397,6 +402,7 @@ body > .container {
       margin-top: -5px;
       border-top: 1px solid @colorless;
       display: none;
+      height: 100%;
     }
   }
 
@@ -454,35 +460,34 @@ body > .container {
 
       @socialIconWidth: 30px;
 
-      .share-button {
+      .share-button(@iconURL) {
         content: "";
         position: absolute;
         left: 0px;
         top: -1px;
         width: @socialIconWidth;
         height: 20px;
+        background-position: 50%;
+        background-image: url(@iconURL);
+        background-repeat: no-repeat;
       }
       .tweet-button {
         color: #50abf1;
       }
       .tweet-button:before {
-        .share-button();
-        background: url('/static/images/icon-share-twitter.png') 0px 0px no-repeat;
+        .share-button('/static/images/icon-share-twitter.png');
       }
       .fb-button {
         color: #3b5998;
       }
       .fb-button:before {
-        .share-button();
-        background: url('/static/images/icon-share-fb.png') 0px 0px no-repeat;
+        .share-button('/static/images/icon-share-fb.png');
       }
       .reddit-button:before {
-        .share-button();
-        background: url('/static/images/icon-share-reddit.png') 0px 0px no-repeat;
+        .share-button('/static/images/icon-share-reddit.png');
       }
       .email-button:before {
-        .share-button();
-        background: url('/static/images/icon-share-email.png') 0px 0px no-repeat;
+        .share-button('/static/images/icon-share-email.png');
       }
       .sms-button {
         .responsive({
@@ -492,8 +497,7 @@ body > .container {
         });
 
         &:before {
-          .share-button();
-          background: url('/static/images/icon-share-sms.png') 0px 0px no-repeat;
+          .share-button('/static/images/icon-share-sms.png');
         }
       }
 
@@ -722,7 +726,7 @@ hr.mic_icon:after {
   margin-bottom: 25px;
 }
 .duplicate-merged-link a {
-  color: black !important;
+  // color: black !important;
   font-size: smaller !important;
   font-weight: bold;
 }
