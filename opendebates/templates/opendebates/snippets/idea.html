@@ -64,7 +64,7 @@
       <p class="idea-info">
         {% blocktrans with user_display_name=idea.user_display_name %}Submitted by: <strong>{{ user_display_name }}</strong>{% endblocktrans %}<br />
         {{ idea.created_at }}<br />
-        {% trans "Issue are" %}: <strong>{{ idea.category.name }}</strong>
+        {% trans "Issue area" %}: <strong>{{ idea.category.name }}</strong>
       </p>
 
       <div class="social-links">
@@ -80,17 +80,17 @@
         </span>
         <span class="reddit-button">
           <a class="reddit" href="{{ idea.reddit_url }}" target="_blank">
-            {% blocktrans %}Share{% endblocktrans %}
+            {% blocktrans %}Post{% endblocktrans %}
           </a>
         </span>
         <span class="email-button">
           <a class="email" href="{{ idea.email_url }}" target="_blank">
-            {% blocktrans %}Share{% endblocktrans %}
+            {% blocktrans %}Email{% endblocktrans %}
           </a>
         </span>
         <span class="sms-button">
           <a class="sms" href="{{ idea.sms_url }}" target="_blank">
-            {% blocktrans %}Share{% endblocktrans %}
+            {% blocktrans %}SMS{% endblocktrans %}
           </a>
         </span>
       </div>
