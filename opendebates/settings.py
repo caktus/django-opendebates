@@ -84,14 +84,20 @@ TEMPLATES = [
                 'opendebates.context_processors.global_vars',
                 'opendebates.context_processors.voter',
             ],
-            'loaders': [
-                ('django.template.loaders.cached.Loader', [
-                    'django.template.loaders.app_directories.Loader',
-                ]),
-            ],
         },
     },
 ]
+
+if DEBUG:
+    # APP_DIRS must be set when not using the cached Loader
+    TEMPLATES[0]['APP_DIRS'] = True
+else:
+    # Use the cached Loader for deployment
+    TEMPLATES[0]['OPTIONS']['loaders'] = [
+        ('django.template.loaders.cached.Loader', [
+            'django.template.loaders.app_directories.Loader',
+        ]),
+    ]
 
 WSGI_APPLICATION = 'opendebates.wsgi.application'
 
