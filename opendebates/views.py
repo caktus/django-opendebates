@@ -331,28 +331,19 @@ class OpenDebatesRegistrationView(RegistrationView):
     form_class = OpenDebatesRegistrationForm
 
     def register(self, request, form):
-        new_user = RegistrationView.register(self, request, form)
-        new_user.first_name = form.cleaned_data['first_name']
-        new_user.last_name = form.cleaned_data['last_name']
-        new_user.save()
+        new_user = super(OpenDebatesRegistrationView, self).register(request, form)
 
-        try:
-            voter = Voter.objects.get(email=form.cleaned_data['email'])
-        except Voter.DoesNotExist:
-            voter = Voter(email=form.cleaned_data['email'])
-            if 'opendebates.source' in request.COOKIES:
-                voter.source = request.COOKIES['opendebates.source']
-
-        voter.zip = form.cleaned_data['zip']
-        try:
-            voter.state = ZipCode.objects.get(zip=form.cleaned_data['zip']).state
-        except Exception:
-            pass
-        voter.display_name = form.cleaned_data.get('display_name')
-        voter.twitter_handle = form.cleaned_data.get('twitter_handle')
-        voter.user = new_user
-        voter.save()
-
+        voter, created = Voter.objects.update_or_create(
+            email=form.cleaned_data['email'],
+            defaults=dict(
+                source=request.COOKIES.get('opendebates.source'),
+                state=state_from_zip(form.cleaned_data['zip']),
+                zip=form.cleaned_data['zip'],
+                display_name=form.cleaned_data.get('display_name'),
+                twitter_handle=form.cleaned_data.get('twitter_handle'),
+                user=new_user,
+            )
+        )
         return new_user
 
 
