@@ -25,7 +25,8 @@
   ssh_keys: deployment/users/
   password_names: [database_password, broker_password, smtp_password,
                    newrelic_license_key, newrelic_api_key, s3_secret,
-                   secret_key, dbbackup_access_key, dbbackup_access_secret]
+                   secret_key, dbbackup_access_key, dbbackup_access_secret,
+                   syslog_server]
   project: opendebates
   wsgi_app: opendebates.wsgi:application
   requirements_file: requirements/base.txt
@@ -47,7 +48,7 @@
       production: master
       staging: develop
       testing: develop
-      dan: dan_routing
+      dan: develop
 
 ## SERVER SETTINGS ##
 
@@ -148,9 +149,9 @@
       web: m1.small
       worker: m1.small
     dan:
-      cache: t1.micro
-      db-master: t1.micro
-      db-slave: t1.micro
+      cache: m1.small
+      db-master: m1.small
+      db-slave: m1.small
       web: m1.small
       worker: m1.small
 
