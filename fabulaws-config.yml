@@ -82,13 +82,15 @@
 # Wildcard format used per ALLOWED_HOSTS setting
   site_domains_map:
     production:
-    -
+    - demopenquestions.com
+    - www.demopenquestions.com
     staging:
     -
     testing:
     - opendebates-testing-lb-476601241.us-east-1.elb.amazonaws.com
     - testing.openforum2016.com
     - testing.demopenforum.com
+    - testing.demopenquestions.com
     dan:
     - opendebates-dan-lb-1841076677.us-east-1.elb.amazonaws.com
     - dan.demopenforum.com
