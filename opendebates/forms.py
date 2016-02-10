@@ -1,21 +1,24 @@
+from urlparse import urlparse
+
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
-from django.forms import Form
+from django.core.urlresolvers import resolve
 from django.utils.html import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth import get_user_model
 from localflavor.us.forms import USZipCodeField
-from .models import Category
 from registration.forms import RegistrationForm
 
+from .models import Category, Flag, Submission
 
-class VoterForm(Form):
+
+class VoterForm(forms.Form):
 
     email = forms.EmailField()
     zipcode = USZipCodeField()
 
 
-class QuestionForm(Form):
+class QuestionForm(forms.Form):
     category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
     question = forms.CharField()
     citation = forms.URLField(required=False)
@@ -83,3 +86,41 @@ class OpenDebatesRegistrationForm(RegistrationForm):
 class OpenDebatesAuthenticationForm(AuthenticationForm):
     username = forms.CharField(max_length=254,
                                label="Username or Email")
+
+
+class MergeFlagForm(forms.ModelForm):
+    duplicate_of_url = forms.URLField()
+
+    class Meta:
+        model = Flag
+        fields = ('duplicate_of_url', )
+
+    def __init__(self, *args, **kwargs):
+        self.idea = kwargs.pop('idea')
+        self.voter = kwargs.pop('voter')
+        super(MergeFlagForm, self).__init__(*args, **kwargs)
+
+    def clean_duplicate_of_url(self):
+        # parse the URL and use Django's resolver to find the urlconf entry
+        path = urlparse(self.cleaned_data['duplicate_of_url']).path
+        url_match = resolve(path)
+
+        if url_match.url_name != 'vote':
+            raise forms.ValidationError('That is not the URL of a question.')
+
+        duplicate_of_pk = url_match.kwargs.get('id')
+        self.duplicate_of = Submission.objects.exclude(pk=self.idea.pk) \
+                                              .filter(pk=duplicate_of_pk, approved=True) \
+                                              .first()
+        if not self.duplicate_of:
+            raise forms.ValidationError('Invalid Question URL.')
+        return self.cleaned_data['duplicate_of_url']
+
+    def save(self, commit=True):
+        flag = super(MergeFlagForm, self).save(commit=False)
+        flag.to_remove = self.idea
+        flag.voter = self.voter
+        flag.duplicate_of = self.duplicate_of
+        if commit:
+            flag.save()
+        return flag

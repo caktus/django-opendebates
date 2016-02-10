@@ -1,3 +1,7 @@
+import json
+import logging
+
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
@@ -6,16 +10,13 @@ from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.http import Http404, HttpResponse, HttpResponseServerError
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from djangohelpers.lib import rendered_with, allow_http
-
-import json
-import logging
-
 from registration.backends.simple.views import RegistrationView
 
-from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm
-from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, RECENT_EVENTS_CACHE_ENTRY
+from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm, MergeFlagForm
+from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, \
+    RECENT_EVENTS_CACHE_ENTRY, Flag
 from .router import readonly_db
 from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list
 # from opendebates_comments.forms import CommentForm
@@ -358,4 +359,46 @@ def list_candidates(request):
     candidates = Candidate.objects.order_by('last_name', 'first_name')
     return {
         'candidates': candidates,
+    }
+
+
+@rendered_with("opendebates/flag_report.html")
+@allow_http("GET", "POST")
+@login_required
+def report(request, id):
+    idea = get_object_or_404(Submission, pk=id)
+    voter = Voter.objects.get(user=request.user)
+
+    if request.method == 'POST':
+        flag, created = Flag.objects.get_or_create(
+            to_remove=idea,
+            voter=voter,
+            duplicate_of=None
+        )
+        messages.info(request, _(u'This question has been flagged for removal.'))
+        return redirect(idea)
+    return {
+        'idea': idea,
+    }
+
+
+@rendered_with("opendebates/flag_merge.html")
+@allow_http("GET", "POST")
+@login_required
+def merge(request, id):
+    idea = get_object_or_404(Submission, pk=id)
+    voter = Voter.objects.get(user=request.user)
+
+    if Flag.objects.filter(to_remove=idea, voter=voter).exists():
+        messages.info(request, _(u'You have already flagged this question.'))
+        return redirect(idea)
+
+    form = MergeFlagForm(idea=idea, voter=voter, data=request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.info(request, _(u'This question has been flagged for merging.'))
+        return redirect(idea)
+    return {
+        'idea': idea,
+        'form': form,
     }

@@ -1,9 +1,13 @@
-from django.core.urlresolvers import reverse
-from django.test import TestCase
+from httplib import NOT_FOUND, OK
 import json
 
-from opendebates.models import Submission, Vote
-from .factories import UserFactory, VoterFactory, SubmissionFactory
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+
+from opendebates.models import Submission, Vote, Flag
+from .factories import UserFactory, VoterFactory, SubmissionFactory, RemovalFlagFactory, \
+    MergeFlagFactory
 
 
 class ModerationTest(TestCase):
@@ -13,10 +17,27 @@ class ModerationTest(TestCase):
         self.second_submission = SubmissionFactory()
         self.third_submission = SubmissionFactory()
         self.url = reverse('moderation_mark_duplicate')
+        self.moderation_home_url = reverse('moderation_home')
         self.password = 'secretpassword'
         self.user = UserFactory(password=self.password, is_staff=True, is_superuser=True)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
         assert self.client.login(username=self.user.username, password=self.password)
+
+    def test_redirects_to_login(self):
+        login_url = settings.LOGIN_URL + '?next=' + self.url
+        self.client.logout()
+        rsp = self.client.get(self.url)
+        self.assertRedirects(rsp, login_url)
+
+    def test_nonsuperuser_404(self):
+        self.user.is_superuser = False
+        self.user.save()
+        rsp = self.client.get(self.url)
+        self.assertEqual(NOT_FOUND, rsp.status_code)
+
+    def test_get(self):
+        rsp = self.client.get(self.url)
+        self.assertContains(rsp, 'Moderation Panel')
 
     def test_merge_submission(self):
         self.assertEqual(self.second_submission.has_duplicates, False)
@@ -32,7 +53,7 @@ class ModerationTest(TestCase):
             "to_remove": self.third_submission.id,
             "duplicate_of": self.second_submission.id,
         })
-        self.assertRedirects(rsp, self.url)
+        self.assertRedirects(rsp, self.moderation_home_url)
 
         merged = Submission.objects.get(id=self.third_submission.id)
         remaining = Submission.objects.get(id=self.second_submission.id)
@@ -122,7 +143,7 @@ class ModerationTest(TestCase):
             "to_remove": self.third_submission.id,
             "duplicate_of": self.second_submission.id,
         })
-        self.assertRedirects(rsp, self.url)
+        self.assertRedirects(rsp, self.moderation_home_url)
 
         merged = Submission.objects.get(id=self.third_submission.id)
         remaining = Submission.objects.get(id=self.second_submission.id)
@@ -144,3 +165,226 @@ class ModerationTest(TestCase):
         # since first_voter had already cast a vote on the remaining submission
         self.assertEqual(1, Vote.objects.filter(
             voter=first_voter, submission=merged).count())
+
+    def test_remove_submission(self):
+        data = {
+            'to_remove': self.first_submission.pk,
+            'duplicate_of': '',
+            'confirm': 'confirm',
+        }
+        rsp = self.client.post(self.url, data=data)
+        self.assertRedirects(rsp, self.moderation_home_url)
+        refetched_sub = Submission.objects.get(pk=self.first_submission.pk)
+        self.assertFalse(refetched_sub.approved)
+
+    def test_reject_merge(self):
+        # pretend a user created a merge flag
+        flag = MergeFlagFactory(to_remove=self.first_submission,
+                                duplicate_of=self.second_submission)
+        # now let's reject the merge
+        data = {
+            'to_remove': self.first_submission.pk,
+            'duplicate_of': self.second_submission.pk,
+            'confirm': 'confirm',
+            'handling': 'reject_merge',
+        }
+        rsp = self.client.post(self.url, data=data)
+        self.assertRedirects(rsp, self.moderation_home_url)
+        refetched_sub1 = Submission.objects.get(pk=self.first_submission.pk)
+        refetched_sub2 = Submission.objects.get(pk=self.second_submission.pk)
+        self.assertEqual(refetched_sub1.duplicate_of, None)
+        self.assertEqual(refetched_sub2.has_duplicates, False)
+        # and Flag is now marked reviewed
+        refetched_flag = Flag.objects.get(pk=flag.pk)
+        self.assertEqual(refetched_flag.reviewed, True)
+
+
+class ModerationHomeTest(TestCase):
+
+    def setUp(self):
+        self.password = 'secretpassword'
+        self.user = UserFactory(password=self.password, is_staff=True, is_superuser=True)
+        self.voter = VoterFactory(user=self.user, email=self.user.email)
+        assert self.client.login(username=self.user.username, password=self.password)
+        self.url = reverse('moderation_home')
+
+    def test_redirects_to_login(self):
+        login_url = settings.LOGIN_URL + '?next=' + self.url
+        self.client.logout()
+        rsp = self.client.get(self.url)
+        self.assertRedirects(rsp, login_url)
+
+    def test_nonsuperuser_404(self):
+        self.user.is_superuser = False
+        self.user.save()
+        rsp = self.client.get(self.url)
+        self.assertEqual(NOT_FOUND, rsp.status_code)
+
+    def test_removal_flags_queryset(self):
+        # these submissions should not be on our page
+        submission_without_flag = SubmissionFactory()
+        submission_with_merge_flag = SubmissionFactory()
+        MergeFlagFactory(duplicate_of=submission_with_merge_flag)
+        submission_already_moderated = SubmissionFactory(moderated_removal=True)
+        RemovalFlagFactory(to_remove=submission_already_moderated)
+
+        # these submissions should be on our page
+        flagged_submission_1 = SubmissionFactory()
+        RemovalFlagFactory(to_remove=flagged_submission_1)
+        flagged_submission_2 = SubmissionFactory()
+        RemovalFlagFactory.create_batch(to_remove=flagged_submission_2, size=2)
+
+        rsp = self.client.get(self.url)
+        self.assertEqual(OK, rsp.status_code)
+        qs = rsp.context['flagged_for_removal']
+        self.assertNotIn(submission_without_flag, qs)
+        self.assertNotIn(submission_with_merge_flag, qs)
+        self.assertNotIn(submission_already_moderated, qs)
+        self.assertIn(flagged_submission_1, qs)
+        self.assertIn(flagged_submission_2, qs)
+        # qs is ordered by flag count descending
+        self.assertEqual([flagged_submission_2, flagged_submission_1], list(qs))
+
+    def test_merge_flags(self):
+        removal_flag = RemovalFlagFactory()
+        already_reviewed_flag = MergeFlagFactory(reviewed=True)
+        merge_flags = MergeFlagFactory.create_batch(size=3)
+        rsp = self.client.get(self.url)
+        self.assertEqual(OK, rsp.status_code)
+        qs = rsp.context['merge_flags']
+        self.assertNotIn(removal_flag, qs)
+        self.assertNotIn(already_reviewed_flag, qs)
+        self.assertEqual(set(merge_flags), set(qs))
+
+
+class RemovalFlagTest(TestCase):
+
+    def setUp(self):
+        self.submission = SubmissionFactory()
+        self.url = reverse('report', args=[self.submission.pk])
+        self.login_url = settings.LOGIN_URL + '?next=' + self.url
+        password = 'secretPassword'
+        self.user = UserFactory(password=password)
+        self.voter = VoterFactory(user=self.user, email=self.user.email)
+        assert self.client.login(username=self.user.username, password=password)
+
+    def test_login_required(self):
+        self.client.logout()
+        rsp = self.client.get(self.url)
+        self.assertRedirects(rsp, self.login_url)
+
+    def test_get_report_page(self):
+        rsp = self.client.get(self.url)
+        self.assertContains(rsp, self.submission.idea)
+
+    def test_report_missing_submission_fails(self):
+        self.submission.delete()
+        rsp = self.client.get(self.url)
+        self.assertEqual(NOT_FOUND, rsp.status_code)
+
+    def test_report_is_successful(self):
+        rsp = self.client.post(self.url)
+        self.assertRedirects(rsp, self.submission.get_absolute_url())
+        flag = Flag.objects.get(to_remove=self.submission)
+        self.assertEqual(flag.voter, self.voter)
+        self.assertEqual(flag.duplicate_of, None)
+
+    def test_duplicate_report_ok_but_only_1_flag_created(self):
+        RemovalFlagFactory(to_remove=self.submission, voter=self.voter)
+        rsp = self.client.post(self.url)
+        self.assertRedirects(rsp, self.submission.get_absolute_url())
+        count = Flag.objects.filter(to_remove=self.submission).count()
+        self.assertEqual(1, count)
+
+
+class MergeFlagTest(TestCase):
+
+    def setUp(self):
+        self.submission = SubmissionFactory()
+        self.url = reverse('merge', args=[self.submission.pk])
+        self.login_url = settings.LOGIN_URL + '?next=' + self.url
+        password = 'secretPassword'
+        self.user = UserFactory(password=password)
+        self.voter = VoterFactory(user=self.user, email=self.user.email)
+        assert self.client.login(username=self.user.username, password=password)
+
+    def test_login_required(self):
+        self.client.logout()
+        rsp = self.client.get(self.url)
+        self.assertRedirects(rsp, self.login_url)
+
+    def test_get_merge_page(self):
+        rsp = self.client.get(self.url)
+        self.assertContains(rsp, self.submission.idea)
+
+    def test_merge_missing_submission_fails(self):
+        self.submission.delete()
+        rsp = self.client.get(self.url)
+        self.assertEqual(NOT_FOUND, rsp.status_code)
+
+    def test_merge_is_successful(self):
+        duplicate_of = SubmissionFactory()
+        data = {
+            'duplicate_of_url': 'https://example.com' + duplicate_of.get_absolute_url()
+        }
+        rsp = self.client.post(self.url, data=data)
+        self.assertRedirects(rsp, self.submission.get_absolute_url())
+        flag = Flag.objects.get(to_remove=self.submission)
+        self.assertEqual(flag.voter, self.voter)
+        self.assertEqual(flag.duplicate_of, duplicate_of)
+
+    def test_duplicate_merge_redirects_but_only_1_flag_created(self):
+        MergeFlagFactory(to_remove=self.submission, voter=self.voter)
+        duplicate_of = SubmissionFactory()
+        data = {
+            'duplicate_of_url': 'https://example.com' + duplicate_of.get_absolute_url()
+        }
+        rsp = self.client.post(self.url, data=data)
+        self.assertRedirects(rsp, self.submission.get_absolute_url())
+        count = Flag.objects.filter(to_remove=self.submission).count()
+        self.assertEqual(1, count)
+
+    def test_malformed_url(self):
+        data = {
+            'duplicate_of_url': 'this is totally not a URL'
+        }
+        rsp = self.client.post(self.url, data=data)
+        self.assertEqual(OK, rsp.status_code)
+        form = rsp.context['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('Enter a valid URL', str(form.errors))
+        self.assertFalse(Flag.objects.exists())
+
+    def test_note_a_vote_url(self):
+        data = {
+            'duplicate_of_url': 'https://example.com/questions/'
+        }
+        rsp = self.client.post(self.url, data=data)
+        self.assertEqual(OK, rsp.status_code)
+        form = rsp.context['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('not the URL of a question', str(form.errors))
+        self.assertFalse(Flag.objects.exists())
+
+    def test_cant_merge_same_submission_into_itself(self):
+        data = {
+            'duplicate_of_url': 'https://example.com' + self.submission.get_absolute_url()
+        }
+        rsp = self.client.post(self.url, data=data)
+        self.assertEqual(OK, rsp.status_code)
+        form = rsp.context['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('Invalid Question URL', str(form.errors))
+        self.assertFalse(Flag.objects.exists())
+
+    def test_cant_merge_into_unapproved_submission(self):
+        duplicate_of = SubmissionFactory(approved=False)
+        data = {
+            'duplicate_of_url': 'https://example.com' + duplicate_of.get_absolute_url()
+        }
+        rsp = self.client.post(self.url, data=data)
+        self.assertEqual(OK, rsp.status_code)
+        form = rsp.context['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('Invalid Question URL', str(form.errors))
+        self.assertFalse(Flag.objects.exists())

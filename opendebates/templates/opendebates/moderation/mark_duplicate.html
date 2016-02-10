@@ -48,22 +48,16 @@
   <div style="clear: left; font-size: 16px">
     <hr />
     <label>
-      Unmoderate
-      <input type="radio" name="handling" value="unmoderate" checked>
+      Reject this Merge
+      <input type="radio" name="handling" value="reject_merge" checked>
     </label>
     |
     <label>
       Merge
       <input type="radio" name="handling" value="merge">
     </label>
-    |
-    <label>
-      Do nothing
-      <input type="radio" name="handling" value="neither">
-    </label>
   </div>
   {% else %}
-  <input type="hidden" name="handling" value="unmoderate">
   {% endif %}
 
   <div style="clear: left; font-size: 16px">

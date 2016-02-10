@@ -11,6 +11,8 @@ urlpatterns = [
     # url('^comment/$', 'opendebates_comments.views.post_comment',
     #     name="comment"),
     url('^questions/(?P<id>\d+)/$', 'opendebates.views.vote', name="show_idea"),
+    url('^questions/(?P<id>\d+)/report/$', 'opendebates.views.report', name='report'),
+    url('^questions/(?P<id>\d+)/merge/$', 'opendebates.views.merge', name='merge'),
 
     url('^category/(?P<cat_id>\d+)/$', 'opendebates.views.list_category', name="list_category"),
     url('^category/(?P<cat_id>\d+)/search/$', 'opendebates.views.category_search',
@@ -21,6 +23,9 @@ urlpatterns = [
 
     url('^moderation/mark_duplicate/$', 'opendebates.moderator_views.mark_duplicate',
         name="moderation_mark_duplicate"),
+    url('^moderation/(?P<id>\d+)/remove/$', 'opendebates.moderator_views.remove',
+        name="moderation_remove"),
+    url('^moderation/$', 'opendebates.moderator_views.home', name='moderation_home'),
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^registration/', include('opendebates.registration_urls')),
