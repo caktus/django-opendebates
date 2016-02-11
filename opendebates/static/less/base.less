@@ -122,13 +122,15 @@ body > .container {
     }
 
     .header-logos {
-      width: @header-logo-width;
-      text-align: center;
-      position: relative;
-
-      @media (min-width: 800px) {
+      .responsive({
+        width: @header-logo-width;
+        text-align: center;
+        position: relative;
         height: 100%;
-      }
+      }, {
+        width: auto;
+        height: auto;
+      });
 
       img:first-child {
         width: 100%;
@@ -296,6 +298,15 @@ body > .container {
       }, {
         font-size: 30px;
         top: @header-top-padding + 50px;
+
+        &.login-container-authenticated {
+          max-width: 50%;
+          text-align: right;
+
+          span {
+            display: none;
+          }
+        }
       });
 
       a {
@@ -320,19 +331,71 @@ body > .container {
     font-size: 17px;
     padding-left: 10px;
   }
+
+  .responsive({
+    #search-small {
+      display: none;
+    }
+  }, {
+    #search-full {
+      display: none;
+    }
+    #search-small {
+      display: block;
+      border-color: black;
+      color: black;
+    }
+  });
+}
+
+/* Categories */
+#category-select-picker-ctn {
+  .responsive({
+    display: none;
+    margin: 10px;
+  }, {
+    display: block;
+    font-weight: 100;
+
+    .bootstrap-select {
+      width: 100%;
+
+      button {
+        border-color: black;
+        color: black;
+      }
+    }
+  });
+
+  label {
+    font-weight: 100;
+  }
 }
 
 .main {
-  width: 65%;
-  display: inline-block;
-  vertical-align: top;
+  .responsive({
+    width: 65%;
+    display: inline-block;
+    vertical-align: top;
+  }, {
+    width: 100%;
+  });
 }
 
 .aside {
-  width: 30%;
-  display: inline-block;
-  vertical-align: top;
-  float: right;
+  .responsive({
+    width: 30%;
+    display: inline-block;
+    vertical-align: top;
+    float: right;
+  }, {
+    width: 100%;
+    padding: 10px;
+
+    .recent-activity-container {
+      display: none;
+    }
+  });
 }
 
 // Question order sorting
@@ -343,17 +406,35 @@ body > .container {
   label {
     font-weight: inherit;
     font-size: inherit;
+    .small({font-size: 14px;});
   }
 
   form {
     margin-bottom: 20px;
   }
 
+  .small({
+    margin: 10px;
+
+    .display-count {
+      display: none;
+    }
+  });
+
   .bootstrap-select.form-control {
     display: inline-block;
     width: auto;
     min-width: 200px;
     margin: 0 1.5em;
+
+    .small({
+      width: 100%;
+      margin: 0;
+
+      button {
+        border-color: black;
+      }
+    });
 
     .bs-caret {
       background-image: url(/static/images/icon-option-toggle.png);
@@ -368,42 +449,74 @@ body > .container {
 
 // Question styling
 .big-idea {
-  color: #00304d;
-  border-bottom: 1px solid @separationColor;
-  padding: 25px 0;
+  .responsive({
+    color: #00304d;
+    border-bottom: 1px solid @separationColor;
+    padding: 25px 0;
 
-  .vote-tally {
-    // font-family: @font-family-2-narrow;
-    display: block;
-    font-weight: bold;
-    font-size: 40px;
-    line-height: 38px;
-  }
-
-  .votes .vote-bottom {
-    margin: auto;
-    background: #d61820;
-    line-height: 18px !important;
-    width: 100%;
-    height: 50px;
-    text-transform: uppercase;
-    text-align: center;
-
-    a {
-      font-weight: 600;
-      width: 100%;
-      text-decoration: none;
-      color: white;
-      font-size: 16px;
-      padding: 13% 0 0;
-      display: block;
+    &:last-child {
+      border-bottom: none;
     }
-    a.already-voted-button {
+  },{
+    display: flex;
+    flex-direction: column;
+
+    &.already-voted .votes {
+      .vote-bottom {
+        display: none;
+      }
+    }
+  });
+
+  .votes {
+    .responsive({
+      min-height: 160px;
+    },{
+      min-height: 0;
+      order: 3;
+    });
+
+    .vote-tally {
+      // font-family: @font-family-2-narrow;
+      display: block;
+      font-weight: bold;
+      font-size: 70px;
+      line-height: 68px;
+      font-family: Knockout;
+    }
+
+    .already-voted & {
       background-color: darken(@brand-primary, 3%);
-      margin-top: -5px;
-      border-top: 1px solid @colorless;
-      display: none;
-      height: 100%;
+
+      .not-full({
+        .vote-button {
+          display: none;
+        }
+      });
+    }
+
+    .vote-bottom {
+      margin: auto;
+      background: #d61820;
+      line-height: 18px !important;
+      width: 100%;
+      height: 50px;
+      text-transform: uppercase;
+      text-align: center;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      a {
+        font-weight: 600;
+        text-decoration: none;
+        color: white;
+        font-size: 16px;
+      }
+      &:not(.already-voted) .already-voted-button {
+        display: none;
+      }
     }
   }
 
@@ -426,6 +539,8 @@ body > .container {
   }
 
   .question {
+    margin: 15px;
+
     .headline {
       margin: 0;
       line-height: 114%;
@@ -443,6 +558,7 @@ body > .container {
         font-weight: 400;
         text-decoration: none;
         font-weight: -2px;
+        font-size: smaller;
         display: inline-block;
         border-bottom-width: 1px;
         border-bottom-style: solid;
@@ -450,74 +566,146 @@ body > .container {
         padding-top: 2px;
       }
     }
+  }
+  .idea-info {
+    margin: 15px;
+    font-size: 12px;
 
-    .idea-info {
-      margin: 10px auto;
-      font-size: 12px;
+    .not-full({
+      order: 6;
+    });
+  }
+  .social-links {
+    padding-top: 5px;
+
+    .small({
+      order: 4;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-around;
+
+      & > * {
+        flex-basis: 88px; // width of module share icons
+        height: 40px;
+        margin: 10px 8px;
+
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+      }
+    });
+    (.big-idea).already-voted & {
+      display: none;
     }
 
-    .social-links {
-      padding-top: 5px;
+    @socialIconWidth: 30px;
 
-      @socialIconWidth: 30px;
+    > * {
+      position: relative;
 
-      .share-button(@iconURL) {
-        content: "";
-        position: absolute;
-        left: 0px;
-        top: -1px;
-        width: @socialIconWidth;
-        height: 20px;
-        background-position: 50%;
-        background-image: url(@iconURL);
-        background-repeat: no-repeat;
+      a {
+        display: inline-block;
+        padding: 4px 7px 2px @socialIconWidth;
+        border-bottom: none;
+        text-decoration: none;
+        border: none;
+        vertical-align: middle;
+        font-size: 16px;
       }
-      .tweet-button {
+      a:hover {
+        // color: @link-color;
+      }
+    }
+
+    .share-button(@iconURL, @width: @socialIconWidth, @height: 20px) {
+      content: "";
+      position: absolute;
+      left: 0px;
+      top: -1px;
+      width: @width;
+      height: @height;
+      background-position: 50%;
+      background-image: url(@iconURL);
+      background-repeat: no-repeat;
+    }
+    .tweet-button {
+      .responsive({
         color: #50abf1;
-      }
-      .tweet-button:before {
-        .share-button('/static/images/icon-share-twitter.png');
-      }
-      .fb-button {
+
+        &::before {
+          .share-button('/static/images/icon-share-twitter.png');
+        }
+      }, {
+        color: rgba(0,0,0,0);
+        &::before {
+          .share-button('/static/images/icon-share-twitter-mobile.png', 88px, 40px);
+        }
+      });
+    }
+    .fb-button {
+      .responsive({
         color: #3b5998;
-      }
-      .fb-button:before {
-        .share-button('/static/images/icon-share-fb.png');
-      }
-      .reddit-button:before {
-        .share-button('/static/images/icon-share-reddit.png');
-      }
-      .email-button:before {
-        .share-button('/static/images/icon-share-email.png');
-      }
-      .sms-button {
-        .responsive({
-          display: none;
-        }, {
-          display: inline-block;
-        });
+
+        &::before {
+          .share-button('/static/images/icon-share-fb.png');
+        }
+      }, {
+        color: rgba(0,0,0,0);
+        &::before {
+          .share-button('/static/images/icon-share-fb-mobile.png', 88px, 40px);
+        }
+      });
+    }
+    .reddit-button {
+      .responsive({
+        &::before {
+          .share-button('/static/images/icon-share-reddit.png');
+        }
+      }, {
+        color: rgba(0,0,0,0);
+        &::before {
+          .share-button('/static/images/icon-share-reddit-mobile.png', 88px, 40px);
+        }
+      });
+    }
+    .email-button {
+      .responsive({
+        &::before {
+          .share-button('/static/images/icon-share-email.png');
+        }
+      }, {
+        flex-grow: 2;
+        display: flex;
+        justify-content: center;
+
+        &::before {
+          position: relative;
+          left: auto;
+        }
+        a {
+          padding-left: 7px;
+        }
+      });
+    }
+    .sms-button {
+      .responsive({
+        display: none;
+      }, {
+        display: inline-block;
+        flex-grow: 2;
+        display: flex;
+        justify-content: center;
 
         &:before {
           .share-button('/static/images/icon-share-sms.png');
+          position: relative;
+          left: auto;
         }
-      }
-
-      [class$=-button] {
-        position: relative;
-
         a {
-          display: inline-block;
-          padding: 4px 7px 2px @socialIconWidth;
-          border-bottom: none;
-          text-decoration: none;
-          border: none;
-          vertical-align: middle;
-          font-size: 16px;
+          padding-left: 7px;
         }
-        a:hover {
-          // color: @link-color;
-        }
-      }
+      });
     }
   }
 }
@@ -843,37 +1031,3 @@ a.web, a.comment, a.fb, a.tw, a:hover.web, a:hover.comment, a:hover.fb, a:hover.
   font-weight: 600;
 }
 .candidate-title {margin-bottom: 6px;}
-
-// @media (min-width: @screen-md-min) {
-//   .idea-list {
-//     min-height: 800px;
-//   }
-// }
-// @media (max-width: @screen-sm-max) {
-//   .big-idea > .row {
-//     margin-left: 0;
-//     margin-right: 0;
-//   }
-//
-//   .big-idea .question {
-//     margin-top: 15px;
-//   }
-//
-//   .big-idea .votes {
-//     width: 30%;
-//     margin: 0 auto;
-//
-//     .vote-tally {
-//       margin-bottom: 0;
-//     }
-//     .vote-bottom {
-//       padding: 15px 0;
-//
-//       .already-voted-button {
-//         margin: -15px 0;
-//         padding: 15px 0;
-//         border-top: none;
-//       }
-//     }
-//   }
-// }
