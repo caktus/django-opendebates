@@ -187,7 +187,6 @@ def vote(request, id):
     if not vote_needs_captcha(request):
         form.ignore_captcha()
     if not form.is_valid():
-        print(form.errors)
         if request.is_ajax():
             return HttpResponse(
                 json.dumps({"status": "400", "errors": form.errors}),
@@ -244,7 +243,6 @@ def vote(request, id):
         Submission.objects.filter(id=id).update(votes=F('votes')+1)
         # also calculate a simple increment tally for the client
         idea.votes += 1
-        print("CREATED VOTE")
 
     if 'voter' not in request.session:
         request.session['voter'] = {"email": voter.email, "zip": voter.zip}

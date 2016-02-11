@@ -261,3 +261,7 @@ DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
 DBBACKUP_STORAGE_OPTIONS = {'location': '.'}
 DBBACKUP_FILENAME_TEMPLATE = 'local/{datetime}.{extension}'
 DBBACKUP_SEND_EMAIL = False
+
+# Dummy settings for test etc
+NORECAPTCHA_SITE_KEY = ''
+NORECAPTCHA_SECRET_KEY = ''

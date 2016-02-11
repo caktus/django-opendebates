@@ -1,5 +1,6 @@
 (function() {
   var ODebates = window.ODebates || {};
+  var grecaptcha = window.grecaptcha;
   ODebates.helpers = ODebates.helpers || {};
 
   ODebates.helpers.getParameterByName = function(name) {
