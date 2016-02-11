@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'pipeline',
     'djangobower',
     'dbbackup',
+    'nocaptcha_recaptcha',
     # Still using django-celery because that's how Fabulaws starts workers
     'djcelery',
     'opendebates',
@@ -260,3 +261,8 @@ DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
 DBBACKUP_STORAGE_OPTIONS = {'location': '.'}
 DBBACKUP_FILENAME_TEMPLATE = 'local/{datetime}.{extension}'
 DBBACKUP_SEND_EMAIL = False
+
+
+# FIXME: DO NOT COMMIT
+NORECAPTCHA_SITE_KEY = '6Lcq_hcTAAAAAG96k6-AWJhD0a_YnAJXwu1MsJF9'
+NORECAPTCHA_SECRET_KEY = '6Lcq_hcTAAAAALJ0INF6hu2-aRGeZoa6XKA1L0mL'

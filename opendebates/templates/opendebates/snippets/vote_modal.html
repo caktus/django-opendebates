@@ -29,7 +29,15 @@
                        placeholder="{% blocktrans %}Zip code{% endblocktrans %}">
               </div>
             </div>
-            
+
+            <div class="control-group">
+              <label class="control-label" for="captcha">{{ VOTER_FORM.captcha.field.label }}</label>
+              <div class="controls">
+                <p class="help-block"></p>
+                {{ VOTER_FORM.captcha }}
+              </div>
+            </div>
+
             <div class="control-group">
               <label class="control-label" for="votebutton"></label>
               <div class="controls">
