@@ -54,7 +54,7 @@
       </div>
     {% endif %}
 
-    
+
     {% if related1 %}
     <div class="idea-related">
       <h4>{% blocktrans %}You may also be interested in...{% endblocktrans %}</h4>
@@ -129,54 +129,7 @@
          class="btn btn-default">Create an Account</a>
       {% endif %}
     {% endcomment %}
-    <form action="{% url 'vote' id=idea.id %}" method="POST" class="hidden form-inline">
-      {% csrf_token %}
-      <fieldset>
-        <!-- Text input-->
-        <div class="control-group">
-          <label class="control-label" for="email">{% blocktrans %}Email{% endblocktrans %}</label>
-          
-          <div class="controls">
-            <input id="email" name="email" type="text" class="input-large" value="{{ form.data.email }}">
-            {% if form.errors.email %}
-            <p class="help-block">{{ form.errors.email }}</p>
-            {% endif %}
-          </div>
-        </div>
-        
-        <!-- Text input-->
-        <div class="control-group">
-          <label class="control-label" for="zipcode">{% blocktrans %}Zip code{% endblocktrans %}</label>
-          
-          <div class="controls">
-            <input id="zipcode" name="zipcode" type="text" class="input-large" value="{{ form.data.zipcode }}">
-            {% if form.errors.zipcode %}
-            <p class="help-block">{{ form.errors.zipcode }}</p>
-            {% endif %}
-          </div>
-        </div>
 
-        <!-- CAPTCHA -->
-        <div class="control-group">
-          <label class="control-label" for="captcha">{{ form.captcha.label }}</label>
-          <div class="controls">
-            {{ form.captcha }}
-          </div>
-        </div>
-
-        <!-- Button -->
-        <div class="control-group">
-          <label class="control-label" for="votebutton"></label>
-          
-          <div class="controls">
-            <button id="votebutton" name="votebutton" class="btn btn-primary">{% blocktrans %}
-              Vote{% endblocktrans %}</button>
-          </div>
-        </div>
-        
-      </fieldset>
-    </form>
-    
   </div>
   <div class="col-sm-3">
 

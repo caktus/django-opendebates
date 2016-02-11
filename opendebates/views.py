@@ -17,7 +17,8 @@ from registration.backends.simple.views import RegistrationView
 from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm
 from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, RECENT_EVENTS_CACHE_ENTRY
 from .router import readonly_db
-from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list
+from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list, \
+    vote_needs_captcha
 # from opendebates_comments.forms import CommentForm
 from opendebates_emails.models import send_email
 
@@ -183,7 +184,10 @@ def vote(request, id):
         }
 
     form = VoterForm(request.POST)
+    if not vote_needs_captcha(request):
+        form.ignore_captcha()
     if not form.is_valid():
+        print(form.errors)
         if request.is_ajax():
             return HttpResponse(
                 json.dumps({"status": "400", "errors": form.errors}),
@@ -194,7 +198,6 @@ def vote(request, id):
             'idea': idea,
             # 'comment_form': CommentForm(idea),
             }
-
     state = state_from_zip(form.cleaned_data['zipcode'])
 
     voter, created = Voter.objects.get_or_create(
@@ -211,7 +214,7 @@ def vote(request, id):
         msg = 'That email is registered. Please login and try again.'
         if request.is_ajax():
             return HttpResponse(
-                json.dumps({"status": "400", "errors": {'email': msg}}),
+                json.dumps({"status": "400", "errors": {'email': [msg]}}),
                 content_type="application/json")
         messages.error(request, _(msg))
         return {
@@ -241,6 +244,7 @@ def vote(request, id):
         Submission.objects.filter(id=id).update(votes=F('votes')+1)
         # also calculate a simple increment tally for the client
         idea.votes += 1
+        print("CREATED VOTE")
 
     if 'voter' not in request.session:
         request.session['voter'] = {"email": voter.email, "zip": voter.zip}

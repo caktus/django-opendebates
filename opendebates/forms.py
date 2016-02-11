@@ -19,6 +19,12 @@ class VoterForm(Form):
         gtag_attrs={'data-size': 'compact'}
     )
 
+    def __init__(self, *args, **kwargs):
+        super(VoterForm, self).__init__(*args, **kwargs)
+
+    def ignore_captcha(self):
+        del self.fields['captcha']
+
 
 class QuestionForm(Form):
     category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
