@@ -96,8 +96,7 @@
       $.each(ODebates.votesCast.submissions || [], function(i, objId) {
         var idea = $(".big-idea[data-idea-id="+objId+"]");
         if (!idea) { return; }
-        idea.find(".vote-button").hide();
-        idea.find(".already-voted-button").css("display", "block");
+        idea.addClass('already-voted');
       });
     });
   }

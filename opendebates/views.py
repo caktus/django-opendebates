@@ -203,22 +203,27 @@ def vote(request, id):
             source=request.COOKIES.get('opendebates.source'),
             state=state,
             zip=form.cleaned_data['zipcode'],
+            user=request.user if request.user.is_authenticated else None,
         )
     )
 
-    if voter.user and voter.user != request.user:
-        # anonymous user can't use the email of a registered user
-        msg = 'That email is registered. Please login and try again.'
-        if request.is_ajax():
-            return HttpResponse(
-                json.dumps({"status": "400", "errors": {'email': msg}}),
-                content_type="application/json")
-        messages.error(request, _(msg))
-        return {
-            'form': form,
-            'idea': idea,
-            # 'comment_form': CommentForm(idea),
-        }
+    if not voter.user and request.user.email == voter.email:
+        voter.user = request.user
+        voter.save()
+    else:
+        if voter.user != request.user:
+            # anonymous user can't use the email of a registered user
+            msg = 'That email is registered. Please login and try again.'
+            if request.is_ajax():
+                return HttpResponse(
+                    json.dumps({"status": "400", "errors": {'email': msg}}),
+                    content_type="application/json")
+            messages.error(request, _(msg))
+            return {
+                'form': form,
+                'idea': idea,
+                # 'comment_form': CommentForm(idea),
+            }
 
     if not created and voter.zip != form.cleaned_data['zipcode']:
         voter.zip = form.cleaned_data['zipcode']

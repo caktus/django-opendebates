@@ -21,7 +21,7 @@
       {% endif %}
     </div>
 
-    <div class="{% if is_related %}col-md-9{% else %}col-md-9{% endif %} question">
+    <div class="question">
 
         {% if idea.has_duplicates %}
         <div class="idea-duplicates" data-toggle="popover" data-placement="bottom"
@@ -31,14 +31,14 @@
                viewBox="0 0 57.1 53.9">
             <g>
               <path fill="#FFF" d="M3,50.9h15v-9h9V15H3V50.9z M6.1,30.5c0-0.2,0.2-0.4,0.4-0.4l6.6,0v-4c0-0.2,0.1-0.3,0.3-0.2l8.1,6.2
-			           c0.2,0.1,0.2,0.3,0,0.5l-8.1,6.2C13.2,39.1,13,39,13,38.8v-4H6.5c-0.2,0-0.4-0.2-0.4-0.4V30.5z"/>
+    		           c0.2,0.1,0.2,0.3,0,0.5l-8.1,6.2C13.2,39.1,13,39,13,38.8v-4H6.5c-0.2,0-0.4-0.2-0.4-0.4V30.5z"/>
               <path fill="#FFF" d="M30.1,38.9h15v-9h9V3h-24V38.9z M35.6,19.7l8.1-6.2c0.2-0.1,0.3-0.1,0.3,0.2v4h6.6c0.2,0,0.4,0.2,0.4,0.4
-			           v3.9c0,0.2-0.2,0.4-0.4,0.4H44v4c0,0.2-0.1,0.3-0.3,0.2l-8.1-6.2C35.5,20.1,35.5,19.9,35.6,19.7z"/>
+    		           v3.9c0,0.2-0.2,0.4-0.4,0.4H44v4c0,0.2-0.1,0.3-0.3,0.2l-8.1-6.2C35.5,20.1,35.5,19.9,35.6,19.7z"/>
               <path d="M27.1,0v12H0v41.9h21l9-9v-3h18.1l9-9V0H27.1z M27,41.9h-9v9H3V15h24V41.9z M54.1,29.9h-9v9h-15V3h24V29.9z"/>
               <path d="M43.7,26.4c0.2,0.1,0.3,0.1,0.3-0.2v-4h6.6c0.2,0,0.4-0.2,0.4-0.4V18c0-0.2-0.2-0.4-0.4-0.4H44v-4c0-0.2-0.1-0.3-0.3-0.2
-	               l-8.1,6.2c-0.2,0.1-0.2,0.3,0,0.5L43.7,26.4z"/>
+                   l-8.1,6.2c-0.2,0.1-0.2,0.3,0,0.5L43.7,26.4z"/>
               <path d="M6.5,34.8H13v4c0,0.2,0.1,0.3,0.3,0.2l8.1-6.2c0.2-0.1,0.2-0.3,0-0.5L13.3,26c-0.2-0.1-0.3-0.1-0.3,0.2v4l-6.6,0
-	               c-0.2,0-0.4,0.2-0.4,0.4v3.9C6.1,34.6,6.2,34.8,6.5,34.8z"/>
+                   c-0.2,0-0.4,0.2-0.4,0.4v3.9C6.1,34.6,6.2,34.8,6.5,34.8z"/>
             </g>
           </svg>
 
@@ -61,39 +61,38 @@
           <a class="citation" target="_blank" href="{{ idea.citation }}" title="{% blocktrans %}Has a citation &ndash; click to open{% endblocktrans %}">{% trans "User Submitted Citation" %}</a>
         {% endif %}
       </p>
-      <p class="idea-info">
-        {% blocktrans with user_display_name=idea.user_display_name %}Submitted by: <strong>{{ user_display_name }}</strong>{% endblocktrans %}<br />
-        {{ idea.created_at }}<br />
-        {% trans "Issue area" %}: <strong>{{ idea.category.name }}</strong>
-      </p>
-
-      <div class="social-links">
-        <span class="fb-button">
-          <a class="facebook" href="{{ idea.facebook_url }}" target="_blank">
-            {% blocktrans %}Share{% endblocktrans %}
-          </a>
-        </span>
-        <span class="tweet-button">
-          <a class="twitter" href="{{ idea.twitter_url }}" target="_blank">
-            {% blocktrans %}Tweet{% endblocktrans %}
-          </a>
-        </span>
-        <span class="reddit-button">
-          <a class="reddit" href="{{ idea.reddit_url }}" target="_blank">
-            {% blocktrans %}Post{% endblocktrans %}
-          </a>
-        </span>
-        <span class="email-button">
-          <a class="email" href="{{ idea.email_url }}" target="_blank">
-            {% blocktrans %}Email{% endblocktrans %}
-          </a>
-        </span>
-        <span class="sms-button">
-          <a class="sms" href="{{ idea.sms_url }}" target="_blank">
-            {% blocktrans %}SMS{% endblocktrans %}
-          </a>
-        </span>
-      </div>
+    </div>
+    <div class="idea-info">
+      {% blocktrans with user_display_name=idea.user_display_name %}Submitted by: <strong>{{ user_display_name }}</strong>{% endblocktrans %}<br />
+      {{ idea.created_at }}<br />
+      {% trans "Issue area" %}: <strong>{{ idea.category.name }}</strong>
+    </div>
+    <div class="social-links">
+      <span class="fb-button">
+        <a class="facebook" href="{{ idea.facebook_url }}" target="_blank">
+          {% blocktrans %}Share{% endblocktrans %}
+        </a>
+      </span>
+      <span class="tweet-button">
+        <a class="twitter" href="{{ idea.twitter_url }}" target="_blank">
+          {% blocktrans %}Tweet{% endblocktrans %}
+        </a>
+      </span>
+      <span class="reddit-button">
+        <a class="reddit" href="{{ idea.reddit_url }}" target="_blank">
+          {% blocktrans %}Post{% endblocktrans %}
+        </a>
+      </span>
+      <span class="email-button">
+        <a class="email" href="{{ idea.email_url }}" target="_blank">
+          {% blocktrans %}Email{% endblocktrans %}
+        </a>
+      </span>
+      <span class="sms-button">
+        <a class="sms" href="{{ idea.sms_url }}" target="_blank">
+          {% blocktrans %}SMS{% endblocktrans %}
+        </a>
+      </span>
     </div>
 </div>
 

@@ -21,7 +21,7 @@
       <img src="{% static "images/logo-progressive-change-institute.png" %}">
       <img src="{% static "images/logo-cnn.png" %}">
     </div>
-    <div class="login-container">
+    <div class="login-container{% if request.user.is_authenticated %} login-container-authenticated{% endif %}">
       {% if request.user.is_authenticated %}
         <a href="{# url 'user_profile' #}">
           {% blocktrans with username=request.user.username %}Welcome, {{ username }}!{% endblocktrans %}
@@ -64,11 +64,6 @@
     <!-- <div class="col-md-12"> -->
       {% block pre_content %}{% endblock %}
     <!-- </div> -->
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-      &nbsp;
-    </div>
   </div>
   <div class="row">
       {% block content %}
