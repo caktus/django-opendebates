@@ -3,7 +3,7 @@ from urlparse import urlparse
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
-from django.core.urlresolvers import resolve
+from django.core.urlresolvers import resolve, Resolver404
 from django.utils.html import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from localflavor.us.forms import USZipCodeField
@@ -103,14 +103,21 @@ class MergeFlagForm(forms.ModelForm):
     def clean_duplicate_of_url(self):
         # parse the URL and use Django's resolver to find the urlconf entry
         path = urlparse(self.cleaned_data['duplicate_of_url']).path
-        url_match = resolve(path)
+        try:
+            url_match = resolve(path)
+        except Resolver404:
+            url_match = None
 
-        if url_match.url_name != 'vote':
+        if not url_match or url_match.url_name != 'vote':
             raise forms.ValidationError('That is not the URL of a question.')
 
         duplicate_of_pk = url_match.kwargs.get('id')
-        self.duplicate_of = Submission.objects.exclude(pk=self.idea.pk) \
-                                              .filter(pk=duplicate_of_pk, approved=True) \
+        if duplicate_of_pk == unicode(self.idea.pk):
+            raise forms.ValidationError('Please enter the URL of the submission that this '
+                                        'submission appears to be a duplicate of, not the '
+                                        'URL of this submission.')
+
+        self.duplicate_of = Submission.objects.filter(pk=duplicate_of_pk, approved=True) \
                                               .first()
         if not self.duplicate_of:
             raise forms.ValidationError('Invalid Question URL.')

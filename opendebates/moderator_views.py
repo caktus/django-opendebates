@@ -2,7 +2,7 @@ from djangohelpers.lib import rendered_with, allow_http
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 
@@ -21,9 +21,9 @@ def mark_duplicate(request):
     if request.method == "GET":
         return {'to_remove_default': request.GET.get("to_remove", "")}
 
-    to_remove = get_object_or_404(Submission, pk=request.POST['to_remove'])
+    to_remove = get_object_or_404(Submission, pk=request.POST['to_remove'], approved=True)
     try:
-        duplicate_of = Submission.objects.get(id=request.POST['duplicate_of'])
+        duplicate_of = Submission.objects.get(id=request.POST['duplicate_of'], approved=True)
     except (KeyError, ValueError, Submission.DoesNotExist):
         duplicate_of = None
 
@@ -32,7 +32,11 @@ def mark_duplicate(request):
 
     if request.POST.get("handling") == "reject_merge":
         # mark all flags of this merge as 'reviewed'
-        Flag.objects.filter(to_remove=to_remove, duplicate_of=duplicate_of).update(reviewed=True)
+        Flag.objects.filter(
+            to_remove=to_remove,
+            duplicate_of=duplicate_of,
+            reviewed=False
+        ).update(reviewed=True)
         msg = _(u'No changes made and flag has been removed.')
     elif request.POST.get("handling") == "merge":
         duplicate_of.keywords = (duplicate_of.keywords or '') \
@@ -41,11 +45,19 @@ def mark_duplicate(request):
         duplicate_of.has_duplicates = True
         duplicate_of.save()
         msg = _(u'Question has been merged.')
+    elif request.POST.get("handling") == "remove":
+        pass
+    else:
+        return HttpResponseBadRequest('Invalid value for "handling".')
 
     if duplicate_of is not None and request.POST.get('handling') == 'merge':
         # merge and mark all flags of this merge as 'reviewed'
         to_remove.duplicate_of = duplicate_of
-        Flag.objects.filter(to_remove=to_remove, duplicate_of=duplicate_of).update(reviewed=True)
+        Flag.objects.filter(
+            to_remove=to_remove,
+            duplicate_of=duplicate_of,
+            reviewed=False
+        ).update(reviewed=True)
     else:
         msg = _(u'Question has been removed.')
         # remove and mark submission 'moderated'
@@ -82,7 +94,7 @@ def remove(request, id):
     if not request.user.is_superuser:
         return HttpResponseNotFound()
 
-    to_remove = get_object_or_404(Submission, pk=id)
+    to_remove = get_object_or_404(Submission, pk=id, approved=True)
 
     remove = request.POST.get('action').lower() == 'remove'
     if remove:

@@ -171,6 +171,7 @@ class ModerationTest(TestCase):
             'to_remove': self.first_submission.pk,
             'duplicate_of': '',
             'confirm': 'confirm',
+            'handling': 'remove',
         }
         rsp = self.client.post(self.url, data=data)
         self.assertRedirects(rsp, self.moderation_home_url)
@@ -355,7 +356,18 @@ class MergeFlagTest(TestCase):
         self.assertIn('Enter a valid URL', str(form.errors))
         self.assertFalse(Flag.objects.exists())
 
-    def test_note_a_vote_url(self):
+    def test_valid_url_but_404(self):
+        data = {
+            'duplicate_of_url': 'https://example.com/questions/what/vote/'
+        }
+        rsp = self.client.post(self.url, data=data)
+        self.assertEqual(OK, rsp.status_code)
+        form = rsp.context['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('not the URL of a question', str(form.errors))
+        self.assertFalse(Flag.objects.exists())
+
+    def test_valid_url_but_not_a_question_url(self):
         data = {
             'duplicate_of_url': 'https://example.com/questions/'
         }
@@ -374,7 +386,7 @@ class MergeFlagTest(TestCase):
         self.assertEqual(OK, rsp.status_code)
         form = rsp.context['form']
         self.assertFalse(form.is_valid())
-        self.assertIn('Invalid Question URL', str(form.errors))
+        self.assertIn('not the URL of this submission', str(form.errors))
         self.assertFalse(Flag.objects.exists())
 
     def test_cant_merge_into_unapproved_submission(self):
