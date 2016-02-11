@@ -125,8 +125,10 @@ body > .container {
       .responsive({
         width: @header-logo-width;
         text-align: center;
-        position: relative;
         height: 100%;
+        display: inline-flex;
+        flex-direction: row;
+        flex-wrap: wrap;
       }, {
         width: auto;
         height: auto;
@@ -138,6 +140,7 @@ body > .container {
         height: auto;
         margin-bottom: 10px;
         margin-top: @header-top-padding;
+        flex-basis: 100%;
 
         @media (max-width: 800px) {
           max-width: 33vw;
@@ -148,6 +151,7 @@ body > .container {
         height: 35px;
         margin: auto 10px;
         .header-lower(@bottom-extra: 5px);
+        position: inherit;
 
         &:nth-child(2) {
           left: 0;
@@ -411,6 +415,10 @@ body > .container {
 
   form {
     margin-bottom: 20px;
+
+    & > * {
+      display: inline;
+    }
   }
 
   .small({
@@ -577,6 +585,8 @@ body > .container {
   }
   .social-links {
     padding-top: 5px;
+    position: relative;
+    left: 25%;
 
     .small({
       order: 4;
@@ -584,6 +594,7 @@ body > .container {
       flex-direction: row;
       flex-wrap: wrap;
       justify-content: space-around;
+      left: auto;
 
       & > * {
         flex-basis: 88px; // width of module share icons
