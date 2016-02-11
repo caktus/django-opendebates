@@ -131,3 +131,36 @@ class MergeFlagForm(forms.ModelForm):
         if commit:
             flag.save()
         return flag
+
+
+class ModerationForm(forms.Form):
+    to_remove = forms.IntegerField(label="ID of submission to remove")
+    duplicate_of = forms.IntegerField(required=False,
+                                      label="(Optional) ID of submission it is a duplicate of")
+
+    def clean_to_remove(self):
+        to_remove_pk = self.cleaned_data['to_remove']
+        if to_remove_pk:
+            try:
+                self.cleaned_data['to_remove_obj'] = Submission.objects.get(
+                    pk=to_remove_pk, approved=True)
+            except Submission.DoesNotExist:
+                raise forms.ValidationError('That submission does not exist or is not approved.')
+        return to_remove_pk
+
+    def clean_duplicate_of(self):
+        duplicate_of_pk = self.cleaned_data['duplicate_of']
+        if duplicate_of_pk:
+            try:
+                self.cleaned_data['duplicate_of_obj'] = Submission.objects.get(
+                    pk=duplicate_of_pk, approved=True)
+            except Submission.DoesNotExist:
+                raise forms.ValidationError('That submission does not exist or is not approved.')
+        return duplicate_of_pk
+
+    def clean(self):
+        to_remove_pk = self.cleaned_data.get('to_remove')
+        duplicate_of_pk = self.cleaned_data.get('duplicate_of')
+        if to_remove_pk and duplicate_of_pk and to_remove_pk == duplicate_of_pk:
+            raise forms.ValidationError('Cannot merge a submission into itself.')
+        return self.cleaned_data

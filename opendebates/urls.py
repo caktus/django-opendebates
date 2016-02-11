@@ -21,11 +21,13 @@ urlpatterns = [
     url('^questions/$', 'opendebates.views.questions', name="questions"),
     url('^candidates/$', 'opendebates.views.list_candidates', name="candidates"),
 
-    url('^moderation/mark_duplicate/$', 'opendebates.moderator_views.mark_duplicate',
-        name="moderation_mark_duplicate"),
-    url('^moderation/(?P<id>\d+)/remove/$', 'opendebates.moderator_views.remove',
+    url('^moderation/remove/$', 'opendebates.moderator_views.remove',
         name="moderation_remove"),
+    url('^moderation/merge/$', 'opendebates.moderator_views.merge',
+        name="moderation_merge"),
     url('^moderation/$', 'opendebates.moderator_views.home', name='moderation_home'),
+    url('^moderation/preview/$', 'opendebates.moderator_views.preview',
+        name="moderation_preview"),
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^registration/', include('opendebates.registration_urls')),

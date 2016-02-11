@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Admin - Preview Moderation</h2>
+
+  <div class="row">
+    <div class="col-md-12">
+
+      <form action="{% url 'moderation_preview' %}" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="btn btn-default" type="submit" />
+      </form>
+
+      {% if to_remove %}
+        <div class="col-sm-6">
+          <h3>This is the idea you are REMOVING:</h3>
+          <blockquote>{{ to_remove.idea }}</blockquote>
+          <div>Submitted on {{ to_remove.created_at }} by {{ to_remove.user_display_name }} (&laquo;{{ to_remove.voter.email }}&raquo;)</div>
+          <div>{{ to_remove.votes }} votes</div>
+          <div>{{ to_remove.citation|default:''|urlize }}</div>
+        </div>
+
+        {% if duplicate_of %}
+          <div class="col-sm-6">
+            <h3>This is the idea you are KEEPING:</h3>
+            <blockquote>{{ duplicate_of.idea }}</blockquote>
+            <div>Submitted on {{ duplicate_of.created_at }} by {{ duplicate_of.user_display_name }} (&laquo;{{ duplicate_of.voter.email }}&raquo;)</div>
+            <div>{{ duplicate_of.votes }} votes</div>
+            <div>{{ duplicate_of.citation|default:''|urlize }}</div>
+          </div>
+        {% endif %}
+
+        <form method="POST" action="{% url post_url %}">
+          {% csrf_token %}
+          <input type="hidden" name="to_remove" value="{{ to_remove.id }}">
+          <div style="clear: left; font-size: 16px">
+            <hr />
+            <label>
+              Send email?
+              <input type="checkbox" checked name="send_email" value="yes">
+            </label>
+          </div>
+
+          <div>
+            {% if duplicate_of %}
+            <input type="hidden" name="duplicate_of" value="{{ duplicate_of.id }}">
+              <input type="submit" class="btn" name="action" value="Reject">
+              <input type="submit" class="btn btn-danger" name="action" value="Merge">
+            {% else %}
+              <input type="submit" class="btn" name="action" value="Keep">
+              <input type="submit" class="btn btn-danger" name="action" value="Remove">
+            {% endif %}
+          </div>
+        </form>
+      {% endif %}
+
+    </div>
+  </div>
+
+{% endblock %}

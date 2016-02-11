@@ -16,7 +16,9 @@ class ModerationTest(TestCase):
         self.first_submission = SubmissionFactory()
         self.second_submission = SubmissionFactory()
         self.third_submission = SubmissionFactory()
-        self.url = reverse('moderation_mark_duplicate')
+        self.preview_url = reverse('moderation_preview')
+        self.merge_url = reverse('moderation_merge')
+        self.remove_url = reverse('moderation_remove')
         self.moderation_home_url = reverse('moderation_home')
         self.password = 'secretpassword'
         self.user = UserFactory(password=self.password, is_staff=True, is_superuser=True)
@@ -24,20 +26,20 @@ class ModerationTest(TestCase):
         assert self.client.login(username=self.user.username, password=self.password)
 
     def test_redirects_to_login(self):
-        login_url = settings.LOGIN_URL + '?next=' + self.url
+        login_url = settings.LOGIN_URL + '?next=' + self.preview_url
         self.client.logout()
-        rsp = self.client.get(self.url)
+        rsp = self.client.get(self.preview_url)
         self.assertRedirects(rsp, login_url)
 
     def test_nonsuperuser_404(self):
         self.user.is_superuser = False
         self.user.save()
-        rsp = self.client.get(self.url)
+        rsp = self.client.get(self.preview_url)
         self.assertEqual(NOT_FOUND, rsp.status_code)
 
     def test_get(self):
-        rsp = self.client.get(self.url)
-        self.assertContains(rsp, 'Moderation Panel')
+        rsp = self.client.get(self.preview_url)
+        self.assertContains(rsp, 'Preview Moderation')
 
     def test_merge_submission(self):
         self.assertEqual(self.second_submission.has_duplicates, False)
@@ -47,9 +49,8 @@ class ModerationTest(TestCase):
         self.assertEqual(self.third_submission.duplicate_of, None)
         self.assertEqual(self.third_submission.keywords, None)
 
-        rsp = self.client.post(self.url, data={
-            "confirm": "confirm",
-            "handling": "merge",
+        rsp = self.client.post(self.merge_url, data={
+            "action": "merge",
             "to_remove": self.third_submission.id,
             "duplicate_of": self.second_submission.id,
         })
@@ -75,15 +76,13 @@ class ModerationTest(TestCase):
                                  "#i%s" % merged.id))
 
     def test_nested_merge_submission(self):
-        self.client.post(self.url, data={
-            "confirm": "confirm",
-            "handling": "merge",
+        self.client.post(self.merge_url, data={
+            "action": "merge",
             "to_remove": self.third_submission.id,
             "duplicate_of": self.second_submission.id,
         })
-        self.client.post(self.url, data={
-            "confirm": "confirm",
-            "handling": "merge",
+        self.client.post(self.merge_url, data={
+            "action": "merge",
             "to_remove": self.second_submission.id,
             "duplicate_of": self.first_submission.id,
         })
@@ -137,9 +136,8 @@ class ModerationTest(TestCase):
         self.assertEqual(Submission.objects.get(id=self.third_submission.id).votes, 3)
 
         assert self.client.login(username=self.user.username, password=self.password)
-        rsp = self.client.post(self.url, data={
-            "confirm": "confirm",
-            "handling": "merge",
+        rsp = self.client.post(self.merge_url, data={
+            "action": "merge",
             "to_remove": self.third_submission.id,
             "duplicate_of": self.second_submission.id,
         })
@@ -170,10 +168,9 @@ class ModerationTest(TestCase):
         data = {
             'to_remove': self.first_submission.pk,
             'duplicate_of': '',
-            'confirm': 'confirm',
-            'handling': 'remove',
+            'action': 'remove',
         }
-        rsp = self.client.post(self.url, data=data)
+        rsp = self.client.post(self.remove_url, data=data)
         self.assertRedirects(rsp, self.moderation_home_url)
         refetched_sub = Submission.objects.get(pk=self.first_submission.pk)
         self.assertFalse(refetched_sub.approved)
@@ -186,10 +183,9 @@ class ModerationTest(TestCase):
         data = {
             'to_remove': self.first_submission.pk,
             'duplicate_of': self.second_submission.pk,
-            'confirm': 'confirm',
-            'handling': 'reject_merge',
+            'action': 'reject',
         }
-        rsp = self.client.post(self.url, data=data)
+        rsp = self.client.post(self.merge_url, data=data)
         self.assertRedirects(rsp, self.moderation_home_url)
         refetched_sub1 = Submission.objects.get(pk=self.first_submission.pk)
         refetched_sub2 = Submission.objects.get(pk=self.second_submission.pk)
@@ -198,6 +194,35 @@ class ModerationTest(TestCase):
         # and Flag is now marked reviewed
         refetched_flag = Flag.objects.get(pk=flag.pk)
         self.assertEqual(refetched_flag.reviewed, True)
+
+    def test_preview_missing_submission(self):
+        data = {
+            'to_remove': ''
+        }
+        rsp = self.client.post(self.preview_url, data=data)
+        self.assertEqual(OK, rsp.status_code)
+        self.assertIn('This field is required', str(rsp.context['form'].errors))
+
+    def test_preview_bad_submissions(self):
+        data = {
+            'to_remove': self.first_submission.pk,
+            'duplicate_of': self.second_submission.pk
+        }
+        self.first_submission.delete()
+        self.second_submission.delete()
+        rsp = self.client.post(self.preview_url, data=data)
+        self.assertEqual(OK, rsp.status_code)
+        self.assertIn('submission does not exist', rsp.context['form'].errors['to_remove'][0])
+        self.assertIn('submission does not exist', rsp.context['form'].errors['duplicate_of'][0])
+
+    def test_preview_must_be_different_submissions(self):
+        data = {
+            'to_remove': self.first_submission.pk,
+            'duplicate_of': self.first_submission.pk
+        }
+        rsp = self.client.post(self.preview_url, data=data)
+        self.assertEqual(OK, rsp.status_code)
+        self.assertIn('Cannot merge a submission into itself', str(rsp.context['form'].errors))
 
 
 class ModerationHomeTest(TestCase):

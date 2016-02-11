@@ -7,94 +7,83 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 
 from opendebates_emails.models import send_email
+from .forms import ModerationForm
 from .models import Submission, Vote, Flag
 
 
-@rendered_with("opendebates/moderation/mark_duplicate.html")
+@rendered_with("opendebates/moderation/preview.html")
 @allow_http("GET", "POST")
 @login_required
-def mark_duplicate(request):
+def preview(request):
     if not request.user.is_superuser:
         return HttpResponseNotFound()
 
-    to_remove_default = ''
-    if request.method == "GET":
-        return {'to_remove_default': request.GET.get("to_remove", "")}
+    form = ModerationForm(data=request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            to_remove = form.cleaned_data['to_remove_obj']
+            duplicate_of = form.cleaned_data.get('duplicate_of_obj')
+            post_url = 'moderation_merge' if duplicate_of else 'moderation_remove'
+
+            return {
+                'form': form,
+                'to_remove': to_remove,
+                'duplicate_of': duplicate_of,
+                'post_url': post_url
+            }
+    return {'form': form}
+
+
+@allow_http("POST")
+@login_required
+def merge(request):
+    if not request.user.is_superuser:
+        return HttpResponseNotFound()
 
     to_remove = get_object_or_404(Submission, pk=request.POST['to_remove'], approved=True)
-    try:
-        duplicate_of = Submission.objects.get(id=request.POST['duplicate_of'], approved=True)
-    except (KeyError, ValueError, Submission.DoesNotExist):
-        duplicate_of = None
+    duplicate_of = get_object_or_404(Submission, pk=request.POST['duplicate_of'], approved=True)
 
-    if request.POST.get("confirm") != "confirm":
-        return locals()
-
-    if request.POST.get("handling") == "reject_merge":
-        # mark all flags of this merge as 'reviewed'
-        Flag.objects.filter(
-            to_remove=to_remove,
-            duplicate_of=duplicate_of,
-            reviewed=False
-        ).update(reviewed=True)
+    if request.POST.get("action").lower() == "reject":
         msg = _(u'No changes made and flag has been removed.')
-    elif request.POST.get("handling") == "merge":
-        duplicate_of.keywords = (duplicate_of.keywords or '') \
-                                + " " + to_remove.idea \
-                                + " " + (to_remove.keywords or '')
-        duplicate_of.has_duplicates = True
-        duplicate_of.save()
-        msg = _(u'Question has been merged.')
-    elif request.POST.get("handling") == "remove":
-        pass
-    else:
-        return HttpResponseBadRequest('Invalid value for "handling".')
-
-    if duplicate_of is not None and request.POST.get('handling') == 'merge':
-        # merge and mark all flags of this merge as 'reviewed'
-        to_remove.duplicate_of = duplicate_of
-        Flag.objects.filter(
-            to_remove=to_remove,
-            duplicate_of=duplicate_of,
-            reviewed=False
-        ).update(reviewed=True)
-    else:
-        msg = _(u'Question has been removed.')
-        # remove and mark submission 'moderated'
-        to_remove.approved = False
-        to_remove.moderated_removal = True
-    to_remove.save()
-
-    if request.POST.get("handling") == "merge":
+    elif request.POST.get("action").lower() == "merge":
         votes_already_cast = list(Vote.objects.filter(
             submission=duplicate_of).values_list("voter_id", flat=True))
         votes_to_merge = Vote.objects.filter(submission=to_remove).exclude(
             voter__in=votes_already_cast)
+        duplicate_of.keywords = (duplicate_of.keywords or '') \
+            + " " + to_remove.idea \
+            + " " + (to_remove.keywords or '')
+        duplicate_of.has_duplicates = True
         duplicate_of.votes += votes_to_merge.count()
         duplicate_of.save()
         votes_to_merge.update(original_merged_submission=to_remove, submission=duplicate_of)
-
-    if request.POST.get("send_email") == "yes":
-        if request.POST.get("handling") == "merge":
+        to_remove.duplicate_of = duplicate_of
+        to_remove.save()
+        msg = _(u'Question has been merged.')
+        if request.POST.get("send_email") == "yes":
             send_email("your_idea_is_merged", {"idea": to_remove})
             send_email("idea_merged_into_yours", {"idea": duplicate_of})
-        else:
-            if duplicate_of is not None:
-                send_email("idea_is_duplicate", {"idea": to_remove})
-            else:
-                send_email("idea_is_removed", {"idea": to_remove})
+    else:
+        return HttpResponseBadRequest('Invalid value for "action".')
+
+    # mark all flags of this merge as 'reviewed'
+    Flag.objects.filter(
+        to_remove=to_remove,
+        duplicate_of=duplicate_of,
+        reviewed=False
+    ).update(reviewed=True)
+
     messages.info(request, msg)
     return redirect('moderation_home')
 
 
-@rendered_with("opendebates/moderation/remove.html")
 @allow_http("POST")
 @login_required
-def remove(request, id):
+def remove(request):
     if not request.user.is_superuser:
         return HttpResponseNotFound()
 
-    to_remove = get_object_or_404(Submission, pk=id, approved=True)
+    to_remove = get_object_or_404(Submission, pk=request.POST.get('to_remove'), approved=True)
 
     remove = request.POST.get('action').lower() == 'remove'
     if remove:
