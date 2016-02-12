@@ -72,7 +72,7 @@
 
   $("#sidebar_question_btn").on("click", function() {
     $(this).hide();
-    $('#add_question_form_well').slideDown();
+    $('#add_question').slideDown();
     return false;
   });
 
@@ -197,5 +197,22 @@
   setCountDown();
 
   $('.selectpicker').selectpicker();
+
+  function updateTextLimitCounts() {
+    var $textarea = $(this);
+    var $ctn = $textarea.closest('.control-group');
+    var $remaining = $ctn.find('.count');
+    var $counter = $ctn.find('.text-limit-counter');
+    var total = $counter.data('total');
+    var remaining = total - $textarea.val().length;
+    $remaining.text(remaining);
+    if (remaining < 0) {
+      $counter.addClass('count-negative');
+    } else {
+      $counter.removeClass('count-negative');
+    }
+  }
+  $('#add_question').on('keyup', 'textarea', updateTextLimitCounts);
+  $('#add_question textarea').each(updateTextLimitCounts);
 
 })();
