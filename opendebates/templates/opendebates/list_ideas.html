@@ -28,7 +28,7 @@
   {% endfor %}
 </div>
 <label id="category-select-picker-ctn" for="category-select-picker">
-  Issue Areas<br/>
+  {% trans "Issue Areas" %}<br/>
   <select id="category-select-picker" class="selectpicker">
     <option value="/">All</option>
     {% for option in SUBMISSION_CATEGORIES %}
