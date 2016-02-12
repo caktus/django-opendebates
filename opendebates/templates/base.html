@@ -96,6 +96,8 @@
   };
   {% endif %}
 
+  ODebates.vote_needs_captcha = {% if VOTE_NEEDS_CAPTCHA %}true{% else %}false{% endif %};
+
   {% if stashed_submission %}
   ODebates.stashedSubmission = {
     "category": {{ stashed_submission.category }},
@@ -115,6 +117,7 @@
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js'></script>
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment-with-locales.js'></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.4/js/bootstrap-select.js"></script>
+<script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
 {% javascript 'base' %}
 {% block loading_javascript %}
 {% endblock %}

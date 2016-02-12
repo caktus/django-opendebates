@@ -3,7 +3,19 @@ import random
 
 from django.core.cache import cache
 
-from .models import Voter, NUMBER_OF_VOTES_CACHE_ENTRY
+from .models import Vote, Voter, NUMBER_OF_VOTES_CACHE_ENTRY
+
+
+def vote_needs_captcha(request):
+    if not hasattr(request, 'vote_needs_captcha'):
+        voter = get_voter(request)
+        if voter:
+            # A user's first vote requires a captcha
+            need = not Vote.objects.filter(voter__email=voter['email']).exists()
+        else:
+            need = True
+        request.vote_needs_captcha = need
+    return request.vote_needs_captcha
 
 
 def get_number_of_votes():
@@ -17,12 +29,17 @@ def get_voter(request):
         try:
             voter = request.user.voter
         except Voter.DoesNotExist:
+            # This should not happen, but it's possible if we create a user
+            # somehow other than through the registration form.
             return {}
 
-        return {
+        voter = {
             'email': request.user.email,
             'zip': voter.zip,
         }
+        if 'voter' not in request.session:
+            request.session['voter'] = voter
+        return voter
     elif 'voter' in request.session:
         return request.session['voter']
 

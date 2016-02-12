@@ -5,6 +5,8 @@ from django.utils.html import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model
 from localflavor.us.forms import USZipCodeField
+from nocaptcha_recaptcha.fields import NoReCaptchaField
+
 from .models import Category
 from registration.forms import RegistrationForm
 
@@ -13,6 +15,15 @@ class VoterForm(Form):
 
     email = forms.EmailField()
     zipcode = USZipCodeField()
+    captcha = NoReCaptchaField(
+        gtag_attrs={'data-size': 'compact'}
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(VoterForm, self).__init__(*args, **kwargs)
+
+    def ignore_captcha(self):
+        del self.fields['captcha']
 
 
 class QuestionForm(Form):
@@ -48,6 +59,7 @@ class OpenDebatesRegistrationForm(RegistrationForm):
                                      label=mark_safe(twitter_handle_label),
                                      required=False)
     zip = USZipCodeField()
+    captcha = NoReCaptchaField(label=_("Are you human?"))
 
     def clean_twitter_handle(self):
         if self.cleaned_data.get("twitter_handle", "").startswith("@"):

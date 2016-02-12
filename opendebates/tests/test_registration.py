@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -17,7 +19,12 @@ class RegisterTest(TestCase):
             'last_name': 'Washington',
             'email': 'gwash@example.com',
             'zip': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
+        os.environ['NORECAPTCHA_TESTING'] = 'True'
+
+    def tearDown(self):
+        del os.environ['NORECAPTCHA_TESTING']
 
     def test_registration_get(self):
         "GET the form successfully."
@@ -37,6 +44,8 @@ class RegisterTest(TestCase):
         "POST with a missing required value."
         # delete each required key and POST
         for key in self.data:
+            if key == 'g-recaptcha-response':
+                continue
             data = self.data.copy()
             del data[key]
             rsp = self.client.post(self.url)
