@@ -493,16 +493,6 @@ body > .container {
       font-family: Knockout;
     }
 
-    .already-voted & {
-      background-color: darken(@brand-primary, 3%);
-
-      .not-full({
-        .vote-button {
-          display: none;
-        }
-      });
-    }
-
     .vote-bottom {
       margin: auto;
       background: #d61820;
@@ -522,9 +512,19 @@ body > .container {
         color: white;
         font-size: 16px;
       }
-      &:not(.already-voted) .already-voted-button {
-        display: none;
-      }
+    }
+  }
+  &:not(.already-voted) {
+    .already-voted-button {
+      display: none;
+    }
+  }
+  &.already-voted {
+    .vote-button {
+      display: none;
+    }
+    .vote-bottom {
+      background-color: darken(@brand-primary, 3%);
     }
   }
 
