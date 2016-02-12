@@ -100,6 +100,7 @@
   ODebates.stashedSubmission = {
     "category": {{ stashed_submission.category }},
     "question": "{{ stashed_submission.question }}",
+    "headline": "{{ stashed_submission.headline }}",
     "citation": {% if stashed_submission.citation %}"{{ stashed_submission.citation }}"{% else %}null{% endif %}
   };
   {% endif %}

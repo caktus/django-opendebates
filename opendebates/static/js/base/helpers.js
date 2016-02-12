@@ -153,6 +153,7 @@
     if (typeof ODebates.stashedSubmission !== 'undefined') {
       var form = $("#add_question form");
       form.find(":input[name=category]").val(ODebates.stashedSubmission.category);
+      form.find(":input[name=headline]").val(ODebates.stashedSubmission.headline);
       form.find(":input[name=question]").val(ODebates.stashedSubmission.question);
       form.find(":input[name=citation]").val(ODebates.stashedSubmission.citation || '');
       form.submit();
