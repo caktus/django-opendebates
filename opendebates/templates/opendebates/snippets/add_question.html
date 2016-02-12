@@ -20,6 +20,10 @@
             {% blocktrans %}Choose a Category{% endblocktrans %}
           </label>
 
+          {% if form.errors.category %}
+            <p class="help-block">{{ form.errors.category }}</p>
+          {% endif %}
+
           <div class="controls">
             <select name="category" class="selectpicker">
               <option>--</option>
@@ -28,44 +32,41 @@
                       value="{{ iter_category.id }}">{{ iter_category.name }}</option>
               {% endfor %}
             </select>
-            {% if form.errors.category %}
-            <p class="help-block">{{ form.errors.category }}</p>
-            {% endif %}
           </div>
         </div>
 
         <!-- Text input-->
         <div class="control-group">
+          {% if form.errors.headline %}
+            <p class="help-block">{{ form.errors.headline }}</p>
+          {% endif %}
           <div class="controls">
             <textarea id="headline" name="headline" type="text" class="input-large"
                    placeholder="{% blocktrans %}Headline{% endblocktrans %}">{{ form.data.headline }}</textarea>
-            {% if form.errors.headline %}
-              <p class="help-block">{{ form.errors.headline }}</p>
-            {% endif %}
             <div class="text-limit-counter" data-total="80"><span class="count">80</span> / 80</div>
           </div>
         </div>
 
         <!-- Text input-->
         <div class="control-group">
+          {% if form.errors.question %}
+            <p class="help-block">{{ form.errors.question }}</p>
+          {% endif %}
           <div class="controls">
             <textarea id="question" name="question" type="text" rows="4" class="input-large"
                       placeholder="{% blocktrans %}Enter your question here. If you have multiple&nbsp;questions, please submit each one separately."{% endblocktrans %}>{{ form.data.question }}</textarea>
-            {% if form.errors.question %}
-              <p class="help-block">{{ form.errors.question }}</p>
-            {% endif %}
             <div class="text-limit-counter" data-total="80"><span class="count">200</span> / 200</div>
           </div>
         </div>
 
         <!-- Text input-->
         <div class="control-group">
+          {% if form.errors.citation %}
+            <p class="help-block">{{ form.errors.citation }}</p>
+          {% endif %}
           <div class="controls">
             <input id="citation" name="citation" type="text" class="input-large" value="{{ form.data.citation }}"
                    placeholder="{% blocktrans %}Citation{% endblocktrans %}">
-            {% if form.errors.citation %}
-            <p class="help-block">{{ form.errors.citation }}</p>
-            {% endif %}
           </div>
         </div>
 

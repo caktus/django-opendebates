@@ -13,6 +13,7 @@
 @separationColor: #d7e4e9;
 @brand-primary: #00304d;
 @brand-secondary: #6195a6;
+@error-color: #bf3737;
 
 // Responsive Setup
 
@@ -79,6 +80,20 @@ body {
 
   .row {
     margin: 0;
+  }
+
+  .messages {
+    border: 3px solid @brand-primary;
+    background-color: @brand-secondary;
+    margin-top: 20px;
+
+    .alert {
+      margin-bottom: 0;
+    }
+    .alert-error {
+      color: white;
+      font-weight: bold;
+    }
   }
 }
 
@@ -741,8 +756,14 @@ body > .container {
     font-family: Knockout;
   }
 
-  &#add_question_form_well.has-errors {
+  &.has-errors {
     display: block;
+
+    .errorlist {
+      color: @error-color;
+      padding-left: 0;
+      list-style: none;
+    }
   }
 
   .control-group {
@@ -759,7 +780,7 @@ body > .container {
         color: grey;
 
         &.count-negative {
-          color: red;
+          color: @error-color;
         }
       }
     }
@@ -811,21 +832,11 @@ body > .container {
   }
 }
 
-.errorlist {
-  // .alert-variant(@alert-danger-bg; @alert-danger-border; @alert-danger-text);
-  list-style-type: none;
-  margin-bottom: -20px;
-}
-
 body {
 
   .glyphicon {
     cursor: pointer;
   }
-}
-
-.alert-error {
-  // .alert-variant(@alert-danger-bg; @alert-danger-border; @alert-danger-text);
 }
 
 .card {
