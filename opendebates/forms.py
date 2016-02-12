@@ -28,6 +28,7 @@ class VoterForm(Form):
 
 class QuestionForm(Form):
     category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
+    headline = forms.CharField(required=True)
     question = forms.CharField()
     citation = forms.URLField(required=False)
 

@@ -205,10 +205,11 @@ def vote(request, id):
             source=request.COOKIES.get('opendebates.source'),
             state=state,
             zip=form.cleaned_data['zipcode'],
+            user=request.user if request.user.is_authenticated() else None,
         )
     )
 
-    if voter.user and voter.user != request.user:
+    if request.user.is_anonymous() and voter.user:
         # anonymous user can't use the email of a registered user
         msg = 'That email is registered. Please login and try again.'
         if request.is_ajax():
@@ -305,6 +306,7 @@ def questions(request):
     idea = Submission.objects.create(
         voter=voter,
         category_id=category,
+        headline=form_data['headline'],
         idea=form_data['question'],
         citation=form_data['citation'],
         created_at=timezone.now(),

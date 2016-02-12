@@ -108,8 +108,7 @@
       $.each(ODebates.votesCast.submissions || [], function(i, objId) {
         var idea = $(".big-idea[data-idea-id="+objId+"]");
         if (!idea) { return; }
-        idea.find(".vote-button").hide();
-        idea.find(".already-voted-button").css("display", "block");
+        idea.addClass('already-voted');
       });
     });
   }
@@ -171,6 +170,7 @@
     if (typeof ODebates.stashedSubmission !== 'undefined') {
       var form = $("#add_question form");
       form.find(":input[name=category]").val(ODebates.stashedSubmission.category);
+      form.find(":input[name=headline]").val(ODebates.stashedSubmission.headline);
       form.find(":input[name=question]").val(ODebates.stashedSubmission.question);
       form.find(":input[name=citation]").val(ODebates.stashedSubmission.citation || '');
       form.submit();
@@ -193,5 +193,26 @@
       setTimeout(fetch, 0, 0);
     }
   });
+
+  function setCountDown() {
+    var now = new Date();
+    var target = new Date(2016, 2, 6, 18, 0);
+    var d = target - now;
+    if (d < 0) {
+      $('.header-count-down .number').text('0');
+    } else {
+      var days = parseInt(d / (1000 * 60 * 60 * 24));
+      var hours = parseInt((d - (days*24*60*60*1000)) / (1000 * 60 * 60));
+      var minutes = parseInt((d - (days*24*60*60*1000) - (hours*60*60*1000)) / (1000 * 60));
+
+      $('.header-count-down .days').text(days);
+      $('.header-count-down .hours').text(hours);
+      $('.header-count-down .minutes').text(minutes);
+    }
+  }
+  setInterval(setCountDown, 60000);
+  setCountDown();
+
+  $('.selectpicker').selectpicker();
 
 })();

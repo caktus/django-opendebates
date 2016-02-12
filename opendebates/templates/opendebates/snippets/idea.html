@@ -1,31 +1,27 @@
 {% load i18n %}
+{% load l10n %}
 
 <div id="i{{ idea.id }}" data-idea-id="{{ idea.id }}" class="big-idea clearfix">
-  <div class="row">
-    <div class="votes {% if is_related %}col-md-3{% else %}col-md-2{% endif %}">
+    <div class="votes {% if is_related %}col-md-3{% else %}col-md-3{% endif %}">
       {% if is_duplicate %}
       <small class="duplicate-merged-link"><a href="{% url 'show_idea' idea.duplicate_of_id %}">&#8679; Merged</a></small>
       {% else %}
       <div class="vote-tally text-center">
-        <div
-           style="font-size: 10px; font-family: 'Open Sans', helvetica, arial, sans-serif; padding-top: 0; margin-top: -10px; font-weight: lighter; text-transform: uppercase">
-          {% blocktrans %}Score{% endblocktrans %}
-        </div>
-        <span class="vote-tally-number">{{ idea.votes }}</span>
+        <span class="vote-tally-number">{{ idea.votes|localize }}</span>
       </div>
       <div class="vote-bottom center-block center-text">
         <a id="vote-button-{{ idea.id }}"
            data-target="#modal-vote"
            role="button"
            class="vote-button"
-           data-vote-url="{% url 'vote' idea.id %}"           
+           data-vote-url="{% url 'vote' idea.id %}"
            data-toggle="modal">{% blocktrans %}Vote!{% endblocktrans %}</a>
         <a class="already-voted-button">{% blocktrans %}Voted{% endblocktrans %}</a>
       </div>
       {% endif %}
     </div>
-    
-    <div class="{% if is_related %}col-md-9{% else %}col-md-10{% endif %} question">
+
+    <div class="question">
 
         {% if idea.has_duplicates %}
         <div class="idea-duplicates" data-toggle="popover" data-placement="bottom"
@@ -35,14 +31,14 @@
                viewBox="0 0 57.1 53.9">
             <g>
               <path fill="#FFF" d="M3,50.9h15v-9h9V15H3V50.9z M6.1,30.5c0-0.2,0.2-0.4,0.4-0.4l6.6,0v-4c0-0.2,0.1-0.3,0.3-0.2l8.1,6.2
-			           c0.2,0.1,0.2,0.3,0,0.5l-8.1,6.2C13.2,39.1,13,39,13,38.8v-4H6.5c-0.2,0-0.4-0.2-0.4-0.4V30.5z"/>
+    		           c0.2,0.1,0.2,0.3,0,0.5l-8.1,6.2C13.2,39.1,13,39,13,38.8v-4H6.5c-0.2,0-0.4-0.2-0.4-0.4V30.5z"/>
               <path fill="#FFF" d="M30.1,38.9h15v-9h9V3h-24V38.9z M35.6,19.7l8.1-6.2c0.2-0.1,0.3-0.1,0.3,0.2v4h6.6c0.2,0,0.4,0.2,0.4,0.4
-			           v3.9c0,0.2-0.2,0.4-0.4,0.4H44v4c0,0.2-0.1,0.3-0.3,0.2l-8.1-6.2C35.5,20.1,35.5,19.9,35.6,19.7z"/>
+    		           v3.9c0,0.2-0.2,0.4-0.4,0.4H44v4c0,0.2-0.1,0.3-0.3,0.2l-8.1-6.2C35.5,20.1,35.5,19.9,35.6,19.7z"/>
               <path d="M27.1,0v12H0v41.9h21l9-9v-3h18.1l9-9V0H27.1z M27,41.9h-9v9H3V15h24V41.9z M54.1,29.9h-9v9h-15V3h24V29.9z"/>
               <path d="M43.7,26.4c0.2,0.1,0.3,0.1,0.3-0.2v-4h6.6c0.2,0,0.4-0.2,0.4-0.4V18c0-0.2-0.2-0.4-0.4-0.4H44v-4c0-0.2-0.1-0.3-0.3-0.2
-	               l-8.1,6.2c-0.2,0.1-0.2,0.3,0,0.5L43.7,26.4z"/>
+                   l-8.1,6.2c-0.2,0.1-0.2,0.3,0,0.5L43.7,26.4z"/>
               <path d="M6.5,34.8H13v4c0,0.2,0.1,0.3,0.3,0.2l8.1-6.2c0.2-0.1,0.2-0.3,0-0.5L13.3,26c-0.2-0.1-0.3-0.1-0.3,0.2v4l-6.6,0
-	               c-0.2,0-0.4,0.2-0.4,0.4v3.9C6.1,34.6,6.2,34.8,6.5,34.8z"/>
+                   c-0.2,0-0.4,0.2-0.4,0.4v3.9C6.1,34.6,6.2,34.8,6.5,34.8z"/>
             </g>
           </svg>
 
@@ -50,77 +46,54 @@
         </div>
         <div class="idea-duplicates-spacing"></div>
         {% endif %}
-      
+
       {% if idea.headline %}
-      <p><strong class="headline">
-          {% blocktrans with headline=idea.headline %}{{ headline }}{% endblocktrans %}</strong>
+      <p>
+        <strong class="headline">
+          <a href="{{ idea.get_absolute_url }}">{% blocktrans with headline=idea.headline %}{{ headline }}{% endblocktrans %}</a>
+        </strong>
       </p>
       {% endif %}
       <p class="idea">
         {{ idea.idea }}
+        {% if idea.citation and idea.citation_verified %}
+          <br />
+          <a class="citation" target="_blank" href="{{ idea.citation }}" title="{% blocktrans %}Has a citation &ndash; click to open{% endblocktrans %}">{% trans "User Submitted Citation" %}</a>
+        {% endif %}
       </p>
-      <p class="created-by">
-        {% blocktrans with user_display_name=idea.user_display_name %}Submitted by {{ user_display_name }}{% endblocktrans %}
-      </p>
-      <p class="created-at">
-        {{ idea.created_at }}
-      </p>
-
-      <div class="social_links">
-
-        <span class="tweet-button">
-          <a class="twitter" href="{{ idea.twitter_url }}" target="_blank">
-            {% blocktrans %}Tweet{% endblocktrans %}
-          </a>
-        </span>
-        <span class="fb-button">
-          <a class="facebook" href="{{ idea.facebook_url }}" target="_blank">
-            {% blocktrans %}Share{% endblocktrans %}
-          </a>
-        </span>
-        {% comment %}
-          <span class="comments">
-            <a href="{{ idea.get_absolute_url }}">
-              {% blocktrans with idea.num_comments as num_comments %}{{ num_comments }} Comments{% endblocktrans %}
-            </a>
-          </span>
-        {% endcomment %}
-      </div>
-
-      {% if idea.citation and idea.citation_verified %}
-      <a class="citation" target="_blank" href="{{ idea.citation }}" 
-         data-placement="left"
-         data-toggle="tooltip" title="{% blocktrans %}Has a citation &ndash; click to open{% endblocktrans %}">
-        <svg class="citation" 
-             width="17" height="21" viewBox="0 0 34 42" 
-             version="1.1" xml:space="preserve">
-          <g>
-            <g>
-              <rect x="7" y="6.1" fill="#010101" width="20.1" height="3.3"/>
-            </g>
-            <g>
-              <rect x="7" y="12.1" fill="#010101" width="20.1" height="3.3"/>
-            </g>
-            <g>
-              <rect x="7" y="18.1" fill="#010101" width="20.1" height="3.3"/>
-            </g>
-            <g>
-              <rect x="7" y="24.1" fill="#010101" width="20.1" height="3.3"/>
-            </g>
-            <g>
-              <rect x="7" y="30.1" fill="#010101" width="11.1" height="3.3"/>
-            </g>
-            <g>
-              <path fill="#010101" 
-                    d="M0,0v41.9h25l9-9V0H0z M31,29.9h-9v9H3V3h28V29.9z"/>
-            </g>
-          </g>
-        </svg>
-      </a>
-      {% endif %}
-      
     </div>
-  </div>
+    <div class="idea-info">
+      {% blocktrans with user_display_name=idea.user_display_name %}Submitted by: <strong>{{ user_display_name }}</strong>{% endblocktrans %}<br />
+      {{ idea.created_at }}<br />
+      {% trans "Issue area" %}: <strong>{{ idea.category.name }}</strong>
+    </div>
+    <div class="social-links">
+      <span class="fb-button">
+        <a class="facebook" href="{{ idea.facebook_url }}" target="_blank">
+          {% blocktrans %}Share{% endblocktrans %}
+        </a>
+      </span>
+      <span class="tweet-button">
+        <a class="twitter" href="{{ idea.twitter_url }}" target="_blank">
+          {% blocktrans %}Tweet{% endblocktrans %}
+        </a>
+      </span>
+      <span class="reddit-button">
+        <a class="reddit" href="{{ idea.reddit_url }}" target="_blank">
+          {% blocktrans %}Post{% endblocktrans %}
+        </a>
+      </span>
+      <span class="email-button">
+        <a class="email" href="{{ idea.email_url }}" target="_blank">
+          {% blocktrans %}Email{% endblocktrans %}
+        </a>
+      </span>
+      <span class="sms-button">
+        <a class="sms" href="{{ idea.sms_url }}" target="_blank">
+          {% blocktrans %}SMS{% endblocktrans %}
+        </a>
+      </span>
+    </div>
 </div>
 
 {% if show_duplicates and idea.has_duplicates %}

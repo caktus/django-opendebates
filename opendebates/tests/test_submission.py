@@ -18,6 +18,7 @@ class SubmissionTest(TestCase):
         self.data = {
             'category': self.category.pk,
             'question': 'My great question?',
+            'headline': 'Headline of my question',
             'citation': 'https://www.google.com',
         }
         EmailTemplate(type="submitted_new_idea",
@@ -29,6 +30,15 @@ class SubmissionTest(TestCase):
                       to_email="{{ idea.voter.email }}").save()
 
     # failures
+
+    def test_missing_headline(self):
+        data = self.data.copy()
+        del data['headline']
+        rsp = self.client.post(self.url, data=data)
+        form = rsp.context['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('headline', form.errors)
+        self.assertIn('This field is required.', str(form.errors))
 
     def test_missing_question(self):
         data = self.data.copy()
