@@ -1,0 +1,35 @@
+{% extends "opendebates/base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <h1>{% trans "Recommend Merging" %}</h1>
+
+  <h2>{% trans "Here is the question that you are suggesting should be merged:" %}</h2>
+
+  <div class="idea-detail">
+    {% include "opendebates/snippets/idea.html" %}
+  </div>
+
+  <h2>{% trans "What question should this be merged with?" %}</h2>
+
+  <p>
+    {% blocktrans %}
+    Open the Democratic Open Forum Platform in a new browser and find the question you would like to
+    merge with this selection. Click on the headline of that question, and it will bring you to that
+    question's unique page. Copy the url and paste it into the box here.
+    {% endblocktrans %}
+  </p>
+
+  <form action="." method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <p>
+      {% blocktrans %}
+      Moderators will review your suggestion and be in touch.
+      {% endblocktrans %}
+    </p>
+    <a href="{% url 'vote' idea.pk %}">{% trans "Cancel" %}</a>
+    <input type="submit" value="{% trans 'Flag for Merge' %}" />
+  </form>
+
+{% endblock %}

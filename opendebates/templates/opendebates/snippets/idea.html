@@ -93,6 +93,15 @@
           {% blocktrans %}SMS{% endblocktrans %}
         </a>
       </span>
+
+      {% if not idea.duplicate_of %}
+      <span>
+        <a href="{% url 'merge' idea.pk %}">{% trans "Merge" %}</a>
+      </span>
+      {% endif %}
+      <span>
+        <a href="{% url 'report' idea.pk %}">{% trans "Report" %}</a>
+      </span>
     </div>
 </div>
 
