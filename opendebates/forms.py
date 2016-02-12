@@ -11,6 +11,8 @@ from registration.forms import RegistrationForm
 
 from .models import Category, Flag, Submission
 
+VALID_SUBMISSION_DETAIL_URL_NAMES = ['vote', 'show_idea']
+
 
 class VoterForm(forms.Form):
 
@@ -108,7 +110,7 @@ class MergeFlagForm(forms.ModelForm):
         except Resolver404:
             url_match = None
 
-        if not url_match or url_match.url_name != 'vote':
+        if not url_match or url_match.url_name not in VALID_SUBMISSION_DETAIL_URL_NAMES:
             raise forms.ValidationError('That is not the URL of a question.')
 
         duplicate_of_pk = url_match.kwargs.get('id')

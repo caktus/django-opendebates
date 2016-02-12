@@ -164,6 +164,17 @@ class ModerationTest(TestCase):
         self.assertEqual(1, Vote.objects.filter(
             voter=first_voter, submission=merged).count())
 
+    def test_merge_link_hidden_after_merge(self):
+        merge_url = reverse('merge', args=[self.first_submission.pk])
+        rsp = self.client.get(self.first_submission.get_absolute_url())
+        self.assertContains(rsp, merge_url)
+        self.first_submission.duplicate_of = self.second_submission
+        self.first_submission.save()
+        self.second_submission.has_duplicates = True
+        self.second_submission.save()
+        rsp = self.client.get(self.first_submission.get_absolute_url(), follow=True)
+        self.assertNotContains(rsp, merge_url)
+
     def test_remove_submission(self):
         data = {
             'to_remove': self.first_submission.pk,
@@ -352,6 +363,18 @@ class MergeFlagTest(TestCase):
         duplicate_of = SubmissionFactory()
         data = {
             'duplicate_of_url': 'https://example.com' + duplicate_of.get_absolute_url()
+        }
+        rsp = self.client.post(self.url, data=data)
+        self.assertRedirects(rsp, self.submission.get_absolute_url())
+        flag = Flag.objects.get(to_remove=self.submission)
+        self.assertEqual(flag.voter, self.voter)
+        self.assertEqual(flag.duplicate_of, duplicate_of)
+
+    def test_merge_is_successful_with_show_idea_url(self):
+        duplicate_of = SubmissionFactory()
+        show_idea_url = reverse('show_idea', args=[duplicate_of.pk])
+        data = {
+            'duplicate_of_url': 'https://example.com' + show_idea_url
         }
         rsp = self.client.post(self.url, data=data)
         self.assertRedirects(rsp, self.submission.get_absolute_url())
