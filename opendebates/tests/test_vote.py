@@ -2,6 +2,7 @@ import json
 import os
 
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from opendebates.models import Submission, Vote, Voter
 from .factories import UserFactory, SubmissionFactory, VoterFactory, VoteFactory
@@ -203,3 +204,33 @@ class VoteTest(TestCase):
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         # ... or in the DB
         self.assertEqual(self.votes + 0, refetched_sub.votes)
+
+    def test_vote_user_bad_captcha(self):
+        # If captcha doesn't pass, no vote
+        data = {
+            'email': self.voter.email,
+            'zipcode': self.voter.zip,
+            'g-recaptcha-response': 'FAILED'
+        }
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        self.assertEqual(self.votes, refetched_sub.votes)
+
+    @override_settings(USE_CAPTCHA=False)
+    def test_vote_user_disabled_captcha(self):
+        # If captcha disabled, no need for field
+        data = {
+            'email': self.voter.email,
+            'zipcode': self.voter.zip,
+        }
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+        json_rsp = json.loads(rsp.content)
+        # vote is incremented in JSON response
+        self.assertEqual(self.votes + 1, json_rsp['tally'])
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        # ... and in DB
+        self.assertEqual(self.votes + 1, refetched_sub.votes)

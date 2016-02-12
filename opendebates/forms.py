@@ -91,6 +91,9 @@ class OpenDebatesRegistrationForm(RegistrationForm):
             user.save()
         return user
 
+    def ignore_captcha(self):
+        del self.fields['captcha']
+
 
 class OpenDebatesAuthenticationForm(AuthenticationForm):
     username = forms.CharField(max_length=254,
