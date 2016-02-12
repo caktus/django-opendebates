@@ -18,7 +18,7 @@ from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm
 from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, RECENT_EVENTS_CACHE_ENTRY
 from .router import readonly_db
 from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list, \
-    vote_needs_captcha
+    vote_needs_captcha, registration_needs_captcha
 # from opendebates_comments.forms import CommentForm
 from opendebates_emails.models import send_email
 
@@ -347,6 +347,12 @@ class OpenDebatesRegistrationView(RegistrationView):
             )
         )
         return new_user
+
+    def get_form(self, form_class=None):
+        form = super(OpenDebatesRegistrationView, self).get_form(form_class)
+        if not registration_needs_captcha(self.request):
+            form.ignore_captcha()
+        return form
 
 
 def registration_complete(request):

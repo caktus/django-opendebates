@@ -1,12 +1,15 @@
 import json
 import random
 
+from django.conf import settings
 from django.core.cache import cache
 
 from .models import Vote, Voter, NUMBER_OF_VOTES_CACHE_ENTRY
 
 
 def vote_needs_captcha(request):
+    if not settings.USE_CAPTCHA:
+        return False
     if not hasattr(request, 'vote_needs_captcha'):
         voter = get_voter(request)
         if voter:
@@ -16,6 +19,10 @@ def vote_needs_captcha(request):
             need = True
         request.vote_needs_captcha = need
     return request.vote_needs_captcha
+
+
+def registration_needs_captcha(request):
+    return settings.USE_CAPTCHA
 
 
 def get_number_of_votes():
