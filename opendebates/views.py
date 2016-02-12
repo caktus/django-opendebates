@@ -255,21 +255,11 @@ def vote(request, id):
     return redirect(url)
 
 
-@rendered_with("opendebates/list_ideas.html")
 @allow_http("GET", "POST")
 def questions(request):
 
     if request.method == 'GET':
-        form = QuestionForm()
-
-        return {
-            'form': form,
-            'categories': Category.objects.all(),
-            'ideas': [],
-            'stashed_submission': request.session.pop(
-                "opendebates.stashed_submission", None)
-            if request.user.is_authenticated() else None,
-        }
+        return redirect("/")
 
     form = QuestionForm(request.POST)
 
