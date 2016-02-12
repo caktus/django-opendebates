@@ -1,5 +1,6 @@
 (function() {
   var ODebates = window.ODebates || {};
+  var grecaptcha = window.grecaptcha;
   ODebates.helpers = ODebates.helpers || {};
 
   ODebates.helpers.getParameterByName = function(name) {
@@ -58,11 +59,19 @@
 
       } else {
         $.each(resp.errors, function(key, vals) {
-          $('#modal-vote').find(':input[name='+key+']')
-            .closest('.controls')
-            .find('.help-block')
-            .html(vals.join(' '));
+          if (key === 'captcha') {
+            $('#captcha-help-block').html(vals.join(' '));
+          } else {
+            $('#modal-vote').find(':input[name='+key+']')
+              .closest('.controls')
+              .find('.help-block')
+              .html(vals.join(' '));
+          }
         });
+        /* Reset captcha if the form had errors, because we can only
+           validate a captcha token once, so we'll need a new one for
+           the next time they submit. */
+        grecaptcha.reset();
       }
       if (typeof callback === 'function') {
         callback(resp);
@@ -80,13 +89,16 @@
     $(this).closest("form").submit();
   });
 
-  if (ODebates.voter) {
-    $(".modal-vote").on("show.bs.modal", function(e) {
+  if (ODebates.voter && ! ODebates.vote_needs_captcha) {
+    /* If the modal is activated but we already know the voter and
+       don't need a captcha, don't activate the modal; just submit a vote. */
+    $(".modal-vote").on("show.bs.modal", function (e) {
       e.preventDefault();
       ODebates.helpers.castVote({"email": ODebates.voter.email, "zipcode": ODebates.voter.zip},
-                                $(e.relatedTarget).data("vote-url"));
+          $(e.relatedTarget).data("vote-url"));
     });
-
+  }
+  if (ODebates.voter) {
     $(window).load(function() {
       try {
         ODebates.votesCast = JSON.parse($("#my-votes-cast").text());
@@ -103,10 +115,12 @@
   }
 
   $(".vote-button").on("click", function () {
+    /* vote-button is the 'VOTE!' button under the vote count displayed on each idea */
     $($(this).data("target")).find("[data-vote-url]").attr("data-vote-url", $(this).data("vote-url"));
   });
 
   $(".votebutton").on("click", function () {
+    /* .votebutton is the "submit" button in the modal vote dialog */
     var that = this,
         $form = $(this).closest('form');
     $form.find(".vote-error").addClass("hidden");
@@ -114,6 +128,9 @@
       "email": $form.find(":input[name=email]").val(),
       "zipcode": $form.find(":input[name=zipcode]").val()
     };
+    if (ODebates.vote_needs_captcha) {
+      data["g-recaptcha-response"] = $form.find(":input[name=g-recaptcha-response]").val();
+    }
     ODebates.helpers.castVote(data, $(this).data("vote-url"), function(resp) {
       if (resp.status === "200") {
         $(that).closest(".modal").modal("hide");

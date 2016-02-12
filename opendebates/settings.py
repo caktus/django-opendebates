@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'pipeline',
     'djangobower',
     'dbbackup',
+    'nocaptcha_recaptcha',
     # Still using django-celery because that's how Fabulaws starts workers
     'djcelery',
     'opendebates',
@@ -260,3 +261,9 @@ DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
 DBBACKUP_STORAGE_OPTIONS = {'location': '.'}
 DBBACKUP_FILENAME_TEMPLATE = 'local/{datetime}.{extension}'
 DBBACKUP_SEND_EMAIL = False
+
+# With the following test keys, you will always get No CAPTCHA and all verification requests
+# will pass.
+# https://developers.google.com/recaptcha/docs/faq#id-like-to-run-automated-test-with-recaptcha-v2-how-should-i-do
+NORECAPTCHA_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+NORECAPTCHA_SECRET_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'

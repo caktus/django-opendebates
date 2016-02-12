@@ -1,4 +1,5 @@
 import json
+import os
 
 from django.test import TestCase
 
@@ -17,6 +18,10 @@ class VoteTest(TestCase):
         self.user = UserFactory(password=password)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
         assert self.client.login(username=self.user.username, password=password)
+        os.environ['NORECAPTCHA_TESTING'] = 'True'
+
+    def tearDown(self):
+        del os.environ['NORECAPTCHA_TESTING']
 
     # tests are all done as AJAX, like the actual site
 
@@ -38,6 +43,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -51,6 +57,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -62,6 +69,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -80,6 +88,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon_new_voter_source@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         self.assertEqual(0, Voter.objects.filter(email=data['email']).count())
 
@@ -103,6 +112,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon_existing_voter_source@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
 
         anon_voter = VoterFactory(email=data['email'], user=None)
@@ -127,6 +137,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         # create an unauthed vote (which requires an unauthed Voter object)
         anon_voter = VoterFactory(email=data['email'], user=None)
@@ -147,6 +158,7 @@ class VoteTest(TestCase):
         data = {
             'email': self.user.email,
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -155,13 +167,14 @@ class VoteTest(TestCase):
         # votes is not incremented
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes + 0, refetched_sub.votes)
-        self.assertIn('That email is registered', json_rsp['errors']['email'])
+        self.assertIn('That email is registered', json_rsp['errors']['email'][0])
 
     def test_vote_user(self):
         "Authenticated user can vote."
         data = {
             'email': self.voter.email,
             'zipcode': self.voter.zip,
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -179,6 +192,7 @@ class VoteTest(TestCase):
         data = {
             'email': self.voter.email,
             'zipcode': self.voter.zip,
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
