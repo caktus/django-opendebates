@@ -4,16 +4,9 @@
 {% block content %}
   <h2>Admin - Preview Moderation</h2>
 
-  <div class="row">
-    <div class="col-md-12">
-
-      <form action="{% url 'moderation_preview' %}" method="POST">
-        {% csrf_token %}
-        {{ form|bootstrap }}
-        <input class="btn btn-default" type="submit" />
-      </form>
-
-      {% if to_remove %}
+  {% if to_remove %}
+    <div class="row">
+      <div class="col-md-12">
         <div class="col-sm-6">
           <h3>This is the idea you are REMOVING:</h3>
           <blockquote>{{ to_remove.idea }}</blockquote>
@@ -45,7 +38,7 @@
 
           <div>
             {% if duplicate_of %}
-            <input type="hidden" name="duplicate_of" value="{{ duplicate_of.id }}">
+              <input type="hidden" name="duplicate_of" value="{{ duplicate_of.id }}">
               <input type="submit" class="btn" name="action" value="Reject">
               <input type="submit" class="btn btn-danger" name="action" value="Merge">
             {% else %}
@@ -54,7 +47,23 @@
             {% endif %}
           </div>
         </form>
-      {% endif %}
+      </div>
+    </div>
+
+    <h2>Update Preview</h2>
+
+    <p>If you don't want to act on the items above, you can choose new ones using the form below.</p>
+
+  {% endif %}
+
+
+  <div class="row">
+    <div class="col-md-12">
+      <form action="{% url 'moderation_preview' %}" method="POST">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input class="btn btn-default" type="submit" value="{% if to_remove %}Update{% else %}Show{% endif %} Preview" />
+      </form>
 
     </div>
   </div>
