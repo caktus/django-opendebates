@@ -1,5 +1,6 @@
 from httplib import NOT_FOUND, OK
 import json
+import os
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -24,6 +25,10 @@ class ModerationTest(TestCase):
         self.user = UserFactory(password=self.password, is_staff=True, is_superuser=True)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
         assert self.client.login(username=self.user.username, password=self.password)
+        os.environ['NORECAPTCHA_TESTING'] = 'True'
+
+    def tearDown(self):
+        del os.environ['NORECAPTCHA_TESTING']
 
     def test_redirects_to_login(self):
         login_url = settings.LOGIN_URL + '?next=' + self.preview_url
@@ -111,22 +116,26 @@ class ModerationTest(TestCase):
         third_voter = VoterFactory(user=None)
 
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
-            'email': first_voter.email, 'zipcode': first_voter.zip
+            'email': first_voter.email, 'zipcode': first_voter.zip,
+            'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
-            'email': second_voter.email, 'zipcode': second_voter.zip
+            'email': second_voter.email, 'zipcode': second_voter.zip,
+            'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
-            'email': first_voter.email, 'zipcode': first_voter.zip
+            'email': first_voter.email, 'zipcode': first_voter.zip,
+            'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
-            'email': third_voter.email, 'zipcode': third_voter.zip
+            'email': third_voter.email, 'zipcode': third_voter.zip,
+            'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 

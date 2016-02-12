@@ -1,6 +1,9 @@
+import os
+
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from .factories import UserFactory
 
@@ -17,7 +20,12 @@ class RegisterTest(TestCase):
             'last_name': 'Washington',
             'email': 'gwash@example.com',
             'zip': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
+        os.environ['NORECAPTCHA_TESTING'] = 'True'
+
+    def tearDown(self):
+        os.environ.pop('NORECAPTCHA_TESTING', '')
 
     def test_registration_get(self):
         "GET the form successfully."
@@ -37,6 +45,8 @@ class RegisterTest(TestCase):
         "POST with a missing required value."
         # delete each required key and POST
         for key in self.data:
+            if key == 'g-recaptcha-response':
+                continue
             data = self.data.copy()
             del data[key]
             rsp = self.client.post(self.url)
@@ -68,6 +78,16 @@ class RegisterTest(TestCase):
             rsp = self.client.post(self.url, data=data)
             form = rsp.context['form']
             self.assertEqual('twitter', form.cleaned_data['twitter_handle'])
+
+    @override_settings(USE_CAPTCHA=False)
+    def test_disabling_captcha(self):
+        del self.data['g-recaptcha-response']
+        del os.environ['NORECAPTCHA_TESTING']
+        home_url = reverse('list_ideas')
+        rsp = self.client.post(self.url, data=self.data, follow=True)
+        self.assertRedirects(rsp, home_url)
+        new_user = get_user_model().objects.first()
+        self.assertEqual(new_user.first_name, self.data['first_name'])
 
 
 class LoginLogoutTest(TestCase):

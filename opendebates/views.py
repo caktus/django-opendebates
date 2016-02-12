@@ -18,7 +18,8 @@ from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm, MergeFl
 from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, \
     RECENT_EVENTS_CACHE_ENTRY, Flag
 from .router import readonly_db
-from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list
+from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list, \
+    vote_needs_captcha, registration_needs_captcha
 # from opendebates_comments.forms import CommentForm
 from opendebates_emails.models import send_email
 
@@ -184,6 +185,8 @@ def vote(request, id):
         }
 
     form = VoterForm(request.POST)
+    if not vote_needs_captcha(request):
+        form.ignore_captcha()
     if not form.is_valid():
         if request.is_ajax():
             return HttpResponse(
@@ -195,7 +198,6 @@ def vote(request, id):
             'idea': idea,
             # 'comment_form': CommentForm(idea),
             }
-
     state = state_from_zip(form.cleaned_data['zipcode'])
 
     voter, created = Voter.objects.get_or_create(
@@ -204,15 +206,16 @@ def vote(request, id):
             source=request.COOKIES.get('opendebates.source'),
             state=state,
             zip=form.cleaned_data['zipcode'],
+            user=request.user if request.user.is_authenticated() else None,
         )
     )
 
-    if voter.user and voter.user != request.user:
+    if request.user.is_anonymous() and voter.user:
         # anonymous user can't use the email of a registered user
         msg = 'That email is registered. Please login and try again.'
         if request.is_ajax():
             return HttpResponse(
-                json.dumps({"status": "400", "errors": {'email': msg}}),
+                json.dumps({"status": "400", "errors": {'email': [msg]}}),
                 content_type="application/json")
         messages.error(request, _(msg))
         return {
@@ -304,6 +307,7 @@ def questions(request):
     idea = Submission.objects.create(
         voter=voter,
         category_id=category,
+        headline=form_data['headline'],
         idea=form_data['question'],
         citation=form_data['citation'],
         created_at=timezone.now(),
@@ -346,6 +350,12 @@ class OpenDebatesRegistrationView(RegistrationView):
             )
         )
         return new_user
+
+    def get_form(self, form_class=None):
+        form = super(OpenDebatesRegistrationView, self).get_form(form_class)
+        if not registration_needs_captcha(self.request):
+            form.ignore_captcha()
+        return form
 
 
 def registration_complete(request):

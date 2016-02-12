@@ -1,5 +1,6 @@
 (function() {
   var ODebates = window.ODebates || {};
+  var grecaptcha = window.grecaptcha;
   ODebates.helpers = ODebates.helpers || {};
 
   ODebates.helpers.getParameterByName = function(name) {
@@ -58,11 +59,19 @@
 
       } else {
         $.each(resp.errors, function(key, vals) {
-          $('#modal-vote').find(':input[name='+key+']')
-            .closest('.controls')
-            .find('.help-block')
-            .html(vals.join(' '));
+          if (key === 'captcha') {
+            $('#captcha-help-block').html(vals.join(' '));
+          } else {
+            $('#modal-vote').find(':input[name='+key+']')
+              .closest('.controls')
+              .find('.help-block')
+              .html(vals.join(' '));
+          }
         });
+        /* Reset captcha if the form had errors, because we can only
+           validate a captcha token once, so we'll need a new one for
+           the next time they submit. */
+        grecaptcha.reset();
       }
       if (typeof callback === 'function') {
         callback(resp);
@@ -80,13 +89,16 @@
     $(this).closest("form").submit();
   });
 
-  if (ODebates.voter) {
-    $(".modal-vote").on("show.bs.modal", function(e) {
+  if (ODebates.voter && ! ODebates.vote_needs_captcha) {
+    /* If the modal is activated but we already know the voter and
+       don't need a captcha, don't activate the modal; just submit a vote. */
+    $(".modal-vote").on("show.bs.modal", function (e) {
       e.preventDefault();
       ODebates.helpers.castVote({"email": ODebates.voter.email, "zipcode": ODebates.voter.zip},
-                                $(e.relatedTarget).data("vote-url"));
+          $(e.relatedTarget).data("vote-url"));
     });
-
+  }
+  if (ODebates.voter) {
     $(window).load(function() {
       try {
         ODebates.votesCast = JSON.parse($("#my-votes-cast").text());
@@ -96,17 +108,18 @@
       $.each(ODebates.votesCast.submissions || [], function(i, objId) {
         var idea = $(".big-idea[data-idea-id="+objId+"]");
         if (!idea) { return; }
-        idea.find(".vote-button").hide();
-        idea.find(".already-voted-button").css("display", "block");
+        idea.addClass('already-voted');
       });
     });
   }
 
   $(".vote-button").on("click", function () {
+    /* vote-button is the 'VOTE!' button under the vote count displayed on each idea */
     $($(this).data("target")).find("[data-vote-url]").attr("data-vote-url", $(this).data("vote-url"));
   });
 
   $(".votebutton").on("click", function () {
+    /* .votebutton is the "submit" button in the modal vote dialog */
     var that = this,
         $form = $(this).closest('form');
     $form.find(".vote-error").addClass("hidden");
@@ -114,6 +127,9 @@
       "email": $form.find(":input[name=email]").val(),
       "zipcode": $form.find(":input[name=zipcode]").val()
     };
+    if (ODebates.vote_needs_captcha) {
+      data["g-recaptcha-response"] = $form.find(":input[name=g-recaptcha-response]").val();
+    }
     ODebates.helpers.castVote(data, $(this).data("vote-url"), function(resp) {
       if (resp.status === "200") {
         $(that).closest(".modal").modal("hide");
@@ -154,6 +170,7 @@
     if (typeof ODebates.stashedSubmission !== 'undefined') {
       var form = $("#add_question form");
       form.find(":input[name=category]").val(ODebates.stashedSubmission.category);
+      form.find(":input[name=headline]").val(ODebates.stashedSubmission.headline);
       form.find(":input[name=question]").val(ODebates.stashedSubmission.question);
       form.find(":input[name=citation]").val(ODebates.stashedSubmission.citation || '');
       form.submit();
@@ -176,5 +193,26 @@
       setTimeout(fetch, 0, 0);
     }
   });
+
+  function setCountDown() {
+    var now = new Date();
+    var target = new Date(2016, 2, 6, 18, 0);
+    var d = target - now;
+    if (d < 0) {
+      $('.header-count-down .number').text('0');
+    } else {
+      var days = parseInt(d / (1000 * 60 * 60 * 24));
+      var hours = parseInt((d - (days*24*60*60*1000)) / (1000 * 60 * 60));
+      var minutes = parseInt((d - (days*24*60*60*1000) - (hours*60*60*1000)) / (1000 * 60));
+
+      $('.header-count-down .days').text(days);
+      $('.header-count-down .hours').text(hours);
+      $('.header-count-down .minutes').text(minutes);
+    }
+  }
+  setInterval(setCountDown, 60000);
+  setCountDown();
+
+  $('.selectpicker').selectpicker();
 
 })();

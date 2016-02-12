@@ -7,6 +7,7 @@ from django.core.urlresolvers import resolve, Resolver404
 from django.utils.html import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from localflavor.us.forms import USZipCodeField
+from nocaptcha_recaptcha.fields import NoReCaptchaField
 from registration.forms import RegistrationForm
 
 from .models import Category, Flag, Submission
@@ -18,10 +19,20 @@ class VoterForm(forms.Form):
 
     email = forms.EmailField()
     zipcode = USZipCodeField()
+    captcha = NoReCaptchaField(
+        gtag_attrs={'data-size': 'compact'}
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(VoterForm, self).__init__(*args, **kwargs)
+
+    def ignore_captcha(self):
+        del self.fields['captcha']
 
 
 class QuestionForm(forms.Form):
     category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
+    headline = forms.CharField(required=True)
     question = forms.CharField()
     citation = forms.URLField(required=False)
 
@@ -52,6 +63,7 @@ class OpenDebatesRegistrationForm(RegistrationForm):
                                      label=mark_safe(twitter_handle_label),
                                      required=False)
     zip = USZipCodeField()
+    captcha = NoReCaptchaField(label=_("Are you human?"))
 
     def clean_twitter_handle(self):
         if self.cleaned_data.get("twitter_handle", "").startswith("@"):
@@ -83,6 +95,9 @@ class OpenDebatesRegistrationForm(RegistrationForm):
         if commit:
             user.save()
         return user
+
+    def ignore_captcha(self):
+        del self.fields['captcha']
 
 
 class OpenDebatesAuthenticationForm(AuthenticationForm):

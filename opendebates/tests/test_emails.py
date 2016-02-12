@@ -20,6 +20,7 @@ class EmailTest(TestCase):
         self.data = {
             'category': self.category.pk,
             'question': 'My great question?',
+            'headline': 'Headline of my question',
             'citation': 'https://www.google.com',
         }
 
