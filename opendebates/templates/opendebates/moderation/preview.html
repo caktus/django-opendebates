@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load bootstrap %}
 
 {% block content %}
   <h2>Admin - Preview Moderation</h2>
@@ -8,7 +9,7 @@
 
       <form action="{% url 'moderation_preview' %}" method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form|bootstrap }}
         <input class="btn btn-default" type="submit" />
       </form>
 
