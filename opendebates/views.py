@@ -255,6 +255,7 @@ def vote(request, id):
     return redirect(url)
 
 
+@rendered_with("opendebates/list_ideas.html")
 @allow_http("GET", "POST")
 def questions(request):
 
