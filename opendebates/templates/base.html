@@ -18,9 +18,11 @@
 <div class="container">
   <header>
     <div class="header-logos">
-      <img src="{% static "images/badge-democratic-open-forum.png" %}">
-      <img src="{% static "images/logo-progressive-change-institute.png" %}">
-      <img src="{% static "images/logo-cnn.png" %}">
+      <a href="{% url 'list_ideas' %}">
+        <img src="{% static "images/badge-democratic-open-forum.png" %}">
+        <img src="{% static "images/logo-progressive-change-institute.png" %}">
+        <img src="{% static "images/logo-cnn.png" %}">
+      </a>
     </div>
     <div class="login-container{% if request.user.is_authenticated %} login-container-authenticated{% endif %}">
       {% if request.user.is_authenticated %}
