@@ -17,7 +17,7 @@
 
 <div class="row white category-only hidden-xs text-center">
   <div class="vcenter {% if not category %}active-category-nav{% endif %}">
-    <a href="/">{% blocktrans %}All Categories{% endblocktrans %}</a>
+    <a href="/">{% blocktrans %}All Issue Areas{% endblocktrans %}</a>
   </div>
   {% for option in SUBMISSION_CATEGORIES %}
     {% if option.name != "Hidden" and option.name != "Uncategorized" and option.name != "Other" %}

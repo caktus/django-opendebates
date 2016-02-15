@@ -151,6 +151,7 @@ body > .container {
       img:first-child {
         width: 100%;
         max-width: 250px;
+        max-height: 250px;
         height: auto;
         margin-bottom: 10px;
         margin-top: @header-top-padding;
@@ -158,6 +159,7 @@ body > .container {
 
         @media (max-width: 800px) {
           max-width: 33vw;
+          max-height: 33vw;
         }
       }
       img:nth-child(2), img:nth-child(3) {
@@ -280,11 +282,11 @@ body > .container {
           text-align: center;
           font-size: 16px;
           position: relative;
-          top: -3px;
+          top: 0px;
 
           > span {
             position: relative;
-            top: 1px;
+            top: -3px;
             left: 1px;
             font-size: 20px;
           }
