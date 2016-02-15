@@ -71,7 +71,7 @@
         </option>
       </select>
       <div class="display-count">
-        Displaying <strong>{% cache 30 idea_count %}{{ ideas.count }}{% endcache %} Questions</strong>
+        Displaying <strong>{% cache 30 idea_count search_term category.id %}{{ ideas.count }}{% endcache %} Questions</strong>
       </div>
     </form>
   </div>
@@ -79,7 +79,7 @@
 {% endblock %}
 
 {% block primary_content %}
-  {% cache 30 idea_list sort %}
+  {% cache 30 idea_list search_term category.id sort %}
   <div class="row idea-list">
     {% paginate 25 ideas %}
 
