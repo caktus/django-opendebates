@@ -21,6 +21,10 @@ class QuestionForm(Form):
     question = forms.CharField()
     citation = forms.URLField(required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(QuestionForm, self).__init__(*args, **kwargs)
+        self.fields['category'].error_messages['invalid_pk_value'] = _("You must select a category")
+
 display_name_help_text = _("How your name will be displayed on the site. If you "
                            "are an expert in a particular field or have a professional "
                            "affiliation that is relevant to your ideas, feel free to "
