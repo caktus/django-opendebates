@@ -1,5 +1,5 @@
 {% extends "opendebates/base.html" %}
-{% load i18n endless %}
+{% load i18n endless cache %}
 
 {% block title %}
   {% blocktrans %}Open Debates{% endblocktrans %}
@@ -71,7 +71,7 @@
         </option>
       </select>
       <div class="display-count">
-        Displaying <strong>{{ ideas|length }} Questions</strong>
+        Displaying <strong>{% cache 30 idea_count %}{{ ideas.count }}{% endcache %} Questions</strong>
       </div>
     </form>
   </div>
@@ -79,6 +79,7 @@
 {% endblock %}
 
 {% block primary_content %}
+  {% cache 30 idea_list sort %}
   <div class="row idea-list">
     {% paginate 25 ideas %}
 
@@ -88,5 +89,5 @@
 
     {% show_pages %}
   </div>
-
+  {% endcache %}
 {% endblock %}
