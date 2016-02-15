@@ -2,7 +2,6 @@
 {% load i18n %}
 {% block title %}{% trans "Login" %}{% endblock %}
 {% block content %}
-{% url 'auth_password_reset' as auth_pwd_reset_url %}
 {% url 'registration_register' as register_url%}
 
 
@@ -14,6 +13,7 @@
         {{ form|bootstrap }}
         <input class="btn btn-primary" type="submit" value="Log In" />
         <input type="hidden" name="next" value="/" />
+        <a href="{% url 'password_reset' %}">{% trans "I forgot my password" %}</a>
       </form>
     </div>
     <div class="col-sm-6">

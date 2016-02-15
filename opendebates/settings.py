@@ -17,7 +17,6 @@ TRAVIS = 'TRAVIS' in os.environ
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -37,6 +36,8 @@ INSTALLED_APPS = [
     'endless_pagination',
     'bootstrapform',
     'registration',
+    # more django apps, that we want to override template of
+    'django.contrib.admin',
 ]
 
 if DEBUG:
