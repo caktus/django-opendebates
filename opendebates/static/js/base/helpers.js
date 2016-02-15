@@ -1,6 +1,6 @@
 (function() {
   var ODebates = window.ODebates || {};
-  var grecaptcha = window.grecaptcha;
+
   ODebates.helpers = ODebates.helpers || {};
 
   ODebates.helpers.getParameterByName = function(name) {
@@ -71,7 +71,7 @@
         /* Reset captcha if the form had errors, because we can only
            validate a captcha token once, so we'll need a new one for
            the next time they submit. */
-        grecaptcha.reset();
+        window.grecaptcha.reset();
       }
       if (typeof callback === 'function') {
         callback(resp);
