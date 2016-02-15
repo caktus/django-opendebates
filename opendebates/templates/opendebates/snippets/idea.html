@@ -68,6 +68,16 @@
       {% trans "Issue area" %}: <strong>{{ idea.category.name }}</strong>
     </div>
     {% include "opendebates/snippets/social-links.html" %}
+    {% if not idea.duplicate_of %}
+    <div class="idea-actions">
+      <span>
+        <a href="{% url 'merge' idea.pk %}">{% trans "Merge" %}</a>
+      </span>
+      {% endif %}
+      <span>
+        <a href="{% url 'report' idea.pk %}">{% trans "Report" %}</a>
+      </span>
+    </div>
 </div>
 
 {% if show_duplicates and idea.has_duplicates %}

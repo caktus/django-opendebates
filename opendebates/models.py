@@ -50,6 +50,10 @@ class Submission(models.Model):
 
     editors_pick = models.BooleanField(default=False)
     approved = models.BooleanField(default=False, db_index=True)
+
+    # if True, will not show up again in moderation list.
+    moderated_removal = models.BooleanField(default=False, db_index=True)
+
     has_duplicates = models.BooleanField(default=False, db_index=True)
 
     duplicate_of = models.ForeignKey('opendebates.Submission', null=True, blank=True,
@@ -246,3 +250,16 @@ class Candidate(models.Model):
 
     def __unicode__(self):
         return self.display_name
+
+
+class Flag(models.Model):
+    to_remove = models.ForeignKey(Submission, related_name='removal_flags')
+    duplicate_of = models.ForeignKey(Submission, related_name='+',
+                                     null=True, blank=True)
+    voter = models.ForeignKey(Voter)
+    reviewed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = [
+            ('to_remove', 'voter'),
+        ]

@@ -71,3 +71,15 @@ class VoteFactory(factory.DjangoModelFactory):
     submission = factory.SubFactory(SubmissionFactory)
     voter = factory.SubFactory(VoterFactory)
     created_at = now()
+
+
+class RemovalFlagFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.Flag
+
+    to_remove = factory.SubFactory(SubmissionFactory)
+    voter = factory.SubFactory(VoterFactory)
+
+
+class MergeFlagFactory(RemovalFlagFactory):
+    duplicate_of = factory.SubFactory(SubmissionFactory)

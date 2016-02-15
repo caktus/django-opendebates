@@ -89,13 +89,10 @@
     -
     testing:
     - opendebates-testing-lb-476601241.us-east-1.elb.amazonaws.com
-    - testing.openforum2016.com
-    - testing.demopenforum.com
     - testing.demopenquestions.com
     dan:
     - opendebates-dan-lb-1841076677.us-east-1.elb.amazonaws.com
-    - dan.demopenforum.com
-    - dan.openforum2016.com
+    - dan.demopenquestions.com
 
 ## ENVIRONMENT / ROLE SETTINGS ##
 
