@@ -6,14 +6,14 @@
 @alert-danger-border: grey;
 @alert-danger-text: grey;
 @colorless: grey;
-@brand-secondary: lightpink;
 @button-color: pink;
 @muted-color: purple;
 
-@brand-primary: #00304d;
-
 // Theming
 @separationColor: #d7e4e9;
+@brand-primary: #00304d;
+@brand-secondary: #6195a6;
+@error-color: #bf3737;
 
 // Responsive Setup
 
@@ -80,6 +80,20 @@ body {
 
   .row {
     margin: 0;
+  }
+
+  .messages {
+    border: 3px solid @brand-primary;
+    background-color: @brand-secondary;
+    margin-top: 20px;
+
+    .alert {
+      margin-bottom: 0;
+    }
+    .alert-error {
+      color: white;
+      font-weight: bold;
+    }
   }
 }
 
@@ -248,7 +262,6 @@ body > .container {
         });
       }
 
-      @header-number-color: #6195a6;
       @header-side-padding: 10px;
 
       .header-votes .number {
@@ -258,7 +271,7 @@ body > .container {
           @number-height: 25px;
 
           background: white;
-          color: @header-number-color;
+          color: @brand-secondary;
           width: @number-height;
           height: @number-height;
           margin-left: 1px;
@@ -283,7 +296,7 @@ body > .container {
         .not-full({right: 0});
 
         .number {
-          color: @header-number-color;
+          color: @brand-secondary;
         }
       }
     }
@@ -730,6 +743,86 @@ body > .container {
   }
 }
 
+// Submission form in sidebar
+#add_question {
+  width: 100%;
+  display: none;
+  background-color: @brand-primary;
+
+  & > img:first-child {
+    width: 100%;
+  }
+
+  h2 {
+    border-bottom: none;
+    line-height: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: white;
+    text-transform: uppercase;
+    font-size: 1.5em;
+    margin-top: -16px;
+    font-family: Knockout;
+  }
+
+  &.has-errors {
+    display: block;
+
+    .errorlist {
+      color: @error-color;
+      padding-left: 0;
+      list-style: none;
+    }
+  }
+
+  .control-group {
+    text-align: center;
+
+    .controls {
+      position: relative;
+
+      .text-limit-counter {
+        position: absolute;
+        font-size: 12px;
+        bottom: 10px;
+        right: 7.5%;
+        color: grey;
+
+        &.count-negative {
+          color: @error-color;
+        }
+      }
+    }
+
+    label {
+      font-family: Knockout;
+      color: white;
+    }
+
+    input, textarea, .bootstrap-select {
+      width: 87%;
+    }
+    .bootstrap-select {
+      margin: 10px auto;
+    }
+  }
+
+  .controls-submit {
+    height: 30px;
+
+    .submitquestionbutton {
+      font-family: Knockout;
+      background-color: @brand-secondary;
+      color: white;
+      font-size: 30px;
+      position: relative;
+      top: -25px;
+      width: 87%;
+      height: 50px;
+    }
+  }
+}
+
 // question detail page
 .question-detail {
   display: flex;
@@ -812,21 +905,11 @@ body > .container {
   }
 }
 
-.errorlist {
-  // .alert-variant(@alert-danger-bg; @alert-danger-border; @alert-danger-text);
-  list-style-type: none;
-  margin-bottom: -20px;
-}
-
 body {
 
   .glyphicon {
     cursor: pointer;
   }
-}
-
-.alert-error {
-  // .alert-variant(@alert-danger-bg; @alert-danger-border; @alert-danger-text);
 }
 
 .card {
@@ -890,42 +973,6 @@ body {
   text-shadow: none;
 }
 
-.modal-header .close:hover {
-  // background: @row-bg;
-}
-
-.modal-content, .form-well {
-  background-color: @brand-primary;
-  border: solid 10px @colorless;
-  border-radius: 0;
-  width: 300px;
-  height: auto;
-  top: 100px;
-  margin: 0 auto;
-  text-align: center;
-  padding: 0 20px 5px 20px;
-}
-
-.form-well {
-  width: 100%;
-  display: none;
-
-  &#add_question_form_well.has-errors {
-    display: block;
-  }
-}
-
-.form-well h2, {
-  border-bottom: none;
-  line-height: 28px;
-  padding-top: 12px;
-  margin-bottom: 20px;
-  text-align: center;
-  color: @colorless;
-  text-transform: uppercase;
-  font-size: 1.2em;
-}
-
 .modal-content input[type="text"], #add_question input, #add_question textarea {
   // background: @row-bg;
   padding: 6px 10px;
@@ -933,7 +980,7 @@ body {
   margin: 10px 2px;
 }
 
-#add_question input, #add_question textarea, textarea#search {
+textarea#search {
   width: 87%;
 }
 
