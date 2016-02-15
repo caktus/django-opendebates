@@ -234,3 +234,15 @@ class VoteTest(TestCase):
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         # ... and in DB
         self.assertEqual(self.votes + 1, refetched_sub.votes)
+
+    # non AJAX tests
+
+    def test_vote_email_should_match_user(self):
+        "If user bypasses our web interface and directly POSTs, we should not 500."
+        data = {
+            'email': 'not-the-users-email@example.com',
+            'zipcode': self.voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }
+        rsp = self.client.post(self.submission_url, data=data)
+        self.assertEqual(400, rsp.status_code)
