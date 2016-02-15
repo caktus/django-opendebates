@@ -80,7 +80,7 @@
 
 {% block primary_content %}
   <div class="row idea-list">
-    {% paginate 50 ideas %}
+    {% paginate 25 ideas %}
 
     {% for idea in ideas %}
       {% include "opendebates/snippets/idea.html" %}
