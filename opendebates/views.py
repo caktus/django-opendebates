@@ -9,7 +9,7 @@ from django.db import connections
 from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.http import Http404, HttpResponse, HttpResponseServerError
+from django.http import Http404, HttpResponse, HttpResponseServerError, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from djangohelpers.lib import rendered_with, allow_http
 from registration.backends.simple.views import RegistrationView
@@ -199,6 +199,11 @@ def vote(request, id):
             # 'comment_form': CommentForm(idea),
             }
     state = state_from_zip(form.cleaned_data['zipcode'])
+
+    if request.user.is_authenticated():
+        if request.user.email != form.cleaned_data['email']:
+            # this can only happen with an manually-created POST request
+            return HttpResponseBadRequest('Incorrect email for user')
 
     voter, created = Voter.objects.get_or_create(
         email=form.cleaned_data['email'],
