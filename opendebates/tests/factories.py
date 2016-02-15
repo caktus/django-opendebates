@@ -40,7 +40,7 @@ class CategoryFactory(factory.DjangoModelFactory):
 class FuzzyEmail(factory.fuzzy.FuzzyText):
     def fuzz(self):
         chars = [_random.choice(self.chars) for _i in range(self.length)]
-        return "%s@example.com" % chars
+        return "%s@example.com" % ''.join(chars)
 
 
 class VoterFactory(factory.DjangoModelFactory):
@@ -71,3 +71,15 @@ class VoteFactory(factory.DjangoModelFactory):
     submission = factory.SubFactory(SubmissionFactory)
     voter = factory.SubFactory(VoterFactory)
     created_at = now()
+
+
+class RemovalFlagFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.Flag
+
+    to_remove = factory.SubFactory(SubmissionFactory)
+    voter = factory.SubFactory(VoterFactory)
+
+
+class MergeFlagFactory(RemovalFlagFactory):
+    duplicate_of = factory.SubFactory(SubmissionFactory)

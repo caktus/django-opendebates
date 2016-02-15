@@ -20,7 +20,7 @@
                        placeholder="{% blocktrans %}Email{% endblocktrans %}">
               </div>
             </div>
-            
+
             <div class="control-group">
               <label class="control-label" for="zipcode"></label>
               <div class="controls">
@@ -29,7 +29,17 @@
                        placeholder="{% blocktrans %}Zip code{% endblocktrans %}">
               </div>
             </div>
-            
+
+            {% if VOTE_NEEDS_CAPTCHA %}
+              <div class="control-group">
+                <label class="control-label" for="captcha"></label>
+                <div class="controls">
+                  <p id="captcha-help-block" class="help-block"></p>
+                  <div class="g-recaptcha" data-size="compact" data-sitekey="{{ CAPTCHA_SITE_KEY }}"></div>
+                </div>
+              </div>
+            {% endif %}
+
             <div class="control-group">
               <label class="control-label" for="votebutton"></label>
               <div class="controls">

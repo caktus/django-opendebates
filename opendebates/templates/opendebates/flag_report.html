@@ -1,0 +1,19 @@
+{% extends "opendebates/base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <h1>{% trans "Report Content" %}</h1>
+
+  <h2>{% trans "Do you want to flag the question below for removal?" %}</h2>
+
+  <div class="idea-detail">
+    {% include "opendebates/snippets/idea.html" %}
+  </div>
+
+  <form action="." method="POST">
+    {% csrf_token %}
+    <a href="{% url 'vote' idea.pk %}">{% trans "Cancel" %}</a>
+    <input type="submit" value="{% trans 'Flag for Removal' %}" />
+  </form>
+
+{% endblock %}

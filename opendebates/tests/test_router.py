@@ -10,7 +10,7 @@ from mock import Mock
 from opendebates.models import Submission
 from opendebates.router import DBRouter, is_thread_readwrite, set_thread_readwrite_db, \
     set_thread_readonly_db, set_db_written_flag, was_db_written, clear_db_written_flag, \
-    DBRoutingMiddleware, PINNING_KEY
+    DBRoutingMiddleware, PINNING_KEY, readwrite_db, readonly_db
 
 
 class RouterMiddlewareTest(TestCase):
@@ -154,3 +154,43 @@ class DBRouterTest(TestCase):
             # Round-robin should have come around by now
             self.assertEqual(out3, out0)
         self.assertFalse(was_db_written())
+
+
+class ContextManagerTest(TestCase):
+    def test_with_readwrite_db_when_readonly(self):
+        set_thread_readonly_db()
+        assert not is_thread_readwrite()
+        with readwrite_db():
+            assert is_thread_readwrite()
+        assert not is_thread_readwrite()
+
+    def test_with_readwrite_db_when_readwrite(self):
+        set_thread_readwrite_db()
+        assert is_thread_readwrite()
+        with readwrite_db():
+            assert is_thread_readwrite()
+        assert is_thread_readwrite()
+
+    def test_with_readonly_db_when_readonly(self):
+        set_thread_readonly_db()
+        assert not is_thread_readwrite()
+        with readonly_db():
+            assert not is_thread_readwrite()
+        assert not is_thread_readwrite()
+
+    def test_with_readonly_db_when_readwrite(self):
+        set_thread_readwrite_db()
+        assert is_thread_readwrite()
+        with readonly_db():
+            assert not is_thread_readwrite()
+        assert is_thread_readwrite()
+
+    def test_nesting(self):
+        set_thread_readwrite_db()
+        assert is_thread_readwrite()
+        with readonly_db():
+            assert not is_thread_readwrite()
+            with readwrite_db():
+                assert is_thread_readwrite()
+            assert not is_thread_readwrite()
+        assert is_thread_readwrite()
