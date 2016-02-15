@@ -186,3 +186,7 @@ DBBACKUP_FILENAME_TEMPLATE = '{{ environment }}/{datetime}.{extension}'
 DBBACKUP_SEND_EMAIL = True
 # dbbackup needs this to send email
 DBBACKUP_HOSTNAME = ALLOWED_HOSTS[0]
+
+NORECAPTCHA_SITE_KEY = '{{ recaptcha_site_key }}'
+NORECAPTCHA_SECRET_KEY = '{{ recaptcha_secret }}'
+USE_CAPTCHA = {{ use_captcha|default(true) }}

@@ -67,31 +67,15 @@
       {{ idea.created_at }}<br />
       {% trans "Issue area" %}: <strong>{{ idea.category.name }}</strong>
     </div>
-    <div class="social-links">
-      <span class="fb-button">
-        <a class="facebook" href="{{ idea.facebook_url }}" target="_blank">
-          {% blocktrans %}Share{% endblocktrans %}
-        </a>
+    {% include "opendebates/snippets/social-links.html" %}
+    {% if not idea.duplicate_of %}
+    <div class="idea-actions">
+      <span>
+        <a href="{% url 'merge' idea.pk %}">{% trans "Merge" %}</a>
       </span>
-      <span class="tweet-button">
-        <a class="twitter" href="{{ idea.twitter_url }}" target="_blank">
-          {% blocktrans %}Tweet{% endblocktrans %}
-        </a>
-      </span>
-      <span class="reddit-button">
-        <a class="reddit" href="{{ idea.reddit_url }}" target="_blank">
-          {% blocktrans %}Post{% endblocktrans %}
-        </a>
-      </span>
-      <span class="email-button">
-        <a class="email" href="{{ idea.email_url }}" target="_blank">
-          {% blocktrans %}Email{% endblocktrans %}
-        </a>
-      </span>
-      <span class="sms-button">
-        <a class="sms" href="{{ idea.sms_url }}" target="_blank">
-          {% blocktrans %}SMS{% endblocktrans %}
-        </a>
+      {% endif %}
+      <span>
+        <a href="{% url 'report' idea.pk %}">{% trans "Report" %}</a>
       </span>
     </div>
 </div>
