@@ -1,3 +1,5 @@
+from urlparse import urlparse
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -105,12 +107,12 @@ class SubmissionTest(TestCase):
         self.assertContains(rsp, twitter_link)
         self.assertContains(rsp, facebook_link)
 
-    def test_browse_questions_page(self):
-        "Can view questions page and a form is present."
+    def test_questions_page_redirects(self):
+        "Questions view redirects to homepage because it is only meant for form handling."
         questions_url = reverse('questions')
         rsp = self.client.get(questions_url)
-        self.assertEqual(200, rsp.status_code)
-        self.assertIn('form', rsp.context)
+        self.assertEqual(302, rsp.status_code)
+        self.assertEqual("/", urlparse(rsp['Location']).path)
 
     def test_post_submission_with_source(self):
         "An opendebates.source cookie will be transmitted to the submission and vote."
