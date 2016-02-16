@@ -1,6 +1,8 @@
 {% load i18n %}
 {% load l10n %}
+{% load cache %}
 
+{% cache 30 question idea.id %}
 <div id="i{{ idea.id }}" data-idea-id="{{ idea.id }}" class="big-idea clearfix">
     <div class="votes {% if is_related %}col-md-3{% else %}col-md-3{% endif %}">
       {% if is_duplicate %}
@@ -22,8 +24,7 @@
     </div>
 
     <div class="question">
-
-        {% if idea.has_duplicates %}
+      {% if idea.has_duplicates %}
         <div class="idea-duplicates" data-toggle="popover" data-placement="bottom"
              data-content="{% blocktrans %}Similar ideas have been merged into this idea, and their votes have been combined. You can see the original ideas by viewing this idea.{% endblocktrans %}">
           <svg version="1.1" width="22" height="21"
@@ -89,3 +90,4 @@
   </div>
 </div>
 {% endif %}
+{% endcache %}

@@ -1,5 +1,5 @@
 {% extends "opendebates/base.html" %}
-{% load i18n endless %}
+{% load i18n endless cache %}
 
 {% block title %}
   {% blocktrans %}Open Debates{% endblocktrans %}
@@ -19,68 +19,77 @@
   <div class="vcenter {% if not category %}active-category-nav{% endif %}">
     <a href="/">{% blocktrans %}All Issue Areas{% endblocktrans %}</a>
   </div>
-  {% for option in SUBMISSION_CATEGORIES %}
-    {% if option.name != "Hidden" and option.name != "Uncategorized" and option.name != "Other" %}
-      <div class="vcenter {% if category and category.id == option.id %}active-category-nav{% endif %}">
-        <a href="{% url 'list_category' option.id %}">{{ option.name }}</a>
-      </div>
-    {% endif %}
-  {% endfor %}
+  {% cache 279 option_categories category.id %}
+    {% for option in SUBMISSION_CATEGORIES %}
+      {% if option.name != "Hidden" and option.name != "Uncategorized" and option.name != "Other" %}
+        <div class="vcenter {% if category and category.id == option.id %}active-category-nav{% endif %}">
+          <a href="{% url 'list_category' option.id %}">{{ option.name }}</a>
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% endcache %}
 </div>
 <label id="category-select-picker-ctn" for="category-select-picker">
   {% trans "Issue Areas" %}<br/>
   <select id="category-select-picker" class="selectpicker">
     <option value="/">All</option>
-    {% for option in SUBMISSION_CATEGORIES %}
-      {% if option.name != "Hidden" and option.name != "Uncategorized" and option.name != "Other" %}
-        <option {% if category and category.id == option.id %}selected{% endif %} value"{% url 'list_category' option.id %}">{{ option.name }}</option>
-      {% endif %}
-    {% endfor %}
+    {% cache 299 cat_options category.id %}
+      {% for option in SUBMISSION_CATEGORIES %}
+        {% if option.name != "Hidden" and option.name != "Uncategorized" and option.name != "Other" %}
+          <option {% if category and category.id == option.id %}selected{% endif %} value"{% url 'list_category' option.id %}">{{ option.name }}</option>
+        {% endif %}
+      {% endfor %}
+    {% endcache %}
   </select>
 </label>
 {% endblock %}
 
 {% block content %}
-  <div class="sort-column">
-    <form action="{{ url_name }}" method="GET" class="form-inline">
-      <label for="q">
-        {% blocktrans %}Sort questions by{% endblocktrans %}
-      </label>
-      <select onchange="this.form.submit()"
-              name="sort" class="form-control selectpicker">
-        <option value="">
-          ---
-        </option>
-        <option value="trending" {% if sort == "trending" %}selected{% endif %}>
-          {% blocktrans %}Trending Now{% endblocktrans %}
-        </option>
-        <option value="random" {% if sort == "random" %}selected{% endif %}>
-          {% blocktrans %}Random{% endblocktrans %}
-        </option>
-        <option value="-date" {% if sort == "-date" %}selected{% endif %}>
-          {% blocktrans %}Newest First{% endblocktrans %}
-        </option>
-        <option value="+date" {% if sort == "+date" %}selected{% endif %}>
-          {% blocktrans %}Oldest First{% endblocktrans %}
-        </option>
-        <option value="-votes" {% if sort == "-votes" %}selected{% endif %}>
-          {% blocktrans %}Most Votes{% endblocktrans %}
-        </option>
-        <option value="+votes" {% if sort == "+votes" %}selected{% endif %}>
-          {% blocktrans %}Fewest Votes{% endblocktrans %}
-        </option>
-      </select>
-      <div class="display-count">
-        Displaying <strong>{{ ideas|length }} Questions</strong>
-      </div>
-    </form>
-  </div>
+  {% cache 30 list_ideas_content sort url_name search_term category.id %}
+    <div class="sort-column">
+      <form action="{{ url_name }}" method="GET" class="form-inline">
+        <label for="q">
+          {% blocktrans %}Sort questions by{% endblocktrans %}
+        </label>
+        <select onchange="this.form.submit()"
+                name="sort" class="form-control selectpicker">
+          <option value="">
+            ---
+          </option>
+          <option value="trending" {% if sort == "trending" %}selected{% endif %}>
+            {% blocktrans %}Trending Now{% endblocktrans %}
+          </option>
+          <option value="random" {% if sort == "random" %}selected{% endif %}>
+            {% blocktrans %}Random{% endblocktrans %}
+          </option>
+          <option value="-date" {% if sort == "-date" %}selected{% endif %}>
+            {% blocktrans %}Newest First{% endblocktrans %}
+          </option>
+          <option value="+date" {% if sort == "+date" %}selected{% endif %}>
+            {% blocktrans %}Oldest First{% endblocktrans %}
+          </option>
+          <option value="-votes" {% if sort == "-votes" %}selected{% endif %}>
+            {% blocktrans %}Most Votes{% endblocktrans %}
+          </option>
+          <option value="+votes" {% if sort == "+votes" %}selected{% endif %}>
+            {% blocktrans %}Fewest Votes{% endblocktrans %}
+          </option>
+        </select>
+        <div class="display-count">
+
+            Displaying <strong>{% cache 57 idea_count search_term category.id %}{{ ideas.count }}{% endcache %} Questions</strong>
+        </div>
+      </form>
+    </div>
+  {% endcache %}
   {{ block.super }}
 {% endblock %}
 
 {% block primary_content %}
+  {% show_current_number as page_number %}
+  {% cache 30 idea_list search_term category.id sort page_number %}
   <div class="row idea-list">
-    {% paginate 25 ideas %}
+    {% lazy_paginate 25 ideas %}
 
     {% for idea in ideas %}
       {% include "opendebates/snippets/idea.html" %}
@@ -88,5 +97,5 @@
 
     {% show_pages %}
   </div>
-
+  {% endcache %}
 {% endblock %}

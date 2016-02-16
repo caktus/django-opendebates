@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load staticfiles %}
+{% load cache %}
 
 <div>
   <div id="sidebar_question_btn" {% if form.errors %}class="hidden"{% endif %}>
@@ -28,10 +29,12 @@
           <div class="controls">
             <select name="category" class="selectpicker">
               <option>--</option>
-              {% for iter_category in SUBMISSION_CATEGORIES %}
-              <option {% if iter_category.id|slugify == form.data.category or iter_category.id == category.id %}selected{% endif %}
-                      value="{{ iter_category.id }}">{{ iter_category.name }}</option>
-              {% endfor %}
+              {% cache 331 add_question_iter_category category %}
+                {% for iter_category in SUBMISSION_CATEGORIES %}
+                <option {% if iter_category.id|slugify == form.data.category or iter_category.id == category.id %}selected{% endif %}
+                        value="{{ iter_category.id }}">{{ iter_category.name }}</option>
+                {% endfor %}
+              {% endcache %}
             </select>
           </div>
         </div>
