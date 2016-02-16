@@ -45,7 +45,7 @@
 {% endblock %}
 
 {% block content %}
-  {% cache 257 list_ideas_content sort url_name %}
+  {% cache 30 list_ideas_content sort url_name search_term category.id %}
     <div class="sort-column">
       <form action="{{ url_name }}" method="GET" class="form-inline">
         <label for="q">
@@ -77,7 +77,7 @@
         </select>
         <div class="display-count">
 
-            Displaying <strong>{% cache 30 idea_count search_term category.id %}{{ ideas.count }}{% endcache %} Questions</strong>
+            Displaying <strong>{% cache 57 idea_count search_term category.id %}{{ ideas.count }}{% endcache %} Questions</strong>
         </div>
       </form>
     </div>
