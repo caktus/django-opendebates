@@ -95,6 +95,10 @@ body {
       font-weight: bold;
     }
   }
+  .alert-danger {
+    .messages();
+    color: inherit;
+  }
 }
 
 body > .container {
@@ -322,6 +326,9 @@ body > .container {
           max-width: 50%;
           text-align: right;
 
+          a {
+            display: block;
+          }
           span {
             display: none;
           }
@@ -526,6 +533,12 @@ body > .container {
         text-decoration: none;
         color: white;
         font-size: 16px;
+      }
+      .vote-button {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
       }
     }
   }

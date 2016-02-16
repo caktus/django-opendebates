@@ -112,12 +112,13 @@ def list_category(request, cat_id):
 @rendered_with("opendebates/list_ideas.html")
 @allow_http("GET")
 def search_ideas(request):
-    if not request.GET.get("q"):
+    try:
+        search_term = [q for q in request.GET.getlist("q") if q][0]
+    except IndexError:
         return redirect("/")
 
     ideas = Submission.objects.all()
     citations_only = request.GET.get("citations_only")
-    search_term = request.GET['q']
 
     sort = choose_sort(request.GET.get('sort'))
     ideas = sort_list(citations_only, sort, ideas)
