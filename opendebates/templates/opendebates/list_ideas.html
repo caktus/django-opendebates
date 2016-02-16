@@ -39,7 +39,7 @@
           <option {% if category and category.id == option.id %}selected{% endif %} value"{% url 'list_category' option.id %}">{{ option.name }}</option>
         {% endif %}
       {% endfor %}
-    {% endfor %}
+    {% endcache %}
   </select>
 </label>
 {% endblock %}
@@ -77,7 +77,7 @@
         </select>
         <div class="display-count">
 
-            Displaying <strong>{% cache 30 idea_count search_term category.id %}{{ ideas|count }}{% endcache %} Questions</strong>
+            Displaying <strong>{% cache 30 idea_count search_term category.id %}{{ ideas.count }}{% endcache %} Questions</strong>
         </div>
       </form>
     </div>
