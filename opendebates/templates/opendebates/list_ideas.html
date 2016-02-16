@@ -19,7 +19,7 @@
   <div class="vcenter {% if not category %}active-category-nav{% endif %}">
     <a href="/">{% blocktrans %}All Issue Areas{% endblocktrans %}</a>
   </div>
-  {% cache 279 option_categories category %}
+  {% cache 279 option_categories category.id %}
     {% for option in SUBMISSION_CATEGORIES %}
       {% if option.name != "Hidden" and option.name != "Uncategorized" and option.name != "Other" %}
         <div class="vcenter {% if category and category.id == option.id %}active-category-nav{% endif %}">
@@ -33,7 +33,7 @@
   {% trans "Issue Areas" %}<br/>
   <select id="category-select-picker" class="selectpicker">
     <option value="/">All</option>
-    {% cache 299 cat_options category %}
+    {% cache 299 cat_options category.id %}
       {% for option in SUBMISSION_CATEGORIES %}
         {% if option.name != "Hidden" and option.name != "Uncategorized" and option.name != "Other" %}
           <option {% if category and category.id == option.id %}selected{% endif %} value"{% url 'list_category' option.id %}">{{ option.name }}</option>
@@ -45,7 +45,7 @@
 {% endblock %}
 
 {% block content %}
-  {% cache 257 list_ideas_content sort %}
+  {% cache 257 list_ideas_content sort url_name %}
     <div class="sort-column">
       <form action="{{ url_name }}" method="GET" class="form-inline">
         <label for="q">
