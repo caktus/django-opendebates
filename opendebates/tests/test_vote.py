@@ -1,6 +1,8 @@
 import json
+import os
 
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from opendebates.models import Submission, Vote, Voter
 from .factories import UserFactory, SubmissionFactory, VoterFactory, VoteFactory
@@ -17,6 +19,10 @@ class VoteTest(TestCase):
         self.user = UserFactory(password=password)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
         assert self.client.login(username=self.user.username, password=password)
+        os.environ['NORECAPTCHA_TESTING'] = 'True'
+
+    def tearDown(self):
+        del os.environ['NORECAPTCHA_TESTING']
 
     # tests are all done as AJAX, like the actual site
 
@@ -38,6 +44,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -51,6 +58,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -62,6 +70,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -80,6 +89,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon_new_voter_source@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         self.assertEqual(0, Voter.objects.filter(email=data['email']).count())
 
@@ -103,6 +113,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon_existing_voter_source@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
 
         anon_voter = VoterFactory(email=data['email'], user=None)
@@ -127,6 +138,7 @@ class VoteTest(TestCase):
         data = {
             'email': 'anon@example.com',
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         # create an unauthed vote (which requires an unauthed Voter object)
         anon_voter = VoterFactory(email=data['email'], user=None)
@@ -147,6 +159,7 @@ class VoteTest(TestCase):
         data = {
             'email': self.user.email,
             'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -155,13 +168,14 @@ class VoteTest(TestCase):
         # votes is not incremented
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes + 0, refetched_sub.votes)
-        self.assertIn('That email is registered', json_rsp['errors']['email'])
+        self.assertIn('That email is registered', json_rsp['errors']['email'][0])
 
     def test_vote_user(self):
         "Authenticated user can vote."
         data = {
             'email': self.voter.email,
             'zipcode': self.voter.zip,
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -179,6 +193,7 @@ class VoteTest(TestCase):
         data = {
             'email': self.voter.email,
             'zipcode': self.voter.zip,
+            'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -189,3 +204,45 @@ class VoteTest(TestCase):
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         # ... or in the DB
         self.assertEqual(self.votes + 0, refetched_sub.votes)
+
+    def test_vote_user_bad_captcha(self):
+        # If captcha doesn't pass, no vote
+        data = {
+            'email': self.voter.email,
+            'zipcode': self.voter.zip,
+            'g-recaptcha-response': 'FAILED'
+        }
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        self.assertEqual(self.votes, refetched_sub.votes)
+
+    @override_settings(USE_CAPTCHA=False)
+    def test_vote_user_disabled_captcha(self):
+        # If captcha disabled, no need for field
+        data = {
+            'email': self.voter.email,
+            'zipcode': self.voter.zip,
+        }
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+        json_rsp = json.loads(rsp.content)
+        # vote is incremented in JSON response
+        self.assertEqual(self.votes + 1, json_rsp['tally'])
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        # ... and in DB
+        self.assertEqual(self.votes + 1, refetched_sub.votes)
+
+    # non AJAX tests
+
+    def test_vote_email_should_match_user(self):
+        "If user bypasses our web interface and directly POSTs, we should not 500."
+        data = {
+            'email': 'not-the-users-email@example.com',
+            'zipcode': self.voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }
+        rsp = self.client.post(self.submission_url, data=data)
+        self.assertEqual(400, rsp.status_code)

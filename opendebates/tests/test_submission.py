@@ -1,7 +1,10 @@
+from urlparse import urlparse
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from opendebates.models import Submission, Vote
+from opendebates_emails.models import EmailTemplate
 from .factories import CategoryFactory, UserFactory, VoterFactory, SubmissionFactory
 
 
@@ -17,10 +20,27 @@ class SubmissionTest(TestCase):
         self.data = {
             'category': self.category.pk,
             'question': 'My great question?',
+            'headline': 'Headline of my question',
             'citation': 'https://www.google.com',
         }
+        EmailTemplate(type="submitted_new_idea",
+                      name="Email Submitter",
+                      subject="Thanks for your idea, {{ idea.voter.user.first_name }}",
+                      html="Your idea was {{ idea.idea }}",
+                      text="Your idea citation was {{ idea.citation }}",
+                      from_email="{{ idea.voter.email }}",
+                      to_email="{{ idea.voter.email }}").save()
 
     # failures
+
+    def test_missing_headline(self):
+        data = self.data.copy()
+        del data['headline']
+        rsp = self.client.post(self.url, data=data)
+        form = rsp.context['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('headline', form.errors)
+        self.assertIn('This field is required.', str(form.errors))
 
     def test_missing_question(self):
         data = self.data.copy()
@@ -87,12 +107,12 @@ class SubmissionTest(TestCase):
         self.assertContains(rsp, twitter_link)
         self.assertContains(rsp, facebook_link)
 
-    def test_browse_questions_page(self):
-        "Can view questions page and a form is present."
+    def test_questions_page_redirects(self):
+        "Questions view redirects to homepage because it is only meant for form handling."
         questions_url = reverse('questions')
         rsp = self.client.get(questions_url)
-        self.assertEqual(200, rsp.status_code)
-        self.assertIn('form', rsp.context)
+        self.assertEqual(302, rsp.status_code)
+        self.assertEqual("/", urlparse(rsp['Location']).path)
 
     def test_post_submission_with_source(self):
         "An opendebates.source cookie will be transmitted to the submission and vote."

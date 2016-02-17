@@ -1,8 +1,15 @@
 # coding=utf-8
+import logging
+
 from django.core.mail import send_mail
 from django.db import models
 from django.template import Template, Context
 from djangohelpers.lib import register_admin
+
+from opendebates.models import Submission
+from opendebates_emails.tasks import send_email_task
+
+logger = logging.getLogger(__name__)
 
 
 class EmailTemplate(models.Model):
@@ -36,13 +43,18 @@ class EmailTemplate(models.Model):
 
 
 def send_email(type, ctx):
+    if not EmailTemplate.objects.filter(type=type).exists():
+        logger.warning("send_mail called with non-existent mail template: %r", type)
+        return
+    if ctx.keys() != ['idea']:
+        logger.warning("send_email assumes context contains one key named 'idea'")
+        return
+    idea = ctx['idea']
+    if not isinstance(idea, Submission):
+        logger.warning("send_email assumes context['idea'] is a Submission object")
+        return
+    send_email_task.delay(type, idea.pk)
 
-    try:
-        template = EmailTemplate.objects.filter(type=type).order_by("?")[0]
-    except IndexError:
-        return False
-
-    return template.send(ctx)
 
 register_admin(EmailTemplate)
 

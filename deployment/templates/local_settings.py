@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+
+from celery.schedules import crontab
+
 from opendebates.settings import *
 
 DEBUG = False
@@ -68,12 +72,17 @@ STATIC_ROOT = "{{ static_root }}"
 
 
 # email settings
-#EMAIL_HOST_PASSWORD = '{{ smtp_password }}'
+EMAIL_HOST = 'smtp.postmarkapp.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = '{{ smtp_password }}'
+EMAIL_HOST_PASSWORD = '{{ smtp_password }}'
+EMAIL_USE_TLS = True
+
 EMAIL_SUBJECT_PREFIX = '[{{ deployment_tag }} {{ environment }}] '
 ADMINS = [
     ('Caktus Opendebates team', 'opendebates-team@caktusgroup.com'),
 ]
-DEFAULT_FROM_EMAIL = 'opendebates-team@caktusgroup.com'
+DEFAULT_FROM_EMAIL = 'ethan@opendebatecoalition.com'  # FIXME: update when domain finalized
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Redis DB map:
@@ -157,3 +166,27 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+
+CELERYBEAT_SCHEDULE["backup-database"] = {
+    "task": "opendebates.tasks.backup_database",
+    "schedule": crontab(minute=0, hour="*/4"), # backup database every 4 hours
+}
+
+DBBACKUP_DATABASES = [MASTER_DATABASE]
+
+DBBACKUP_STORAGE = 'dbbackup.storage.s3_storage'
+DBBACKUP_STORAGE_OPTIONS = {
+    'access_key': '{{ dbbackup_access_key }}',
+    'secret_key': '{{ dbbackup_access_secret }}',
+    'bucket_name': 'opendebates-backups'
+}
+
+DBBACKUP_FILENAME_TEMPLATE = '{{ environment }}/{datetime}.{extension}'
+DBBACKUP_SEND_EMAIL = True
+# dbbackup needs this to send email
+DBBACKUP_HOSTNAME = ALLOWED_HOSTS[0]
+
+NORECAPTCHA_SITE_KEY = '{{ recaptcha_site_key }}'
+NORECAPTCHA_SECRET_KEY = '{{ recaptcha_secret }}'
+USE_CAPTCHA = {{ use_captcha|default(true) }}

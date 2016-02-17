@@ -7,170 +7,69 @@
 
 
 {% block content %}
-<div class="row">
-  <div class="col-sm-9">
+<div class="row question-detail">
+  {% include "opendebates/snippets/idea.html" %}
 
-    <div class="idea-detail">
-      {% include "opendebates/snippets/idea.html" %}        
-    </div>
+  <div class="social-side-bar">
+    <h2>Share This Idea!</h2>
 
-    {% if idea.citation and idea.citation_verified %}
-      <div class="col-sm-12 block-citation">
-        <div>
-          <a class="citation" target="_blank" href="{{ idea.citation }}">
-            <svg class="citation" 
-                 width="17" height="21" viewBox="0 0 34 42" 
-                 version="1.1" xml:space="preserve">
+    {% include "opendebates/snippets/social-links.html" %}
+  </div>
+
+  {% if idea.citation and idea.citation_verified %}
+    <div class="col-sm-12 block-citation">
+      <div>
+        <a class="citation" target="_blank" href="{{ idea.citation }}">
+          <svg class="citation"
+               width="17" height="21" viewBox="0 0 34 42"
+               version="1.1" xml:space="preserve">
+            <g>
               <g>
-                <g>
-                  <rect x="7" y="6.1" fill="#010101" width="20.1" height="3.3"/>
-                </g>
-                <g>
-                  <rect x="7" y="12.1" fill="#010101" width="20.1" height="3.3"/>
-                </g>
-                <g>
-                  <rect x="7" y="18.1" fill="#010101" width="20.1" height="3.3"/>
-                </g>
-                <g>
-                  <rect x="7" y="24.1" fill="#010101" width="20.1" height="3.3"/>
-                </g>
-                <g>
-                  <rect x="7" y="30.1" fill="#010101" width="11.1" height="3.3"/>
-                </g>
-                <g>
-                  <path fill="#010101" 
-                        d="M0,0v41.9h25l9-9V0H0z M31,29.9h-9v9H3V3h28V29.9z"/>
-                </g>
+                <rect x="7" y="6.1" fill="#010101" width="20.1" height="3.3"/>
               </g>
-            </svg>
-          </a>
-        </div>
-        <div>
-          <a class="citation" target="_blank" href="{{ idea.citation }}">
-            <strong>{% blocktrans %}Citation:{% endblocktrans %}</strong>
-          </a>
-          <a target="_blank" href="{{ idea.citation }}">{{ idea.citation }}</a>
-        </div>
+              <g>
+                <rect x="7" y="12.1" fill="#010101" width="20.1" height="3.3"/>
+              </g>
+              <g>
+                <rect x="7" y="18.1" fill="#010101" width="20.1" height="3.3"/>
+              </g>
+              <g>
+                <rect x="7" y="24.1" fill="#010101" width="20.1" height="3.3"/>
+              </g>
+              <g>
+                <rect x="7" y="30.1" fill="#010101" width="11.1" height="3.3"/>
+              </g>
+              <g>
+                <path fill="#010101"
+                      d="M0,0v41.9h25l9-9V0H0z M31,29.9h-9v9H3V3h28V29.9z"/>
+              </g>
+            </g>
+          </svg>
+        </a>
       </div>
-    {% endif %}
-
-    
-    {% if related1 %}
-    <div class="idea-related">
-      <h4>{% blocktrans %}You may also be interested in...{% endblocktrans %}</h4>
-      <div class="row">
-        <div class="col-md-6">
-          {% include "opendebates/snippets/idea.html" with idea=related1 is_related=1 %}
-        </div>
-        <div class="col-md-6">
-          {% if related2 %}
-          {% include "opendebates/snippets/idea.html" with idea=related2 is_related=1 %}
-          {% endif %}
-        </div>
+      <div>
+        <a class="citation" target="_blank" href="{{ idea.citation }}">
+          <strong>{% blocktrans %}Citation:{% endblocktrans %}</strong>
+        </a>
+        <a target="_blank" href="{{ idea.citation }}">{{ idea.citation }}</a>
       </div>
     </div>
-    {% endif %}
-    
-    {% if comment_list|length %}
-    <div class="comment-count">
-      <h4>
-        {% if comment_list|length == 1 %}
-        {{ comment_list|length }} Comment
-        {% else %}
-        {{ comment_list|length }} Comments
+  {% endif %}
+
+  {% if related1 %}
+  <div class="idea-related">
+    <h4>{% blocktrans %}You may also be interested in...{% endblocktrans %}</h4>
+    <div class="row">
+      <div class="col-md-6">
+        {% include "opendebates/snippets/idea.html" with idea=related1 is_related=1 %}
+      </div>
+      <div class="col-md-6">
+        {% if related2 %}
+        {% include "opendebates/snippets/idea.html" with idea=related2 is_related=1 %}
         {% endif %}
-      </h4>
-    </div>
-    
-    <div class="comment-list">
-      
-      {% for comment in comment_list %}
-      <div class="comment-list-entry">
-        <div class="author">
-          {{ comment.user.voter.user_display_name }}
-        </div>
-        <div class="body">
-          {{ comment.comment }}
-        </div>
-        <div class="timestamp">
-          <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-          {{ comment.submit_date }}
-        </div>
       </div>
-      {% endfor %}
-      
     </div>
-    {% endif %}
-
-    <h5>Add a Comment</h5>
-    {% if request.user.is_authenticated %}
-    <form class="comment-form"
-          action="{% url 'comment' %}" method="post">
-      {% csrf_token %}
-      <input type="hidden" name="next" 
-             value="{% url 'show_idea' idea.id %}" />
-      
-      <div class="row">
-        <div class="col-sm-9">
-          {{ comment_form|bootstrap }}
-        </div>
-        <div class="col-sm-3">
-          <input class="btn btn-default" 
-                 type="submit" name="submit" value="Post Comment">
-        </div>
-      </div>
-
-    </form>
-    {% else %}
-    <a href="{% url 'auth_login' %}" 
-       class="btn btn-default">Log In</a>
-    <a href="{% url 'registration_register' %}"
-       class="btn btn-default">Create an Account</a>
-    {% endif %}
-    
-    <form action="{% url 'vote' id=idea.id %}" method="POST" class="hidden form-inline">
-      {% csrf_token %}
-      <fieldset>
-        <!-- Text input-->
-        <div class="control-group">
-          <label class="control-label" for="email">{% blocktrans %}Email{% endblocktrans %}</label>
-          
-          <div class="controls">
-            <input id="email" name="email" type="text" class="input-large" value="{{ form.data.email }}">
-            {% if form.errors.email %}
-            <p class="help-block">{{ form.errors.email }}</p>
-            {% endif %}
-          </div>
-        </div>
-        
-        <!-- Text input-->
-        <div class="control-group">
-          <label class="control-label" for="zipcode">{% blocktrans %}Zip code{% endblocktrans %}</label>
-          
-          <div class="controls">
-            <input id="zipcode" name="zipcode" type="text" class="input-large" value="{{ form.data.zipcode }}">
-            {% if form.errors.zipcode %}
-            <p class="help-block">{{ form.errors.zipcode }}</p>
-            {% endif %}
-          </div>
-        </div>
-        
-        <!-- Button -->
-        <div class="control-group">
-          <label class="control-label" for="votebutton"></label>
-          
-          <div class="controls">
-            <button id="votebutton" name="votebutton" class="btn btn-primary">{% blocktrans %}
-              Vote{% endblocktrans %}</button>
-          </div>
-        </div>
-        
-      </fieldset>
-    </form>
-    
   </div>
-  <div class="col-sm-3">
-
-  </div>
+  {% endif %}
 </div>
 {% endblock %}

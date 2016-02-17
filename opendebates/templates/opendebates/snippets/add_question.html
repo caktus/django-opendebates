@@ -1,17 +1,20 @@
 {% load i18n %}
-<div id="sidebar_question_btn" {% if form.errors %}class="hidden"{% endif %}>
-  <a href="{% url 'questions' %}" class="btn btn-block btn-primary active" type="button">
-    {% blocktrans %}Submit a New Question{% endblocktrans %}
-  </a>
-</div>
-<div id="add_question_form_well" class="form-well{% if form.errors %} has-errors{% endif %}">
-  <div id="add_question" name="add_question">
-    
-    <hr class="mic_icon"/>
+{% load staticfiles %}
+{% load cache %}
+
+<div>
+  <div id="sidebar_question_btn" {% if form.errors %}class="hidden"{% endif %}>
+    <a href="{% url 'questions' %}" class="btn btn-block btn-primary active" type="button">
+      {% blocktrans %}Submit a New Question{% endblocktrans %}
+    </a>
+  </div>
+  <div id="add_question" class="{% if form.errors %} has-errors{% endif %}">
+    <img src="{% static "images/add-question-header.png" %}" />
     <h2>{% blocktrans %}Submit a new Question{% endblocktrans %}</h2>
 
     <form action="{% url 'questions' %}" method="POST" class="form-inline">
       {% csrf_token %}
+      {{ form.non_field_errors }}
       <fieldset>
         <!-- Text input-->
         <div class="control-group">
@@ -19,45 +22,61 @@
             {% blocktrans %}Choose a Category{% endblocktrans %}
           </label>
 
-          <div class="controls">
-            <select name="category">
-              <option>--</option>
-              {% for iter_category in SUBMISSION_CATEGORIES %}
-              <option {% if iter_category.id|slugify == form.data.category or iter_category.id == category.id %}selected{% endif %}
-                      value="{{ iter_category.id }}">{{ iter_category.name }}</option>
-              {% endfor %}
-            </select>
-            {% if form.errors.category %}
+          {% if form.errors.category %}
             <p class="help-block">{{ form.errors.category }}</p>
-            {% endif %}
-          </div>
-        </div>
+          {% endif %}
 
-        <!-- Text input-->
-        <div class="control-group">
           <div class="controls">
-            <textarea id="question" name="question" type="text" rows="4" class="input-large"
-                      placeholder="{% blocktrans %}Enter your question here. If you have multiple&nbsp;questions, please submit each one separately."{% endblocktrans %}>{{ form.data.question }}</textarea>
-            {% if form.errors.question %}
-            <p class="help-block">{{ form.errors.question }}</p>
-            {% endif %}
+            <select name="category" class="selectpicker">
+              <option>--</option>
+              {% cache 331 add_question_iter_category category %}
+                {% for iter_category in SUBMISSION_CATEGORIES %}
+                <option {% if iter_category.id|slugify == form.data.category or iter_category.id == category.id %}selected{% endif %}
+                        value="{{ iter_category.id }}">{{ iter_category.name }}</option>
+                {% endfor %}
+              {% endcache %}
+            </select>
           </div>
         </div>
 
         <!-- Text input-->
         <div class="control-group">
+          {% if form.errors.headline %}
+            <p class="help-block">{{ form.errors.headline }}</p>
+          {% endif %}
+          <div class="controls">
+            <textarea id="headline" name="headline" type="text" class="input-large" maxlength="80"
+                   placeholder="{% blocktrans %}Headline{% endblocktrans %}">{{ form.data.headline }}</textarea>
+            <div class="text-limit-counter" data-total="80"><span class="count">80</span> / 80</div>
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          {% if form.errors.question %}
+            <p class="help-block">{{ form.errors.question }}</p>
+          {% endif %}
+          <div class="controls">
+            <textarea id="question" name="question" type="text" rows="4" class="input-large" maxlength="200"
+                      placeholder="{% blocktrans %}Enter your question here. If you have multiple&nbsp;questions, please submit each one separately."{% endblocktrans %}>{{ form.data.question }}</textarea>
+            <div class="text-limit-counter" data-total="200"><span class="count">200</span> / 200</div>
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          {% if form.errors.citation %}
+            <p class="help-block">{{ form.errors.citation }}</p>
+          {% endif %}
           <div class="controls">
             <input id="citation" name="citation" type="text" class="input-large" value="{{ form.data.citation }}"
                    placeholder="{% blocktrans %}Citation{% endblocktrans %}">
-            {% if form.errors.citation %}
-            <p class="help-block">{{ form.errors.citation }}</p>
-            {% endif %}
           </div>
         </div>
-        
+
         <!-- Button -->
         <div class="control-group">
-          <div class="controls">
+          <div class="controls controls-submit">
             <button
                id="submitquestionbutton"
                name="submitquestionbutton"
@@ -66,7 +85,7 @@
               {% blocktrans %}Add Your Question{% endblocktrans %}</button>
           </div>
         </div>
-        
+
       </fieldset>
     </form>
   </div>

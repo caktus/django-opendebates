@@ -5,6 +5,7 @@
   <title>
     {% block title %}Open Debates{% endblock %}
   </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   {% load pipeline %}
   {% stylesheet 'base' %}
   {% block loading_stylesheets %}
@@ -17,11 +18,13 @@
 <div class="container">
   <header>
     <div class="header-logos">
-      <img src="{% static "images/badge-democratic-open-forum.png" %}">
-      <img src="{% static "images/logo-progressive-change-institute.png" %}">
-      <img src="{% static "images/logo-cnn.png" %}">
+      <a href="{% url 'list_ideas' %}">
+        <img src="{% static "images/badge-democratic-open-forum.png" %}">
+        <img src="{% static "images/logo-progressive-change-institute.png" %}">
+        <img src="{% static "images/logo-cnn.png" %}">
+      </a>
     </div>
-    <div class="login-container">
+    <div class="login-container{% if request.user.is_authenticated %} login-container-authenticated{% endif %}">
       {% if request.user.is_authenticated %}
         <a href="{# url 'user_profile' #}">
           {% blocktrans with username=request.user.username %}Welcome, {{ username }}!{% endblocktrans %}
@@ -34,7 +37,7 @@
       {% endif %}
     </div>
     <div class="header-title">
-      <h1>{% blocktrans %}Welcome to the{% endblocktrans %}<br/>{% blocktrans %}Democratic Open Forum{% endblocktrans %}</h1>
+      <h1><a href="/">{% blocktrans %}Welcome to the{% endblocktrans %}<br/>{% blocktrans %}Democratic Open Forum{% endblocktrans %}</a></h1>
       <div class="header-copy">
         {% blocktrans %}Ask Bernie and Hillary about the issues that are most important to you. Then tune in here to watch the Democratic Open Forum on Thursday, March 3 at 9:00 pm EST. All questions will be chosen from among those that receive the most votes.{% endblocktrans %}
       </div>
@@ -43,12 +46,12 @@
         <img src="{% static "images/logo-cnn.png" %}">
       </div>
       <div class="header-votes">
-        <span class="number">1943902</span>{% blocktrans %}total votes{% endblocktrans %}
+        <span class="number">{{ NUMBER_OF_VOTES|stringformat:"07d" }}</span>{% blocktrans %}total votes{% endblocktrans %}
       </div>
       <div class="header-count-down">
-        <span class="number">30</span> {% blocktrans %}days{% endblocktrans %}
-        <span class="number">12</span> {% blocktrans %}hours{% endblocktrans %}
-        <span class="number">5</span> {% blocktrans %}minutes{% endblocktrans %}
+        <span class="number days">30</span> {% blocktrans %}days{% endblocktrans %}
+        <span class="number hours">12</span> {% blocktrans %}hrs{% endblocktrans %}
+        <span class="number minutes">5</span> {% blocktrans %}mins{% endblocktrans %}
         until the forum
       </div>
     </div>
@@ -56,30 +59,16 @@
   <!-- TODO: Pull in old mark up to new layout -->
 
   <div class="row white">
-    <div class="col-md-12 messages">
-      {% include "opendebates/snippets/messages.html" %}
-    </div>
+    {% include "opendebates/snippets/messages.html" %}
   </div>
   <div class="row white">
-    <div class="col-md-12">
-      fixme: Number of votes {{ NUMBER_OF_VOTES }}
-    </div>
-  </div>
-  <div class="row white">
-    <div class="col-md-12">
+    <!-- <div class="col-md-12"> -->
       {% block pre_content %}{% endblock %}
-    </div>
+    <!-- </div> -->
   </div>
   <div class="row">
-    <div class="col-md-12">
-      &nbsp;
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-sm-12">
       {% block content %}
       {% endblock %}
-    </div>
   </div>
 
   {% include "opendebates/snippets/vote_modal.html" %}
@@ -107,10 +96,13 @@
   };
   {% endif %}
 
+  ODebates.vote_needs_captcha = {% if VOTE_NEEDS_CAPTCHA %}true{% else %}false{% endif %};
+
   {% if stashed_submission %}
   ODebates.stashedSubmission = {
     "category": {{ stashed_submission.category }},
     "question": "{{ stashed_submission.question }}",
+    "headline": "{{ stashed_submission.headline }}",
     "citation": {% if stashed_submission.citation %}"{{ stashed_submission.citation }}"{% else %}null{% endif %}
   };
   {% endif %}
@@ -124,6 +116,8 @@
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.3/handlebars.min.js'></script>
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js'></script>
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment-with-locales.js'></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.4/js/bootstrap-select.js"></script>
+<script type="text/javascript" src="https://www.google.com/recaptcha/api.js" async defer></script>
 {% javascript 'base' %}
 {% block loading_javascript %}
 {% endblock %}

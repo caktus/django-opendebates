@@ -3,11 +3,11 @@
 {% load i18n %}
 
 {% block content %}
-    <div class="col-md-8">
+    <div class="main">
       {% block primary_content %}
       {% endblock %}
     </div>
-    <div class="col-md-4">
+    <div class="aside">
       {% include "opendebates/snippets/add_question.html" %}
 
       <div class="recent-activity-container">
@@ -20,6 +20,6 @@
           </div>
         </div>
       </div>
-      
+
     </div>
 {% endblock %}

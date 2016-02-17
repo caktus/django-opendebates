@@ -29,12 +29,14 @@ of your old nameservers, but you can keep setting things up meanwhile.
 * Be sure the cloud icon next to your website domain is orange, indicating that
   requests to that domain will go through Cloudflare.
 
+* Go to "Crypto" and set SSL mode to "Full".
+
 * Click "Page rules" at the top.
 
-* Add a page rule, pattern "http://websitedomain/*", and choose "Always
+* Add a page rule, pattern "http://*websitedomain/*", and choose "Always
   use https".
 
-* Add another page rule, pattern "websitedomain/*", and choose SSL Mode:
-  Full SSL.
+* Add another page rule, pattern "https://*websitedomain/recent/", and choose
+  Custom Caching: Bypass Cache.
 
 Now wait for the DNS to update.
