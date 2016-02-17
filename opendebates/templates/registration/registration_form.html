@@ -7,10 +7,11 @@
 
       <form method="post" action="">{% csrf_token %}
         {{ form|bootstrap }}
+        <input type="hidden" name="next" value="{{ next }}" />
         <input class="btn btn-primary"
                type="submit" value="Create Account">
       </form>
-      
+
     </div>
     <div class="col-sm-6">
       <p>{% blocktrans %}Please note:{% endblocktrans %}</p>
@@ -20,7 +21,7 @@
       </ul>
       <p>{% blocktrans %}Already have an account?{% endblocktrans %}</p>
       <p>
-        <a class="btn btn-default" href="/registration/login/">{% blocktrans %}Log In{% endblocktrans %}</a>
+        <a class="btn btn-default" href="{% url "auth_login" %}{% if next %}?next={{ next }}{% endif %}">{% blocktrans %}Log In{% endblocktrans %}</a>
       </p>
     </div>
   </div>

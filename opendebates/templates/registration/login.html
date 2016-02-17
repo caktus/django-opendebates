@@ -12,7 +12,7 @@
       <form method="post" action="{% url 'auth_login' %}">{% csrf_token %}
         {{ form|bootstrap }}
         <input class="btn btn-primary" type="submit" value="Log In" />
-        <input type="hidden" name="next" value="/" />
+        <input type="hidden" name="next" value="{{ next }}" />
         <a href="{% url 'password_reset' %}">{% trans "I forgot my password" %}</a>
       </form>
     </div>
@@ -23,7 +23,7 @@
       </ul>
       <p>{% blocktrans %}Need an account?{% endblocktrans %}</p>
       <p>
-        <a class="btn btn-default" href="{{ register_url }}">
+        <a class="btn btn-default" href="{{ register_url }}{% if next %}?next={{ next }}{% endif %}">
           {% blocktrans %}Create an Account{% endblocktrans %}
         </a>
       </p>
