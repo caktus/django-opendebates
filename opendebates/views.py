@@ -365,8 +365,8 @@ class OpenDebatesRegistrationView(RegistrationView):
         return form
 
     def get_success_url(self, request, user):
-        if request.GET['next']:
-            return request.GET['next']
+        if request.GET.get('next'):
+            return request.GET.get('next')
         else:
             return super(OpenDebatesRegistrationView, self).get_success_url(request, user)
 
