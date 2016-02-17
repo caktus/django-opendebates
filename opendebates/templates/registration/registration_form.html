@@ -21,7 +21,7 @@
       </ul>
       <p>{% blocktrans %}Already have an account?{% endblocktrans %}</p>
       <p>
-        <a class="btn btn-default" href="/registration/login/{% if next %}?next={{ next }}{% endif %}">{% blocktrans %}Log In{% endblocktrans %}</a>
+        <a class="btn btn-default" href="{% url "auth_login" %}{% if next %}?next={{ next }}{% endif %}">{% blocktrans %}Log In{% endblocktrans %}</a>
       </p>
     </div>
   </div>
