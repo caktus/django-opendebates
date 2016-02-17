@@ -330,6 +330,17 @@ def questions(request):
 class OpenDebatesRegistrationView(RegistrationView):
 
     form_class = OpenDebatesRegistrationForm
+    next = None
+
+    def get(self, request):
+        self.next = request.GET.get('next', None)
+        return super(OpenDebatesRegistrationView, self).get(request)
+
+    def get_context_data(self, *args, **kwargs):
+        data = super(OpenDebatesRegistrationView, self).get_context_data(*args, **kwargs)
+        if self.next:
+            data['next'] = self.next
+        return data
 
     def register(self, request, form):
         new_user = super(OpenDebatesRegistrationView, self).register(request, form)
@@ -352,6 +363,12 @@ class OpenDebatesRegistrationView(RegistrationView):
         if not registration_needs_captcha(self.request):
             form.ignore_captcha()
         return form
+
+    def get_success_url(self, request, user):
+        if request.GET['next']:
+            return request.GET['next']
+        else:
+            return super(OpenDebatesRegistrationView, self).get_success_url(request, user)
 
 
 def registration_complete(request):
