@@ -69,7 +69,7 @@ class Submission(models.Model):
 
     keywords = models.TextField(null=True, blank=True)
 
-    objects = SearchManager(fields=["idea", "keywords"],
+    objects = SearchManager(fields=["idea", "keywords", "headline"],
                             auto_update_search_field=True)
 
     source = models.CharField(max_length=255, null=True, blank=True)
