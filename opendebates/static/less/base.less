@@ -1049,7 +1049,7 @@ body {
   position: absolute;
   right: 5px;
   top: 9px;
-  background-color: @button-color;
+  background-color: white; //@button-color;
   opacity: 1;
   text-shadow: none;
 }
@@ -1068,14 +1068,14 @@ textarea#search {
 .votebutton, .submitquestionbutton {
   width: auto;
   display: inline-block;
-  color: @colorless;
-  background: @button-color;
+  color: white; //@colorless;
+  background: #00263e;  //button-color;
   border: none;
   border-radius: 0;
   font-weight: 600;
-  font-size: 20px;
+  font-size: 22px;
   line-height: 18px;
-  padding: 10px 30px 10px 30px;
+  padding: 30px 50px;
   cursor: pointer;
   text-transform: uppercase;
   text-align: center;
@@ -1084,7 +1084,6 @@ textarea#search {
   opacity: 1;
   transition: all .2s ease;
   margin: 1em auto;
-
 }
 
 .votebutton:hover {
@@ -1092,7 +1091,34 @@ textarea#search {
   transition: all .2s ease;
 }
 
+/* @@TODO */
+#modal-vote .modal-body {
+  text-align: center;
+
+  .g-recaptcha {
+    width: 164px;
+    text-align: center;
+  }
+}
+
+/* @@TODO */
+img.mic_icon {
+  height: 150px;
+  width: 150px;
+  text-align: center;
+  margin: 0 auto;
+  display: block;
+}
+
+/* @@TODO */
+.modal-vote-cue {
+  font-size: 13px;
+  color: #00263E;
+  font-weight: bold;
+}
+
 hr.mic_icon, hr.checkbox_icon {
+  display: none;
   color: @colorless;
   background-color: @colorless;
   height: 2px;
@@ -1183,7 +1209,10 @@ hr.mic_icon:after {
   font-weight: bold;
   margin-bottom: -5px;
 }
-
+#modal-vote .modal-body .help-block {
+  color: red;
+  margin-bottom: 0;
+}
 
 /* http://codepen.io/lucien144/blog/highlight-asterix-in-placeholder-w-different-color */
 
