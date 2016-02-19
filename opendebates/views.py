@@ -286,6 +286,7 @@ def questions(request):
     if not request.user.is_authenticated():
         request.session['opendebates.stashed_submission'] = {
             "category": request.POST['category'],
+            "headline": request.POST['headline'],
             "question": request.POST['question'],
             "citation": request.POST.get("citation"),
         }
