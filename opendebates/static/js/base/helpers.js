@@ -53,9 +53,11 @@
     data.csrfmiddlewaretoken = $("[name=csrfmiddlewaretoken]").val();
     $.post(voteUrl, data, function(resp) {
       if (resp.status === "200") {
-        $(".big-idea[data-idea-id="+resp.id+"]").find(".vote-tally-number").html(resp.tally);
-        $(".big-idea[data-idea-id="+resp.id+"]").find(".vote-button").hide();
-        $(".big-idea[data-idea-id="+resp.id+"]").find(".already-voted-button").css("display", "block");
+        var idea = $(".big-idea[data-idea-id="+resp.id+"]");
+        idea.addClass('already-voted');
+        idea.find(".vote-tally-number").html(resp.tally);
+        idea.find(".vote-button").hide();
+        idea.find(".already-voted-button").css("display", "block");
 
       } else {
         $.each(resp.errors, function(key, vals) {
