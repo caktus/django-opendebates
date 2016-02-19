@@ -233,11 +233,9 @@
   $('#add_question textarea').each(updateTextLimitCounts);
 
   $('#search-full').one('keyup click', function() {
-    console.log('use full');
     $('#search-small').remove();
   });
   $('#search-small').one('keyup click', function() {
-    console.log('use small');
     $('#search-full').remove();
   });
 
