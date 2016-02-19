@@ -62,6 +62,20 @@
   src: url("/static/fonts/Knockout-HTF48-Featherweight.otf") format("opentype");
 }
 
+@socialIconWidth: 30px;
+
+.share-button(@iconURL, @width: @socialIconWidth, @height: 20px) {
+  content: "";
+  position: absolute;
+  left: 0px;
+  top: -1px;
+  width: @width;
+  height: @height;
+  background-position: 50%;
+  background-image: url(@iconURL);
+  background-repeat: no-repeat;
+}
+
 // Default Styling
 
 body {
@@ -339,6 +353,58 @@ body > .container {
         color: white;
         text-decoration: none;
       }
+    }
+  }
+}
+
+/* Footer */
+body > .container > footer {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  font-size: 16px;
+
+  hr {
+    flex-basis: 100%;
+    border-width: 10px;
+    border-color: @brand-primary;
+  }
+
+  nav {
+    a {
+      padding-right: 1em;
+    }
+  }
+
+  #ft-facebook {
+    &::before {
+      .share-button('/static/images/icon-share-fb.png');
+    }
+  }
+  #ft-twitter {
+    &::before {
+      .share-button('/static/images/icon-share-twitter.png');
+    }
+  }
+  #ft-reddit {
+    &::before {
+      .share-button('/static/images/icon-share-reddit.png');
+    }
+  }
+
+  .ft-social a {
+    display: inline-block;
+    padding: 4px 7px 2px @socialIconWidth;
+    border-bottom: none;
+    text-decoration: none;
+    border: none;
+    vertical-align: middle;
+    position: relative;
+
+    &::before {
+      top: 5px !important;
     }
   }
 }
@@ -647,8 +713,6 @@ body > .container {
       display: none;
     }
 
-    @socialIconWidth: 30px;
-
     > * {
       position: relative;
 
@@ -666,17 +730,6 @@ body > .container {
       }
     }
 
-    .share-button(@iconURL, @width: @socialIconWidth, @height: 20px) {
-      content: "";
-      position: absolute;
-      left: 0px;
-      top: -1px;
-      width: @width;
-      height: @height;
-      background-position: 50%;
-      background-image: url(@iconURL);
-      background-repeat: no-repeat;
-    }
     .tweet-button {
       .responsive({
         color: #50abf1;
