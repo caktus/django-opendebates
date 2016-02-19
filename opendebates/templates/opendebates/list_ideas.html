@@ -7,12 +7,17 @@
 
 {% block pre_content %}
 <form action="{% url 'search_ideas' %}" method="GET" id="top-search">
-  <input name="q" class="form-control" id="search-full"
-         placeholder="{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked{% endblocktrans %}"
-         value="{{ search_term|default:'' }}" onkeyup="javascript:if(arguments[0].keyCode===13)this.form.submit();">
-  <input name="q" class="form-control" id="search-small"
-         placeholder="{% blocktrans %}Search questions by keyword{% endblocktrans %}"
-         value="{{ search_term|default:'' }}" onchange="javascript:this.form.submit();">
+  <input type="submit" value=""/>
+  <div class="search-ctn">
+    <input name="q" class="form-control" id="search-full"
+           placeholder="{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked{% endblocktrans %}"
+           value="{{ search_term|default:'' }}" onkeyup="javascript:if(arguments[0].keyCode===13)this.form.submit();">
+  </div>
+  <div class="search-ctn">
+    <input name="q" class="form-control" id="search-small"
+           placeholder="{% blocktrans %}Search questions by keyword{% endblocktrans %}"
+           value="{{ search_term|default:'' }}" onchange="javascript:this.form.submit();">
+  </div>
 </form>
 
 <div class="row white category-only hidden-xs text-center">
