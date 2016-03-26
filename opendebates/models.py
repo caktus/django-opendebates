@@ -69,7 +69,7 @@ class Submission(models.Model):
 
     keywords = models.TextField(null=True, blank=True)
 
-    objects = SearchManager(fields=["idea", "keywords", "headline"],
+    objects = SearchManager(fields=["idea", "keywords"],
                             auto_update_search_field=True)
 
     source = models.CharField(max_length=255, null=True, blank=True)
@@ -119,7 +119,6 @@ class Submission(models.Model):
 
     def email_url(self):
         params = {
-            "headline": self.headline,
             "idea": self.idea,
             "url": self.really_absolute_url(),
         }
@@ -127,7 +126,6 @@ class Submission(models.Model):
         body = _(
             """Vote for my progressive idea for @OpenDebate2016 #OpenDebate2016.
 
-            %(headline)s
             %(idea)s
 
             %(url)s

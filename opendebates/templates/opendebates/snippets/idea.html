@@ -56,7 +56,7 @@
       </p>
       {% endif %}
       <p class="idea">
-        {{ idea.idea }}
+        {{ idea.followup }}
         {% if idea.citation and idea.citation_verified %}
           <br />
           <a class="citation" target="_blank" href="{{ idea.citation }}" title="{% blocktrans %}Has a citation &ndash; click to open{% endblocktrans %}">{% trans "User Submitted Citation" %}</a>

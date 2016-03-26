@@ -57,7 +57,12 @@ class SubmissionFactory(factory.DjangoModelFactory):
         model = models.Submission
 
     category = factory.SubFactory(CategoryFactory)
-    idea = factory.fuzzy.FuzzyText()
+
+    headline = factory.fuzzy.FuzzyText()
+    followup = factory.fuzzy.FuzzyText()
+
+    idea = factory.LazyAttribute(lambda obj: (u'%s %s' % (obj.headline, obj.followup)).strip())
+    
     voter = factory.SubFactory(VoterFactory)
     created_at = now()
     approved = True
