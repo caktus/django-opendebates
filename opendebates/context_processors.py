@@ -36,5 +36,6 @@ def global_vars(request):
         'NUMBER_OF_VOTES': get_number_of_votes(),
         'STATIC_URL': settings.STATIC_URL,
         'SITE_DOMAIN': settings.SITE_DOMAIN,
+        'MIXPANEL_KEY': settings.MIXPANEL_KEY,
         'SUBMISSION_CATEGORIES': SimpleLazyObject(_get_categories)
     }
