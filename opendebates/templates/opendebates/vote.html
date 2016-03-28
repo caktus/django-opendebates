@@ -8,9 +8,11 @@
 
 {% block content %}
 <div class="row question-detail">
-  {% include "opendebates/snippets/idea.html" %}
-
-  <div class="social-side-bar">
+  <div class="col-sm-8">
+    {% include "opendebates/snippets/idea.html" %}
+  </div>
+  
+  <div class="col-sm-4 social-side-bar">
     <h2>Share This Idea!</h2>
 
     {% include "opendebates/snippets/social-links.html" %}
