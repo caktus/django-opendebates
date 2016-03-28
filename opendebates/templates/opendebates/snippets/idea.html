@@ -82,7 +82,10 @@
 </div>
 
 {% if show_duplicates and idea.has_duplicates %}
-<div class="row">
+<div class="show-duplicates">
+  <a href="#">{% blocktrans %}Click to see the questions that were merged into this{% endblocktrans %}</a>
+</div>
+<div class="duplicates-list row hidden">
   <div class="col-xs-12 idea-duplicates-list">
     {% for duplicate in idea.get_duplicates %}
     {% include "opendebates/snippets/idea.html" with idea=duplicate is_duplicate=1 %}

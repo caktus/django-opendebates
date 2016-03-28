@@ -87,6 +87,12 @@
     return false;
   });
 
+  $(".show-duplicates a").on("click", function() {
+    $(".duplicates-list").removeClass("hidden");
+    $(".show-duplicates").hide();
+    return false;
+  });
+
   $(".search-only form .input-group-addon").on("click", function () {
     $(this).closest("form").submit();
   });
@@ -154,6 +160,13 @@
 
   $(window).load(function() {
 
+    if (window.location.hash && $(window.location.hash).hasClass("big-idea")) {
+      $(".show-duplicates a").trigger("click");
+      $('html, body').animate({
+        scrollTop: $(window.location.hash).offset().top
+      }, 500);
+    }
+    
     // Break vote count into spans for styling
     $(".header-votes .number").each(function(){
       var $el = $(this);
