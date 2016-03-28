@@ -22,49 +22,9 @@
     {% include "opendebates/snippets/social-links.html" %}
   </div>
 
-  {% if idea.citation and idea.citation_verified %}
-    <div class="col-sm-12 block-citation">
-      <div>
-        <a class="citation" target="_blank" href="{{ idea.citation }}">
-          <svg class="citation"
-               width="17" height="21" viewBox="0 0 34 42"
-               version="1.1" xml:space="preserve">
-            <g>
-              <g>
-                <rect x="7" y="6.1" fill="#010101" width="20.1" height="3.3"/>
-              </g>
-              <g>
-                <rect x="7" y="12.1" fill="#010101" width="20.1" height="3.3"/>
-              </g>
-              <g>
-                <rect x="7" y="18.1" fill="#010101" width="20.1" height="3.3"/>
-              </g>
-              <g>
-                <rect x="7" y="24.1" fill="#010101" width="20.1" height="3.3"/>
-              </g>
-              <g>
-                <rect x="7" y="30.1" fill="#010101" width="11.1" height="3.3"/>
-              </g>
-              <g>
-                <path fill="#010101"
-                      d="M0,0v41.9h25l9-9V0H0z M31,29.9h-9v9H3V3h28V29.9z"/>
-              </g>
-            </g>
-          </svg>
-        </a>
-      </div>
-      <div>
-        <a class="citation" target="_blank" href="{{ idea.citation }}">
-          <strong>{% blocktrans %}Citation:{% endblocktrans %}</strong>
-        </a>
-        <a target="_blank" href="{{ idea.citation }}">{{ idea.citation }}</a>
-      </div>
-    </div>
-  {% endif %}
-
   {% if related1 %}
   <div class="idea-related">
-    <h4>{% blocktrans %}You may also be interested in...{% endblocktrans %}</h4>
+    <h5>{% blocktrans %}You may also be interested in...{% endblocktrans %}</h5>
     <div class="row">
       <div class="col-md-6">
         {% include "opendebates/snippets/idea.html" with idea=related1 is_related=1 %}
