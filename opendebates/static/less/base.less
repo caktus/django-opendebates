@@ -13,6 +13,8 @@
 @separationColor: #d7e4e9;
 @brand-primary: #00304d;
 @brand-secondary: #6195a6;
+@brand-tertiary: #d61820;
+@brand-button-color: #00263e;
 @error-color: #bf3737;
 
 // Responsive Setup
@@ -70,11 +72,11 @@
 
 @socialIconWidth: 30px;
 
-.share-button(@iconURL, @width: @socialIconWidth, @height: 20px) {
+.share-button(@iconURL, @width: @socialIconWidth, @height: 20px, @top: -1px) {
   content: "";
   position: absolute;
   left: 0px;
-  top: -1px;
+  top: @top;
   width: @width;
   height: @height;
   background-position: 50%;
@@ -87,7 +89,7 @@
 body {
   margin: 0;
   background: white;
-  color: #00304d;
+  color: @brand-primary;
 
   p {
     font-size: 22px;
@@ -95,7 +97,12 @@ body {
   }
 
   a {
-    color: inherit;
+    color: @brand-primary;
+
+    &:hover {
+      text-decoration: none;
+      color: fadeout(@brand-primary, 50%);
+    }
   }
 
   .row {
@@ -616,10 +623,39 @@ body > .container > footer {
   }
 }
 
+@media (min-width: @responsive-shim-min) {
+  .big-idea.already-voted:hover {
+
+  .social-links {
+    .fb-button {
+      background: #3b5998;
+      a {
+        color: white;
+      }
+    }
+    .tweet-button {
+      background: #50abf1;
+      a {
+        color: white;
+      }
+    }
+    .reddit-button {
+      background: #FF4808;
+      a {
+        color: white;
+      }
+    }
+    .email-button {
+
+    }
+  }
+  }
+}
+
 // Question styling
 .big-idea {
   .responsive({
-    color: #00304d;
+    color: @brand-primary;
     border-bottom: 1px solid @separationColor;
     padding: 25px 0;
 
@@ -656,7 +692,7 @@ body > .container > footer {
 
     .vote-bottom {
       margin: auto;
-      background: #d61820;
+      background: @brand-tertiary;
       line-height: 18px !important;
       width: 100%;
       height: 50px;
@@ -667,6 +703,10 @@ body > .container > footer {
       flex-direction: column;
       justify-content: center;
 
+      &:hover {
+        background: fadeout(@brand-tertiary, 30%);
+      }
+      
       a {
         font-weight: 600;
         text-decoration: none;
@@ -700,7 +740,7 @@ body > .container > footer {
     .votes .vote-bottom .vote-button {
       display: none;
     }
-    .vote-bottom {
+    .vote-bottom, .vote-bottom:hover {
       background-color: darken(@brand-primary, 3%);
     }
   }
@@ -713,6 +753,10 @@ body > .container > footer {
     float: right;
     cursor: pointer;
 
+    &:hover {
+      color: fadeout(@brand-primary, 50%);
+    }
+    
     span {
       font-size: 10px;
       font-weight: 500;
@@ -754,7 +798,7 @@ body > .container > footer {
     }
   }
   .idea-info {
-    margin: 15px;
+    margin: 15px 15px 0 15px;
     font-size: 12px;
 
     .not-full({
@@ -772,15 +816,23 @@ body > .container > footer {
       font-size: 13px;
       margin: 0 3px 1px;
       border-bottom: 1px solid @brand-primary;
+
+      &:hover {
+        border-bottom: 1px solid fadeout(@brand-primary, 50%);
+      }
     }
   }
   .social-links {
     padding-top: 5px;
     display: inline-block;
+    .responsive({ margin-left: -11px; }, {
+      margin-left: 0;
+      display: none !important;
+    });
 
     .small({
       order: 4;
-      display: flex;
+      display: flex !important;
       flex-direction: row;
       flex-wrap: wrap;
       justify-content: space-around;
@@ -788,84 +840,75 @@ body > .container > footer {
 
       & > * {
         flex-basis: 88px; // width of module share icons
-        height: 40px;
+        height: 45px;
         margin: 10px 8px;
 
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
-      }
+      }      
     });
     (.big-idea).already-voted & {
       display: none;
     }
 
+    > span {
+      padding: 10px 0;
+      margin: 0 1px;
+    }
+    
     > * {
       position: relative;
 
       a {
         display: inline-block;
-        padding: 4px 7px 2px (@socialIconWidth - 2px);
+        padding: 4px 7px 2px 11px;
         border-bottom: none;
         text-decoration: none;
         border: none;
         vertical-align: top;
         font-size: 13px;
         font-weight: bold;
+
+        .fa {
+          font-size: 20px;
+        }
+        span {
+          vertical-align: top;
+          padding-top: 1px;
+          display: inline-block;
+        }
+              
       }
       a.reddit {
-        padding-left: @socialIconWidth + 2px;
+
       }
       a:hover {
         // color: @link-color;
       }
     }
 
-    .tweet-button {
+    .tweet-button a {
       .responsive({
         color: #50abf1;
-
-        &::before {
-          .share-button('/static/images/icon-share-twitter.png');
-        }
       }, {
-        color: rgba(0,0,0,0);
-        &::before {
-          .share-button('/static/images/icon-share-twitter-mobile.png', 88px, 40px);
-        }
       });
     }
-    .fb-button {
+    .fb-button a {
       .responsive({
         color: #3b5998;
+      }, {
+      });
+    }
+    .reddit-button a {
+      .responsive({
+        color: #FF4808;
+      }, {
 
-        &::before {
-          .share-button('/static/images/icon-share-fb.png');
-        }
-      }, {
-        color: rgba(0,0,0,0);
-        &::before {
-          .share-button('/static/images/icon-share-fb-mobile.png', 88px, 40px);
-        }
       });
     }
-    .reddit-button {
+    .email-button a {
       .responsive({
-        &::before {
-          .share-button('/static/images/icon-share-reddit.png');
-        }
-      }, {
-        color: rgba(0,0,0,0);
-        &::before {
-          .share-button('/static/images/icon-share-reddit-mobile.png', 88px, 40px);
-        }
-      });
-    }
-    .email-button {
-      .responsive({
-        &::before {
-          .share-button('/static/images/icon-share-email.png');
-        }
       }, {
         flex-grow: 2;
         display: flex;
@@ -880,7 +923,7 @@ body > .container > footer {
         }
       });
     }
-    .sms-button {
+    .sms-button a {
       .responsive({
         display: none;
       }, {
@@ -889,11 +932,6 @@ body > .container > footer {
         display: flex;
         justify-content: center;
 
-        &:before {
-          .share-button('/static/images/icon-share-sms.png');
-          position: relative;
-          left: auto;
-        }
         a {
           padding-left: 7px;
         }
@@ -980,6 +1018,10 @@ body > .container > footer {
       width: 87%;
       height: 50px;
       padding-top: 17px;
+
+      &:hover {
+        background: darken(@brand-secondary, 10%);
+      }
     }
   }
 }
@@ -991,6 +1033,10 @@ body > .container > footer {
     font-family: Knockout-light;
     font-size: 28px;
     text-transform: uppercase;
+
+    &:hover {
+      background-color: fadeout(@brand-primary, 30%);
+    }
   }
 }
 
@@ -1054,28 +1100,37 @@ body > .container > footer {
         background-repeat: no-repeat;
         height: 60px;
         margin-bottom: 20px;
-
+        text-align: center;
+        padding-top: 15px;
+        
         a {
           width: 100%;
           height: 100%;
           display: inline-block;
+          color: white;
 
+          span {
+            font-size: 13px;
+            font-weight: bold;
+            vertical-align: middle;
+          }
+          
           &:hover,&:active,&:visited,&:focus {
-            color: rgba(0,0,0,0);
+            color: white;
           }
         }
       }
       .fb-button {
-        background-image: url(/static/images/icon-share-fb-side.png);
+        background: #3B5998;
       }
       .tweet-button {
-        background-image: url(/static/images/icon-share-twitter-side.png);
+        background: #50ABF1;
       }
       .reddit-button {
-        background-image: url(/static/images/icon-share-reddit-side.png);
+        background: #FF4808;
       }
       .email-button {
-        background-image: url(/static/images/icon-share-email-side.png);
+        background: @brand-primary;
       }
     }
   }
@@ -1145,7 +1200,7 @@ body {
     font-size: 11px;
     font-weight: bold;
     font-family: Helvetica, sans-serif;
-    color: #00304d;
+    color: @brand-primary;
     text-decoration: none;
     display: inline-block;
   }
@@ -1209,7 +1264,7 @@ textarea#search {
   width: auto;
   display: inline-block;
   color: white; //@colorless;
-  background: #00263e;  //button-color;
+  background: @brand-button-color;
   border: none;
   border-radius: 0;
   font-weight: normal;
