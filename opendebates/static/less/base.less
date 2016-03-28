@@ -657,7 +657,7 @@ body > .container > footer {
   .responsive({
     color: @brand-primary;
     border-bottom: 1px solid @separationColor;
-    padding: 25px 0;
+    padding: 25px 0 5px 0;
 
     &:last-child {
       border-bottom: none;
@@ -768,9 +768,12 @@ body > .container > footer {
   }
 
   .question {
-    margin: 15px;
-    margin-top: 0;
+    margin: 0 15px;
 
+    > p {
+      margin-bottom: 10px;
+    }
+    
     .headline {
       margin: 0;
       line-height: 114%;
@@ -798,8 +801,9 @@ body > .container > footer {
     }
   }
   .idea-info {
-    margin: 15px 15px 0 15px;
+    margin: 10px 15px 10px 15px;
     font-size: 12px;
+    line-height: 1.4em;
 
     .not-full({
       order: 6;
