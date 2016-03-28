@@ -971,9 +971,11 @@ body > .container > footer {
     display: block;
 
     .errorlist {
-      color: @error-color;
+      color: red;
       padding-left: 0;
       list-style: none;
+      margin-bottom: -10px;
+      font-size: 13px;
     }
   }
 
@@ -1410,9 +1412,11 @@ hr.mic_icon:after {
 }
 #modal-vote .modal-body .help-block {
   color: red;
+  margin-bottom: -10px;
+}
+#modal-vote .modal-body .help-block#captcha-help-block {
   margin-bottom: 0;
 }
-
 /* http://codepen.io/lucien144/blog/highlight-asterix-in-placeholder-w-different-color */
 
 input[type=text] {
