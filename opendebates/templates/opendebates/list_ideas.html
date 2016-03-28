@@ -47,9 +47,10 @@
     {% endcache %}
   </select>
 </label>
+<br>
 {% endblock %}
 
-{% block content %}
+{% block primary_content %}
   {% cache 30 list_ideas_content sort url_name search_term category.id %}
     <div class="sort-column">
       <form action="{{ url_name }}" method="GET" class="form-inline">
@@ -86,11 +87,8 @@
         </div>
       </form>
     </div>
-  {% endcache %}
-  {{ block.super }}
-{% endblock %}
-
-{% block primary_content %}
+    {% endcache %}
+    
   {% show_current_number as page_number %}
   {% cache 30 idea_list search_term category.id sort page_number %}
   <div class="row idea-list">

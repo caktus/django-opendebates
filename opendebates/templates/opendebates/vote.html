@@ -5,13 +5,19 @@
   {% blocktrans %}Open Debates{% endblocktrans %}
 {% endblock %}
 
-
 {% block content %}
+<div class="row breadcrumbs">
+  <a href="/">Home</a>
+  &#8594;
+  <a href="{% url 'list_category' idea.category.id %}">{{ idea.category }}</a>
+  &#8594;
+  <a href="">{{ idea.idea }}</a>
+</div>
 <div class="row question-detail">
   {% include "opendebates/snippets/idea.html" %}
 
   <div class="social-side-bar">
-    <h2>Share This Idea!</h2>
+    <h4>Share This Idea!</h4>
 
     {% include "opendebates/snippets/social-links.html" %}
   </div>

@@ -62,6 +62,12 @@
   src: url("/static/fonts/Knockout-HTF48-Featherweight.otf") format("opentype");
 }
 
+@font-face {
+  font-family: Knockout-light;
+  font-weight: normal;
+  src: url("/static/fonts/Knockout-HTF28-JuniorFeatherwt.otf") format("opentype");
+}
+
 @socialIconWidth: 30px;
 
 .share-button(@iconURL, @width: @socialIconWidth, @height: 20px) {
@@ -121,6 +127,10 @@ body > .container {
   padding: 0;
   margin: 0 auto;
 
+  &.container-wide {
+    max-width: 1200px;
+  }
+  
   > header {
     .responsive({
       background-image: url(/static/images/header-bg.png);
@@ -359,23 +369,53 @@ body > .container {
 
 /* Footer */
 body > .container > footer {
-  margin-top: 50px;
+  margin-top: 30px;
+  margin-bottom: 60px;
+
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-between;
-  font-size: 16px;
+  font-size: 13px;
+  font-weight: bold;
 
+  img {
+    max-width: 100%;
+  }
+    
   hr {
     flex-basis: 100%;
     border-width: 10px;
     border-color: @brand-primary;
+    margin-bottom: 18px;
   }
 
   nav {
+    .responsive({}, {
+      width: 100%;
+    }, {
+      padding-left: 30px;
+    });
+    
     a {
-      padding-right: 1em;
+      .responsive({
+        padding-right: 1em;
+      }, {
+        width: 100%;
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+      });
     }
+  }
+  .ft-social {
+    .responsive({}, {
+      width: 100%;
+      text-align: center;
+      margin-top: 15px;
+    }, {
+      margin-right: 30px;
+    });
   }
 
   #ft-facebook {
@@ -396,13 +436,26 @@ body > .container > footer {
 
   .ft-social a {
     display: inline-block;
-    padding: 4px 7px 2px @socialIconWidth;
+    padding: 6px 7px 2px (@socialIconWidth - 2px);
     border-bottom: none;
     text-decoration: none;
     border: none;
     vertical-align: middle;
     position: relative;
+    
+    &#ft-reddit {
+      padding-top: 8px;
+      padding-left: @socialIconWidth + 2px;
+    }
 
+    &#ft-facebook {
+      color: #3B5998;
+    }
+
+    &#ft-twitter {
+      color: #50ABF1;
+    }
+    
     &::before {
       top: 5px !important;
     }
@@ -418,9 +471,17 @@ body > .container > footer {
     [name=q] {
       width: 100%;
       height: 40px;
-      border: 1px solid lightgrey;
+      border: 1px solid #aaa;
       font-size: 17px;
       padding-left: 10px;
+      border-radius: 0;
+
+      &::-webkit-input-placeholder {
+        font-size: 13px;
+        font-weight: bold;
+        line-height: 30px;
+        color: rgba(0, 38, 62, 0.6);
+      }
     }
   }
   [type=submit] {
@@ -617,6 +678,16 @@ body > .container > footer {
         display: flex;
         flex-direction: column;
         justify-content: center;
+        font-family: Knockout-light;
+        font-size: 26px;
+        font-weight: normal;
+        letter-spacing: 2px;
+      }
+      .already-voted-button {
+        font-family: Knockout-light;
+        font-size: 26px;
+        font-weight: normal;
+        letter-spacing: 1px;
       }
     }
   }
@@ -654,6 +725,7 @@ body > .container > footer {
 
   .question {
     margin: 15px;
+    margin-top: 0;
 
     .headline {
       margin: 0;
@@ -692,9 +764,12 @@ body > .container > footer {
   .idea-actions {
     font-size: 12px;
     display: inline-block;
-
+    float: right;
+    padding-top: 5px;
+    
     a {
-
+      font-weight: bold;
+      font-size: 13px;
       margin: 0 3px 1px;
       border-bottom: 1px solid @brand-primary;
     }
@@ -730,12 +805,16 @@ body > .container > footer {
 
       a {
         display: inline-block;
-        padding: 4px 7px 2px @socialIconWidth;
+        padding: 4px 7px 2px (@socialIconWidth - 2px);
         border-bottom: none;
         text-decoration: none;
         border: none;
-        vertical-align: middle;
-        font-size: 16px;
+        vertical-align: top;
+        font-size: 13px;
+        font-weight: bold;
+      }
+      a.reddit {
+        padding-left: @socialIconWidth + 2px;
       }
       a:hover {
         // color: @link-color;
@@ -836,13 +915,14 @@ body > .container > footer {
   h2 {
     border-bottom: none;
     line-height: 28px;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     text-align: center;
     color: white;
     text-transform: uppercase;
-    font-size: 1.5em;
+    font-size: 1.6em;
+    font-weight: normal;
     margin-top: -16px;
-    font-family: Knockout;
+    font-family: Knockout-light;
   }
 
   &.has-errors {
@@ -875,8 +955,8 @@ body > .container > footer {
     }
 
     label {
-      font-family: Knockout;
       color: white;
+      font-size: 13px;
     }
 
     input, textarea, .bootstrap-select {
@@ -891,7 +971,7 @@ body > .container > footer {
     height: 30px;
 
     .submitquestionbutton {
-      font-family: Knockout;
+      font-family: Knockout-light;
       background-color: @brand-secondary;
       color: white;
       font-size: 30px;
@@ -899,11 +979,35 @@ body > .container > footer {
       top: -25px;
       width: 87%;
       height: 50px;
+      padding-top: 17px;
     }
   }
 }
 
+#sidebar_question_btn {
+  a.btn {
+    border-radius: 0;
+    height: 28px * 2;
+    font-family: Knockout-light;
+    font-size: 28px;
+    text-transform: uppercase;
+  }
+}
+
 // question detail page
+.breadcrumbs {
+  height: 75px;
+  line-height: 75px;
+  font-size: 14px;
+  border-bottom: 1px solid #ccc;
+  padding: 0 5px;
+  margin-bottom: 10px !important;
+
+  a {
+    margin: 0 10px !important;
+  }
+}
+
 .question-detail {
   display: flex;
   flex-direction: row;
@@ -919,11 +1023,24 @@ body > .container > footer {
         display: none;
       }
     }
+    .idea-actions {
+      float: none;
+    }
+
+    .idea-duplicates {
+      float: none;
+    }
   }
 
   .social-side-bar {
     width: (140px * 2) + 20px;
 
+    h4 {
+      font-family: Knockout-light;
+      text-transform: uppercase;
+      font-size: 32px;
+    }
+    
     .social-links {
       display: flex;
       flex-direction: row;
@@ -968,7 +1085,25 @@ body > .container > footer {
   }
 }
 
+.question-detail .idea-related .big-idea {
+  .social-links {
+    display: inline-block;
+  }
+}
+
 /* TODO: Review original Stylesheet below */
+
+body .flatpage {
+  margin-top: 25px;
+  min-height: 600px;
+}
+
+.recent-activity-container {
+  margin-top: 25px;
+  h4 {
+    font-weight: bold;
+  }
+}
 
 .recent-activity-entry {
   margin-bottom: 2px;
@@ -1018,7 +1153,8 @@ body {
   .active-category-nav a {
     border-bottom-width: 1px;
     border-bottom-style: solid;
-    padding-bottom: 5px;
+    padding-bottom: 0;
+    margin-bottom: -2px;
   }
 }
 
@@ -1029,6 +1165,10 @@ body {
   vertical-align: middle;
   float: none;
   max-width: 10%;
+}
+
+.btn {
+  border-radius: 0;
 }
 
 .btn-primary.active {
@@ -1072,7 +1212,7 @@ textarea#search {
   background: #00263e;  //button-color;
   border: none;
   border-radius: 0;
-  font-weight: 600;
+  font-weight: normal;
   font-size: 22px;
   line-height: 18px;
   padding: 30px 50px;
@@ -1097,7 +1237,7 @@ textarea#search {
 
   .g-recaptcha {
     width: 164px;
-    text-align: center;
+    margin: 0 auto;
   }
 }
 

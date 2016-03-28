@@ -43,7 +43,7 @@
             </g>
           </svg>
 
-          <span>{% blocktrans %}Merged Idea{% endblocktrans %}</span>
+          <span>{% blocktrans %}Merged{% endblocktrans %}</span>
         </div>
         <div class="idea-duplicates-spacing"></div>
         {% endif %}
@@ -66,7 +66,7 @@
     <div class="idea-info">
       {% blocktrans with user_display_name=idea.user_display_name %}Submitted by: <strong>{{ user_display_name }}</strong>{% endblocktrans %}<br />
       {{ idea.created_at }}<br />
-      {% trans "Issue area" %}: <strong>{{ idea.category.name }}</strong>
+      {% trans "Issue area" %}: <a href="{% url 'list_category' idea.category.id %}"><strong>{{ idea.category.name }}</strong></a>
     </div>
     {% include "opendebates/snippets/social-links.html" %}
     {% if not idea.duplicate_of %}

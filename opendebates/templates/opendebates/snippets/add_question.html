@@ -5,12 +5,12 @@
 <div>
   <div id="sidebar_question_btn" {% if form.errors %}class="hidden"{% endif %}>
     <a href="{% url 'questions' %}" class="btn btn-block btn-primary active" type="button">
-      {% blocktrans %}Submit a New Question{% endblocktrans %}
+      {% blocktrans %}Submit a Question{% endblocktrans %}
     </a>
   </div>
   <div id="add_question" class="{% if form.errors %} has-errors{% endif %}">
     <img src="{% static "images/add-question-header.png" %}" />
-    <h2>{% blocktrans %}Submit a new Question{% endblocktrans %}</h2>
+    <h2>{% blocktrans %}Submit a Question{% endblocktrans %}</h2>
 
     <form action="{% url 'questions' %}" method="POST" class="form-inline">
       {% csrf_token %}
