@@ -137,7 +137,7 @@ body > .container {
   &.container-wide {
     max-width: 1200px;
   }
-  
+
   > header {
     .responsive({
       background-image: url(/static/images/header-bg.png);
@@ -389,7 +389,7 @@ body > .container > footer {
   img {
     max-width: 100%;
   }
-    
+
   hr {
     flex-basis: 100%;
     border-width: 10px;
@@ -403,7 +403,7 @@ body > .container > footer {
     }, {
       padding-left: 30px;
     });
-    
+
     a {
       .responsive({
         padding-right: 1em;
@@ -449,7 +449,7 @@ body > .container > footer {
     border: none;
     vertical-align: middle;
     position: relative;
-    
+
     &#ft-reddit {
       padding-top: 8px;
       padding-left: @socialIconWidth + 2px;
@@ -462,7 +462,7 @@ body > .container > footer {
     &#ft-twitter {
       color: #50ABF1;
     }
-    
+
     &::before {
       top: 5px !important;
     }
@@ -706,7 +706,7 @@ body > .container > footer {
       &:hover {
         background: fadeout(@brand-tertiary, 30%);
       }
-      
+
       a {
         font-weight: 600;
         text-decoration: none;
@@ -756,7 +756,7 @@ body > .container > footer {
     &:hover {
       color: fadeout(@brand-primary, 50%);
     }
-    
+
     span {
       font-size: 10px;
       font-weight: 500;
@@ -773,7 +773,7 @@ body > .container > footer {
     > p {
       margin-bottom: 10px;
     }
-    
+
     .headline {
       margin: 0;
       line-height: 114%;
@@ -810,7 +810,12 @@ body > .container > footer {
     display: inline-block;
     float: right;
     padding-top: 5px;
-    
+
+    .not-full({
+      order: 7;
+      padding: 0px 12px;
+    });
+
     a {
       font-weight: bold;
       font-size: 13px;
@@ -846,7 +851,7 @@ body > .container > footer {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
-      }      
+      }
     });
     (.big-idea).already-voted & {
       display: none;
@@ -856,7 +861,7 @@ body > .container > footer {
       padding: 10px 0;
       margin: 0 1px;
     }
-    
+
     > * {
       position: relative;
 
@@ -878,7 +883,7 @@ body > .container > footer {
           padding-top: 1px;
           display: inline-block;
         }
-              
+
       }
       a.reddit {
 
@@ -1088,7 +1093,7 @@ body > .container > footer {
       text-transform: uppercase;
       font-size: 32px;
     }
-    
+
     .social-links {
       display: flex;
       flex-direction: row;
@@ -1104,7 +1109,7 @@ body > .container > footer {
         margin-bottom: 20px;
         text-align: center;
         padding-top: 15px;
-        
+
         a {
           width: 100%;
           height: 100%;
@@ -1116,7 +1121,7 @@ body > .container > footer {
             font-weight: bold;
             vertical-align: middle;
           }
-          
+
           &:hover,&:active,&:visited,&:focus {
             color: white;
           }
