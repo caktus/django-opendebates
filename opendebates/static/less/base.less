@@ -1209,8 +1209,6 @@ body {
 }
 
 .category-only {
-  padding-bottom: 15px;
-
   a {
     text-transform: uppercase;
     font-size: 11px;
@@ -1230,12 +1228,21 @@ body {
 }
 
 .category-only .vcenter {
-  padding: 0 10px;
+  margin-top: 15px;
+  padding: 0 5px;
   display: inline-block;
   text-align: center;
-  vertical-align: middle;
+  vertical-align: top;
   float: none;
-  max-width: 10%;
+  max-width: (100% / 11%);
+  a {
+    color: fadeout(@brand-primary, 20%);
+
+    &:hover {
+      color: fadeout(@brand-primary, 50%);
+    }
+  }
+  
 }
 
 .btn {
