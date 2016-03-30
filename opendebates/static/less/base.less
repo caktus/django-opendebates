@@ -21,7 +21,9 @@
 
 @responsive-small-max: 799px;
 @responsive-shim-min: 800px;
-@responsive-shim-max: 1000px;
+@responsive-shim-max: 1200px;
+@responsive-shim-step-count: 30;
+@responsive-shim-step: (@responsive-shim-max - @responsive-shim-min) / @responsive-shim-step-count;
 .responsive(@defaults, @small, @full) {
   @defaults();
 
@@ -54,6 +56,27 @@
   @media (max-width: @responsive-shim-max) {
     @rules();
   }
+}
+
+.shim-interpolate-value(@property, @start-value, @end-value) {
+  @steps-remaining: (@responsive-shim-max - @responsive-shim-step-max) / @responsive-shim-step;
+  @steps-so-far: (@responsive-shim-step-min - @responsive-shim-min) / @responsive-shim-step;
+  @ratio: @steps-so-far / (@steps-so-far + @steps-remaining);
+
+  @{property}: @start-value + (@end-value - @start-value) * @ratio;
+}
+
+.header-shim-step(@responsive-shim-step-min, @responsive-shim-step-max, @property, @start-value, @end-value) when (@responsive-shim-step-min >= @responsive-shim-min) {
+  @media (min-width: @responsive-shim-step-min) and (max-width: @responsive-shim-step-max) {
+    .shim-interpolate-value(@property, @start-value, @end-value);
+  }
+  .header-shim-step((@responsive-shim-step-min - @responsive-shim-step), (@responsive-shim-step-max - @responsive-shim-step), @property, @start-value, @end-value);
+}
+
+// Use this to define a range of values for a property which will be interpolated between the
+// 'small' and 'full' page widths.
+.shim-interpolate(@property, @start-value, @end-value) {
+  .header-shim-step(@responsive-shim-max - @responsive-shim-step, @responsive-shim-max, @property, @start-value, @end-value);
 }
 
 // Fonts
@@ -158,13 +181,10 @@ body > .container {
     @header-right-padding: 10px;
 
     .header-lower(@bottom-extra: 0px) {
-      position: absolute;
-      bottom: 20px + @bottom-extra;
-
-      .not-full({
+      @media (max-width: 1020px) {
         position: relative;
         bottom: auto;
-      });
+      };
     }
 
     .header-logos, .header-title {
@@ -212,10 +232,10 @@ body > .container {
           right: 0;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: @responsive-shim-min) {
           display: none;
         }
-        @media (max-width: 1000px) {
+        @media (max-width: @responsive-shim-max) {
           margin: auto 0;
         }
       }
@@ -260,20 +280,21 @@ body > .container {
         }
       }
 
-      @media (min-width: 800px) and (max-width: 1000px) {
-        max-width: 800px - @header-logo-width;
-        h1 {
-          font-size: 60px;
-          letter-spacing: 3px;
-        }
+      .shim-interpolate(max-width,
+        @responsive-shim-min - @header-logo-width - @responsive-shim-step - 1px,
+        @responsive-shim-max - @header-logo-width - @responsive-shim-step - 1px);
+
+      h1 {
+        .shim-interpolate(font-size, 55px, 85px);
+        .shim-interpolate(letter-spacing, 2px, 8px);
       }
 
       .header-copy {
         text-transform: none;
         font-family: Helvetica;
         font-weight: 100;
-        font-size: 18px;
-        line-height: 24px;
+        .shim-interpolate(font-size, 13px, 18px);
+        .shim-interpolate(line-height, 18px, 24px);
         letter-spacing: 0.5px;
       }
 
@@ -291,6 +312,11 @@ body > .container {
         }
       }
 
+      .header-bottom {
+        position: absolute;
+        bottom: 10px;
+        width: 100%;
+      }
       .header-votes, .header-count-down {
         display: inline-block;
         font-size: 26px;
@@ -334,8 +360,9 @@ body > .container {
       }
 
       .header-count-down {
-        right: @header-side-padding;
-        .not-full({right: 0});
+        margin-right: @header-side-padding;
+        margin-left: 10px;
+        float: right;
 
         .number {
           color: @brand-secondary;
