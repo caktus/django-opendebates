@@ -225,13 +225,6 @@ body > .container {
         .header-lower(@bottom-extra: 5px);
         position: inherit;
 
-        &:nth-child(2) {
-          left: 0;
-        }
-        &:nth-child(3) {
-          right: 0;
-        }
-
         @media (max-width: @responsive-shim-min) {
           display: none;
         }
@@ -308,14 +301,24 @@ body > .container {
             width: 45%;
             margin: 10px 2%;
             height: auto;
+
+            &:nth-child(1) {
+              max-width: 150px;
+            }
+            &:nth-child(2) {
+              max-width: 125px;
+              float: right;
+            }
           })
         }
       }
 
       .header-bottom {
-        position: absolute;
-        bottom: 10px;
-        width: 100%;
+        .full({
+          position: absolute;
+          bottom: 10px;
+          width: 100%;
+        });
       }
       .header-votes, .header-count-down {
         display: inline-block;
