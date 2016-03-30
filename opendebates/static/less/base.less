@@ -59,14 +59,14 @@
 }
 
 .shim-interpolate-value(@property, @start-value, @end-value) {
-  @steps-remaining: (@responsive-shim-max - @responsive-shim-step-max) / @responsive-shim-step;
-  @steps-so-far: (@responsive-shim-step-min - @responsive-shim-min) / @responsive-shim-step;
+  @steps-remaining: (@interpolation-max - @responsive-shim-step-max) / @responsive-shim-step;
+  @steps-so-far: (@responsive-shim-step-min - @interpolation-min) / @responsive-shim-step;
   @ratio: @steps-so-far / (@steps-so-far + @steps-remaining);
 
   @{property}: @start-value + (@end-value - @start-value) * @ratio;
 }
 
-.header-shim-step(@responsive-shim-step-min, @responsive-shim-step-max, @property, @start-value, @end-value) when (@responsive-shim-step-min >= @responsive-shim-min) {
+.header-shim-step(@responsive-shim-step-min, @responsive-shim-step-max, @property, @start-value, @end-value) when (@responsive-shim-step-min >= @interpolation-min) {
   @media (min-width: @responsive-shim-step-min) and (max-width: @responsive-shim-step-max) {
     .shim-interpolate-value(@property, @start-value, @end-value);
   }
@@ -75,8 +75,8 @@
 
 // Use this to define a range of values for a property which will be interpolated between the
 // 'small' and 'full' page widths.
-.shim-interpolate(@property, @start-value, @end-value) {
-  .header-shim-step(@responsive-shim-max - @responsive-shim-step, @responsive-shim-max, @property, @start-value, @end-value);
+.shim-interpolate(@property, @start-value, @end-value, @interpolation-min: @responsive-shim-min, @interpolation-max: @responsive-shim-max) {
+  .header-shim-step(@interpolation-max - @responsive-shim-step, @interpolation-max, @property, @start-value, @end-value);
 }
 
 // Fonts
@@ -297,16 +297,24 @@ body > .container {
           display: none;
         });
         img {
+          .shim-interpolate(margin-left, 2%, 20%, 300px, 800px);
+          .shim-interpolate(margin-right, 2%, 20%, 300px, 800px);
+
           .not-full({
             width: 45%;
-            margin: 10px 2%;
+            margin-top: auto;
+            margin-bottom: auto;
             height: auto;
 
             &:nth-child(1) {
               max-width: 150px;
+              margin-top: 20px;
+              margin-bottom: 10px;
             }
             &:nth-child(2) {
               max-width: 125px;
+              margin-top: 10px;
+              margin-bottom: 10px;
               float: right;
             }
           })
