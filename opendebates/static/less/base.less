@@ -297,8 +297,12 @@ body > .container {
           display: none;
         });
         img {
-          .shim-interpolate(margin-left, 2%, 20%, 300px, 800px);
-          .shim-interpolate(margin-right, 2%, 20%, 300px, 800px);
+          &:nth-child(1) {
+            .shim-interpolate(margin-left, 2%, 20%, 300px, 800px);
+          }
+          &:nth-child(2) {
+            .shim-interpolate(margin-right, 2%, 20%, 300px, 800px);
+          }
 
           .not-full({
             width: 45%;
