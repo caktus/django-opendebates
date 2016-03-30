@@ -207,6 +207,7 @@ class VoteTest(TestCase):
 
     def test_vote_user_bad_captcha(self):
         # If captcha doesn't pass, no vote
+        self.client.logout()
         data = {
             'email': self.voter.email,
             'zipcode': self.voter.zip,
