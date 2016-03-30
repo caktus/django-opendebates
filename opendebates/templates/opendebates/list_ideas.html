@@ -91,6 +91,8 @@
     
   {% show_current_number as page_number %}
   {% cache 30 idea_list search_term category.id sort page_number %}
+
+  <hr class="visible-xs" />
   <div class="row idea-list">
     {% lazy_paginate 25 ideas %}
 
