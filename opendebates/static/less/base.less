@@ -1085,8 +1085,12 @@ body > .container > footer {
     }
   }
 
+  .big-idea {
+    border-bottom: none;
+  }
+
   .social-side-bar {
-    width: (140px * 2) + 20px;
+    min-width: (140px * 2) + 20px;
 
     h4 {
       font-family: Knockout-light;
@@ -1142,6 +1146,7 @@ body > .container > footer {
     }
   }
   .idea-related {
+    border-top: 1px solid #ccc;
     flex-grow: 1;
     width: 100%;
   }
@@ -1154,6 +1159,11 @@ body > .container > footer {
 }
 
 /* TODO: Review original Stylesheet below */
+.show-duplicates a {
+  text-decoration: underline;
+  font-size: 13px;
+  font-weight: bold;
+}
 
 body .flatpage {
   margin-top: 25px;

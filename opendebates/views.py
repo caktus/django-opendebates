@@ -174,7 +174,7 @@ def vote(request, id):
         related2 = two_other_approved_ideas[1]
         return {
             'idea': idea,
-            'show_duplicates': False,
+            'show_duplicates': True,
             'related1': related1,
             'related2': related2,
             'duplicates': (Submission.objects.filter(approved=True, duplicate_of=idea)

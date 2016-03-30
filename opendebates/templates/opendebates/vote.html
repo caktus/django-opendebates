@@ -14,10 +14,12 @@
   <a href="">{{ idea.idea }}</a>
 </div>
 <div class="row question-detail">
-  {% include "opendebates/snippets/idea.html" %}
+  <div class="col-sm-8">
+    {% include "opendebates/snippets/idea.html" %}
+  </div>
 
-  <div class="social-side-bar">
-    <h4>Share This Idea!</h4>
+  <div class="col-sm-4 social-side-bar">
+    <h2>Share This Idea!</h2>
 
     {% include "opendebates/snippets/social-links.html" %}
   </div>
