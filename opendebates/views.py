@@ -216,20 +216,6 @@ def vote(request, id):
         )
     )
 
-    if request.user.is_anonymous() and voter.user:
-        # anonymous user can't use the email of a registered user
-        msg = 'That email is registered. Please login and try again.'
-        if request.is_ajax():
-            return HttpResponse(
-                json.dumps({"status": "400", "errors": {'email': [msg]}}),
-                content_type="application/json")
-        messages.error(request, _(msg))
-        return {
-            'form': form,
-            'idea': idea,
-            # 'comment_form': CommentForm(idea),
-        }
-
     if not created and voter.zip != form.cleaned_data['zipcode']:
         voter.zip = form.cleaned_data['zipcode']
         voter.state = state
