@@ -153,8 +153,9 @@ body > .container {
       height: 370px;
     });
 
-    @header-logo-width: 250px;
+    @header-logo-width: 325px;
     @header-top-padding: 25px;
+    @header-right-padding: 10px;
 
     .header-lower(@bottom-extra: 0px) {
       position: absolute;
@@ -188,7 +189,7 @@ body > .container {
         max-width: 250px;
         max-height: 250px;
         height: auto;
-        margin-bottom: 10px;
+        margin-bottom: 34px;
         margin-top: @header-top-padding;
         flex-basis: 100%;
 
@@ -223,9 +224,9 @@ body > .container {
     .header-title {
       .responsive({
         text-transform: uppercase;
-        max-width: 1000px - @header-logo-width;
+        max-width: 1200px - @header-logo-width - @header-right-padding;
         display: inline-block;
-        padding-right: 10px;
+        padding-right: @header-right-padding;
         color: white;
         vertical-align: top;
         font-size: 16px;
@@ -240,8 +241,8 @@ body > .container {
         margin: 0;
         margin-top: @header-top-padding;
         .responsive({
-          letter-spacing: 6px;
-          font-size: 75px;
+          letter-spacing: 8px;
+          font-size: 90px;
         }, {
           letter-spacing: 4px;
           font-size: 50px;
@@ -271,6 +272,9 @@ body > .container {
         text-transform: none;
         font-family: Helvetica;
         font-weight: 100;
+        font-size: 18px;
+        line-height: 24px;
+        letter-spacing: 0.5px;
       }
 
       .header-small-logos {
@@ -291,6 +295,7 @@ body > .container {
         display: inline-block;
         font-size: 26px;
         letter-spacing: 1px;
+        font-family: Knockout-light;
         .header-lower();
 
         .small({
