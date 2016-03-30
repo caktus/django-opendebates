@@ -11,12 +11,16 @@ def vote_needs_captcha(request):
     if not settings.USE_CAPTCHA:
         return False
     if not hasattr(request, 'vote_needs_captcha'):
-        voter = get_voter(request)
-        if voter:
-            # A user's first vote requires a captcha
-            need = not Vote.objects.filter(voter__email=voter['email']).exists()
+        if request.user.is_authenticated():
+            # A logged-in user has already filled out the captcha on registration
+            need = False
         else:
-            need = True
+            voter = get_voter(request)
+            if voter:
+                # A user's first vote requires a captcha
+                need = not Vote.objects.filter(voter__email=voter['email']).exists()
+            else:
+                need = True
         request.vote_needs_captcha = need
     return request.vote_needs_captcha
 
