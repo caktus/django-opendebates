@@ -195,7 +195,7 @@ body > .container {
       };
     }
 
-    .header-logos, .header-title {
+    .header-logos, . {
       display: inline-block;
     }
 
@@ -282,8 +282,8 @@ body > .container {
       }
 
       .shim-interpolate(max-width,
-        @responsive-shim-min - @header-logo-width - @responsive-shim-step - @header-right-padding,
-        @responsive-shim-max - @header-logo-width - @responsive-shim-step - @header-right-padding);
+        @responsive-shim-min - @header-logo-width - @responsive-shim-step - @header-right-padding - 1px,
+        @responsive-shim-max - @header-logo-width - @responsive-shim-step - @header-right-padding - 1px);
 
       h1 {
         .shim-interpolate(font-size, 55px, 85px);
