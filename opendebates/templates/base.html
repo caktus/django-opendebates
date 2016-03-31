@@ -13,7 +13,7 @@
   <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,300,600,400|Open+Sans+Condensed:700"
         rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-  
+
 </head>
 <body>
 
@@ -47,14 +47,16 @@
         <img src="{% static "images/logo-progressive-change-institute.png" %}">
         <img src="{% static "images/logo-cnn.png" %}">
       </div>
-      <div class="header-votes">
-        <span class="number">{{ NUMBER_OF_VOTES|stringformat:"07d" }}</span>{% blocktrans %}total votes{% endblocktrans %}
-      </div>
-      <div class="header-count-down">
-        <span class="number days">30</span> {% blocktrans %}days{% endblocktrans %}
-        <span class="number hours">12</span> {% blocktrans %}hrs{% endblocktrans %}
-        <span class="number minutes">5</span> {% blocktrans %}mins{% endblocktrans %}
-        until the forum
+      <div class="header-bottom">
+        <div class="header-votes">
+          <span class="number">{{ NUMBER_OF_VOTES|stringformat:"07d" }}</span>{% blocktrans %}total votes{% endblocktrans %}
+        </div>
+        <div class="header-count-down">
+          <span class="number days">30</span> {% blocktrans %}days{% endblocktrans %}
+          <span class="number hours">12</span> {% blocktrans %}hrs{% endblocktrans %}
+          <span class="number minutes">5</span> {% blocktrans %}mins{% endblocktrans %}
+          until the forum
+        </div>
       </div>
     </div>
   </header>
