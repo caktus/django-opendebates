@@ -19,6 +19,7 @@
 
 // Responsive Setup
 
+@scroll-bar-width-max: 20px;
 @responsive-small-max: 799px;
 @responsive-shim-min: 800px;
 @responsive-shim-max: 1200px;
@@ -63,15 +64,7 @@
   @steps-so-far: (@responsive-shim-step-min - @interpolation-min) / @responsive-shim-step;
   @ratio: @steps-so-far / (@steps-so-far + @steps-remaining);
 
-  .floor-pixels(@unfloored) {
-    @value: @unfloored;
-  }
-  .floor-pixels(@unfloored) when (ispixel(@unfloored)) {
-    @value: floor(@unfloored);
-  }
-  .floor-pixels(@start-value + (@end-value - @start-value) * @ratio);
-
-  @{property}: @value;
+  @{property}: @start-value + (@end-value - @start-value) * @ratio;
 }
 
 .header-shim-step(@responsive-shim-step-min, @responsive-shim-step-max, @property, @start-value, @end-value) when (@responsive-shim-step-min >= @interpolation-min) {
@@ -282,8 +275,8 @@ body > .container {
       }
 
       .shim-interpolate(max-width,
-        @responsive-shim-min - @header-logo-width - @responsive-shim-step - @header-right-padding - 1px,
-        @responsive-shim-max - @header-logo-width - @responsive-shim-step - @header-right-padding - 1px);
+        @responsive-shim-min - @header-logo-width - @responsive-shim-step - @header-right-padding - @scroll-bar-width-max,
+        @responsive-shim-max - @header-logo-width - @responsive-shim-step - @header-right-padding - @scroll-bar-width-max);
 
       h1 {
         .shim-interpolate(font-size, 55px, 85px);
