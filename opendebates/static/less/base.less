@@ -63,7 +63,15 @@
   @steps-so-far: (@responsive-shim-step-min - @interpolation-min) / @responsive-shim-step;
   @ratio: @steps-so-far / (@steps-so-far + @steps-remaining);
 
-  @{property}: @start-value + (@end-value - @start-value) * @ratio;
+  .round-pixels(@unrounded) {
+    @value: @unrounded;
+  }
+  .round-pixels(@unrounded) when (ispixel(@unrounded)) {
+    @value: round(@unrounded);
+  }
+  .round-pixels(@start-value + (@end-value - @start-value) * @ratio);
+
+  @{property}: @value;
 }
 
 .header-shim-step(@responsive-shim-step-min, @responsive-shim-step-max, @property, @start-value, @end-value) when (@responsive-shim-step-min >= @interpolation-min) {
