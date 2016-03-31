@@ -12,8 +12,9 @@
         {{ form|bootstrap }}
         <input class="btn btn-primary" type="submit" value="{% blocktrans %}Log in{% endblocktrans %}" />
         <input type="hidden" name="next" value="{{ next }}" />
-        <div>
-          <a href="{% url 'password_reset' %}">{% trans "I forgot my password" %}</a>
+        <br><br>
+        <div class="small">
+          <b><a href="{% url 'password_reset' %}">{% trans "I forgot my password" %}</a></b>
         </div>
       </form>
 
