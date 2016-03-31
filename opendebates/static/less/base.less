@@ -274,8 +274,8 @@ body > .container {
       }
 
       .shim-interpolate(max-width,
-        @responsive-shim-min - @header-logo-width - @responsive-shim-step - 1px,
-        @responsive-shim-max - @header-logo-width - @responsive-shim-step - 1px);
+        @responsive-shim-min - @header-logo-width - @responsive-shim-step - @header-right-padding,
+        @responsive-shim-max - @header-logo-width - @responsive-shim-step - @header-right-padding);
 
       h1 {
         .shim-interpolate(font-size, 55px, 85px);
