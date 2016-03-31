@@ -63,13 +63,13 @@
   @steps-so-far: (@responsive-shim-step-min - @interpolation-min) / @responsive-shim-step;
   @ratio: @steps-so-far / (@steps-so-far + @steps-remaining);
 
-  .round-pixels(@unrounded) {
-    @value: @unrounded;
+  .floor-pixels(@unfloored) {
+    @value: @unfloored;
   }
-  .round-pixels(@unrounded) when (ispixel(@unrounded)) {
-    @value: round(@unrounded);
+  .floor-pixels(@unfloored) when (ispixel(@unfloored)) {
+    @value: floor(@unfloored);
   }
-  .round-pixels(@start-value + (@end-value - @start-value) * @ratio);
+  .floor-pixels(@start-value + (@end-value - @start-value) * @ratio);
 
   @{property}: @value;
 }
