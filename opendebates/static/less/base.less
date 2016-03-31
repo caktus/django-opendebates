@@ -1247,30 +1247,43 @@ body {
   background-color: darken(@brand-primary, 3%);
 }
 
-.modal-header {
-  border-bottom: none;
-}
+.modal-dialog {
+  @dialog-top-margin: 60px;
 
-.modal-header .close {
-  display: block;
-  color: #006ea9;
-  font-weight: bold;
-  padding: 0 5px;
-  font-size: 12px;
-  line-height: 18px;
-  position: absolute;
-  right: 5px;
-  top: 9px;
-  background-color: white; //@button-color;
-  opacity: 1;
-  text-shadow: none;
-}
+  margin-top: @dialog-top-margin;
 
-.modal-content input[type="text"], #add_question input, #add_question textarea {
-  // background: @row-bg;
-  padding: 6px 10px;
-  font-size: 16px;
-  margin: 10px 2px;
+  .modal-header {
+    border-bottom: none;
+
+    .close {
+      display: block;
+      color: #006ea9;
+      font-weight: bold;
+      padding: 0 5px;
+      font-size: 12px;
+      line-height: 18px;
+      position: absolute;
+      right: 5px;
+      top: 9px;
+      background-color: white; //@button-color;
+      opacity: 1;
+      text-shadow: none;
+    }
+  }
+
+  .mic_icon {
+    margin-top: 0px - @dialog-top-margin;
+  }
+
+  .modal-content {
+    border-radius: 0px;
+  }
+  .modal-content input[type="text"], #add_question input, #add_question textarea {
+    // background: @row-bg;
+    padding: 6px 10px;
+    font-size: 16px;
+    margin: 10px 2px;
+  }
 }
 
 textarea#search {
