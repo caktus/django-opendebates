@@ -164,7 +164,6 @@ class VoteTest(TestCase):
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
-        json_rsp = json.loads(rsp.content)
         # votes is incremented
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes + 1, refetched_sub.votes)
