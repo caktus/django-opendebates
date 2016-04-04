@@ -108,6 +108,9 @@ CACHES = {
     },
 }
 
+# https://cache-machine.readthedocs.org/en/latest/index.html#object-creation:
+CACHE_INVALIDATE_ON_CREATE = 'whole-model'
+
 # Task queue settings
 
 # see https://github.com/ask/celery/issues/436

@@ -267,6 +267,7 @@
       log_checkpoints: 'on'
       log_lock_waits: 'on'
       log_temp_files: '0'
+      log_destination: 'syslog'
 
       # write optimizations
       commit_delay: '4000' # delay each commit this many microseconds in case we can do a group commit
@@ -280,6 +281,7 @@
     postgresql_packages:
       - postgresql
       - libpq-dev
+      - postgresql-contrib
     # Whether and how to apply pgtune
     postgresql_tune: true
     postgresql_tune_type: Web
