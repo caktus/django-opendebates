@@ -54,14 +54,14 @@
   };
   
   ODebates.helpers.track = function(action, dimensions) {
-    if (typeof mixpanel === 'undefined') {
+    if (typeof window.mixpanel === 'undefined') {
       return;
     }
     if (typeof dimensions === 'undefined') {
       dimensions = {};
     }
     var merged = $.extend({}, dimensions, ODebates.trackingDimensions || {});
-    mixpanel.track(action, merged);
+    window.mixpanel.track(action, merged);
   };
   
   ODebates.helpers.castVote = function(voterData, voteUrl, callback) {
@@ -193,6 +193,7 @@
       $('html, body').animate({
         scrollTop: $(window.location.hash).offset().top
       }, 500);
+    }
 
     if (ODebates.voter) {
       if (ODebates.voter.has_account) {
