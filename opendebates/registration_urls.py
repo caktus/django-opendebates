@@ -64,6 +64,10 @@ urlpatterns = patterns('',
                        url(r'^password/reset/confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
                            auth_views.password_reset_confirm,
                            name='password_reset_confirm'),
+                       url(r'^logout/$',
+                           auth_views.logout,
+                           {'template_name': 'registration/logout.html',
+                            'next_page': "list_ideas"}),
 
                        (r'', include('registration.auth_urls')),
                        )

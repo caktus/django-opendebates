@@ -570,6 +570,7 @@ body > .container > footer {
 
 /* Categories */
 #category-select-picker-ctn {
+  .small({font-size: 14px;});    
   .responsive({
     display: none;
     margin: 10px;
@@ -733,8 +734,8 @@ body > .container > footer {
       // font-family: @font-family-2-narrow;
       display: block;
       font-weight: bold;
-      font-size: 70px;
-      line-height: 68px;
+      font-size: 60px;
+      line-height: 50px;
       font-family: Knockout;
     }
 
@@ -812,7 +813,7 @@ body > .container > footer {
     }
   }
   .idea-duplicates-spacing {
-    height: 5px;
+    height: 1px;
   }
 
   .question {
@@ -857,7 +858,7 @@ body > .container > footer {
     font-size: 12px;
     display: inline-block;
     float: right;
-    padding-top: 5px;
+    padding-top: 10px;
 
     .not-full({
       order: 7;
@@ -1103,6 +1104,7 @@ body > .container > footer {
   border-bottom: 1px solid #ccc;
   padding: 0 5px;
   margin-bottom: 10px !important;
+  overflow-y: hidden;
 
   a {
     margin: 0 10px !important;
@@ -1207,6 +1209,11 @@ body > .container > footer {
 }
 
 /* TODO: Review original Stylesheet below */
+
+.big-idea:not(.already-voted) .social-links {
+  .hidden-xs;
+}
+
 .show-duplicates a {
   text-decoration: underline;
   font-size: 13px;
@@ -1251,9 +1258,9 @@ body .flatpage {
 }
 
 .recent-activity-entry {
-  margin-bottom: 2px;
-  border-bottom: 1px dotted #ddd;
-  padding-bottom: 2px;
+  line-height: 16px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
   font-size: 12px;
 
   .recent-activity-entry-who,
@@ -1262,7 +1269,6 @@ body .flatpage {
   }
   .recent-activity-entry-what {
     font-weight: 700;
-    margin-left: 5px;
   }
 }
 
@@ -1283,8 +1289,6 @@ body {
 }
 
 .category-only {
-  padding-bottom: 15px;
-
   a {
     text-transform: uppercase;
     font-size: 11px;
@@ -1304,12 +1308,21 @@ body {
 }
 
 .category-only .vcenter {
-  padding: 0 10px;
+  margin-top: 15px;
+  padding: 0 5px;
   display: inline-block;
   text-align: center;
-  vertical-align: middle;
+  vertical-align: top;
   float: none;
-  max-width: 10%;
+  max-width: (100% / 11%);
+  a {
+    color: fadeout(@brand-primary, 20%);
+
+    &:hover {
+      color: fadeout(@brand-primary, 50%);
+    }
+  }
+  
 }
 
 .btn {
