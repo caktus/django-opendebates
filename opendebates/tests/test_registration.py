@@ -128,6 +128,7 @@ class LoginLogoutTest(TestCase):
     def test_logout(self):
         self.assertTrue(self.client.login(username=self.username, password=self.password))
         logout_url = reverse('auth_logout')
-        with self.assertTemplateUsed('registration/logout.html'):
-            rsp = self.client.get(logout_url)
-        self.assertIn('Log in', rsp.content)
+        rsp = self.client.get(logout_url)
+        self.assertRedirects(rsp, self.home_url)
+        rsp = self.client.get(self.home_url)
+        self.assertIn('Log in', rsp.content)        
