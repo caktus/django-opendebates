@@ -153,8 +153,8 @@ class VoteTest(TestCase):
         self.assertEqual(self.votes + 0, json_rsp['tally'])
         self.assertEqual(self.votes + 0, refetched_sub.votes)
 
-    def test_anon_cant_use_other_users_account(self):
-        "Unauthenticated cannot use an authenticated user's account."
+    def test_anon_can_use_other_users_account(self):
+        "Unauthenticated can use an authenticated user's account."
         self.client.logout()
         data = {
             'email': self.user.email,
@@ -164,11 +164,9 @@ class VoteTest(TestCase):
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
-        json_rsp = json.loads(rsp.content)
-        # votes is not incremented
+        # votes is incremented
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
-        self.assertEqual(self.votes + 0, refetched_sub.votes)
-        self.assertIn('That email is registered', json_rsp['errors']['email'][0])
+        self.assertEqual(self.votes + 1, refetched_sub.votes)
 
     def test_vote_user(self):
         "Authenticated user can vote."
@@ -207,6 +205,7 @@ class VoteTest(TestCase):
 
     def test_vote_user_bad_captcha(self):
         # If captcha doesn't pass, no vote
+        self.client.logout()
         data = {
             'email': self.voter.email,
             'zipcode': self.voter.zip,
