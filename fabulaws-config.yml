@@ -1,3 +1,8 @@
+  # "testing": demopenquestions
+  # "florida" floridaopendebate
+  # "production": UNUSED
+  # "staging": UNUSED
+
   instance_settings:
     # http://uec-images.ubuntu.com/releases/trusty/release/
     ami: ami-35d6f95f # us-east-1 14.04.3 LTS 64-bit hvm-ssd
@@ -47,9 +52,9 @@
   branches:
     opendebates:
       production: master
+      florida: develop
       staging: develop
       testing: develop
-      dan: develop
 
 ## SERVER SETTINGS ##
 
@@ -63,7 +68,8 @@
     staging: 8000
     production: 8001
     testing: 8002
-    dan: 8003
+    florida: 8003
+
 
 # Whether we're hosting static files on our webservers ('local')
 # or somewhere else ('remote')
@@ -83,16 +89,17 @@
 # Wildcard format used per ALLOWED_HOSTS setting
   site_domains_map:
     production:
-    - demopenquestions.com
-    - www.demopenquestions.com
+    -
+    florida:
+    - floridaopendebate.com
+    - www.floridaopendebate.com
     staging:
     -
     testing:
     - opendebates-testing-lb-476601241.us-east-1.elb.amazonaws.com
     - testing.demopenquestions.com
-    dan:
-    - opendebates-dan-lb-1841076677.us-east-1.elb.amazonaws.com
-    - dan.demopenquestions.com
+    - demopenquestions.com
+    - www.demopenquestions.com
 
 ## ENVIRONMENT / ROLE SETTINGS ##
 
@@ -102,8 +109,8 @@
   environments:
   - staging
   - production
+  - florida
   - testing
-  - dan
   valid_roles:
   - cache
   - db-master
@@ -129,11 +136,17 @@
 # Mapping of environment and role to EC2 instance types (sizes)
   instance_types:
     production:
-      cache: c3.large
-      db-master: m3.xlarge
-      db-slave: m3.xlarge
-      web: c3.large
-      worker: m3.large
+      cache: c4.large
+      db-master: m4.2xlarge
+      db-slave: m4.2xlarge
+      web: c4.xlarge
+      worker: m4.large
+    florida:
+      cache: c4.large
+      db-master: m4.2xlarge
+      db-slave: m4.2xlarge
+      web: c4.xlarge
+      worker: m4.large
     testing:
       cache: c4.large
       db-master: m4.2xlarge
@@ -146,12 +159,6 @@
       db-slave: t1.micro
       web: m1.small
       worker: m1.small
-    dan:
-      cache: m1.small
-      db-master: m1.small
-      db-slave: m1.small
-      web: m1.small
-      worker: m1.small
 
 # Mapping of Fabric environment names to AWS load balancer names.  Load
 # balancers can be configured in the AWS Management Console.
@@ -159,25 +166,31 @@
     opendebates:
       production:
       - opendebates-production-lb
+      florida:
+      - opendebates-florida-lb
       staging:
       - opendebates-staging-lb
       testing:
       - opendebates-testing-lb
-      dan:
-      - opendebates-dan-lb
 
 # Mapping of Fabric environment names to AWS auto scaling group names. Auto
 # scaling groups can be configured in the AWS Management Console.
   auto_scaling_groups:
     opendebates:
       production: opendebates-production-ag
+      florida: opendebates-florida-ag
       staging: opendebates-staging-ag
       testing: opendebates-testing-ag
-      dan: opendebates-dan-ag
 
 # Mapping of Fabric environment and role to Elastic Block Device sizes (in GB)
   volume_sizes:
     production:
+      cache: 10
+      db-master: 250
+      db-slave: 250
+      web: 30
+      worker: 50
+    florida:
       cache: 10
       db-master: 250
       db-slave: 250
@@ -190,12 +203,6 @@
       web: 30
       worker: 50
     staging:
-      cache: 10
-      db-master: 100
-      db-slave: 100
-      web: 10
-      worker: 50
-    dan:
       cache: 10
       db-master: 100
       db-slave: 100
