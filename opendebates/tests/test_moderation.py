@@ -239,10 +239,10 @@ class ModerationTest(TestCase):
 
         # Meanwhile the remaining submission has no direct record of the merge into it
         self.assertEqual(False, remaining.has_duplicates)
-        
+
         rsp = self.client.get(merged.get_absolute_url())
         self.assertEqual(NOT_FOUND, rsp.status_code)
-        
+
     def test_merge_link_hidden_after_merge(self):
         merge_url = reverse('merge', args=[self.first_submission.pk])
         rsp = self.client.get(self.first_submission.get_absolute_url())
