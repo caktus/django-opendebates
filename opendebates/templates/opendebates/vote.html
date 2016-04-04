@@ -18,9 +18,8 @@
     {% include "opendebates/snippets/idea.html" %}
   </div>
 
-  <div class="col-sm-4 social-side-bar">
+  <div class="col-sm-4 social-side-bar" data-idea-id="{{ idea.id }}">
     <h2>{% blocktrans %}Share This Idea!{% endblocktrans %}</h2>
-
     {% include "opendebates/snippets/social-links.html" %}
   </div>
 
