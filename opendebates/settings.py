@@ -206,17 +206,11 @@ PIPELINE_JS = {
         ),
         'output_filename': 'js/base.js',
     },
-    'home': {
+    'registration': {
         'source_filenames': (
-            'js/home.js',
+            'js/registration.js',
         ),
-        'output_filename': 'js/home.js',
-    },
-    'login': {
-        'source_filenames': (
-            'js/login.js',
-        ),
-        'output_filename': 'js/login.js',
+        'output_filename': 'js/registration.js',
     }
 
 }

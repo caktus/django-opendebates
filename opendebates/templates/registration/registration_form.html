@@ -3,7 +3,7 @@
 {% block title %}{% trans "Register for an account" %}{% endblock %}
 {% block content %}
   <div class="row flatpage">
-    <div class="col-sm-6">
+    <div class="col-sm-8 col-sm-offset-2 text-center">
 
       <form method="post" action="">{% csrf_token %}
         {{ form|bootstrap }}
@@ -12,10 +12,8 @@
                type="submit" value="Create Account">
       </form>
 
-    </div>
-    <div class="col-sm-6">
-      <p>{% blocktrans %}Please note:{% endblocktrans %}</p>
-      <ul>
+      <p class="small">{% blocktrans %}Please note:{% endblocktrans %}</p>
+      <ul class="form-notes small">
         <li>{% blocktrans %}Usernames and passwords are case-sensitive.{% endblocktrans %}</li>
         <li>{% blocktrans %}All fields are required, except for Display Name and Twitter Handle.{% endblocktrans %}</li>
       </ul>
