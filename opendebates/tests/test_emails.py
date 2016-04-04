@@ -40,7 +40,8 @@ class EmailTest(TestCase):
 
         msg = mail.outbox[0]
         self.assertEqual(msg.subject, "Thanks for your idea, %s" % self.user.first_name)
-        self.assertEqual(msg.alternatives[0][0], "Your idea was %s" % '%s %s' % (self.data['headline'], self.data['question']))
+        self.assertEqual(msg.alternatives[0][0], "Your idea was %s" % '%s %s' % (
+            self.data['headline'], self.data['question']))
         self.assertEqual(msg.body,
                          "Your idea citation was %s" % self.data['citation'])
         self.assertEqual(msg.from_email, self.voter.email)
