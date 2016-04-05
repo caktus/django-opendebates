@@ -19,9 +19,12 @@
 
 // Responsive Setup
 
+@scroll-bar-width-max: 20px;
 @responsive-small-max: 799px;
 @responsive-shim-min: 800px;
-@responsive-shim-max: 1000px;
+@responsive-shim-max: 1200px;
+@responsive-shim-step-count: 30;
+@responsive-shim-step: (@responsive-shim-max - @responsive-shim-min) / @responsive-shim-step-count;
 .responsive(@defaults, @small, @full) {
   @defaults();
 
@@ -54,6 +57,27 @@
   @media (max-width: @responsive-shim-max) {
     @rules();
   }
+}
+
+.shim-interpolate-value(@property, @start-value, @end-value) {
+  @steps-remaining: (@interpolation-max - @responsive-shim-step-max) / @responsive-shim-step;
+  @steps-so-far: (@responsive-shim-step-min - @interpolation-min) / @responsive-shim-step;
+  @ratio: @steps-so-far / (@steps-so-far + @steps-remaining);
+
+  @{property}: @start-value + (@end-value - @start-value) * @ratio;
+}
+
+.header-shim-step(@responsive-shim-step-min, @responsive-shim-step-max, @property, @start-value, @end-value) when (@responsive-shim-step-min >= @interpolation-min) {
+  @media (min-width: @responsive-shim-step-min) and (max-width: @responsive-shim-step-max) {
+    .shim-interpolate-value(@property, @start-value, @end-value);
+  }
+  .header-shim-step((@responsive-shim-step-min - @responsive-shim-step), (@responsive-shim-step-max - @responsive-shim-step), @property, @start-value, @end-value);
+}
+
+// Use this to define a range of values for a property which will be interpolated between the
+// 'small' and 'full' page widths.
+.shim-interpolate(@property, @start-value, @end-value, @interpolation-min: @responsive-shim-min, @interpolation-max: @responsive-shim-max) {
+  .header-shim-step(@interpolation-max - @responsive-shim-step, @interpolation-max, @property, @start-value, @end-value);
 }
 
 // Fonts
@@ -153,17 +177,15 @@ body > .container {
       height: 370px;
     });
 
-    @header-logo-width: 250px;
+    @header-logo-width: 325px;
     @header-top-padding: 25px;
+    @header-right-padding: 10px;
 
     .header-lower(@bottom-extra: 0px) {
-      position: absolute;
-      bottom: 20px + @bottom-extra;
-
-      .not-full({
+      @media (max-width: 1020px) {
         position: relative;
         bottom: auto;
-      });
+      };
     }
 
     .header-logos, .header-title {
@@ -188,7 +210,7 @@ body > .container {
         max-width: 250px;
         max-height: 250px;
         height: auto;
-        margin-bottom: 10px;
+        margin-bottom: 44px;
         margin-top: @header-top-padding;
         flex-basis: 100%;
 
@@ -204,17 +226,10 @@ body > .container {
         .header-lower(@bottom-extra: 5px);
         position: inherit;
 
-        &:nth-child(2) {
-          left: 0;
-        }
-        &:nth-child(3) {
-          right: 0;
-        }
-
-        @media (max-width: 800px) {
+        @media (max-width: @responsive-shim-min) {
           display: none;
         }
-        @media (max-width: 1000px) {
+        @media (max-width: @responsive-shim-max) {
           margin: auto 0;
         }
       }
@@ -223,9 +238,9 @@ body > .container {
     .header-title {
       .responsive({
         text-transform: uppercase;
-        max-width: 1000px - @header-logo-width;
+        max-width: 1200px - @header-logo-width - @header-right-padding;
         display: inline-block;
-        padding-right: 10px;
+        padding-right: @header-right-padding;
         color: white;
         vertical-align: top;
         font-size: 16px;
@@ -240,8 +255,8 @@ body > .container {
         margin: 0;
         margin-top: @header-top-padding;
         .responsive({
-          letter-spacing: 6px;
-          font-size: 75px;
+          letter-spacing: 8px;
+          font-size: 90px;
         }, {
           letter-spacing: 4px;
           font-size: 50px;
@@ -259,18 +274,22 @@ body > .container {
         }
       }
 
-      @media (min-width: 800px) and (max-width: 1000px) {
-        max-width: 800px - @header-logo-width;
-        h1 {
-          font-size: 60px;
-          letter-spacing: 3px;
-        }
+      .shim-interpolate(max-width,
+        @responsive-shim-min - @header-logo-width - @responsive-shim-step - @header-right-padding - @scroll-bar-width-max,
+        @responsive-shim-max - @header-logo-width - @responsive-shim-step - @header-right-padding - @scroll-bar-width-max);
+
+      h1 {
+        .shim-interpolate(font-size, 55px, 85px);
+        .shim-interpolate(letter-spacing, 1px, 8px);
       }
 
       .header-copy {
         text-transform: none;
         font-family: Helvetica;
         font-weight: 100;
+        .shim-interpolate(font-size, 13px, 18px);
+        .shim-interpolate(line-height, 18px, 24px);
+        letter-spacing: 0.5px;
       }
 
       .header-small-logos {
@@ -279,18 +298,46 @@ body > .container {
           display: none;
         });
         img {
+          &:nth-child(1) {
+            .shim-interpolate(margin-left, 2%, 20%, 300px, 800px);
+          }
+          &:nth-child(2) {
+            .shim-interpolate(margin-right, 2%, 20%, 300px, 800px);
+          }
+
           .not-full({
             width: 45%;
-            margin: 10px 2%;
+            margin-top: auto;
+            margin-bottom: auto;
             height: auto;
+
+            &:nth-child(1) {
+              max-width: 150px;
+              margin-top: 20px;
+              margin-bottom: 10px;
+            }
+            &:nth-child(2) {
+              max-width: 125px;
+              margin-top: 10px;
+              margin-bottom: 10px;
+              float: right;
+            }
           })
         }
       }
 
+      .header-bottom {
+        .full({
+          position: absolute;
+          bottom: 10px;
+          width: 100%;
+        });
+      }
       .header-votes, .header-count-down {
         display: inline-block;
         font-size: 26px;
         letter-spacing: 1px;
+        font-family: Knockout-light;
         .header-lower();
 
         .small({
@@ -329,8 +376,9 @@ body > .container {
       }
 
       .header-count-down {
-        right: @header-side-padding;
-        .not-full({right: 0});
+        margin-right: @header-side-padding;
+        margin-left: 10px;
+        float: right;
 
         .number {
           color: @brand-secondary;
@@ -522,6 +570,7 @@ body > .container > footer {
 
 /* Categories */
 #category-select-picker-ctn {
+  .small({font-size: 14px;});    
   .responsive({
     display: none;
     margin: 10px;
@@ -685,8 +734,8 @@ body > .container > footer {
       // font-family: @font-family-2-narrow;
       display: block;
       font-weight: bold;
-      font-size: 70px;
-      line-height: 68px;
+      font-size: 60px;
+      line-height: 50px;
       font-family: Knockout;
     }
 
@@ -764,7 +813,7 @@ body > .container > footer {
     }
   }
   .idea-duplicates-spacing {
-    height: 5px;
+    height: 1px;
   }
 
   .question {
@@ -809,7 +858,7 @@ body > .container > footer {
     font-size: 12px;
     display: inline-block;
     float: right;
-    padding-top: 5px;
+    padding-top: 10px;
 
     .not-full({
       order: 7;
@@ -1055,6 +1104,7 @@ body > .container > footer {
   border-bottom: 1px solid #ccc;
   padding: 0 5px;
   margin-bottom: 10px !important;
+  overflow-y: hidden;
 
   a {
     margin: 0 10px !important;
@@ -1159,6 +1209,11 @@ body > .container > footer {
 }
 
 /* TODO: Review original Stylesheet below */
+
+.big-idea:not(.already-voted) .social-links {
+  .hidden-xs;
+}
+
 .show-duplicates a {
   text-decoration: underline;
   font-size: 13px;
@@ -1168,6 +1223,31 @@ body > .container > footer {
 body .flatpage {
   margin-top: 25px;
   min-height: 600px;
+
+  .control-label {
+    font-weight: 100;
+    font-size: 0.8em;
+  }
+
+  label[for=id_captcha] {
+    display: none;
+  }
+  
+  .g-recaptcha > div > div {
+    margin: auto;
+  }
+  
+  ul.form-notes li {
+    list-style-type: none;
+  }
+  
+  .btn {
+    text-transform: uppercase;
+    font-family: Knockout-light;
+    font-size: 28px;
+    letter-spacing: 1px;
+    padding: 20px 60px;
+  }
 }
 
 .recent-activity-container {
@@ -1178,9 +1258,9 @@ body .flatpage {
 }
 
 .recent-activity-entry {
-  margin-bottom: 2px;
-  border-bottom: 1px dotted #ddd;
-  padding-bottom: 2px;
+  line-height: 16px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
   font-size: 12px;
 
   .recent-activity-entry-who,
@@ -1189,7 +1269,6 @@ body .flatpage {
   }
   .recent-activity-entry-what {
     font-weight: 700;
-    margin-left: 5px;
   }
 }
 
@@ -1210,8 +1289,6 @@ body {
 }
 
 .category-only {
-  padding-bottom: 15px;
-
   a {
     text-transform: uppercase;
     font-size: 11px;
@@ -1231,12 +1308,21 @@ body {
 }
 
 .category-only .vcenter {
-  padding: 0 10px;
+  margin-top: 15px;
+  padding: 0 5px;
   display: inline-block;
   text-align: center;
-  vertical-align: middle;
+  vertical-align: top;
   float: none;
-  max-width: 10%;
+  max-width: (100% / 11%);
+  a {
+    color: fadeout(@brand-primary, 20%);
+
+    &:hover {
+      color: fadeout(@brand-primary, 50%);
+    }
+  }
+  
 }
 
 .btn {
@@ -1247,30 +1333,43 @@ body {
   background-color: darken(@brand-primary, 3%);
 }
 
-.modal-header {
-  border-bottom: none;
-}
+.modal-dialog {
+  @dialog-top-margin: 60px;
 
-.modal-header .close {
-  display: block;
-  color: #006ea9;
-  font-weight: bold;
-  padding: 0 5px;
-  font-size: 12px;
-  line-height: 18px;
-  position: absolute;
-  right: 5px;
-  top: 9px;
-  background-color: white; //@button-color;
-  opacity: 1;
-  text-shadow: none;
-}
+  margin-top: @dialog-top-margin;
 
-.modal-content input[type="text"], #add_question input, #add_question textarea {
-  // background: @row-bg;
-  padding: 6px 10px;
-  font-size: 16px;
-  margin: 10px 2px;
+  .modal-header {
+    border-bottom: none;
+
+    .close {
+      display: block;
+      color: #006ea9;
+      font-weight: bold;
+      padding: 0 5px;
+      font-size: 12px;
+      line-height: 18px;
+      position: absolute;
+      right: 5px;
+      top: 9px;
+      background-color: white; //@button-color;
+      opacity: 1;
+      text-shadow: none;
+    }
+  }
+
+  .mic_icon {
+    margin-top: 0px - @dialog-top-margin;
+  }
+
+  .modal-content {
+    border-radius: 0px;
+  }
+  .modal-content input[type="text"], #add_question input, #add_question textarea {
+    // background: @row-bg;
+    padding: 6px 10px;
+    font-size: 16px;
+    margin: 10px 2px;
+  }
 }
 
 textarea#search {

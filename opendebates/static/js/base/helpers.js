@@ -48,6 +48,22 @@
     return re.test(email);
   };
 
+  ODebates.helpers.setTrackingDimension = function(key, value) {
+    ODebates.trackingDimensions = ODebates.trackingDimensions || {};
+    ODebates.trackingDimensions[key] = value;
+  };
+  
+  ODebates.helpers.track = function(action, dimensions) {
+    if (typeof window.mixpanel === 'undefined') {
+      return;
+    }
+    if (typeof dimensions === 'undefined') {
+      dimensions = {};
+    }
+    var merged = $.extend({}, dimensions, ODebates.trackingDimensions || {});
+    window.mixpanel.track(action, merged);
+  };
+  
   ODebates.helpers.castVote = function(voterData, voteUrl, callback) {
     var data = JSON.parse(JSON.stringify(voterData));
     data.csrfmiddlewaretoken = $("[name=csrfmiddlewaretoken]").val();
@@ -81,6 +97,18 @@
     });
   };
 
+  $(".social-links a").on("click", function() {
+    var dimensions = {};
+    dimensions.platform = $(this).attr("class");
+    dimensions.submission = $(this).closest("[data-idea-id]").data("idea-id");
+    if ($(this).closest("[data-idea-id]").hasClass("social-side-bar")) {
+      dimensions.placement = "sidebar";
+    } else {
+      dimensions.placement = "main";
+    }
+    ODebates.helpers.track("share", dimensions);
+  });
+  
   $("#sidebar_question_btn").on("click", function() {
     $(this).hide();
     $('#add_question').slideDown();
@@ -166,6 +194,16 @@
         scrollTop: $(window.location.hash).offset().top
       }, 500);
     }
+
+    if (ODebates.voter) {
+      if (ODebates.voter.has_account) {
+        ODebates.helpers.setTrackingDimension("registration", "full");
+      } else {
+        ODebates.helpers.setTrackingDimension("registration", "voter");
+      }
+    } else {
+      ODebates.helpers.setTrackingDimension("registration", "none");
+    }
     
     // Break vote count into spans for styling
     $(".header-votes .number").each(function(){
@@ -180,6 +218,7 @@
     var src = ODebates.helpers.getParameterByName("source");
     if (typeof src === "string") {
       $.cookie("opendebates.source", src, { path: "/" });
+      ODebates.helpers.setTrackingDimension("sourcecode", src);
     }
 
     if (typeof ODebates.stashedSubmission !== 'undefined') {

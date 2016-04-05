@@ -45,6 +45,13 @@ def merge(request):
 
     if request.POST.get("action").lower() == "reject":
         msg = _(u'No changes made and flag has been removed.')
+    elif request.POST.get("action").lower() == "unmoderate":
+        msg = _(u'Duplicate has been removed, and votes have not been merged.')
+        to_remove.approved = False
+        to_remove.duplicate_of = duplicate_of
+        to_remove.save()
+        if request.POST.get("send_email") == "yes":
+            send_email("your_idea_is_duplicate", {"idea": to_remove})
     elif request.POST.get("action").lower() == "merge":
         votes_already_cast = list(Vote.objects.filter(
             submission=duplicate_of).values_list("voter_id", flat=True))

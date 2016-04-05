@@ -35,7 +35,7 @@
   {% endcache %}
 </div>
 <label id="category-select-picker-ctn" for="category-select-picker">
-  {% trans "Issue Areas" %}<br/>
+  {% trans "Issue areas" %}<br/>
   <select id="category-select-picker" class="selectpicker">
     <option value="/">All</option>
     {% cache 299 cat_options category.id %}
@@ -47,7 +47,7 @@
     {% endcache %}
   </select>
 </label>
-<br>
+<br class="hidden-xs">
 {% endblock %}
 
 {% block primary_content %}
@@ -91,6 +91,8 @@
     
   {% show_current_number as page_number %}
   {% cache 30 idea_list search_term category.id sort page_number %}
+
+  <hr class="visible-xs" />
   <div class="row idea-list">
     {% lazy_paginate 25 ideas %}
 

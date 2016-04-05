@@ -206,17 +206,11 @@ PIPELINE_JS = {
         ),
         'output_filename': 'js/base.js',
     },
-    'home': {
+    'registration': {
         'source_filenames': (
-            'js/home.js',
+            'js/registration.js',
         ),
-        'output_filename': 'js/home.js',
-    },
-    'login': {
-        'source_filenames': (
-            'js/login.js',
-        ),
-        'output_filename': 'js/login.js',
+        'output_filename': 'js/registration.js',
     }
 
 }
@@ -270,6 +264,8 @@ DBBACKUP_SEND_EMAIL = False
 # https://developers.google.com/recaptcha/docs/faq#id-like-to-run-automated-test-with-recaptcha-v2-how-should-i-do
 NORECAPTCHA_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 NORECAPTCHA_SECRET_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
+
+MIXPANEL_KEY = None
 
 # Turn this off to never use CAPTCHA
 USE_CAPTCHA = True

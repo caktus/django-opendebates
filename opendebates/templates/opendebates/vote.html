@@ -7,20 +7,19 @@
 
 {% block content %}
 <div class="row breadcrumbs">
-  <a href="/">Home</a>
-  &#8594;
+  <a href="/">{% blocktrans %}Home{% endblocktrans %}</a>
+  <span>&#8594;</span>
   <a href="{% url 'list_category' idea.category.id %}">{{ idea.category }}</a>
-  &#8594;
-  <a href="">{{ idea.idea }}</a>
+  <span class="hidden-xs">&#8594;</span>
+  <a class="hidden-xs" href="">{{ idea.idea }}</a>
 </div>
 <div class="row question-detail">
   <div class="col-sm-8">
     {% include "opendebates/snippets/idea.html" %}
   </div>
 
-  <div class="col-sm-4 social-side-bar">
-    <h2>Share This Idea!</h2>
-
+  <div class="col-sm-4 social-side-bar" data-idea-id="{{ idea.id }}">
+    <h2>{% blocktrans %}Share This Idea!{% endblocktrans %}</h2>
     {% include "opendebates/snippets/social-links.html" %}
   </div>
 
