@@ -42,14 +42,12 @@ class SubmissionTest(TestCase):
         self.assertIn('headline', form.errors)
         self.assertIn('This field is required.', str(form.errors))
 
-    def test_missing_question(self):
+    def test_missing_question_not_required(self):
         data = self.data.copy()
         del data['question']
         rsp = self.client.post(self.url, data=data)
-        form = rsp.context['form']
-        self.assertFalse(form.is_valid())
-        self.assertIn('question', form.errors)
-        self.assertIn('This field is required.', str(form.errors))
+        submission = Submission.objects.first()
+        self.assertRedirects(rsp, submission.get_absolute_url())
 
     def test_missing_category(self):
         data = self.data.copy()
@@ -78,7 +76,10 @@ class SubmissionTest(TestCase):
         # Check the Submission attributes
         self.assertEqual(submission.voter, self.voter)
         self.assertEqual(submission.category, self.category)
-        self.assertEqual(submission.idea, self.data['question'])
+        self.assertEqual(submission.headline, self.data['headline'])
+        self.assertEqual(submission.followup, self.data['question'])
+        self.assertEqual(submission.idea, u'%s %s' % (
+            self.data['headline'], self.data['question']))
         self.assertEqual(submission.citation, self.data['citation'])
         self.assertEqual(submission.ip_address, '127.0.0.1')
         self.assertEqual(submission.approved, True)
