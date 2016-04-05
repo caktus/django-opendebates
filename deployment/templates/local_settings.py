@@ -82,7 +82,7 @@ EMAIL_SUBJECT_PREFIX = '[{{ deployment_tag }} {{ environment }}] '
 ADMINS = [
     ('Caktus Opendebates team', 'opendebates-team@caktusgroup.com'),
 ]
-DEFAULT_FROM_EMAIL = 'ethan@opendebatecoalition.com'  # FIXME: update when domain finalized
+DEFAULT_FROM_EMAIL = '{{ email_from }}'
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Redis DB map:
