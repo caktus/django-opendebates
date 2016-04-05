@@ -174,7 +174,7 @@ def vote(request, id):
         related2 = two_other_approved_ideas[1]
         return {
             'idea': idea,
-            'show_duplicates': False,
+            'show_duplicates': True,
             'related1': related1,
             'related2': related2,
             'duplicates': (Submission.objects.filter(approved=True, duplicate_of=idea)
@@ -215,20 +215,6 @@ def vote(request, id):
             user=request.user if request.user.is_authenticated() else None,
         )
     )
-
-    if request.user.is_anonymous() and voter.user:
-        # anonymous user can't use the email of a registered user
-        msg = 'That email is registered. Please login and try again.'
-        if request.is_ajax():
-            return HttpResponse(
-                json.dumps({"status": "400", "errors": {'email': [msg]}}),
-                content_type="application/json")
-        messages.error(request, _(msg))
-        return {
-            'form': form,
-            'idea': idea,
-            # 'comment_form': CommentForm(idea),
-        }
 
     if not created and voter.zip != form.cleaned_data['zipcode']:
         voter.zip = form.cleaned_data['zipcode']
@@ -286,6 +272,7 @@ def questions(request):
     if not request.user.is_authenticated():
         request.session['opendebates.stashed_submission'] = {
             "category": request.POST['category'],
+            "headline": request.POST['headline'],
             "question": request.POST['question'],
             "citation": request.POST.get("citation"),
         }

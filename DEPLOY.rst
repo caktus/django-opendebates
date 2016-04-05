@@ -198,7 +198,17 @@ This took 17 minutes the last time I tried it, which doesn't seem bad
 at all (with system sizes like c3.large and m3.large or faster).
 
 You only need to do it once per environment.  After that, you can follow
-the instructions below for updating things.
+the instructions below for updating things.  You'll need to do at least one
+deploy to get web servers(s) up and running.
+
+Manual steps
+------------
+
+These are more things that should probably be automated, but aren't yet.
+
+Enable unaccent extension: See comments at https://caktus.atlassian.net/browse/OP-105
+
+Load zip code database: See comments at https://caktus.atlassian.net/browse/OP-104
 
 Updating code
 -------------
