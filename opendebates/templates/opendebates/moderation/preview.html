@@ -39,10 +39,11 @@
           <div>
             {% if duplicate_of %}
               <input type="hidden" name="duplicate_of" value="{{ duplicate_of.id }}">
-              <input type="submit" class="btn" name="action" value="Reject">
+              <input type="submit" class="btn btn-success" name="action" value="Reject">
+              <input type="submit" class="btn btn-warning" name="action" value="Unmoderate">
               <input type="submit" class="btn btn-danger" name="action" value="Merge">
             {% else %}
-              <input type="submit" class="btn" name="action" value="Keep">
+              <input type="submit" class="btn btn-success" name="action" value="Keep">
               <input type="submit" class="btn btn-danger" name="action" value="Remove">
             {% endif %}
           </div>
