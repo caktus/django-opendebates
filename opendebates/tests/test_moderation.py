@@ -393,7 +393,6 @@ class RemovalFlagTest(TestCase):
         rsp = self.client.get(self.url)
         self.assertContains(rsp, self.submission.headline)
         self.assertContains(rsp, self.submission.followup)
-        self.assertContains(rsp, self.submission.idea)
 
     def test_report_missing_submission_fails(self):
         self.submission.delete()
@@ -433,7 +432,8 @@ class MergeFlagTest(TestCase):
 
     def test_get_merge_page(self):
         rsp = self.client.get(self.url)
-        self.assertContains(rsp, self.submission.idea)
+        self.assertContains(rsp, self.submission.headline)
+        self.assertContains(rsp, self.submission.followup)
 
     def test_merge_missing_submission_fails(self):
         self.submission.delete()

@@ -131,4 +131,4 @@ class LoginLogoutTest(TestCase):
         rsp = self.client.get(logout_url)
         self.assertRedirects(rsp, self.home_url)
         rsp = self.client.get(self.home_url)
-        self.assertIn('Log in', rsp.content)        
+        self.assertIn('Log in', rsp.content)
