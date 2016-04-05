@@ -4,23 +4,26 @@
 {% block content %}
 {% url 'registration_register' as register_url%}
 
-
-  <div class="row">
-    <div class="col-sm-6">
+  <div class="flatpage row">
+    <div class="col-sm-8 col-sm-offset-2 text-center">
 
       {% load bootstrap %}
       <form method="post" action="{% url 'auth_login' %}">{% csrf_token %}
         {{ form|bootstrap }}
-        <input class="btn btn-primary" type="submit" value="Log In" />
+        <input class="btn btn-primary" type="submit" value="{% blocktrans %}Log in{% endblocktrans %}" />
         <input type="hidden" name="next" value="{{ next }}" />
-        <a href="{% url 'password_reset' %}">{% trans "I forgot my password" %}</a>
+        <br><br>
+        <div class="small">
+          <b><a href="{% url 'password_reset' %}">{% trans "I forgot my password" %}</a></b>
+        </div>
       </form>
-    </div>
-    <div class="col-sm-6">
-      <p>{% blocktrans %}Don't forget:{% endblocktrans %}</p>
-      <ul>
-        <li>{% blocktrans %}Usernames and passwords are case-sensitive.{% endblocktrans %}</li>
-      </ul>
+
+      <p class="small">
+        {% blocktrans %}
+        Don't forget:
+        Usernames and passwords are case-sensitive.
+        {% endblocktrans %}
+      </p>
       <p>{% blocktrans %}Need an account?{% endblocktrans %}</p>
       <p>
         <a class="btn btn-default" href="{{ register_url }}{% if next %}?next={{ next }}{% endif %}">

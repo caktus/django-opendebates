@@ -1,6 +1,19 @@
 Release Notes
 =============
 
+v0.0.4 on 2016-04-05
+--------------------
+
+* Add deploy for florida debate server (#113)
+* Track using mixpanel (#114)
+* Many style updates, including modals and responsive behavior, footer
+* Allow anonymous user to reused a user account's email address (#107)
+* Don't require a logged-in user to fill in the captcha on first vote (#107)
+* Return to homepage after logout (#108)
+* Hide merged duplicates on page load
+* Lazy pagination
+* Search fixes (#99, #96)
+
 v0.0.3 on 2016-02-17
 --------------------
 

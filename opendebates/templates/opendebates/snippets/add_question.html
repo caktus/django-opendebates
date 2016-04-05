@@ -5,12 +5,12 @@
 <div>
   <div id="sidebar_question_btn" {% if form.errors %}class="hidden"{% endif %}>
     <a href="{% url 'questions' %}" class="btn btn-block btn-primary active" type="button">
-      {% blocktrans %}Submit a New Question{% endblocktrans %}
+      {% blocktrans %}Submit a Question{% endblocktrans %}
     </a>
   </div>
   <div id="add_question" class="{% if form.errors %} has-errors{% endif %}">
     <img src="{% static "images/add-question-header.png" %}" />
-    <h2>{% blocktrans %}Submit a new Question{% endblocktrans %}</h2>
+    <h2>{% blocktrans %}Submit a Question{% endblocktrans %}</h2>
 
     <form action="{% url 'questions' %}" method="POST" class="form-inline">
       {% csrf_token %}
@@ -23,7 +23,7 @@
           </label>
 
           {% if form.errors.category %}
-            <p class="help-block">{{ form.errors.category }}</p>
+          {{ form.errors.category }}
           {% endif %}
 
           <div class="controls">
@@ -42,7 +42,7 @@
         <!-- Text input-->
         <div class="control-group">
           {% if form.errors.headline %}
-            <p class="help-block">{{ form.errors.headline }}</p>
+          {{ form.errors.headline }}
           {% endif %}
           <div class="controls">
             <textarea id="headline" name="headline" type="text" class="input-large" maxlength="80"
@@ -54,7 +54,7 @@
         <!-- Text input-->
         <div class="control-group">
           {% if form.errors.question %}
-            <p class="help-block">{{ form.errors.question }}</p>
+          {{ form.errors.question }}
           {% endif %}
           <div class="controls">
             <textarea id="question" name="question" type="text" rows="4" class="input-large" maxlength="200"
@@ -66,7 +66,7 @@
         <!-- Text input-->
         <div class="control-group">
           {% if form.errors.citation %}
-            <p class="help-block">{{ form.errors.citation }}</p>
+          {{ form.errors.citation }}
           {% endif %}
           <div class="controls">
             <input id="citation" name="citation" type="text" class="input-large" value="{{ form.data.citation }}"

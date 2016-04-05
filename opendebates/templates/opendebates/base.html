@@ -11,13 +11,9 @@
       {% include "opendebates/snippets/add_question.html" %}
 
       <div class="recent-activity-container">
-        <div class="row">
-          <div class="col-sm-11 col-sm-offset-1">
-            <h5>{% blocktrans %}Recent Activity{% endblocktrans %}</h5>
-            <div id="recent-activity">
-              {% include "opendebates/snippets/recent_activity.html" %}
-            </div>
-          </div>
+        <h4>{% blocktrans %}Recent Activity{% endblocktrans %}</h4>
+        <div id="recent-activity">
+          {% include "opendebates/snippets/recent_activity.html" %}
         </div>
       </div>
 

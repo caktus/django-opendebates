@@ -48,14 +48,32 @@
     return re.test(email);
   };
 
+  ODebates.helpers.setTrackingDimension = function(key, value) {
+    ODebates.trackingDimensions = ODebates.trackingDimensions || {};
+    ODebates.trackingDimensions[key] = value;
+  };
+  
+  ODebates.helpers.track = function(action, dimensions) {
+    if (typeof window.mixpanel === 'undefined') {
+      return;
+    }
+    if (typeof dimensions === 'undefined') {
+      dimensions = {};
+    }
+    var merged = $.extend({}, dimensions, ODebates.trackingDimensions || {});
+    window.mixpanel.track(action, merged);
+  };
+  
   ODebates.helpers.castVote = function(voterData, voteUrl, callback) {
     var data = JSON.parse(JSON.stringify(voterData));
     data.csrfmiddlewaretoken = $("[name=csrfmiddlewaretoken]").val();
     $.post(voteUrl, data, function(resp) {
       if (resp.status === "200") {
-        $(".big-idea[data-idea-id="+resp.id+"]").find(".vote-tally-number").html(resp.tally);
-        $(".big-idea[data-idea-id="+resp.id+"]").find(".vote-button").hide();
-        $(".big-idea[data-idea-id="+resp.id+"]").find(".already-voted-button").css("display", "block");
+        var idea = $(".big-idea[data-idea-id="+resp.id+"]");
+        idea.addClass('already-voted');
+        idea.find(".vote-tally-number").html(resp.tally);
+        idea.find(".vote-button").hide();
+        idea.find(".already-voted-button").css("display", "block");
 
       } else {
         $.each(resp.errors, function(key, vals) {
@@ -79,9 +97,27 @@
     });
   };
 
+  $(".social-links a").on("click", function() {
+    var dimensions = {};
+    dimensions.platform = $(this).attr("class");
+    dimensions.submission = $(this).closest("[data-idea-id]").data("idea-id");
+    if ($(this).closest("[data-idea-id]").hasClass("social-side-bar")) {
+      dimensions.placement = "sidebar";
+    } else {
+      dimensions.placement = "main";
+    }
+    ODebates.helpers.track("share", dimensions);
+  });
+  
   $("#sidebar_question_btn").on("click", function() {
     $(this).hide();
     $('#add_question').slideDown();
+    return false;
+  });
+
+  $(".show-duplicates a").on("click", function() {
+    $(".duplicates-list").removeClass("hidden");
+    $(".show-duplicates").hide();
     return false;
   });
 
@@ -152,6 +188,23 @@
 
   $(window).load(function() {
 
+    if (window.location.hash && $(window.location.hash).hasClass("big-idea")) {
+      $(".show-duplicates a").trigger("click");
+      $('html, body').animate({
+        scrollTop: $(window.location.hash).offset().top
+      }, 500);
+    }
+
+    if (ODebates.voter) {
+      if (ODebates.voter.has_account) {
+        ODebates.helpers.setTrackingDimension("registration", "full");
+      } else {
+        ODebates.helpers.setTrackingDimension("registration", "voter");
+      }
+    } else {
+      ODebates.helpers.setTrackingDimension("registration", "none");
+    }
+    
     // Break vote count into spans for styling
     $(".header-votes .number").each(function(){
       var $el = $(this);
@@ -165,6 +218,7 @@
     var src = ODebates.helpers.getParameterByName("source");
     if (typeof src === "string") {
       $.cookie("opendebates.source", src, { path: "/" });
+      ODebates.helpers.setTrackingDimension("sourcecode", src);
     }
 
     if (typeof ODebates.stashedSubmission !== 'undefined') {
@@ -231,5 +285,12 @@
   }
   $('#add_question').on('keyup', 'textarea', updateTextLimitCounts);
   $('#add_question textarea').each(updateTextLimitCounts);
+
+  $('#search-full').one('keyup click', function() {
+    $('#search-small').remove();
+  });
+  $('#search-small').one('keyup click', function() {
+    $('#search-full').remove();
+  });
 
 })();

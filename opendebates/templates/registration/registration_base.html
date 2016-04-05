@@ -1,2 +1,9 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load pipeline %}
+
+{% block loading_javascript %}
+foo
+{% javascript 'registration' %}
+{% endblock %}
+
