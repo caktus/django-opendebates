@@ -32,7 +32,7 @@
                    newrelic_license_key, newrelic_api_key, s3_secret,
                    secret_key, dbbackup_access_key, dbbackup_access_secret,
                    syslog_server, recaptcha_site_key, recaptcha_secret,
-                   use_captcha, mixpanel_key]
+                   use_captcha, mixpanel_key, email_from]
   project: opendebates
   wsgi_app: opendebates.wsgi:application
   requirements_file: requirements/base.txt
