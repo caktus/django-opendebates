@@ -52,7 +52,7 @@
   branches:
     opendebates:
       production: master
-      florida: develop
+      florida: master
       staging: develop
       testing: develop
 
