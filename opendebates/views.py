@@ -94,7 +94,7 @@ def list_ideas(request):
 
 @rendered_with("opendebates/list_ideas.html")
 def list_category(request, cat_id):
-    category = Category.objects.get(id=cat_id)
+    category = get_object_or_404(Category, id=cat_id)
     ideas = Submission.objects.filter(category=cat_id)
     citations_only = request.GET.get("citations_only")
     sort = choose_sort(request.GET.get('sort'))
