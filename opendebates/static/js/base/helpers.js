@@ -97,6 +97,18 @@
     });
   };
 
+  ODebates.helpers.attachEvents = function() {
+    $("#modal-report form").off("submit");
+    $("#modal-report form").on("submit", function(e) {
+      if ($(this).find("[name=report_why]:checked").length === 0) {
+        $("#modal-report").find(".modal-report-cue").css("color", "red");
+        $("#modal-report").find(".checkbox").css("color", "red");
+        e.preventDefault();
+        return;
+      }
+    });
+  };
+
   $(".social-links a").on("click", function() {
     var dimensions = {};
     dimensions.platform = $(this).attr("class");
@@ -148,6 +160,29 @@
       });
     });
   }
+
+  $(".report-button a").on("click", function(e) {
+    e.preventDefault();
+
+    var ideaId = $(this).closest("[data-idea-id]").data("idea-id"),
+        csrf = $("input[name=csrfmiddlewaretoken]").val();
+
+    if ($("#modal-report").length > 0) {
+      $("#modal-report").remove();
+    }
+    $(window.Handlebars.templates.report_modal({
+      "static": ODebates.paths.static,
+      "action": ODebates.paths.report.replace('/0/', '/'+ideaId+'/'),
+      "csrf": csrf,
+      "checkboxOptions": [
+        {"label": "This question is spam or a scam"},
+        {"label": "This question contains explicit content or hate speech"},
+        {"label": "This is not a question"},
+        {"label": "This question violates the Participation Guidelines"}
+      ]
+    })).appendTo("body").modal("show");
+    ODebates.helpers.attachEvents();
+  });
 
   $(".vote-button").on("click", function () {
     /* vote-button is the 'VOTE!' button under the vote count displayed on each idea */

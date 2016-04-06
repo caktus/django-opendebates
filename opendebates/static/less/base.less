@@ -1367,6 +1367,18 @@ body {
     }
   }
 
+  h2 {
+    font-family: Knockout;
+    font-size: 60px;
+    text-transform: uppercase;
+    color: @brand-primary;
+  }
+
+  .modal-report-cue h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+  }
+
   .mic_icon {
     margin-top: 0px - @dialog-top-margin;
   }
@@ -1379,6 +1391,27 @@ body {
     padding: 6px 10px;
     font-size: 16px;
     margin: 10px 2px;
+  }
+
+  .modal-content .btn {
+    background-color: lighten(@brand-primary, 2%);
+    font-family: Knockout-light;
+    font-size: 28px;
+    letter-spacing: 1px;
+  }
+
+  .checkbox {
+    margin-top: 15px !important;
+    font-size: 14px;
+    display: block !important;
+    text-align: left;
+    margin: 0 auto;
+    width: 70%;
+
+    .input-large {
+      font-size: 18px;
+      margin-right: 5px;
+    }
   }
 }
 
@@ -1413,7 +1446,8 @@ textarea#search {
 }
 
 /* @@TODO */
-#modal-vote .modal-body {
+#modal-vote .modal-body,
+#modal-report .modal-body {
   text-align: center;
 
   .g-recaptcha {
@@ -1432,7 +1466,7 @@ img.mic_icon {
 }
 
 /* @@TODO */
-.modal-vote-cue {
+.modal-vote-cue, .modal-report-cue {
   font-size: 13px;
   color: #00263E;
   font-weight: bold;
@@ -1530,7 +1564,8 @@ hr.mic_icon:after {
   font-weight: bold;
   margin-bottom: -5px;
 }
-#modal-vote .modal-body .help-block {
+#modal-vote .modal-body .help-block,
+#modal-report .modal-body .help-block {
   color: red;
   margin-bottom: -10px;
 }

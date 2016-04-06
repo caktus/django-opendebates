@@ -1,0 +1,45 @@
+<div class="modal-report modal fade" id="modal-report"
+  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+      </div>
+      <img src="{{static}}images/badge-democratic-open-forum.png" class="mic_icon">
+      <div class="modal-body">
+        <div class="modal-report-cue">
+          <h2>Report Content</h2>
+          <span>Why are you flagging this question?</span>
+        </div>
+        <form class="form-inline" method="POST" action="{{action}}">
+
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf}}">
+
+          {{#each checkboxOptions}}
+          <div class="checkbox">
+            <label>
+              <input name="report_why" value="{{label}}"
+                     type="radio" class="input-large">
+              {{label}}
+            </label>
+          </div>
+          {{/each}}
+
+          <div class="control-group">
+            <label class="control-label" for="votebutton"></label>
+            <div class="controls">
+              <button
+                data-vote-url
+                name="votebutton"
+                class="btn btn-primary votebutton">
+                Submit
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+    
+  </div>
+</div>

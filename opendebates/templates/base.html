@@ -111,6 +111,7 @@
   ODebates.paths = ODebates.paths || {};
 
   ODebates.paths.static = "{{ STATIC_URL }}";
+  ODebates.paths.report = "{% url 'report' 0 %}";
 
   {% if DEBUG %}
     ODebates.configs.debug = true;

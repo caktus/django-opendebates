@@ -71,11 +71,11 @@
     {% include "opendebates/snippets/social-links.html" %}
     <div class="idea-actions">
       {% if not idea.duplicate_of %}
-      <span>
+      <span class="merge-button">
         <a href="{% url 'merge' idea.pk %}">{% trans "Merge" %}</a>
       </span>
       {% endif %}
-      <span>
+      <span class="report-button">
         <a href="{% url 'report' idea.pk %}">{% trans "Report" %}</a>
       </span>
     </div>
