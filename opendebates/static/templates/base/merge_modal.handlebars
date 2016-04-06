@@ -1,4 +1,4 @@
-<div class="modal-report modal fade" id="modal-report"
+<div class="modal-merge modal fade" id="modal-merge"
   role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -7,23 +7,22 @@
       </div>
       <img src="{{static}}images/badge-democratic-open-forum.png" class="mic_icon">
       <div class="modal-body">
-        <div class="modal-report-cue">
-          <h2>Report Content</h2>
-          <span>Why are you flagging this question?</span>
+        <div class="modal-merge-cue">
+          <h2>Recommend Merging<br>with a Similar Question</h2>
+          <span>What question should this be merged with?</span>
         </div>
+        <p>
+          Open the voting platform in a new browser window and find the question
+          you would like to merge with this selection.  Click on the text of
+          that question, and it will bring you to that question's unique page.
+          Copy the URL and paste it into the box here:
+        </p>
         <form class="form-inline" method="POST" action="{{action}}">
 
           <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf}}">
 
-          {{#each checkboxOptions}}
-          <div class="checkbox">
-            <label>
-              <input name="report_why" value="{{label}}"
-                     type="radio" class="input-large">
-              {{label}}
-            </label>
-          </div>
-          {{/each}}
+          <input class="form-control"
+                 type="url" name="duplicate_of_url" placeholder="Enter URL here">
 
           <div class="control-group">
             <div class="controls">

@@ -184,6 +184,23 @@
     ODebates.helpers.attachEvents();
   });
 
+  $(".merge-button a").on("click", function(e) {
+    e.preventDefault();
+
+    var ideaId = $(this).closest("[data-idea-id]").data("idea-id"),
+        csrf = $("input[name=csrfmiddlewaretoken]").val();
+
+    if ($("#modal-merge").length > 0) {
+      $("#modal-merge").remove();
+    }
+    $(window.Handlebars.templates.merge_modal({
+      "static": ODebates.paths.static,
+      "action": ODebates.paths.merge.replace('/0/', '/'+ideaId+'/'),
+      "csrf": csrf
+    })).appendTo("body").modal("show");
+    ODebates.helpers.attachEvents();
+  });
+
   $(".vote-button").on("click", function () {
     /* vote-button is the 'VOTE!' button under the vote count displayed on each idea */
     $($(this).data("target")).find("[data-vote-url]").attr("data-vote-url", $(this).data("vote-url"));

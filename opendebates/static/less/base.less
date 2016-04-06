@@ -1374,9 +1374,11 @@ body {
     color: @brand-primary;
   }
 
-  .modal-report-cue h2 {
+  .modal-report-cue h2, .modal-merge-cue h2 {
     margin-top: 0;
     margin-bottom: 15px;
+    line-height: 0.9em;
+    letter-spacing: 1px;
   }
 
   .mic_icon {
@@ -1400,6 +1402,16 @@ body {
     letter-spacing: 1px;
   }
 
+  p {
+    margin-top: 15px !important;
+    font-size: 15px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.2em;
+    color: fadeout(@brand-primary, 30%);
+  }
+  
   .checkbox {
     margin-top: 15px !important;
     font-size: 14px;
@@ -1447,7 +1459,8 @@ textarea#search {
 
 /* @@TODO */
 #modal-vote .modal-body,
-#modal-report .modal-body {
+#modal-report .modal-body,
+#modal-merge .modal-body {
   text-align: center;
 
   .g-recaptcha {
@@ -1466,7 +1479,9 @@ img.mic_icon {
 }
 
 /* @@TODO */
-.modal-vote-cue, .modal-report-cue {
+.modal-vote-cue,
+.modal-report-cue,
+.modal-merge-cue {
   font-size: 13px;
   color: #00263E;
   font-weight: bold;
@@ -1565,7 +1580,8 @@ hr.mic_icon:after {
   margin-bottom: -5px;
 }
 #modal-vote .modal-body .help-block,
-#modal-report .modal-body .help-block {
+#modal-report .modal-body .help-block,
+#modal-merge .modal-body .help-block {
   color: red;
   margin-bottom: -10px;
 }
