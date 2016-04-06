@@ -250,7 +250,7 @@
 
   function setCountDown() {
     var now = new Date();
-    var target = new Date(2016, 2, 6, 18, 0);
+    var target = ODebates.debate_time_utc;
     var d = target - now;
     if (d < 0) {
       $('.header-count-down .number').text('0');

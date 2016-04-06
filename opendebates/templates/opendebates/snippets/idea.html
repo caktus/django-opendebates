@@ -9,7 +9,7 @@
       <small class="duplicate-merged-link"><a href="{% url 'show_idea' idea.duplicate_of_id %}">&#8679; Merged</a></small>
       {% else %}
       <div class="vote-tally text-center">
-        <span class="vote-tally-number">{{ idea.votes|localize }}</span>
+        <span class="vote-tally-number">{% if SHOW_QUESTION_VOTES %}{{ idea.votes|localize }}{% endif %}</span>
       </div>
       <div class="vote-bottom center-block center-text">
         <a id="vote-button-{{ idea.id }}"

@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n tz %}
 {% load static from staticfiles %}
 <html>
 <head>
@@ -49,7 +49,7 @@
       </div>
       <div class="header-bottom">
         <div class="header-votes">
-          <span class="number">{{ NUMBER_OF_VOTES|stringformat:"07d" }}</span>{% blocktrans %}total votes{% endblocktrans %}
+          {% if SHOW_TOTAL_VOTES %}<span class="number">{{ NUMBER_OF_VOTES|stringformat:"07d" }}</span>{% blocktrans %}total votes{% endblocktrans %}{% endif %}
         </div>
         <div class="header-count-down">
           <span class="number days">30</span> {% blocktrans %}days{% endblocktrans %}
@@ -111,6 +111,7 @@
   ODebates.paths = ODebates.paths || {};
 
   ODebates.paths.static = "{{ STATIC_URL }}";
+  ODebates.debate_time_utc = new Date("{{ DEBATE_TIME|utc|date:'c' }}");
 
   {% if DEBUG %}
     ODebates.configs.debug = true;

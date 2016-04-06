@@ -74,12 +74,14 @@
           <option value="+date" {% if sort == "+date" %}selected{% endif %}>
             {% blocktrans %}Oldest First{% endblocktrans %}
           </option>
+        {% if ALLOW_SORTING_BY_VOTES %}
           <option value="-votes" {% if sort == "-votes" %}selected{% endif %}>
             {% blocktrans %}Most Votes{% endblocktrans %}
           </option>
           <option value="+votes" {% if sort == "+votes" %}selected{% endif %}>
             {% blocktrans %}Fewest Votes{% endblocktrans %}
           </option>
+        {% endif %}
         </select>
         <div class="display-count">
 

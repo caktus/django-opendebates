@@ -4,7 +4,7 @@ import random
 from django.conf import settings
 from django.core.cache import cache
 
-from .models import Vote, Voter, NUMBER_OF_VOTES_CACHE_ENTRY
+from .models import Vote, Voter, NUMBER_OF_VOTES_CACHE_ENTRY, SiteMode
 
 
 def vote_needs_captcha(request):
@@ -100,6 +100,8 @@ def get_ip_address_from_request(request):
 
 def choose_sort(sort):
     sort = sort or random.choice(["trending", "trending", "random"])
+    if sort.endswith('votes') and not allow_sorting_by_votes():
+        sort = 'trending'
     return sort
 
 
@@ -128,3 +130,11 @@ def sort_list(citations_only, sort, ideas):
         ideas = ideas.order_by("votes")
 
     return ideas
+
+
+def get_site_mode():
+    return SiteMode.objects.get_or_create()[0]
+
+
+def allow_sorting_by_votes():
+    return get_site_mode().allow_sorting_by_votes
