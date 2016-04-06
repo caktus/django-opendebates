@@ -164,6 +164,19 @@
   $(".report-button a").on("click", function(e) {
     e.preventDefault();
 
+    if (!ODebates.voter || !ODebates.voter.has_account) {
+      if ($("#modal-login-needed").length > 0) {
+        $("#modal-login-needed").remove();
+      }
+      $(window.Handlebars.templates.login_needed_modal({
+        "static": ODebates.paths.static,
+        "login": ODebates.paths.login,
+        "register": ODebates.paths.register,
+        "msg": "You must first log in or create an account to report a question. After you've done so, simply find the question you were looking at and try again!"
+      })).appendTo("body").modal("show");
+      return false;
+    }
+
     var ideaId = $(this).closest("[data-idea-id]").data("idea-id"),
         csrf = $("input[name=csrfmiddlewaretoken]").val();
 
@@ -186,6 +199,19 @@
 
   $(".merge-button a").on("click", function(e) {
     e.preventDefault();
+
+    if (!ODebates.voter || !ODebates.voter.has_account) {
+      if ($("#modal-login-needed").length > 0) {
+        $("#modal-login-needed").remove();
+      }
+      $(window.Handlebars.templates.login_needed_modal({
+        "static": ODebates.paths.static,
+        "login": ODebates.paths.login,
+        "register": ODebates.paths.register,
+        "msg": "You must first log in or create an account to suggest a merge. After you've done so, simply find the question you were looking at and try again!"
+      })).appendTo("body").modal("show");
+      return false;
+    }
 
     var ideaId = $(this).closest("[data-idea-id]").data("idea-id"),
         csrf = $("input[name=csrfmiddlewaretoken]").val();

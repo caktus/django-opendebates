@@ -1431,6 +1431,19 @@ textarea#search {
   width: 87%;
 }
 
+.modal-login-needed .modal-dialog .modal-content .btn-primary {
+  background-color: darken(@brand-primary, 3%);
+  line-height: 0;
+  padding: 30px 70px;
+
+  &:first-child {
+    margin-right: 10px;
+  }
+  &:last-child {
+    margin-left: 10px;
+  }
+}
+
 .modal .btn, .votebutton, .submitquestionbutton {
   width: auto;
   display: inline-block;
@@ -1460,7 +1473,8 @@ textarea#search {
 /* @@TODO */
 #modal-vote .modal-body,
 #modal-report .modal-body,
-#modal-merge .modal-body {
+#modal-merge .modal-body,
+#modal-login-needed .modal-body {
   text-align: center;
 
   .g-recaptcha {
@@ -1481,10 +1495,16 @@ img.mic_icon {
 /* @@TODO */
 .modal-vote-cue,
 .modal-report-cue,
-.modal-merge-cue {
+.modal-merge-cue,
+.modal-login-needed-cue {
   font-size: 13px;
   color: #00263E;
   font-weight: bold;
+}
+
+.modal-login-needed-cue {
+  width: 70%;
+  margin: 0 auto;
 }
 
 hr.mic_icon, hr.checkbox_icon {
