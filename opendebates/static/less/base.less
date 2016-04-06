@@ -683,36 +683,39 @@ body > .container > footer {
 }
 
 @media (min-width: @responsive-shim-min) {
-  .big-idea.already-voted:hover {
-
-  .social-links {
-    .fb-button {
-      background: #3b5998;
-      a {
-        color: white;
+  .big-idea.already-voted:hover,
+  #modal-thanks .social-links-container {
+    .social-links {
+      .fb-button {
+        background: #3b5998;
+        a {
+          color: white;
+        }
+      }
+      .tweet-button {
+        background: #50abf1;
+        a {
+          color: white;
+        }
+      }
+      .reddit-button {
+        background: #FF4808;
+        a {
+          color: white;
+        }
+      }
+      .email-button {
+        background: @brand-primary;
+        a {
+          color: white;
+        }
       }
     }
-    .tweet-button {
-      background: #50abf1;
-      a {
-        color: white;
-      }
-    }
-    .reddit-button {
-      background: #FF4808;
-      a {
-        color: white;
-      }
-    }
-    .email-button {
-
-    }
-  }
   }
 }
 
 // Question styling
-.big-idea {
+.big-idea, #modal-thanks .social-links-container {
   .responsive({
     color: @brand-primary;
     border-bottom: 1px solid @separationColor;
@@ -886,6 +889,7 @@ body > .container > footer {
       }
     }
   }
+
   .social-links {
     padding-top: 5px;
     display: inline-block;
@@ -1372,9 +1376,6 @@ body {
     font-size: 60px;
     text-transform: uppercase;
     color: @brand-primary;
-  }
-
-  .modal-report-cue h2, .modal-merge-cue h2 {
     margin-top: 0;
     margin-bottom: 15px;
     line-height: 0.9em;
@@ -1471,10 +1472,7 @@ textarea#search {
 }
 
 /* @@TODO */
-#modal-vote .modal-body,
-#modal-report .modal-body,
-#modal-merge .modal-body,
-#modal-login-needed .modal-body {
+.modal-body {
   text-align: center;
 
   .g-recaptcha {
@@ -1493,18 +1491,34 @@ img.mic_icon {
 }
 
 /* @@TODO */
-.modal-vote-cue,
-.modal-report-cue,
-.modal-merge-cue,
-.modal-login-needed-cue {
+.modal-cue {
   font-size: 13px;
   color: #00263E;
   font-weight: bold;
 }
 
-.modal-login-needed-cue {
+#modal-login-needed .modal-cue {
   width: 70%;
   margin: 0 auto;
+}
+
+#modal-thanks .social-links-container {
+  padding-top: 0;
+  margin-bottom: 25px;
+
+  .sms-button {
+    display: none;
+  }
+
+  .social-links > span {
+    margin: 0 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+
+    a {
+      color: white !important;
+    }
+  }
 }
 
 hr.mic_icon, hr.checkbox_icon {
@@ -1599,9 +1613,7 @@ hr.mic_icon:after {
   font-weight: bold;
   margin-bottom: -5px;
 }
-#modal-vote .modal-body .help-block,
-#modal-report .modal-body .help-block,
-#modal-merge .modal-body .help-block {
+.modal-body .help-block {
   color: red;
   margin-bottom: -10px;
 }

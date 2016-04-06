@@ -313,7 +313,7 @@ def questions(request):
     send_email("submitted_new_idea", {"idea": idea})
 
     url = reverse("vote", kwargs={'id': idea.id})
-    return redirect(url)
+    return redirect(url + "#created=%s" % idea.id)
 
 
 class OpenDebatesRegistrationView(RegistrationView):

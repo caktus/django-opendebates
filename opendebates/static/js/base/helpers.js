@@ -266,13 +266,6 @@
 
   $(window).load(function() {
 
-    if (window.location.hash && $(window.location.hash).hasClass("big-idea")) {
-      $(".show-duplicates a").trigger("click");
-      $('html, body').animate({
-        scrollTop: $(window.location.hash).offset().top
-      }, 500);
-    }
-
     if (ODebates.voter) {
       if (ODebates.voter.has_account) {
         ODebates.helpers.setTrackingDimension("registration", "full");
@@ -281,6 +274,25 @@
       }
     } else {
       ODebates.helpers.setTrackingDimension("registration", "none");
+    }
+
+    try {
+      if (window.location.hash && $(window.location.hash).hasClass("big-idea")) {
+        $(".show-duplicates a").trigger("click");
+        $('html, body').animate({
+          scrollTop: $(window.location.hash).offset().top
+        }, 500);
+      }
+    } catch (e) {}
+
+    if (window.location.hash && window.location.hash.match(/created=(\d+)/)) {
+      var ideaId = window.location.hash.match(/created=(\d+)/)[1];
+      var el = $(window.Handlebars.templates['after_question_submitted_modal']({
+        "static": ODebates.paths.static
+      }));
+      el.find(".social-links-container .social-links").html(
+        $(".big-idea[data-idea-id="+ideaId+"] .social-links").html());
+      el.appendTo("body").modal("show");
     }
     
     // Break vote count into spans for styling
