@@ -19,7 +19,7 @@ from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, \
     RECENT_EVENTS_CACHE_ENTRY, Flag
 from .router import readonly_db
 from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list, \
-    vote_needs_captcha, registration_needs_captcha
+    vote_needs_captcha, registration_needs_captcha, show_question_votes
 # from opendebates_comments.forms import CommentForm
 from opendebates_emails.models import send_email
 
@@ -242,8 +242,11 @@ def vote(request, id):
         request.session['voter'] = {"email": voter.email, "zip": voter.zip}
 
     if request.is_ajax():
+        result = {"status": "200",
+                  "tally": idea.votes if show_question_votes() else '',
+                  "id": idea.id}
         return HttpResponse(
-            json.dumps({"status": "200", "tally": idea.votes, "id": idea.id}),
+            json.dumps(result),
             content_type="application/json")
 
     url = reverse("vote", kwargs={'id': id})

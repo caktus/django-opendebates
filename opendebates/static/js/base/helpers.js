@@ -71,7 +71,9 @@
       if (resp.status === "200") {
         var idea = $(".big-idea[data-idea-id="+resp.id+"]");
         idea.addClass('already-voted');
-        idea.find(".vote-tally-number").html(resp.tally);
+        if (resp.tally !== '') {
+          idea.find(".vote-tally-number").html(resp.tally);
+        }
         idea.find(".vote-button").hide();
         idea.find(".already-voted-button").css("display", "block");
 

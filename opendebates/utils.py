@@ -138,3 +138,7 @@ def get_site_mode():
 
 def allow_sorting_by_votes():
     return get_site_mode().allow_sorting_by_votes
+
+
+def show_question_votes():
+    return get_site_mode().show_question_votes
