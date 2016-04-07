@@ -1,6 +1,17 @@
 Release Notes
 =============
 
+v0.0.5 on 2016-04-07
+--------------------
+
+* Add runtime settings for disabling voting, submissions, sorting
+  by votes, displaying submission votes, and displaying total votes,
+  as well as setting the debate date/time. (#125, #129)
+* Styles and popups (#128, #126, #120)
+* Fix 500 error on bad category (#124)
+* Set email_from addresses (#122)
+* Clean up Django settings for tests (#121)
+
 v0.0.4 on 2016-04-05
 --------------------
 
