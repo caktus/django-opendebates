@@ -42,14 +42,13 @@ class SubmissionTest(TestCase):
         self.assertIn('headline', form.errors)
         self.assertIn('This field is required.', str(form.errors))
 
-    def test_missing_question(self):
+    def test_missing_question_not_required(self):
         data = self.data.copy()
         del data['question']
         rsp = self.client.post(self.url, data=data)
-        form = rsp.context['form']
-        self.assertFalse(form.is_valid())
-        self.assertIn('question', form.errors)
-        self.assertIn('This field is required.', str(form.errors))
+        submission = Submission.objects.first()
+        self.assertRedirects(
+            rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
 
     def test_missing_category(self):
         data = self.data.copy()
@@ -74,11 +73,15 @@ class SubmissionTest(TestCase):
     def test_post_submission(self):
         rsp = self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
-        self.assertRedirects(rsp, submission.get_absolute_url())
+        self.assertRedirects(
+            rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
         # Check the Submission attributes
         self.assertEqual(submission.voter, self.voter)
         self.assertEqual(submission.category, self.category)
-        self.assertEqual(submission.idea, self.data['question'])
+        self.assertEqual(submission.headline, self.data['headline'])
+        self.assertEqual(submission.followup, self.data['question'])
+        self.assertEqual(submission.idea, u'%s %s' % (
+            self.data['headline'], self.data['question']))
         self.assertEqual(submission.citation, self.data['citation'])
         self.assertEqual(submission.ip_address, '127.0.0.1')
         self.assertEqual(submission.approved, True)
@@ -120,7 +123,8 @@ class SubmissionTest(TestCase):
         self.client.cookies['opendebates.source'] = source
         rsp = self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
-        self.assertRedirects(rsp, submission.get_absolute_url())
+        self.assertRedirects(
+            rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
         # Check the Submission attributes
         self.assertEqual(submission.voter, self.voter)
         self.assertEqual(submission.source, source)
@@ -133,7 +137,8 @@ class SubmissionTest(TestCase):
         "If no opendebates.source cookie is present, vote and submission source will be None"
         rsp = self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
-        self.assertRedirects(rsp, submission.get_absolute_url())
+        self.assertRedirects(
+            rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
         # Check the Submission attributes
         self.assertEqual(submission.voter, self.voter)
         self.assertEqual(submission.source, None)

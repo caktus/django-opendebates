@@ -9,17 +9,19 @@
       <small class="duplicate-merged-link"><a href="{% url 'show_idea' idea.duplicate_of_id %}">&#8679; Merged</a></small>
       {% else %}
       <div class="vote-tally text-center">
-        <span class="vote-tally-number">{{ idea.votes|localize }}</span>
+        <span class="vote-tally-number">{% if SHOW_QUESTION_VOTES %}{{ idea.votes|localize }}{% endif %}</span>
       </div>
-      <div class="vote-bottom center-block center-text">
-        <a id="vote-button-{{ idea.id }}"
-           data-target="#modal-vote"
-           role="button"
-           class="vote-button"
-           data-vote-url="{% url 'vote' idea.id %}"
-           data-toggle="modal">{% blocktrans %}Vote!{% endblocktrans %}</a>
-        <a class="already-voted-button">{% blocktrans %}Voted{% endblocktrans %}</a>
-      </div>
+      {% if ALLOW_VOTING_AND_SUBMITTING_QUESTIONS %}
+        <div class="vote-bottom center-block center-text">
+          <a id="vote-button-{{ idea.id }}"
+             data-target="#modal-vote"
+             role="button"
+             class="vote-button"
+             data-vote-url="{% url 'vote' idea.id %}"
+             data-toggle="modal">{% blocktrans %}Vote!{% endblocktrans %}</a>
+          <a class="already-voted-button">{% blocktrans %}Voted{% endblocktrans %}</a>
+        </div>
+      {% endif %}
       {% endif %}
     </div>
 
@@ -56,7 +58,7 @@
       </p>
       {% endif %}
       <p class="idea">
-        {{ idea.idea }}
+        {% if idea.followup %}{{ idea.followup }}{% endif %}
         {% if idea.citation and idea.citation_verified %}
           <br />
           <a class="citation" target="_blank" href="{{ idea.citation }}" title="{% blocktrans %}Has a citation &ndash; click to open{% endblocktrans %}">{% trans "User Submitted Citation" %}</a>
@@ -70,14 +72,16 @@
     </div>
     {% include "opendebates/snippets/social-links.html" %}
     <div class="idea-actions">
-      {% if not idea.duplicate_of %}
-      <span>
-        <a href="{% url 'merge' idea.pk %}">{% trans "Merge" %}</a>
-      </span>
+      {% if ALLOW_VOTING_AND_SUBMITTING_QUESTIONS %}
+        {% if not idea.duplicate_of %}
+        <span class="merge-button">
+          <a href="{% url 'merge' idea.pk %}">{% trans "Merge" %}</a>
+        </span>
+        {% endif %}
+        <span class="report-button">
+          <a href="{% url 'report' idea.pk %}">{% trans "Report" %}</a>
+        </span>
       {% endif %}
-      <span>
-        <a href="{% url 'report' idea.pk %}">{% trans "Report" %}</a>
-      </span>
     </div>
 </div>
 

@@ -82,7 +82,7 @@ EMAIL_SUBJECT_PREFIX = '[{{ deployment_tag }} {{ environment }}] '
 ADMINS = [
     ('Caktus Opendebates team', 'opendebates-team@caktusgroup.com'),
 ]
-DEFAULT_FROM_EMAIL = 'ethan@opendebatecoalition.com'  # FIXME: update when domain finalized
+DEFAULT_FROM_EMAIL = '{{ email_from }}'
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Redis DB map:
@@ -193,3 +193,4 @@ DBBACKUP_HOSTNAME = ALLOWED_HOSTS[0]
 NORECAPTCHA_SITE_KEY = '{{ recaptcha_site_key }}'
 NORECAPTCHA_SECRET_KEY = '{{ recaptcha_secret }}'
 USE_CAPTCHA = {{ use_captcha|default(true) }}
+MIXPANEL_KEY = '{{ mixpanel_key }}'

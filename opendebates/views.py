@@ -19,7 +19,8 @@ from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, \
     RECENT_EVENTS_CACHE_ENTRY, Flag
 from .router import readonly_db
 from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list, \
-    vote_needs_captcha, registration_needs_captcha
+    vote_needs_captcha, registration_needs_captcha, show_question_votes, \
+    allow_voting_and_submitting_questions
 # from opendebates_comments.forms import CommentForm
 from opendebates_emails.models import send_email
 
@@ -94,7 +95,7 @@ def list_ideas(request):
 
 @rendered_with("opendebates/list_ideas.html")
 def list_category(request, cat_id):
-    category = Category.objects.get(id=cat_id)
+    category = get_object_or_404(Category, id=cat_id)
     ideas = Submission.objects.filter(category=cat_id)
     citations_only = request.GET.get("citations_only")
     sort = choose_sort(request.GET.get('sort'))
@@ -154,6 +155,7 @@ def category_search(request, cat_id):
 @rendered_with("opendebates/vote.html")
 @allow_http("GET", "POST")
 def vote(request, id):
+    """Despite the name, this is both the page for voting AND the detail page for submissions"""
     try:
         with readonly_db():
             idea = Submission.objects.get(id=id, approved=True)
@@ -184,6 +186,9 @@ def vote(request, id):
             #     is_public=True, is_removed=False
             # ).select_related("user", "user__voter"),
         }
+
+    if not allow_voting_and_submitting_questions():
+        raise Http404
 
     form = VoterForm(request.POST)
     if not vote_needs_captcha(request):
@@ -242,8 +247,11 @@ def vote(request, id):
         request.session['voter'] = {"email": voter.email, "zip": voter.zip}
 
     if request.is_ajax():
+        result = {"status": "200",
+                  "tally": idea.votes if show_question_votes() else '',
+                  "id": idea.id}
         return HttpResponse(
-            json.dumps({"status": "200", "tally": idea.votes, "id": idea.id}),
+            json.dumps(result),
             content_type="application/json")
 
     url = reverse("vote", kwargs={'id': id})
@@ -256,6 +264,9 @@ def questions(request):
 
     if request.method == 'GET':
         return redirect("/")
+
+    if not allow_voting_and_submitting_questions():
+        raise Http404
 
     form = QuestionForm(request.POST)
 
@@ -292,7 +303,8 @@ def questions(request):
         voter=voter,
         category_id=category,
         headline=form_data['headline'],
-        idea=form_data['question'],
+        followup=form_data['question'],
+        idea=(u'%s %s' % (form_data['headline'], form_data['question'])).strip(),
         citation=form_data['citation'],
         created_at=timezone.now(),
         ip_address=get_ip_address_from_request(request),
@@ -312,7 +324,7 @@ def questions(request):
     send_email("submitted_new_idea", {"idea": idea})
 
     url = reverse("vote", kwargs={'id': idea.id})
-    return redirect(url)
+    return redirect(url + "#created=%s" % idea.id)
 
 
 class OpenDebatesRegistrationView(RegistrationView):
@@ -377,6 +389,9 @@ def list_candidates(request):
 @allow_http("GET", "POST")
 @login_required
 def report(request, id):
+    if not allow_voting_and_submitting_questions() and not request.user.is_staff:
+        raise Http404
+
     idea = get_object_or_404(Submission, pk=id)
     voter = Voter.objects.get(user=request.user)
 
@@ -384,7 +399,8 @@ def report(request, id):
         flag, created = Flag.objects.get_or_create(
             to_remove=idea,
             voter=voter,
-            duplicate_of=None
+            duplicate_of=None,
+            defaults=dict(note=request.POST.get("report_why"))
         )
         messages.info(request, _(u'This question has been flagged for removal.'))
         return redirect(idea)
@@ -397,6 +413,9 @@ def report(request, id):
 @allow_http("GET", "POST")
 @login_required
 def merge(request, id):
+    if not allow_voting_and_submitting_questions() and not request.user.is_staff:
+        raise Http404
+
     idea = get_object_or_404(Submission, pk=id)
     voter = Voter.objects.get(user=request.user)
 

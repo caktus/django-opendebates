@@ -10,7 +10,7 @@
   <input type="submit" value=""/>
   <div class="search-ctn">
     <input name="q" class="form-control" id="search-full"
-           placeholder="{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked{% endblocktrans %}"
+           placeholder="{% if ALLOW_VOTING_AND_SUBMITTING_QUESTIONS %}{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked{% endblocktrans %}{% else %}{% blocktrans %}Search questions by keyword{% endblocktrans %}{% endif %}"
            value="{{ search_term|default:'' }}" onkeyup="javascript:if(arguments[0].keyCode===13)this.form.submit();">
   </div>
   <div class="search-ctn">
@@ -74,12 +74,14 @@
           <option value="+date" {% if sort == "+date" %}selected{% endif %}>
             {% blocktrans %}Oldest First{% endblocktrans %}
           </option>
+        {% if ALLOW_SORTING_BY_VOTES %}
           <option value="-votes" {% if sort == "-votes" %}selected{% endif %}>
             {% blocktrans %}Most Votes{% endblocktrans %}
           </option>
           <option value="+votes" {% if sort == "+votes" %}selected{% endif %}>
             {% blocktrans %}Fewest Votes{% endblocktrans %}
           </option>
+        {% endif %}
         </select>
         <div class="display-count">
 
@@ -92,7 +94,7 @@
   {% show_current_number as page_number %}
   {% cache 30 idea_list search_term category.id sort page_number %}
 
-  <hr class="visible-xs" />
+  <hr class="before-idea-list visible-xs" />
   <div class="row idea-list">
     {% lazy_paginate 25 ideas %}
 

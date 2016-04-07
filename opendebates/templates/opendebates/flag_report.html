@@ -2,18 +2,30 @@
 {% load i18n %}
 
 {% block content %}
-  <h1>{% trans "Report Content" %}</h1>
-
-  <h2>{% trans "Do you want to flag the question below for removal?" %}</h2>
-
-  <div class="idea-detail">
-    {% include "opendebates/snippets/idea.html" %}
+<div class="flatpage row">
+  <div class="col-md-6 col-md-offset-3">
+    <h1>{% trans "Report Content" %}</h1>
+    
+    <h2>{% trans "Do you want to flag the question below for removal?" %}</h2>
+    
+    <hr>
+    <div class="idea-detail">
+      {% include "opendebates/snippets/idea.html" %}
+    </div>
+    <hr>
+    
+    <form action="." method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <textarea class="form-control"
+                  name="report_why"
+                  placeholder="{% blocktrans %}Reason for reporting (optional){% endblocktrans %}"></textarea>
+      </div>
+      <a class="btn btn-default"
+         href="{% url 'vote' idea.pk %}">{% trans "Cancel" %}</a>
+      <input class="btn btn-primary"
+             type="submit" value="{% trans 'Flag for Removal' %}" />
+    </form>
   </div>
-
-  <form action="." method="POST">
-    {% csrf_token %}
-    <a href="{% url 'vote' idea.pk %}">{% trans "Cancel" %}</a>
-    <input type="submit" value="{% trans 'Flag for Removal' %}" />
-  </form>
-
+</div>
 {% endblock %}

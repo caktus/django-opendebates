@@ -28,6 +28,19 @@ class Category(CachingMixin, models.Model):
         verbose_name_plural = _("categories")
 
 
+class SiteMode(CachingMixin, models.Model):
+    show_question_votes = models.BooleanField(default=True, blank=True)
+    show_total_votes = models.BooleanField(default=True, blank=True)
+    allow_sorting_by_votes = models.BooleanField(default=True, blank=True)
+    allow_voting_and_submitting_questions = models.BooleanField(default=True, blank=True)
+    debate_time = models.DateTimeField(
+        default=datetime.datetime(2099, 1, 1),
+        help_text="Enter time that debate starts in timezone %s" % settings.TIME_ZONE,
+    )
+
+    objects = CachingManager()
+
+
 class Submission(models.Model):
 
     def user_display_name(self):
@@ -69,7 +82,7 @@ class Submission(models.Model):
 
     keywords = models.TextField(null=True, blank=True)
 
-    objects = SearchManager(fields=["idea", "keywords", "headline"],
+    objects = SearchManager(fields=["idea", "keywords"],
                             auto_update_search_field=True)
 
     source = models.CharField(max_length=255, null=True, blank=True)
@@ -119,7 +132,6 @@ class Submission(models.Model):
 
     def email_url(self):
         params = {
-            "headline": self.headline,
             "idea": self.idea,
             "url": self.really_absolute_url(),
         }
@@ -127,7 +139,6 @@ class Submission(models.Model):
         body = _(
             """Vote for my progressive idea for @OpenDebate2016 #OpenDebate2016.
 
-            %(headline)s
             %(idea)s
 
             %(url)s
@@ -258,6 +269,7 @@ class Flag(models.Model):
                                      null=True, blank=True)
     voter = models.ForeignKey(Voter)
     reviewed = models.BooleanField(default=False)
+    note = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = [
