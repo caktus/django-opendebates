@@ -728,6 +728,39 @@ hr.before-idea-list {
   }
 }
 
+@media (max-width: @responsive-small-max) {
+  .big-idea.already-voted {
+    .social-links {
+      & > span {
+        text-align: center;
+        a {
+          margin: 0 auto;
+        }
+      }
+      .fb-button {
+        background: #3b5998;
+        a {
+          color: white;
+        }
+      }
+      .tweet-button {
+        background: #50abf1;
+        a {
+          color: white;
+        }
+      }
+      .reddit-button {
+        background: #FF4808;
+        a {
+          color: white;
+        }
+      }
+      .email-button {
+      }
+    }
+  }
+}
+
 // Question styling
 .big-idea, #modal-thanks .social-links-container {
   .responsive({
