@@ -33,7 +33,7 @@ class VoterForm(forms.Form):
 class QuestionForm(forms.Form):
     category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
     headline = forms.CharField(required=True)
-    question = forms.CharField()
+    question = forms.CharField(required=False)
     citation = forms.URLField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -110,7 +110,7 @@ class OpenDebatesAuthenticationForm(AuthenticationForm):
 
 
 class MergeFlagForm(forms.ModelForm):
-    duplicate_of_url = forms.URLField()
+    duplicate_of_url = forms.URLField(label=_("Enter URL here"))
 
     class Meta:
         model = Flag

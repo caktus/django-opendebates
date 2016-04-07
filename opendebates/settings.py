@@ -11,8 +11,14 @@ FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 # SECRET_KEY is overriden in deploy settings
 SECRET_KEY = 'secret-key-for-local-use-only'
 
-DEBUG = 'DJANGO_DEBUG' in os.environ
-TRAVIS = 'TRAVIS' in os.environ
+TEST = 'test' in sys.argv
+if TEST:
+    # https://docs.djangoproject.com/en/1.8/topics/testing/overview/#other-test-conditions
+    # DEBUG is False for tests no matter what we set, so set it up properly for
+    # use later in this file
+    DEBUG = False
+else:
+    DEBUG = 'DJANGO_DEBUG' in os.environ
 
 ALLOWED_HOSTS = []
 
@@ -43,12 +49,6 @@ INSTALLED_APPS = [
 if DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
 
-if DEBUG:
-    MIDDLEWARE_CLASSES = []
-else:
-    MIDDLEWARE_CLASSES = [
-        'django.middleware.gzip.GZipMiddleware',
-    ]
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -107,7 +107,7 @@ DATABASES = {
     'default': dj_database_url.config(default="postgres://@/opendebates"),
 }
 
-if DEBUG is True:
+if DEBUG:
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': "%s.true" % __name__,
     }
@@ -127,7 +127,7 @@ LANGUAGES = (
 )
 LANGUAGE_CODE = 'en-us'
 LOCALE_PATHS = (os.path.join(BASE_DIR, 'locale'),)
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 USE_I18N = True
 USE_L10N = False
 USE_TZ = True
@@ -135,7 +135,7 @@ USE_THOUSAND_SEPARATOR = True
 
 # celery settings
 CELERY_SEND_TASK_ERROR_EMAILS = True
-CELERY_ALWAYS_EAGER = DEBUG or TRAVIS
+CELERY_ALWAYS_EAGER = DEBUG or TEST
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_IGNORE_RESULT = True
 CELERYD_HIJACK_ROOT_LOGGER = False
@@ -176,6 +176,10 @@ PIPELINE_COMPILERS = (
 if DEBUG:
     PIPELINE_CSS_COMPRESSOR = None
     PIPELINE_JS_COMPRESSOR = None
+
+if TEST:
+    PIPELINE_COMPILERS = ()
+    PIPELINE_ENABLED = False
 
 PIPELINE_CSS = {
     'base': {
@@ -239,16 +243,10 @@ SITE_ID = 1
 SITE_DOMAIN = os.environ.get("SITE_DOMAIN", "127.0.0.1:8000")
 SITE_DOMAIN_WITH_PROTOCOL = os.environ.get("SITE_PROTOCOL", "http://") + SITE_DOMAIN
 
-if 'test' in sys.argv:
-    PIPELINE_COMPILERS = ()
-    PIPELINE_ENABLED = False
-
 # Cache settings for when we're not deployed. Otherwise, local_settings will override this.
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
-        'VERSION': '0',
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     },
 
 }

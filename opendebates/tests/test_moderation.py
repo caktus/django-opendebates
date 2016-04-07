@@ -173,6 +173,76 @@ class ModerationTest(TestCase):
         self.assertEqual(1, Vote.objects.filter(
             voter=first_voter, submission=merged).count())
 
+    def test_unmoderate_does_not_merge_votes(self):
+        "During a duplicate unmoderate, no vote merging occurs"
+
+        self.client.logout()
+
+        first_voter = VoterFactory(user=None)
+        second_voter = VoterFactory(user=None)
+        third_voter = VoterFactory(user=None)
+
+        rsp = self.client.post(self.third_submission.get_absolute_url(), data={
+            'email': first_voter.email, 'zipcode': first_voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        rsp = self.client.post(self.third_submission.get_absolute_url(), data={
+            'email': second_voter.email, 'zipcode': second_voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        rsp = self.client.post(self.second_submission.get_absolute_url(), data={
+            'email': first_voter.email, 'zipcode': first_voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        rsp = self.client.post(self.second_submission.get_absolute_url(), data={
+            'email': third_voter.email, 'zipcode': third_voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        # Initially each submission's vote tally will include all votes that we just cast
+        # plus one for the submitter
+        self.assertEqual(Submission.objects.get(id=self.second_submission.id).votes, 3)
+        self.assertEqual(Submission.objects.get(id=self.third_submission.id).votes, 3)
+
+        assert self.client.login(username=self.user.username, password=self.password)
+        rsp = self.client.post(self.merge_url, data={
+            "action": "unmoderate",
+            "to_remove": self.third_submission.id,
+            "duplicate_of": self.second_submission.id,
+        })
+        self.assertRedirects(rsp, self.moderation_home_url)
+
+        merged = Submission.objects.get(id=self.third_submission.id)
+        remaining = Submission.objects.get(id=self.second_submission.id)
+
+        # Both ideas retain their original vote tallies
+        self.assertEqual(merged.votes, 3)
+        self.assertEqual(remaining.votes, 3)
+
+        # And vote objects are untouched
+        moved_vote = Vote.objects.get(voter=second_voter)
+        self.assertEqual(moved_vote.submission, merged)
+        self.assertEqual(moved_vote.original_merged_submission, None)
+        self.assertEqual(0, Vote.objects.filter(
+            voter=second_voter, submission=remaining).count())
+
+        # But the duplicate submission is now unavailable & has been marked as duplicate
+        self.assertEqual(False, merged.approved)
+        self.assertEqual(remaining, merged.duplicate_of)
+
+        # Meanwhile the remaining submission has no direct record of the merge into it
+        self.assertEqual(False, remaining.has_duplicates)
+
+        rsp = self.client.get(merged.get_absolute_url())
+        self.assertEqual(NOT_FOUND, rsp.status_code)
+
     def test_merge_link_hidden_after_merge(self):
         merge_url = reverse('merge', args=[self.first_submission.pk])
         rsp = self.client.get(self.first_submission.get_absolute_url())
@@ -321,7 +391,8 @@ class RemovalFlagTest(TestCase):
 
     def test_get_report_page(self):
         rsp = self.client.get(self.url)
-        self.assertContains(rsp, self.submission.idea)
+        self.assertContains(rsp, self.submission.headline)
+        self.assertContains(rsp, self.submission.followup)
 
     def test_report_missing_submission_fails(self):
         self.submission.delete()
@@ -361,7 +432,8 @@ class MergeFlagTest(TestCase):
 
     def test_get_merge_page(self):
         rsp = self.client.get(self.url)
-        self.assertContains(rsp, self.submission.idea)
+        self.assertContains(rsp, self.submission.headline)
+        self.assertContains(rsp, self.submission.followup)
 
     def test_merge_missing_submission_fails(self):
         self.submission.delete()

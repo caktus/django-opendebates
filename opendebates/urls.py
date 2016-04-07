@@ -4,7 +4,7 @@ from django.contrib import admin
 urlpatterns = [
     url('^$', 'opendebates.views.list_ideas', name="list_ideas"),
     url(r'^healthcheck.html$', 'opendebates.views.health_check', name='health_check'),
-    url(r'^test/$', 'opendebates.views.test', name='test'),
+    # url(r'^test/$', 'opendebates.views.test', name='test'),
 
     url(r'^recent/$', 'opendebates.views.recent_activity', name='recent_activity'),
     url('^questions/(?P<id>\d+)/vote/$', 'opendebates.views.vote', name="vote"),
@@ -19,7 +19,7 @@ urlpatterns = [
         name="category_search"),
     url('^search/$', 'opendebates.views.search_ideas', name="search_ideas"),
     url('^questions/$', 'opendebates.views.questions', name="questions"),
-    url('^candidates/$', 'opendebates.views.list_candidates', name="candidates"),
+    # url('^candidates/$', 'opendebates.views.list_candidates', name="candidates"),
 
     url('^moderation/remove/$', 'opendebates.moderator_views.remove',
         name="moderation_remove"),
