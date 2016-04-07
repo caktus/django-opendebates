@@ -1052,15 +1052,31 @@ hr.before-idea-list {
 
     .errorlist {
       color: red;
+      font-weight: bold;
       padding-left: 0;
       list-style: none;
-      margin-bottom: -10px;
+      margin-bottom: 0;
       font-size: 13px;
+    }
+
+    .control-group:first-child {
+      label.category {
+        display: none;
+      }
+      .errorlist {
+        margin-bottom: -10px;
+        margin-top: 5px;
+      }
     }
   }
 
   .control-group {
     text-align: center;
+    margin-bottom: 15px;
+
+    &:last-child {
+      margin-top: -15px;
+    }
 
     .controls {
       position: relative;
@@ -1085,9 +1101,14 @@ hr.before-idea-list {
 
     input, textarea, .bootstrap-select {
       width: 87%;
+      border: none;
+    }
+    input, textarea {
+      font-size: 14px;
+      padding: 10px;
     }
     .bootstrap-select {
-      margin: 10px auto;
+      margin: 10px auto 0;
     }
   }
 
@@ -1100,7 +1121,7 @@ hr.before-idea-list {
       color: white;
       font-size: 30px;
       position: relative;
-      top: -25px;
+      top: -15px;
       width: 87%;
       height: 50px;
       padding-top: 17px;
