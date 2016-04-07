@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.cache import cache
 
 from .models import Vote, Voter, NUMBER_OF_VOTES_CACHE_ENTRY, SiteMode
+from .router import readwrite_db
 
 
 def vote_needs_captcha(request):
@@ -133,7 +134,11 @@ def sort_list(citations_only, sort, ideas):
 
 
 def get_site_mode():
-    return SiteMode.objects.get_or_create()[0]
+    try:
+        return SiteMode.objects.get()
+    except SiteMode.DoesNotExist:
+        with readwrite_db():
+            return SiteMode.objects.get_or_create()[0]
 
 
 def allow_sorting_by_votes():
