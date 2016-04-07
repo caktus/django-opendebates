@@ -13,7 +13,7 @@ class ViewTest(TestCase):
     def test_data(self):
         self.assertEqual(Category.objects.filter(name="category one").count(), 1)
 
-    def test_test_view(self):
+    def test_healthcheck_view(self):
         c = Client()
-        response = c.get('/test/')
+        response = c.get('/healthcheck.html')
         self.assertEqual(response.status_code, 200)

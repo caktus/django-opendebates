@@ -32,6 +32,7 @@ class SiteMode(CachingMixin, models.Model):
     show_question_votes = models.BooleanField(default=True, blank=True)
     show_total_votes = models.BooleanField(default=True, blank=True)
     allow_sorting_by_votes = models.BooleanField(default=True, blank=True)
+    allow_voting_and_submitting_questions = models.BooleanField(default=True, blank=True)
     debate_time = models.DateTimeField(
         default=datetime.datetime(2099, 1, 1),
         help_text="Enter time that debate starts in timezone %s" % settings.TIME_ZONE,

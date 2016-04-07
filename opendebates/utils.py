@@ -142,3 +142,7 @@ def allow_sorting_by_votes():
 
 def show_question_votes():
     return get_site_mode().show_question_votes
+
+
+def allow_voting_and_submitting_questions():
+    return get_site_mode().allow_voting_and_submitting_questions
