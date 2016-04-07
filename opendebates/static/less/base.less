@@ -683,36 +683,39 @@ body > .container > footer {
 }
 
 @media (min-width: @responsive-shim-min) {
-  .big-idea.already-voted:hover {
-
-  .social-links {
-    .fb-button {
-      background: #3b5998;
-      a {
-        color: white;
+  .big-idea.already-voted:hover,
+  #modal-thanks .social-links-container {
+    .social-links {
+      .fb-button {
+        background: #3b5998;
+        a {
+          color: white;
+        }
+      }
+      .tweet-button {
+        background: #50abf1;
+        a {
+          color: white;
+        }
+      }
+      .reddit-button {
+        background: #FF4808;
+        a {
+          color: white;
+        }
+      }
+      .email-button {
+        background: @brand-primary;
+        a {
+          color: white;
+        }
       }
     }
-    .tweet-button {
-      background: #50abf1;
-      a {
-        color: white;
-      }
-    }
-    .reddit-button {
-      background: #FF4808;
-      a {
-        color: white;
-      }
-    }
-    .email-button {
-
-    }
-  }
   }
 }
 
 // Question styling
-.big-idea {
+.big-idea, #modal-thanks .social-links-container {
   .responsive({
     color: @brand-primary;
     border-bottom: 1px solid @separationColor;
@@ -886,6 +889,7 @@ body > .container > footer {
       }
     }
   }
+
   .social-links {
     padding-top: 5px;
     display: inline-block;
@@ -1367,6 +1371,17 @@ body {
     }
   }
 
+  h2 {
+    font-family: Knockout;
+    font-size: 60px;
+    text-transform: uppercase;
+    color: @brand-primary;
+    margin-top: 0;
+    margin-bottom: 15px;
+    line-height: 0.9em;
+    letter-spacing: 1px;
+  }
+
   .mic_icon {
     margin-top: 0px - @dialog-top-margin;
   }
@@ -1380,13 +1395,57 @@ body {
     font-size: 16px;
     margin: 10px 2px;
   }
+
+  .modal-content .btn {
+    background-color: lighten(@brand-primary, 2%);
+    font-family: Knockout-light;
+    font-size: 28px;
+    letter-spacing: 1px;
+  }
+
+  p {
+    margin-top: 15px !important;
+    font-size: 15px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.2em;
+    color: fadeout(@brand-primary, 30%);
+  }
+  
+  .checkbox {
+    margin-top: 15px !important;
+    font-size: 14px;
+    display: block !important;
+    text-align: left;
+    margin: 0 auto;
+    width: 70%;
+
+    .input-large {
+      font-size: 18px;
+      margin-right: 5px;
+    }
+  }
 }
 
 textarea#search {
   width: 87%;
 }
 
-.votebutton, .submitquestionbutton {
+.modal-login-needed .modal-dialog .modal-content .btn-primary {
+  background-color: darken(@brand-primary, 3%);
+  line-height: 0;
+  padding: 30px 70px;
+
+  &:first-child {
+    margin-right: 10px;
+  }
+  &:last-child {
+    margin-left: 10px;
+  }
+}
+
+.modal .btn, .votebutton, .submitquestionbutton {
   width: auto;
   display: inline-block;
   color: white; //@colorless;
@@ -1407,13 +1466,13 @@ textarea#search {
   margin: 1em auto;
 }
 
-.votebutton:hover {
+.modal .btn, .votebutton:hover {
   opacity: .8;
   transition: all .2s ease;
 }
 
 /* @@TODO */
-#modal-vote .modal-body {
+.modal-body {
   text-align: center;
 
   .g-recaptcha {
@@ -1432,10 +1491,34 @@ img.mic_icon {
 }
 
 /* @@TODO */
-.modal-vote-cue {
+.modal-cue {
   font-size: 13px;
   color: #00263E;
   font-weight: bold;
+}
+
+#modal-login-needed .modal-cue {
+  width: 70%;
+  margin: 0 auto;
+}
+
+#modal-thanks .social-links-container {
+  padding-top: 0;
+  margin-bottom: 25px;
+
+  .sms-button {
+    display: none;
+  }
+
+  .social-links > span {
+    margin: 0 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+
+    a {
+      color: white !important;
+    }
+  }
 }
 
 hr.mic_icon, hr.checkbox_icon {
@@ -1530,7 +1613,7 @@ hr.mic_icon:after {
   font-weight: bold;
   margin-bottom: -5px;
 }
-#modal-vote .modal-body .help-block {
+.modal-body .help-block {
   color: red;
   margin-bottom: -10px;
 }

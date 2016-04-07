@@ -256,6 +256,7 @@ class Flag(models.Model):
                                      null=True, blank=True)
     voter = models.ForeignKey(Voter)
     reviewed = models.BooleanField(default=False)
+    note = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = [

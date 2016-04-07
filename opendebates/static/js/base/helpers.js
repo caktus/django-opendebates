@@ -97,6 +97,18 @@
     });
   };
 
+  ODebates.helpers.attachEvents = function() {
+    $("#modal-report form").off("submit");
+    $("#modal-report form").on("submit", function(e) {
+      if ($(this).find("[name=report_why]:checked").length === 0) {
+        $("#modal-report").find(".modal-report-cue").css("color", "red");
+        $("#modal-report").find(".checkbox").css("color", "red");
+        e.preventDefault();
+        return;
+      }
+    });
+  };
+
   $(".social-links a").on("click", function() {
     var dimensions = {};
     dimensions.platform = $(this).attr("class");
@@ -149,6 +161,72 @@
     });
   }
 
+  $(".report-button a").on("click", function(e) {
+    e.preventDefault();
+
+    if (!ODebates.voter || !ODebates.voter.has_account) {
+      if ($("#modal-login-needed").length > 0) {
+        $("#modal-login-needed").remove();
+      }
+      $(window.Handlebars.templates.login_needed_modal({
+        "static": ODebates.paths.static,
+        "login": ODebates.paths.login,
+        "register": ODebates.paths.register,
+        "msg": "You must first log in or create an account to report a question. After you've done so, simply find the question you were looking at and try again!"
+      })).appendTo("body").modal("show");
+      return false;
+    }
+
+    var ideaId = $(this).closest("[data-idea-id]").data("idea-id"),
+        csrf = $("input[name=csrfmiddlewaretoken]").val();
+
+    if ($("#modal-report").length > 0) {
+      $("#modal-report").remove();
+    }
+    $(window.Handlebars.templates.report_modal({
+      "static": ODebates.paths.static,
+      "action": ODebates.paths.report.replace('/0/', '/'+ideaId+'/'),
+      "csrf": csrf,
+      "checkboxOptions": [
+        {"label": "This question is spam or a scam"},
+        {"label": "This question contains explicit content or hate speech"},
+        {"label": "This is not a question"},
+        {"label": "This question violates the Participation Guidelines"}
+      ]
+    })).appendTo("body").modal("show");
+    ODebates.helpers.attachEvents();
+  });
+
+  $(".merge-button a").on("click", function(e) {
+    e.preventDefault();
+
+    if (!ODebates.voter || !ODebates.voter.has_account) {
+      if ($("#modal-login-needed").length > 0) {
+        $("#modal-login-needed").remove();
+      }
+      $(window.Handlebars.templates.login_needed_modal({
+        "static": ODebates.paths.static,
+        "login": ODebates.paths.login,
+        "register": ODebates.paths.register,
+        "msg": "You must first log in or create an account to suggest a merge. After you've done so, simply find the question you were looking at and try again!"
+      })).appendTo("body").modal("show");
+      return false;
+    }
+
+    var ideaId = $(this).closest("[data-idea-id]").data("idea-id"),
+        csrf = $("input[name=csrfmiddlewaretoken]").val();
+
+    if ($("#modal-merge").length > 0) {
+      $("#modal-merge").remove();
+    }
+    $(window.Handlebars.templates.merge_modal({
+      "static": ODebates.paths.static,
+      "action": ODebates.paths.merge.replace('/0/', '/'+ideaId+'/'),
+      "csrf": csrf
+    })).appendTo("body").modal("show");
+    ODebates.helpers.attachEvents();
+  });
+
   $(".vote-button").on("click", function () {
     /* vote-button is the 'VOTE!' button under the vote count displayed on each idea */
     $($(this).data("target")).find("[data-vote-url]").attr("data-vote-url", $(this).data("vote-url"));
@@ -188,13 +266,6 @@
 
   $(window).load(function() {
 
-    if (window.location.hash && $(window.location.hash).hasClass("big-idea")) {
-      $(".show-duplicates a").trigger("click");
-      $('html, body').animate({
-        scrollTop: $(window.location.hash).offset().top
-      }, 500);
-    }
-
     if (ODebates.voter) {
       if (ODebates.voter.has_account) {
         ODebates.helpers.setTrackingDimension("registration", "full");
@@ -203,6 +274,25 @@
       }
     } else {
       ODebates.helpers.setTrackingDimension("registration", "none");
+    }
+
+    try {
+      if (window.location.hash && $(window.location.hash).hasClass("big-idea")) {
+        $(".show-duplicates a").trigger("click");
+        $('html, body').animate({
+          scrollTop: $(window.location.hash).offset().top
+        }, 500);
+      }
+    } catch (e) {}
+
+    if (window.location.hash && window.location.hash.match(/created=(\d+)/)) {
+      var ideaId = window.location.hash.match(/created=(\d+)/)[1];
+      var el = $(window.Handlebars.templates['after_question_submitted_modal']({
+        "static": ODebates.paths.static
+      }));
+      el.find(".social-links-container .social-links").html(
+        $(".big-idea[data-idea-id="+ideaId+"] .social-links").html());
+      el.appendTo("body").modal("show");
     }
     
     // Break vote count into spans for styling
