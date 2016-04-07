@@ -532,6 +532,10 @@ body > .container > footer {
   margin: 10px;
   position: relative;
 
+  .small({
+    padding: 0 5px;
+  });
+
   .search-ctn {
     [name=q] {
       width: 100%;
@@ -587,6 +591,7 @@ body > .container > footer {
   }, {
     display: block;
     font-weight: 100;
+    padding: 0 5px;
 
     .bootstrap-select {
       width: 100%;
@@ -642,6 +647,9 @@ body > .container > footer {
 
   form {
     margin-bottom: 20px;
+    .small({
+      padding: 0 5px;
+    });
 
     & > * {
       display: inline;
@@ -680,6 +688,12 @@ body > .container > footer {
       vertical-align: middle;
     }
   }
+}
+
+hr.before-idea-list {
+  .small({
+    margin-bottom: 0;
+  });
 }
 
 @media (min-width: @responsive-shim-min) {
@@ -727,6 +741,8 @@ body > .container > footer {
   },{
     display: flex;
     flex-direction: column;
+    padding-left: 5px;
+    padding-right: 5px;
 
     &.already-voted .votes {
       .vote-bottom {
