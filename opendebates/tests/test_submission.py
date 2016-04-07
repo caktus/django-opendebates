@@ -47,7 +47,8 @@ class SubmissionTest(TestCase):
         del data['question']
         rsp = self.client.post(self.url, data=data)
         submission = Submission.objects.first()
-        self.assertRedirects(rsp, submission.get_absolute_url())
+        self.assertRedirects(
+            rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
 
     def test_missing_category(self):
         data = self.data.copy()
@@ -72,7 +73,8 @@ class SubmissionTest(TestCase):
     def test_post_submission(self):
         rsp = self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
-        self.assertRedirects(rsp, submission.get_absolute_url())
+        self.assertRedirects(
+            rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
         # Check the Submission attributes
         self.assertEqual(submission.voter, self.voter)
         self.assertEqual(submission.category, self.category)
@@ -121,7 +123,8 @@ class SubmissionTest(TestCase):
         self.client.cookies['opendebates.source'] = source
         rsp = self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
-        self.assertRedirects(rsp, submission.get_absolute_url())
+        self.assertRedirects(
+            rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
         # Check the Submission attributes
         self.assertEqual(submission.voter, self.voter)
         self.assertEqual(submission.source, source)
@@ -134,7 +137,8 @@ class SubmissionTest(TestCase):
         "If no opendebates.source cookie is present, vote and submission source will be None"
         rsp = self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
-        self.assertRedirects(rsp, submission.get_absolute_url())
+        self.assertRedirects(
+            rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
         # Check the Submission attributes
         self.assertEqual(submission.voter, self.voter)
         self.assertEqual(submission.source, None)

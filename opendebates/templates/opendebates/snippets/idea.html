@@ -74,11 +74,11 @@
     <div class="idea-actions">
       {% if ALLOW_VOTING_AND_SUBMITTING_QUESTIONS %}
         {% if not idea.duplicate_of %}
-        <span>
+        <span class="merge-button">
           <a href="{% url 'merge' idea.pk %}">{% trans "Merge" %}</a>
         </span>
         {% endif %}
-        <span>
+        <span class="report-button">
           <a href="{% url 'report' idea.pk %}">{% trans "Report" %}</a>
         </span>
       {% endif %}

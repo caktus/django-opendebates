@@ -324,7 +324,7 @@ def questions(request):
     send_email("submitted_new_idea", {"idea": idea})
 
     url = reverse("vote", kwargs={'id': idea.id})
-    return redirect(url)
+    return redirect(url + "#created=%s" % idea.id)
 
 
 class OpenDebatesRegistrationView(RegistrationView):
@@ -399,7 +399,8 @@ def report(request, id):
         flag, created = Flag.objects.get_or_create(
             to_remove=idea,
             voter=voter,
-            duplicate_of=None
+            duplicate_of=None,
+            defaults=dict(note=request.POST.get("report_why"))
         )
         messages.info(request, _(u'This question has been flagged for removal.'))
         return redirect(idea)

@@ -112,6 +112,10 @@
 
   ODebates.paths.static = "{{ STATIC_URL }}";
   ODebates.debate_time_utc = new Date("{{ DEBATE_TIME|utc|date:'c' }}");
+  ODebates.paths.report = "{% url 'report' 0 %}";
+  ODebates.paths.merge = "{% url 'merge' 0 %}";
+  ODebates.paths.login = "{% url 'auth_login' %}";
+  ODebates.paths.register = "{% url 'registration_register' %}";
 
   {% if DEBUG %}
     ODebates.configs.debug = true;

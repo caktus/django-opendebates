@@ -9,7 +9,7 @@ import caching.base
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('opendebates', '0017_enable_unaccent'),
+        ('opendebates', '0018_flag_note'),
     ]
 
     operations = [
