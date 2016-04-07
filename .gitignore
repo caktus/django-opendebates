@@ -19,4 +19,4 @@ node_modules
 */static/css
 *.sqlite3
 aws.sh
-fabsecrets.py
+fabsecrets*.py
