@@ -261,12 +261,12 @@ body > .container {
         margin: 0;
         margin-top: @header-top-padding;
         .shim-interpolate(font-size, 55px, 85px);
-        .shim-interpolate(letter-spacing, 1px, 8px);
+        .shim-interpolate(letter-spacing, 2px, 4px);
         .responsive({
-          letter-spacing: 8px;
+          letter-spacing: 4px;
           font-size: 90px;
         }, {
-          letter-spacing: 3px;
+          letter-spacing: 2px;
           font-size: 30px;
         });
 
@@ -532,6 +532,10 @@ body > .container > footer {
   margin: 10px;
   position: relative;
 
+  .small({
+    padding: 0 5px;
+  });
+
   .search-ctn {
     [name=q] {
       width: 100%;
@@ -587,6 +591,7 @@ body > .container > footer {
   }, {
     display: block;
     font-weight: 100;
+    padding: 0 5px;
 
     .bootstrap-select {
       width: 100%;
@@ -642,6 +647,9 @@ body > .container > footer {
 
   form {
     margin-bottom: 20px;
+    .small({
+      padding: 0 5px;
+    });
 
     & > * {
       display: inline;
@@ -682,6 +690,12 @@ body > .container > footer {
   }
 }
 
+hr.before-idea-list {
+  .small({
+    margin-bottom: 0;
+  });
+}
+
 @media (min-width: @responsive-shim-min) {
   .big-idea.already-voted:hover,
   #modal-thanks .social-links-container {
@@ -714,6 +728,46 @@ body > .container > footer {
   }
 }
 
+@media (max-width: @responsive-small-max) {
+  .big-idea.already-voted {
+    .social-links {
+      & > span {
+        text-align: center;
+        a {
+          margin: 0 auto;
+        }
+      }
+      .fb-button {
+        background: #3b5998;
+        a {
+          color: white;
+        }
+      }
+      .tweet-button {
+        background: #50abf1;
+        a {
+          color: white;
+        }
+      }
+      .reddit-button {
+        background: #FF4808;
+        a {
+          color: white;
+        }
+      }
+      .email-button {
+        background: @brand-primary;
+        a {
+          color: white;
+          span {
+            margin-left: 5px;
+          }
+        }
+      }
+    }
+  }
+}
+
 // Question styling
 .big-idea, #modal-thanks .social-links-container {
   .responsive({
@@ -727,6 +781,8 @@ body > .container > footer {
   },{
     display: flex;
     flex-direction: column;
+    padding-left: 5px;
+    padding-right: 5px;
 
     &.already-voted .votes {
       .vote-bottom {
@@ -1036,15 +1092,31 @@ body > .container > footer {
 
     .errorlist {
       color: red;
+      font-weight: bold;
       padding-left: 0;
       list-style: none;
-      margin-bottom: -10px;
+      margin-bottom: 0;
       font-size: 13px;
+    }
+
+    .control-group:first-child {
+      label.category {
+        display: none;
+      }
+      .errorlist {
+        margin-bottom: -10px;
+        margin-top: 5px;
+      }
     }
   }
 
   .control-group {
     text-align: center;
+    margin-bottom: 15px;
+
+    &:last-child {
+      margin-top: -15px;
+    }
 
     .controls {
       position: relative;
@@ -1069,9 +1141,14 @@ body > .container > footer {
 
     input, textarea, .bootstrap-select {
       width: 87%;
+      border: none;
+    }
+    input, textarea {
+      font-size: 14px;
+      padding: 10px;
     }
     .bootstrap-select {
-      margin: 10px auto;
+      margin: 10px auto 0;
     }
   }
 
@@ -1084,7 +1161,7 @@ body > .container > footer {
       color: white;
       font-size: 30px;
       position: relative;
-      top: -25px;
+      top: -15px;
       width: 87%;
       height: 50px;
       padding-top: 17px;
@@ -1213,6 +1290,12 @@ body > .container > footer {
     border-top: 1px solid #ccc;
     flex-grow: 1;
     width: 100%;
+
+    h5 {
+      .small({
+        padding: 0 15px;
+      });
+    }
   }
 }
 
@@ -1236,7 +1319,7 @@ body > .container > footer {
 
 body .flatpage {
   margin-top: 25px;
-  min-height: 600px;
+  min-height: 800px;
 
   .control-label {
     font-weight: 100;
@@ -1261,6 +1344,21 @@ body .flatpage {
     font-size: 28px;
     letter-spacing: 1px;
     padding: 20px 60px;
+    .small({
+            display: block;
+            width: 100%;
+    });
+  }
+
+  h1 {
+    font-size: 34px;
+    text-align: center;
+    font-weight: bold;
+  }
+  h2 {
+    font-size: 20px;
+    text-align: center;
+    margin-top: 0;
   }
 }
 

@@ -110,7 +110,7 @@ class OpenDebatesAuthenticationForm(AuthenticationForm):
 
 
 class MergeFlagForm(forms.ModelForm):
-    duplicate_of_url = forms.URLField()
+    duplicate_of_url = forms.URLField(label=_("Enter URL here"))
 
     class Meta:
         model = Flag

@@ -49,13 +49,13 @@
       </div>
       <div class="header-bottom">
         <div class="header-votes">
-          {% if SHOW_TOTAL_VOTES %}<span class="number">{{ NUMBER_OF_VOTES|stringformat:"07d" }}</span>{% blocktrans %}total votes{% endblocktrans %}{% endif %}
+          {% if SHOW_TOTAL_VOTES %}<span class="number">{{ NUMBER_OF_VOTES|stringformat:"07d" }}</span>{% blocktrans %}total&nbsp;votes{% endblocktrans %}{% endif %}
         </div>
         <div class="header-count-down">
           <span class="number days">30</span> {% blocktrans %}days{% endblocktrans %}
           <span class="number hours">12</span> {% blocktrans %}hrs{% endblocktrans %}
           <span class="number minutes">5</span> {% blocktrans %}mins{% endblocktrans %}
-          until the forum
+          {% blocktrans %}until&nbsp;the&nbsp;forum{% endblocktrans %}
         </div>
       </div>
     </div>
@@ -98,7 +98,6 @@
     <div class="ft-social">
       <a id="ft-facebook" href="#">Facebook</a>
       <a id="ft-twitter" href="#">Twitter</a>
-      <a id="ft-reddit" href="#">Reddit</a>
     </div>
   </footer>
 
