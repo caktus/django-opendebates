@@ -71,7 +71,9 @@
       if (resp.status === "200") {
         var idea = $(".big-idea[data-idea-id="+resp.id+"]");
         idea.addClass('already-voted');
-        idea.find(".vote-tally-number").html(resp.tally);
+        if (resp.tally !== '') {
+          idea.find(".vote-tally-number").html(resp.tally);
+        }
         idea.find(".vote-button").hide();
         idea.find(".already-voted-button").css("display", "block");
 
@@ -287,7 +289,7 @@
 
     if (window.location.hash && window.location.hash.match(/created=(\d+)/)) {
       var ideaId = window.location.hash.match(/created=(\d+)/)[1];
-      var el = $(window.Handlebars.templates['after_question_submitted_modal']({
+      var el = $(window.Handlebars.templates.after_question_submitted_modal({
         "static": ODebates.paths.static
       }));
       el.find(".social-links-container .social-links").html(
@@ -340,7 +342,7 @@
 
   function setCountDown() {
     var now = new Date();
-    var target = new Date(2016, 2, 6, 18, 0);
+    var target = ODebates.debate_time_utc;
     var d = target - now;
     if (d < 0) {
       $('.header-count-down .number').text('0');
