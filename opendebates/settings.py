@@ -34,7 +34,7 @@ SITE_THEMES = {
 }
 SITE_THEME_NAME = 'florida'
 SITE_THEME = SITE_THEMES[SITE_THEME_NAME]
-# Can override SITE_THEME_NAME and SITE_THEME in local_settings
+# SITE_THEME_NAME and SITE_THEME get overriden in local_settings
 
 # SECRET_KEY is overriden in deploy settings
 SECRET_KEY = 'secret-key-for-local-use-only'
