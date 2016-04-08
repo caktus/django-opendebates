@@ -16,16 +16,20 @@ SITE_THEMES = {
     'florida': {
         "HASHTAG": "FLOpenDebate",
         "HEADER_TITLE": _("WELCOME TO THE\nFLORIDA OPEN DEBATE"),
-        "HEADER_COPY": _("Ask David Jolly and Alan Grayson about the issues that are most "
-        "important to you -- then vote and tell others! Watch the Florida Open Debate for U.S. "
-        "Senate on [TBD] or right here on Monday, April 25, at 8:00 pm EDT. All questions will be "
-        "chosen from among those that receive the most votes online."),
+        "HEADER_COPY": _(
+            "Ask David Jolly and Alan Grayson about the issues that are most important "
+            "to you -- then vote and tell others! Watch the Florida Open Debate for U.S. "
+            "Senate on [TBD] or right here on Monday, April 25, at 8:00 pm EDT. All questions "
+            "will be chosen from among those that receive the most votes online."),
     },
     'opendemquestions': {
         "HASHTAG": "DemOpenForum",
         "HEADER_TITLE": _("WELCOME TO THE\nDEMOCRATIC OPEN FORUM"),
-        "HEADER_COPY": _("Ask Bernie Sanders and Hillary Clinton about the issues that are most "
-        "important to you -- then vote and tell others! Watch the Democratic Open Forum on CNN or " "right here on Monday, April 25, at 8:00 pm EDT. All questions will be chosen from among " "those that receive the most votes online.")
+        "HEADER_COPY": _(
+            "Ask Bernie Sanders and Hillary Clinton about the issues that are most important "
+            "to you -- then vote and tell others! Watch the Democratic Open Forum on CNN "
+            "or right here on Monday, April 25, at 8:00 pm EDT. All questions will be chosen from "
+            "among those that receive the most votes online.")
     },
 }
 SITE_THEME_NAME = 'florida'
