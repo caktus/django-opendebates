@@ -8,6 +8,31 @@ import dj_database_url
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 
+SITE_ID = 1
+SITE_DOMAIN = os.environ.get("SITE_DOMAIN", "127.0.0.1:8000")
+SITE_DOMAIN_WITH_PROTOCOL = os.environ.get("SITE_PROTOCOL", "http://") + SITE_DOMAIN
+
+SITE_THEMES = {
+    'florida': {
+        "HASHTAG": "FLOpenDebate",
+        "HEADER_TITLE": _("WELCOME TO THE\nFLORIDA OPEN DEBATE"),
+        "HEADER_COPY": _("Ask David Jolly and Alan Grayson about the issues that are most important to you -- then vote and tell others! Watch the Florida Open Debate for U.S. Senate on [TBD] or right here on Monday, April 25, at 8:00 pm EDT. All questions will be chosen from among those that receive the most votes online."),
+    },
+    'opendemquestions': {
+        "HASHTAG": "DemOpenForum",
+        "HEADER_TITLE": _("WELCOME TO THE\nDEMOCRATIC OPEN FORUM"),
+        "HEADER_COPY": _("Ask Bernie Sanders and Hillary Clinton about the issues that are most important to you -- then vote and tell others! Watch the Democratic Open Forum on CNN or right here on Monday, April 25, at 8:00 pm EDT. All questions will be chosen from among those that receive the most votes online.")
+    },
+}
+SITE_THEME_NAME = 'florida'
+SITE_THEME = SITE_THEMES[SITE_THEME_NAME]
+for theme in SITE_THEMES:
+    if theme and theme in SITE_DOMAIN:
+        SITE_THEME_NAME = theme
+        SITE_THEME = SITE_THEMES[theme]
+        break
+# Can override SITE_THEME_NAME and SITE_THEME in local_settings
+
 # SECRET_KEY is overriden in deploy settings
 SECRET_KEY = 'secret-key-for-local-use-only'
 
@@ -201,6 +226,16 @@ PIPELINE_CSS = {
         },
     },
 }
+for theme in SITE_THEMES:
+    PIPELINE_CSS['theme-%s' % (theme,)] = {
+        'source_filenames': (
+            'less/theme-%s.less' % (theme,),
+        ),
+        'output_filename': 'css/theme-%s.css' % (theme,),
+        'extra_context': {
+            'media': 'screen,projection',
+        },
+    }
 
 PIPELINE_JS = {
     'base': {
@@ -238,10 +273,6 @@ BOWER_INSTALLED_APPS = (
     'moment',
     'handlebars',
 )
-
-SITE_ID = 1
-SITE_DOMAIN = os.environ.get("SITE_DOMAIN", "127.0.0.1:8000")
-SITE_DOMAIN_WITH_PROTOCOL = os.environ.get("SITE_PROTOCOL", "http://") + SITE_DOMAIN
 
 # Cache settings for when we're not deployed. Otherwise, local_settings will override this.
 CACHES = {

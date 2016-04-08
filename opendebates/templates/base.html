@@ -8,6 +8,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   {% load pipeline %}
   {% stylesheet 'base' %}
+  {% if SITE_THEME %}
+    {% with "theme-"|add:SITE_THEME as theme %}
+      {% stylesheet theme %}
+    {% endwith %}
+  {% endif %}
   {% block loading_stylesheets %}
   {% endblock %}
   <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,300,600,400|Open+Sans+Condensed:700"
@@ -39,10 +44,8 @@
       {% endif %}
     </div>
     <div class="header-title">
-      <h1><a href="/">{% blocktrans %}Welcome to the{% endblocktrans %}<br/>{% blocktrans %}Democratic Open Forum{% endblocktrans %}</a></h1>
-      <div class="header-copy">
-        {% blocktrans %}Ask Bernie and Hillary about the issues that are most important to you. Then tune in here to watch the Democratic Open Forum on Thursday, March 3 at 9:00 pm EST. All questions will be chosen from among those that receive the most votes.{% endblocktrans %}
-      </div>
+      <h1><a href="/">{{ SITE_THEME.HEADER_TITLE|linebreaks }}</a></h1>
+      <div class="header-copy">{{ SITE_THEME.HEADER_COPY }}</div>
       <div class="header-small-logos">
         <img src="{% static "images/logo-progressive-change-institute.png" %}">
         <img src="{% static "images/logo-cnn.png" %}">
