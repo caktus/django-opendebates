@@ -22,7 +22,7 @@ SITE_THEMES = {
             "Senate on [TBD] or right here on Monday, April 25, at 8:00 pm EDT. All questions "
             "will be chosen from among those that receive the most votes online."),
     },
-    'opendemquestions': {
+    'testing': { # Presidential Debate
         "HASHTAG": "DemOpenForum",
         "HEADER_TITLE": _("WELCOME TO THE\nDEMOCRATIC OPEN FORUM"),
         "HEADER_COPY": _(
@@ -34,11 +34,6 @@ SITE_THEMES = {
 }
 SITE_THEME_NAME = 'florida'
 SITE_THEME = SITE_THEMES[SITE_THEME_NAME]
-for theme in SITE_THEMES:
-    if theme and theme in SITE_DOMAIN:
-        SITE_THEME_NAME = theme
-        SITE_THEME = SITE_THEMES[theme]
-        break
 # Can override SITE_THEME_NAME and SITE_THEME in local_settings
 
 # SECRET_KEY is overriden in deploy settings
