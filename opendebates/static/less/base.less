@@ -94,6 +94,11 @@
   src: url("/static/fonts/Knockout-HTF28-JuniorFeatherwt.otf") format("opentype");
 }
 
+body h1 p {
+  font-size: inherit;
+  line-height: 100%;
+}
+
 @socialIconWidth: 30px;
 
 .share-button(@iconURL, @width: @socialIconWidth, @height: 20px, @top: -1px) {
@@ -1510,7 +1515,7 @@ body {
     line-height: 1.2em;
     color: fadeout(@brand-primary, 30%);
   }
-  
+
   .checkbox {
     margin-top: 15px !important;
     font-size: 14px;

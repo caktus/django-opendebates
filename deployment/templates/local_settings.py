@@ -8,7 +8,7 @@ DEBUG = False
 
 # logging settings
 #LOGGING['filters']['static_fields']['fields']['deployment'] = '{{ deployment_tag }}'
-#LOGGING['filters']['static_fields']['fields']['environment'] = '{{ environment }}'
+#LOGGING['filters']['static_fields']['fields'][''] = '{{ environment }}'
 #LOGGING['filters']['static_fields']['fields']['role'] = '{{ current_role }}'
 # AWS_STORAGE_BUCKET_NAME = '{{ staticfiles_s3_bucket }}'
 # AWS_ACCESS_KEY_ID = 'AKIAI3XJKABCOBWLX33A'
@@ -194,3 +194,6 @@ NORECAPTCHA_SITE_KEY = '{{ recaptcha_site_key }}'
 NORECAPTCHA_SECRET_KEY = '{{ recaptcha_secret }}'
 USE_CAPTCHA = {{ use_captcha|default(true) }}
 MIXPANEL_KEY = '{{ mixpanel_key }}'
+
+SITE_THEME_NAME = '{{ environment }}'
+SITE_THEME = SITE_THEMES[SITE_THEME_NAME]

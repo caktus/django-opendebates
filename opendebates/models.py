@@ -106,8 +106,11 @@ class Submission(models.Model):
         return "vote", [self.id]
 
     def my_tweet_text(self):
-        return _(u"Vote for my progressive idea for @ThinkBigUS #BigIdeasProject. "
-                 "30 leaders in Congress will see top ideas!")
+        params = {
+            "hashtag": settings.SITE_THEME['HASHTAG'],
+        }
+        return _(u"Vote for my progressive idea for @ThinkBigUS #%s(hashtag)s. "
+                 "30 leaders in Congress will see top ideas!" % params)
 
     def tweet_text(self):
         text = _(u"Let's make sure 30 leaders in Congress see this #BigIdea about "
@@ -134,10 +137,11 @@ class Submission(models.Model):
         params = {
             "idea": self.idea,
             "url": self.really_absolute_url(),
+            "hashtag": settings.SITE_THEME['HASHTAG'],
         }
-        subject = _(u"Vote for my progressive idea for @OpenDebate2016 #OpenDebate2016. ")
+        subject = _(u"Vote for my progressive idea for @OpenDebaters #%(hashtag)s." % params)
         body = _(
-            """Vote for my progressive idea for @OpenDebate2016 #OpenDebate2016.
+            """Vote for my progressive idea for @OpenDebaters #%(hashtag)s.
 
             %(idea)s
 
@@ -147,10 +151,11 @@ class Submission(models.Model):
         return u"mailto:?subject=%s&body=%s" % (quote_plus(subject), quote_plus(body))
 
     def sms_url(self):
-        body = _(
-            u"Vote for my progressive idea for @OpenDebate2016 #OpenDebate2016. %(url)s"
-            % {"url": self.really_absolute_url()}
-        )
+        params = {
+            "url": self.really_absolute_url(),
+            "hashtag": settings.SITE_THEME['HASHTAG'],
+        }
+        body = _(u"Vote for my progressive idea for @OpenDebaters #%(hashtag)s. %(url)s" % params)
         return u"sms:;?body=%s" % (quote_plus(body),)
 
     def really_absolute_url(self):
