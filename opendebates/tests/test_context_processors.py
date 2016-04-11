@@ -1,6 +1,6 @@
 import urlparse
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.conf import settings
 from mock import patch, Mock
 
@@ -22,6 +22,7 @@ class ThemeTests(TestCase):
     def setUp(self):
         self.idea = SubmissionFactory()
 
+    @override_settings(SITE_THEME={'HASHTAG': 'TestHastag'})
     def test_email_url(self):
         settings.SITE_THEME['HASHTAG'] = 'TestHashtag'
         email_url = self.idea.email_url()
