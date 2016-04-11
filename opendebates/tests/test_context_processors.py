@@ -22,9 +22,8 @@ class ThemeTests(TestCase):
     def setUp(self):
         self.idea = SubmissionFactory()
 
-    @override_settings(SITE_THEME={'HASHTAG': 'TestHastag'})
+    @override_settings(SITE_THEME={'HASHTAG': 'TestHashtag'})
     def test_email_url(self):
-        settings.SITE_THEME['HASHTAG'] = 'TestHashtag'
         email_url = self.idea.email_url()
         fields = urlparse.parse_qs(urlparse.urlparse(email_url).query)
         self.assertTrue('subject' in fields, fields)
