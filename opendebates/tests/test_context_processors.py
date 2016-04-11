@@ -1,7 +1,6 @@
 import urlparse
 
 from django.test import TestCase, override_settings
-from django.conf import settings
 from mock import patch, Mock
 
 from opendebates.context_processors import global_vars
