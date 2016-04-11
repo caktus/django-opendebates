@@ -22,7 +22,7 @@ SITE_THEMES = {
             "Senate on [TBD] or right here on Monday, April 25, at 8:00 pm EDT. All questions "
             "will be chosen from among those that receive the most votes online."),
     },
-    'testing': { # Presidential Debate
+    'testing': {  # Presidential Debate
         "HASHTAG": "DemOpenForum",
         "HEADER_TITLE": _("WELCOME TO THE\nDEMOCRATIC OPEN FORUM"),
         "HEADER_COPY": _(
