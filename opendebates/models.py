@@ -139,7 +139,7 @@ class Submission(models.Model):
             "url": self.really_absolute_url(),
             "hashtag": settings.SITE_THEME['HASHTAG'],
         }
-        subject = _(u"Vote for my progressive idea for @OpenDebaters #%(hashtag)s. ")
+        subject = _(u"Vote for my progressive idea for @OpenDebaters #%(hashtag)s." % params)
         body = _(
             """Vote for my progressive idea for @OpenDebaters #%(hashtag)s.
 
