@@ -2,9 +2,11 @@
 {% load i18n bootstrap %}
 {% block title %}{% trans "Register for an account" %}{% endblock %}
 {% block content %}
-  <div class="row flatpage">
+  <div class="row flatpage registration-page">
     <div class="col-sm-8 col-sm-offset-2 text-center">
 
+      <h1>{% blocktrans %}Welcome!{% endblocktrans %}</h1>
+      <h2>{% blocktrans %}Register now to submit and vote on questions.{% endblocktrans %}</h2>
       <form method="post" action="">{% csrf_token %}
         {{ form|bootstrap }}
         <input type="hidden" name="next" value="{{ next }}" />
