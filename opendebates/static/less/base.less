@@ -738,6 +738,7 @@ hr.before-idea-list {
     .social-links {
       & > span {
         text-align: center;
+        flex-grow: 1;
         a {
           margin: 0 auto;
         }
@@ -1217,7 +1218,7 @@ hr.before-idea-list {
     flex-grow: 1;
 
     .social-links {
-      display: none;
+      display: none !important;
       .sms-button {
         display: none;
       }
@@ -1306,7 +1307,7 @@ hr.before-idea-list {
 
 .question-detail .idea-related .big-idea {
   .social-links {
-    display: inline-block;
+    display: flex !important;
   }
 }
 
@@ -1364,6 +1365,21 @@ body .flatpage {
     font-size: 20px;
     text-align: center;
     margin-top: 0;
+  }
+}
+
+body .flatpage.registration-page {
+  h1 {
+    font-family: Knockout;
+    text-transform: uppercase;
+    font-size: 60px;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-weight: normal;
+    font-size: 14px;
   }
 }
 

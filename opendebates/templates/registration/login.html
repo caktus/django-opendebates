@@ -4,9 +4,10 @@
 {% block content %}
 {% url 'registration_register' as register_url%}
 
-  <div class="flatpage row">
+  <div class="flatpage row registration-page">
     <div class="col-sm-8 col-sm-offset-2 text-center">
 
+      <h1>{% blocktrans %}Log In{% endblocktrans %}</h1>
       {% load bootstrap %}
       <form method="post" action="{% url 'auth_login' %}">{% csrf_token %}
         {{ form|bootstrap }}
@@ -24,7 +25,6 @@
         Usernames and passwords are case-sensitive.
         {% endblocktrans %}
       </p>
-      <p>{% blocktrans %}Need an account?{% endblocktrans %}</p>
       <p>
         <a class="btn btn-default" href="{{ register_url }}{% if next %}?next={{ next }}{% endif %}">
           {% blocktrans %}Create an Account{% endblocktrans %}
