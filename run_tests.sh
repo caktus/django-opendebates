@@ -12,4 +12,4 @@ find . -name "*.js" -not \( \
 flake8 .
 coverage erase
 coverage run manage.py test --keepdb "$@"
-coverage report -m --fail-under 65  # FIXME: increase minimum requirement to 80 ASAP
+coverage report -m --fail-under 80
