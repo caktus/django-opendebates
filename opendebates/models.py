@@ -37,6 +37,7 @@ class SiteMode(CachingMixin, models.Model):
         default=datetime.datetime(2099, 1, 1),
         help_text="Enter time that debate starts in timezone %s" % settings.TIME_ZONE,
     )
+    debate_state = models.CharField(max_length=5, null=True, blank=True)
 
     objects = CachingManager()
 
@@ -73,6 +74,7 @@ class Submission(models.Model):
                                      related_name="duplicates")
 
     votes = models.IntegerField(default=0, db_index=True)
+    local_votes = models.IntegerField(default=0, db_index=True)
     score = models.FloatField(default=0, db_index=True)
     rank = models.FloatField(default=0, db_index=True)
 
