@@ -1,3 +1,5 @@
+from urllib import quote_plus
+
 from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 from django.utils.html import mark_safe
@@ -5,6 +7,18 @@ import json
 
 from .models import Category, Vote
 from .utils import get_voter, get_number_of_votes, vote_needs_captcha, get_site_mode
+
+
+url_tmpl = u"https://twitter.com/intent/tweet?url=" + \
+                   "%(SITE_DOMAIN)s&text=%(tweet_text)s"
+TWITTER_URL = url_tmpl % {
+            "SITE_DOMAIN": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL),
+            "tweet_text": quote_plus(settings.SITE_THEME['TWITTER_SITE_TEXT']),
+            }
+
+FACEBOOK_URL = u"https://www.facebook.com/sharer/sharer.php?&u=%(url)s" % {
+            "url": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL),
+            }
 
 
 def voter(request):
@@ -37,7 +51,12 @@ def global_vars(request):
         'VOTE_NEEDS_CAPTCHA': vote_needs_captcha(request),
         'NUMBER_OF_VOTES': get_number_of_votes() if mode.show_total_votes else 0,  # Just in case
         'STATIC_URL': settings.STATIC_URL,
+
+        'FACEBOOK_URL': FACEBOOK_URL,
+        'TWITTER_URL': TWITTER_URL,
+
         'SITE_DOMAIN': settings.SITE_DOMAIN,
+        'SITE_LINK': settings.SITE_DOMAIN_WITH_PROTOCOL,
         'MIXPANEL_KEY': settings.MIXPANEL_KEY,
         'SHOW_QUESTION_VOTES': mode.show_question_votes,
         'SHOW_TOTAL_VOTES': mode.show_total_votes,
