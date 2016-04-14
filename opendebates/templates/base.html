@@ -23,7 +23,7 @@
   {% load pipeline %}
   {% stylesheet 'base' %}
   {% if SITE_THEME %}
-    {% with "theme-"|add:SITE_THEME as theme %}
+    {% with "theme-"|add:SITE_THEME_NAME as theme %}
       {% stylesheet theme %}
     {% endwith %}
   {% endif %}
