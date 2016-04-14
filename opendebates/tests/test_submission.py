@@ -3,7 +3,7 @@ from urlparse import urlparse
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from opendebates.models import Submission, Vote
+from opendebates.models import Submission, Vote, SiteMode, ZipCode
 from opendebates_emails.models import EmailTemplate
 from .factories import CategoryFactory, UserFactory, VoterFactory, SubmissionFactory
 
@@ -90,6 +90,69 @@ class SubmissionTest(TestCase):
         # but Vote objects are also created
         votes = Vote.objects.filter(voter=self.voter)
         self.assertEqual(1, len(votes))
+
+    def test_post_submission_from_local_user(self):
+        mode, _ = SiteMode.objects.get_or_create()
+        mode.debate_state = "NY"
+        mode.save()
+
+        ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
+
+        user = UserFactory(password="secretpassword")
+        VoterFactory(user=user, email=user.email, zip="11111", state="NY")
+
+        self.client.logout()
+        assert self.client.login(username=user.username, password="secretpassword")
+
+        rsp = self.client.post(self.url, data=self.data)
+        submission = Submission.objects.first()
+        self.assertRedirects(
+            rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
+
+        self.assertEqual(submission.votes, 1)
+        self.assertEqual(submission.local_votes, 1)
+
+    def test_post_submission_from_nonlocal_user(self):
+        mode, _ = SiteMode.objects.get_or_create()
+        mode.debate_state = "FL"
+        mode.save()
+
+        ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
+
+        user = UserFactory(password="secretpassword")
+        VoterFactory(user=user, email=user.email, zip="11111", state="NY")
+
+        self.client.logout()
+        assert self.client.login(username=user.username, password="secretpassword")
+
+        rsp = self.client.post(self.url, data=self.data)
+        submission = Submission.objects.first()
+        self.assertRedirects(
+            rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
+
+        self.assertEqual(submission.votes, 1)
+        self.assertEqual(submission.local_votes, 0)
+
+    def test_post_submission_when_no_local_district_configured(self):
+        mode, _ = SiteMode.objects.get_or_create()
+        mode.debate_state = None
+        mode.save()
+
+        ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
+
+        user = UserFactory(password="secretpassword")
+        VoterFactory(user=user, email=user.email, zip="11111", state="NY")
+
+        self.client.logout()
+        assert self.client.login(username=user.username, password="secretpassword")
+
+        rsp = self.client.post(self.url, data=self.data)
+        submission = Submission.objects.first()
+        self.assertRedirects(
+            rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
+
+        self.assertEqual(submission.votes, 1)
+        self.assertEqual(submission.local_votes, 0)
 
     def test_post_submission_anon(self):
         "Anon user can post submissions, but needs to login/register first."

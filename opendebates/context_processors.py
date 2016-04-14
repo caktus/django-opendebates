@@ -44,6 +44,7 @@ def global_vars(request):
         'ALLOW_SORTING_BY_VOTES': mode.allow_sorting_by_votes,
         'ALLOW_VOTING_AND_SUBMITTING_QUESTIONS': mode.allow_voting_and_submitting_questions,
         'DEBATE_TIME': mode.debate_time,
+        'LOCAL_VOTES_STATE': mode.debate_state,
         'SUBMISSION_CATEGORIES': SimpleLazyObject(_get_categories),
         'SITE_THEME_NAME': settings.SITE_THEME_NAME,
         'SITE_THEME': settings.SITE_THEMES[settings.SITE_THEME_NAME],

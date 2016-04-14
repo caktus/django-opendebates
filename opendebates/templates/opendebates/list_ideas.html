@@ -81,6 +81,11 @@
           <option value="+votes" {% if sort == "+votes" %}selected{% endif %}>
             {% blocktrans %}Fewest Votes{% endblocktrans %}
           </option>
+          {% if LOCAL_VOTES_STATE %}
+          <option value="-local_votes" {% if sort == "+local_votes" %}selected{% endif %}>
+            {% blocktrans %}In-District Votes{% endblocktrans %}
+          </option>
+          {% endif %}
         {% endif %}
         </select>
         <div class="display-count">
