@@ -134,20 +134,10 @@ class Submission(models.Model):
         return u"//www.reddit.com/submit?url=%s" % (quote_plus(self.really_absolute_url()),)
 
     def email_url(self):
-        params = {
-            "idea": self.idea,
+        subject = settings.SITE_THEME['EMAIL_SUBJECT']
+        body = settings.SITE_THEME['EMAIL_BODY'] % {
             "url": self.really_absolute_url(),
-            "hashtag": settings.SITE_THEME['HASHTAG'],
         }
-        subject = _(u"Vote for my progressive idea for @OpenDebaters #%(hashtag)s." % params)
-        body = _(
-            """Vote for my progressive idea for @OpenDebaters #%(hashtag)s.
-
-            %(idea)s
-
-            %(url)s
-            """ % params
-        )
         return u"mailto:?subject=%s&body=%s" % (quote_plus(subject), quote_plus(body))
 
     def sms_url(self):
