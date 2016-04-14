@@ -21,7 +21,7 @@ SITE_THEMES = {
         "HEADER_COPY": _(
             u"Ask David Jolly and Alan Grayson about the issues that are most important "
             "to you -- then vote and tell others! Watch the Florida Open Debate for U.S. "
-            "Senate on Monday, April 25, at 7:00 pm EDT. All questions "
+            "Senate right here on Monday, April 25, at 7:00 pm EDT. All questions "
             "will be chosen from among those that receive the most votes online."),
         "TWITTER_IMAGE":
             "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
