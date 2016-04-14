@@ -197,3 +197,5 @@ MIXPANEL_KEY = '{{ mixpanel_key }}'
 
 SITE_THEME_NAME = '{{ environment }}'
 SITE_THEME = SITE_THEMES[SITE_THEME_NAME]
+SITE_DOMAIN = '{{ site_domains[0] }}'
+SITE_DOMAIN_WITH_PROTOCOL = "https://" + SITE_DOMAIN
