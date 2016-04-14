@@ -21,9 +21,13 @@ class ThemeTests(TestCase):
     def setUp(self):
         self.idea = SubmissionFactory()
 
-    @override_settings(SITE_THEME={'HASHTAG': 'TestHashtag'})
+    @override_settings(SITE_THEME={
+        'EMAIL_SUBJECT': 'THE EMAIL SUBJECT',
+        'EMAIL_BODY': 'THE EMAIL BODY\nAND SECOND LINE',
+    })
     def test_email_url(self):
         email_url = self.idea.email_url()
         fields = urlparse.parse_qs(urlparse.urlparse(email_url).query)
         self.assertTrue('subject' in fields, fields)
-        self.assertTrue('#TestHashtag' in fields['subject'][0], fields['subject'][0])
+        self.assertEqual('THE EMAIL SUBJECT', fields['subject'][0], fields['subject'][0])
+        self.assertEqual('THE EMAIL BODY\nAND SECOND LINE', fields['body'][0], fields['body'][0])
