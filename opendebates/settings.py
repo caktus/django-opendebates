@@ -93,7 +93,7 @@ SITE_THEMES = {
             'Progressive Change Institute',
 
         "FACEBOOK_IMAGE":
-            u"https://s3.amazonaws.com/s3.boldprogressives.org/images/"
+            "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
             "OpenDebates_VOTE-NOW_FB-1200x717-FODUrl.png",
         "FACEBOOK_SITE_TITLE":
             u"HISTORIC: Florida U.S. Senate Candidates answer YOUR top-voted questions!",
