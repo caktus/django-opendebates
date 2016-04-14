@@ -30,7 +30,7 @@ SITE_THEMES = {
         "TWITTER_SITE_TITLE":
             u"U.S. Senate candidates answer YOUR questions!",
         "TWITTER_SITE_DESCRIPTION":
-            u"Mon 4/25 @8pm EDT on [TBD]: Voters set the agenda for groundbreaking #OpenDebate. "
+            u"Mon 4/25 @7pm EDT: Voters set the agenda for groundbreaking #OpenDebate. "
             "Submit & vote here!",
         "TWITTER_QUESTION_TEXT":
             u"Submit & vote on questions for FL-Sen #OpenDebate between @DavidJollyFL "
@@ -39,7 +39,7 @@ SITE_THEMES = {
             u"Click here to vote on this question for U.S. Senate candidates to answer at "
             "the #OpenDebate in Florida!",
         "TWITTER_QUESTION_DESCRIPTION":
-            u'"{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
+            u'"{idea}" At 7pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
             'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, '
             'Progressive Change Institute',
 
@@ -50,13 +50,13 @@ SITE_THEMES = {
             u"HISTORIC: Florida U.S. Senate Candidates answer YOUR top-voted questions!",
         "FACEBOOK_SITE_DESCRIPTION":
             u"Groundbreaking bottom-up #OpenDebate to take place Mon 4/25 @7pm EDT, hosted "
-            "by Open Debate Coalition, Progressive Change Institute, & [MEDIA PARTNER]. All "
+            "by Open Debate Coalition & Progressive Change Institute. All "
             "questions will be chosen from top vote-getters online. Submit & vote here!",
         "FACEBOOK_QUESTION_TITLE":
             u'Click here to vote on this question for U.S. Senate candidates to answer at the '
             '#OpenDebate in Florida!',
         "FACEBOOK_QUESTION_DESCRIPTION":
-            u'"{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
+            u'"{idea}" At 7pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
             'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive '
             'Change Institute',
     },
