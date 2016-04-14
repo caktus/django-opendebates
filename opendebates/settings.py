@@ -21,7 +21,7 @@ SITE_THEMES = {
         "HEADER_COPY": _(
             u"Ask David Jolly and Alan Grayson about the issues that are most important "
             "to you -- then vote and tell others! Watch the Florida Open Debate for U.S. "
-            "Senate on Monday, April 25, at 7:00 pm EDT. All questions "
+            "Senate right here on Monday, April 25, at 7:00 pm EDT. All questions "
             "will be chosen from among those that receive the most votes online."),
         "TWITTER_IMAGE":
             "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
@@ -42,7 +42,7 @@ SITE_THEMES = {
             "the #OpenDebate in Florida!",
         "TWITTER_QUESTION_DESCRIPTION":
             u'"{idea}" At 7pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
-            'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, '
+            'at bottom-up #OpenDebate hosted by Open Debate Coalition & '
             'Progressive Change Institute',
 
         "FACEBOOK_IMAGE":
@@ -59,7 +59,7 @@ SITE_THEMES = {
             '#OpenDebate in Florida!',
         "FACEBOOK_QUESTION_DESCRIPTION":
             u'"{idea}" At 7pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
-            'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive '
+            'at bottom-up #OpenDebate hosted by Open Debate Coalition & Progressive '
             'Change Institute',
 
         "EMAIL_SUBJECT":
