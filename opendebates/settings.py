@@ -9,8 +9,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 
 SITE_ID = 1
-SITE_DOMAIN = os.environ.get("SITE_DOMAIN", "127.0.0.1:8000")
-SITE_DOMAIN_WITH_PROTOCOL = os.environ.get("SITE_PROTOCOL", "http://") + SITE_DOMAIN
+SITE_DOMAIN = os.environ.get("DOMAIN", os.environ.get("SITE_DOMAIN", "127.0.0.1:8000"))
+SITE_DOMAIN_WITH_PROTOCOL = "https://" + SITE_DOMAIN
 
 SITE_THEMES = {
     'florida': {
@@ -21,6 +21,44 @@ SITE_THEMES = {
             "to you -- then vote and tell others! Watch the Florida Open Debate for U.S. "
             "Senate on [TBD] or right here on Monday, April 25, at 8:00 pm EDT. All questions "
             "will be chosen from among those that receive the most votes online."),
+        "TWITTER_IMAGE":
+            "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
+            "OpenDebates_VOTE-NOW_TW-1024x512-FODUrl.png",
+        "TWITTER_SITE_TEXT":
+            "Submit & vote on questions for FL-Sen #OpenDebate between @DavidJollyFL "
+            "& @AlanGrayson hosted by Open Debate Coalition, Progressive Change Inst.",
+        "TWITTER_SITE_TITLE":
+            "U.S. Senate candidates answer YOUR questions!",
+        "TWITTER_SITE_DESCRIPTION":
+            "Mon 4/25 @8pm EDT on [TBD]: Voters set the agenda for groundbreaking #OpenDebate. "
+            "Submit & vote here!",
+        "TWITTER_QUESTION_TEXT":
+            "Submit & vote on questions for FL-Sen #OpenDebate between @DavidJollyFL "
+            "& @AlanGrayson hosted by Open Debate Coalition, Progressive Change Inst.",
+        "TWITTER_QUESTION_TITLE":
+            "Click here to vote on this question for U.S. Senate candidates to answer at "
+            "the #OpenDebate in Florida!",
+        "TWITTER_QUESTION_DESCRIPTION":
+            '"{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
+            'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, '
+            'Progressive Change Institute',
+
+        "FACEBOOK_IMAGE":
+            "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
+            "OpenDebates_VOTE-NOW_FB-1200x717-FODUrl.png",
+        "FACEBOOK_SITE_TITLE":
+            "HISTORIC: Florida U.S. Senate Candidates answer YOUR top-voted questions!",
+        "FACEBOOK_SITE_DESCRIPTION":
+            "Groundbreaking bottom-up #OpenDebate to take place Mon 4/25 @7pm EDT, hosted "
+            "by Open Debate Coalition, Progressive Change Institute, & [MEDIA PARTNER]. All "
+            "questions will be chosen from top vote-getters online. Submit & vote here!",
+        "FACEBOOK_QUESTION_TITLE":
+            'Click here to vote on this question for U.S. Senate candidates to answer at the '
+            '#OpenDebate in Florida!',
+        "FACEBOOK_QUESTION_DESCRIPTION":
+            '"{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
+            'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive '
+            'Change Institute',
     },
     'testing': {  # Presidential Debate
         "HASHTAG": "DemOpenForum",
@@ -29,7 +67,47 @@ SITE_THEMES = {
             "Ask Bernie Sanders and Hillary Clinton about the issues that are most important "
             "to you -- then vote and tell others! Watch the Democratic Open Forum on CNN "
             "or right here on Monday, April 25, at 8:00 pm EDT. All questions will be chosen from "
-            "among those that receive the most votes online.")
+            "among those that receive the most votes online."),
+
+        # FIXME: Twitter & Facebook settings for Presidential debate
+        "TWITTER_IMAGE":
+            "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
+            "OpenDebates_VOTE-NOW_TW-1024x512-FODUrl.png",
+        "TWITTER_SITE_TEXT":
+            "Submit & vote on questions for FL-Sen #OpenDebate between @DavidJollyFL "
+            "& @AlanGrayson hosted by Open Debate Coalition, Progressive Change Inst.",
+        "TWITTER_SITE_TITLE":
+            "U.S. Senate candidates answer YOUR questions!",
+        "TWITTER_SITE_DESCRIPTION":
+            "Mon 4/25 @8pm EDT on [TBD]: Voters set the agenda for groundbreaking #OpenDebate. "
+            "Submit & vote here!",
+        "TWITTER_QUESTION_TEXT":
+            "Submit & vote on questions for FL-Sen #OpenDebate between @DavidJollyFL "
+            "& @AlanGrayson hosted by Open Debate Coalition, Progressive Change Inst.",
+        "TWITTER_QUESTION_TITLE":
+            "Click here to vote on this question for U.S. Senate candidates to answer at "
+            "the #OpenDebate in Florida!",
+        "TWITTER_QUESTION_DESCRIPTION":
+            '"{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
+            'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, '
+            'Progressive Change Institute',
+
+        "FACEBOOK_IMAGE":
+            "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
+            "OpenDebates_VOTE-NOW_FB-1200x717-FODUrl.png",
+        "FACEBOOK_SITE_TITLE":
+            "HISTORIC: Florida U.S. Senate Candidates answer YOUR top-voted questions!",
+        "FACEBOOK_SITE_DESCRIPTION":
+            "Groundbreaking bottom-up #OpenDebate to take place Mon 4/25 @7pm EDT, hosted "
+            "by Open Debate Coalition, Progressive Change Institute, & [MEDIA PARTNER]. All "
+            "questions will be chosen from top vote-getters online. Submit & vote here!",
+        "FACEBOOK_QUESTION_TITLE":
+            'Click here to vote on this question for U.S. Senate candidates to answer at the '
+            '#OpenDebate in Florida!',
+        "FACEBOOK_QUESTION_DESCRIPTION":
+            '"{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
+            'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive '
+            'Change Institute',
     },
 }
 SITE_THEME_NAME = 'florida'

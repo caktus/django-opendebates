@@ -115,9 +115,7 @@ class Submission(models.Model):
                  "30 leaders in Congress will see top ideas!" % params)
 
     def tweet_text(self):
-        text = _(u"Let's make sure 30 leaders in Congress see this #BigIdea about "
-                 "%(category_name)s - please vote and RT!" % {
-                     "category_name": quote_plus(self.category.name)})
+        text = settings.SITE_THEME['TWITTER_QUESTION_TEXT']
         if self.voter.twitter_handle:
             text += u" h/t @%s" % self.voter.twitter_handle
         return text
@@ -171,6 +169,21 @@ class Submission(models.Model):
             "idea_url": quote_plus(self.get_absolute_url()),
             "tweet_text": quote_plus(self.tweet_text()),
             }
+
+    def twitter_title(self):
+        # Vote on this question for the FL-Sen #OpenDebate!
+        return settings.SITE_THEME['TWITTER_QUESTION_TITLE'].format(idea=self.idea)
+
+    def twitter_description(self):
+        # "{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions at
+        # bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive Change Institute
+        return settings.SITE_THEME['TWITTER_QUESTION_DESCRIPTION'].format(idea=self.idea)
+
+    def facebook_title(self):
+        return settings.SITE_THEME['FACEBOOK_QUESTION_TITLE'].format(idea=self.idea)
+
+    def facebook_description(self):
+        return settings.SITE_THEME['FACEBOOK_QUESTION_DESCRIPTION'].format(idea=self.idea)
 
 
 class ZipCode(CachingMixin, models.Model):
