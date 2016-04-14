@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+v0.0.6 on 2016-04-14
+--------------------
+
+* Incorporate SITE_THEMES for customization of Florida static content (#133)
+* More style polish from Ethan (#135)
+* Track and sort by local vote counts (#136)
+* Add Facebook/Twitter meta tags (#137)
+* Coverage / gitignore improvements (#132, #134)
+
 v0.0.5 on 2016-04-07
 --------------------
 
