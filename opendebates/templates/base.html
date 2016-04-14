@@ -6,10 +6,30 @@
     {% block title %}Open Debates{% endblock %}
   </title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  {% block metadata %}
+    <meta name="twitter:card" content="summary_large_image">
+    {# <meta name="twitter:site" content="@Opendebaters"> #}
+    {# <meta name="twitter:creator" content="@Opendebaters"> #}
+    <meta name="twitter:title" content="{{ SITE_THEME.TWITTER_SITE_TITLE }}">
+    <meta name="twitter:description" content="{{ SITE_THEME.TWITTER_SITE_DESCRIPTION }}">
+    <meta name="twitter:image" content="{{ SITE_THEME.TWITTER_IMAGE }}">
+
+    <meta property="og:url" content="{{ SITE_LINK }}"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="{{ SITE_THEME.FACEBOOK_SITE_TITLE }}"/>
+    <meta property="og:description" content="{{ SITE_THEME.FACEBOOK_SITE_DESCRIPTION }}"/>
+    <meta property="og:image" content="{{ SITE_THEME.FACEBOOK_IMAGE }}"/>
+  {% endblock metadata %}
   {% load pipeline %}
   {% stylesheet 'base' %}
+  {% if SITE_THEME %}
+    {% with "theme-"|add:SITE_THEME as theme %}
+      {% stylesheet theme %}
+    {% endwith %}
+  {% endif %}
   {% block loading_stylesheets %}
   {% endblock %}
+  <link href="{% static 'images/favicon.png' %}" type="image/png" rel="shortcut icon">
   <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,300,600,400|Open+Sans+Condensed:700"
         rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
@@ -29,7 +49,7 @@
     <div class="login-container{% if request.user.is_authenticated %} login-container-authenticated{% endif %}">
       {% if request.user.is_authenticated %}
         <a href="{# url 'user_profile' #}">
-          {% blocktrans with username=request.user.username %}Welcome, {{ username }}!{% endblocktrans %}
+          {% blocktrans with username=request.user.first_name %}Welcome, {{ username }}!{% endblocktrans %}
         </a>
         <span>/</span>
         <a href="{% url 'auth_logout' %}">{% blocktrans %}Log out{% endblocktrans %}</a>
@@ -39,10 +59,8 @@
       {% endif %}
     </div>
     <div class="header-title">
-      <h1><a href="/">{% blocktrans %}Welcome to the{% endblocktrans %}<br/>{% blocktrans %}Democratic Open Forum{% endblocktrans %}</a></h1>
-      <div class="header-copy">
-        {% blocktrans %}Ask Bernie and Hillary about the issues that are most important to you. Then tune in here to watch the Democratic Open Forum on Thursday, March 3 at 9:00 pm EST. All questions will be chosen from among those that receive the most votes.{% endblocktrans %}
-      </div>
+      <h1><a href="/">{{ SITE_THEME.HEADER_TITLE|linebreaks }}</a></h1>
+      <div class="header-copy">{{ SITE_THEME.HEADER_COPY }}</div>
       <div class="header-small-logos">
         <img src="{% static "images/logo-progressive-change-institute.png" %}">
         <img src="{% static "images/logo-cnn.png" %}">
@@ -83,21 +101,18 @@
 
 <div class="container container-wide">
   <footer>
-    <img src="{% static "images/ft-detroit-news.png" %}" />
-    <img src="{% static "images/ft-young-turks.png" %}" />
-    <img src="{% static "images/ft-reddit.png" %}" />
     <hr />
     <nav>
-      <a href="#">About</a>
-      <a href="#">Participation Guidelines</a>
-      <a href="#">Press</a>
-      <a href="#">Partners</a>
-      <a href="#">Privacy Policy</a>
-      <a href="#">Contact</a>
+      <a href="/about/">About</a>
+      <a href="/participation/">Participation Guidelines</a>
+      <a href="/press/">Press</a>
+      <a href="/partners/">Partners</a>
+      <a href="/privacy/">Privacy Policy</a>
+      <a href="/contact/">Contact</a>
     </nav>
     <div class="ft-social">
-      <a id="ft-facebook" href="#">Facebook</a>
-      <a id="ft-twitter" href="#">Twitter</a>
+      <a id="ft-facebook" href="{{ FACEBOOK_URL }}">Facebook</a>
+      <a id="ft-twitter" href="{{ TWITTER_URL }}">Twitter</a>
     </div>
   </footer>
 

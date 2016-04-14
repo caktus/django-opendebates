@@ -4,7 +4,7 @@ import os
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from opendebates.models import Submission, Vote, Voter
+from opendebates.models import Submission, Vote, Voter, SiteMode, ZipCode
 from .factories import UserFactory, SubmissionFactory, VoterFactory, VoteFactory
 
 
@@ -81,6 +81,67 @@ class VoteTest(TestCase):
         # .. and in the database
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes + 1, refetched_sub.votes)
+
+    def test_vote_local_voter(self):
+        mode, _ = SiteMode.objects.get_or_create()
+        mode.debate_state = "NY"
+        mode.save()
+
+        ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
+
+        self.client.logout()
+        data = {
+            'email': 'anon@example.com',
+            'zipcode': '11111',
+            'g-recaptcha-response': 'PASSED'
+        }
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(1, refetched_sub.local_votes)
+
+    def test_vote_nonlocal_voter(self):
+        mode, _ = SiteMode.objects.get_or_create()
+        mode.debate_state = "FL"
+        mode.save()
+
+        ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
+
+        self.client.logout()
+        data = {
+            'email': 'anon@example.com',
+            'zipcode': '11111',
+            'g-recaptcha-response': 'PASSED'
+        }
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(0, refetched_sub.local_votes)
+
+    def test_vote_no_local_district_configured(self):
+        "Unauthenticated user successful vote."
+        mode, _ = SiteMode.objects.get_or_create()
+        mode.debate_state = None
+        mode.save()
+
+        ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
+
+        self.client.logout()
+        data = {
+            'email': 'anon@example.com',
+            'zipcode': '11111',
+            'g-recaptcha-response': 'PASSED'
+        }
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(0, refetched_sub.local_votes)
 
     def test_vote_anon_new_voter_source(self):
         "New anon user with a opendebates.source cookie transmits source to vote and voter."

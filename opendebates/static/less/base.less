@@ -94,6 +94,11 @@
   src: url("/static/fonts/Knockout-HTF28-JuniorFeatherwt.otf") format("opentype");
 }
 
+body h1 p {
+  font-size: inherit;
+  line-height: 100%;
+}
+
 @socialIconWidth: 30px;
 
 .share-button(@iconURL, @width: @socialIconWidth, @height: 20px, @top: -1px) {
@@ -733,6 +738,7 @@ hr.before-idea-list {
     .social-links {
       & > span {
         text-align: center;
+        flex-grow: 1;
         a {
           margin: 0 auto;
         }
@@ -1212,7 +1218,7 @@ hr.before-idea-list {
     flex-grow: 1;
 
     .social-links {
-      display: none;
+      display: none !important;
       .sms-button {
         display: none;
       }
@@ -1301,7 +1307,7 @@ hr.before-idea-list {
 
 .question-detail .idea-related .big-idea {
   .social-links {
-    display: inline-block;
+    display: flex !important;
   }
 }
 
@@ -1359,6 +1365,21 @@ body .flatpage {
     font-size: 20px;
     text-align: center;
     margin-top: 0;
+  }
+}
+
+body .flatpage.registration-page {
+  h1 {
+    font-family: Knockout;
+    text-transform: uppercase;
+    font-size: 60px;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-weight: normal;
+    font-size: 14px;
   }
 }
 
@@ -1510,7 +1531,7 @@ body {
     line-height: 1.2em;
     color: fadeout(@brand-primary, 30%);
   }
-  
+
   .checkbox {
     margin-top: 15px !important;
     font-size: 14px;

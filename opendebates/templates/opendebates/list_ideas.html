@@ -36,12 +36,12 @@
 </div>
 <label id="category-select-picker-ctn" for="category-select-picker">
   {% trans "Issue areas" %}<br/>
-  <select id="category-select-picker" class="selectpicker">
+  <select id="category-select-picker" class="selectpicker" onchange="javascript:window.location=$(this).val() + window.location.search;">
     <option value="/">All</option>
     {% cache 299 cat_options category.id %}
       {% for option in SUBMISSION_CATEGORIES %}
         {% if option.name != "Hidden" and option.name != "Uncategorized" and option.name != "Other" %}
-          <option {% if category and category.id == option.id %}selected{% endif %} value"{% url 'list_category' option.id %}">{{ option.name }}</option>
+          <option {% if category and category.id == option.id %}selected{% endif %} value="{% url 'list_category' option.id %}">{{ option.name }}</option>
         {% endif %}
       {% endfor %}
     {% endcache %}
@@ -81,6 +81,11 @@
           <option value="+votes" {% if sort == "+votes" %}selected{% endif %}>
             {% blocktrans %}Fewest Votes{% endblocktrans %}
           </option>
+          {% if LOCAL_VOTES_STATE %}
+          <option value="-local_votes" {% if sort == "+local_votes" %}selected{% endif %}>
+            {% blocktrans %}In-District Votes{% endblocktrans %}
+          </option>
+          {% endif %}
         {% endif %}
         </select>
         <div class="display-count">

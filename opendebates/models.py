@@ -37,6 +37,7 @@ class SiteMode(CachingMixin, models.Model):
         default=datetime.datetime(2099, 1, 1),
         help_text="Enter time that debate starts in timezone %s" % settings.TIME_ZONE,
     )
+    debate_state = models.CharField(max_length=5, null=True, blank=True)
 
     objects = CachingManager()
 
@@ -73,6 +74,7 @@ class Submission(models.Model):
                                      related_name="duplicates")
 
     votes = models.IntegerField(default=0, db_index=True)
+    local_votes = models.IntegerField(default=0, db_index=True)
     score = models.FloatField(default=0, db_index=True)
     rank = models.FloatField(default=0, db_index=True)
 
@@ -106,13 +108,14 @@ class Submission(models.Model):
         return "vote", [self.id]
 
     def my_tweet_text(self):
-        return _(u"Vote for my progressive idea for @ThinkBigUS #BigIdeasProject. "
-                 "30 leaders in Congress will see top ideas!")
+        params = {
+            "hashtag": settings.SITE_THEME['HASHTAG'],
+        }
+        return _(u"Vote for my progressive idea for @ThinkBigUS #%s(hashtag)s. "
+                 "30 leaders in Congress will see top ideas!" % params)
 
     def tweet_text(self):
-        text = _(u"Let's make sure 30 leaders in Congress see this #BigIdea about "
-                 "%(category_name)s - please vote and RT!" % {
-                     "category_name": quote_plus(self.category.name)})
+        text = settings.SITE_THEME['TWITTER_QUESTION_TEXT']
         if self.voter.twitter_handle:
             text += u" h/t @%s" % self.voter.twitter_handle
         return text
@@ -134,10 +137,11 @@ class Submission(models.Model):
         params = {
             "idea": self.idea,
             "url": self.really_absolute_url(),
+            "hashtag": settings.SITE_THEME['HASHTAG'],
         }
-        subject = _(u"Vote for my progressive idea for @OpenDebate2016 #OpenDebate2016. ")
+        subject = _(u"Vote for my progressive idea for @OpenDebaters #%(hashtag)s." % params)
         body = _(
-            """Vote for my progressive idea for @OpenDebate2016 #OpenDebate2016.
+            """Vote for my progressive idea for @OpenDebaters #%(hashtag)s.
 
             %(idea)s
 
@@ -147,10 +151,11 @@ class Submission(models.Model):
         return u"mailto:?subject=%s&body=%s" % (quote_plus(subject), quote_plus(body))
 
     def sms_url(self):
-        body = _(
-            u"Vote for my progressive idea for @OpenDebate2016 #OpenDebate2016. %(url)s"
-            % {"url": self.really_absolute_url()}
-        )
+        params = {
+            "url": self.really_absolute_url(),
+            "hashtag": settings.SITE_THEME['HASHTAG'],
+        }
+        body = _(u"Vote for my progressive idea for @OpenDebaters #%(hashtag)s. %(url)s" % params)
         return u"sms:;?body=%s" % (quote_plus(body),)
 
     def really_absolute_url(self):
@@ -164,6 +169,21 @@ class Submission(models.Model):
             "idea_url": quote_plus(self.get_absolute_url()),
             "tweet_text": quote_plus(self.tweet_text()),
             }
+
+    def twitter_title(self):
+        # Vote on this question for the FL-Sen #OpenDebate!
+        return settings.SITE_THEME['TWITTER_QUESTION_TITLE'].format(idea=self.idea)
+
+    def twitter_description(self):
+        # "{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions at
+        # bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive Change Institute
+        return settings.SITE_THEME['TWITTER_QUESTION_DESCRIPTION'].format(idea=self.idea)
+
+    def facebook_title(self):
+        return settings.SITE_THEME['FACEBOOK_QUESTION_TITLE'].format(idea=self.idea)
+
+    def facebook_description(self):
+        return settings.SITE_THEME['FACEBOOK_QUESTION_DESCRIPTION'].format(idea=self.idea)
 
 
 class ZipCode(CachingMixin, models.Model):
