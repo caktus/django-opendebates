@@ -64,7 +64,7 @@ SITE_THEMES = {
         "EMAIL_SUBJECT":
             "Help me set the agenda for the debate between Alan Grayson and David Jolly!",
         "EMAIL_BODY":
-            detdent("""
+            dedent("""
             Hi there!
 
             I just participated in a first-of-its-kind Open Debate for U.S. Senate candidates in
