@@ -42,7 +42,7 @@ SITE_THEMES = {
             "the #OpenDebate in Florida!",
         "TWITTER_QUESTION_DESCRIPTION":
             u'"{idea}" At 7pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
-            'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, '
+            'at bottom-up #OpenDebate hosted by Open Debate Coalition & '
             'Progressive Change Institute',
 
         "FACEBOOK_IMAGE":
@@ -59,7 +59,7 @@ SITE_THEMES = {
             '#OpenDebate in Florida!',
         "FACEBOOK_QUESTION_DESCRIPTION":
             u'"{idea}" At 7pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
-            'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive '
+            'at bottom-up #OpenDebate hosted by Open Debate Coalition & Progressive '
             'Change Institute',
 
         "EMAIL_SUBJECT":
