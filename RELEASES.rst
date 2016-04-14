@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v0.0.7 on 2016-04-14
+--------------------
+
+* Update with latest Florida content (#138)
+* Change theme snippets to Unicode (#140)
+
 v0.0.6 on 2016-04-14
 --------------------
 
