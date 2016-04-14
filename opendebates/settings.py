@@ -2,6 +2,7 @@
 from datetime import timedelta
 import os
 import sys
+from textwrap import dedent
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
 
@@ -19,7 +20,7 @@ SITE_THEMES = {
         "HEADER_COPY": _(
             u"Ask David Jolly and Alan Grayson about the issues that are most important "
             "to you -- then vote and tell others! Watch the Florida Open Debate for U.S. "
-            "Senate on [TBD] or right here on Monday, April 25, at 8:00 pm EDT. All questions "
+            "Senate on Monday, April 25, at 7:00 pm EDT. All questions "
             "will be chosen from among those that receive the most votes online."),
         "TWITTER_IMAGE":
             "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
@@ -30,7 +31,7 @@ SITE_THEMES = {
         "TWITTER_SITE_TITLE":
             u"U.S. Senate candidates answer YOUR questions!",
         "TWITTER_SITE_DESCRIPTION":
-            u"Mon 4/25 @8pm EDT on [TBD]: Voters set the agenda for groundbreaking #OpenDebate. "
+            u"Mon 4/25 @7pm EDT: Voters set the agenda for groundbreaking #OpenDebate. "
             "Submit & vote here!",
         "TWITTER_QUESTION_TEXT":
             u"Submit & vote on questions for FL-Sen #OpenDebate between @DavidJollyFL "
@@ -39,7 +40,7 @@ SITE_THEMES = {
             u"Click here to vote on this question for U.S. Senate candidates to answer at "
             "the #OpenDebate in Florida!",
         "TWITTER_QUESTION_DESCRIPTION":
-            u'"{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
+            u'"{idea}" At 7pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
             'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, '
             'Progressive Change Institute',
 
@@ -50,15 +51,39 @@ SITE_THEMES = {
             u"HISTORIC: Florida U.S. Senate Candidates answer YOUR top-voted questions!",
         "FACEBOOK_SITE_DESCRIPTION":
             u"Groundbreaking bottom-up #OpenDebate to take place Mon 4/25 @7pm EDT, hosted "
-            "by Open Debate Coalition, Progressive Change Institute, & [MEDIA PARTNER]. All "
+            "by Open Debate Coalition & Progressive Change Institute. All "
             "questions will be chosen from top vote-getters online. Submit & vote here!",
         "FACEBOOK_QUESTION_TITLE":
             u'Click here to vote on this question for U.S. Senate candidates to answer at the '
             '#OpenDebate in Florida!',
         "FACEBOOK_QUESTION_DESCRIPTION":
-            u'"{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
+            u'"{idea}" At 7pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
             'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive '
             'Change Institute',
+
+        "EMAIL_SUBJECT":
+            "Help me set the agenda for the debate between Alan Grayson and David Jolly!",
+        "EMAIL_BODY":
+            dedent("""
+            Hi there!
+
+            I just participated in a first-of-its-kind Open Debate for U.S. Senate candidates in
+            Florida where all questions will be chosen from among the Top 30 voted on by the
+            public online.
+
+            Could you vote on this question so David Jolly and Alan Grayson can answer it live at
+            the debate?
+
+            %(url)s
+
+            There are tons of other great questions to vote on at FloridaOpenDebate.com. You can
+            search by topic area or keyword, or you can even submit your own question. Voting
+            closes just before the debate begins at 7:00 pm EDT on Monday, April 25. Tune in to
+            FloridaOpenDebate.com to watch this event, co-hosted by the Open Debate Coalition and
+            the Progressive Change Institute.
+
+            Thanks for helping us create a debate for U.S. Senate that reflects the real concerns
+            of Americans!"""),
     },
     'testing': {  # Presidential Debate
         "HASHTAG": "DemOpenForum",
@@ -108,6 +133,9 @@ SITE_THEMES = {
             u'"{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
             'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive '
             'Change Institute',
+
+        "EMAIL_SUBJECT": "Vote for my progressive idea for @OpenDebaters",
+        "EMAIL_BODY": "Vote for my progressive idea for @OpenDebaters %(url)s",
     },
 }
 SITE_THEME_NAME = 'florida'

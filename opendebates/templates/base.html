@@ -23,7 +23,7 @@
   {% load pipeline %}
   {% stylesheet 'base' %}
   {% if SITE_THEME %}
-    {% with "theme-"|add:SITE_THEME as theme %}
+    {% with "theme-"|add:SITE_THEME_NAME as theme %}
       {% stylesheet theme %}
     {% endwith %}
   {% endif %}
@@ -73,7 +73,7 @@
           <span class="number days">30</span> {% blocktrans %}days{% endblocktrans %}
           <span class="number hours">12</span> {% blocktrans %}hrs{% endblocktrans %}
           <span class="number minutes">5</span> {% blocktrans %}mins{% endblocktrans %}
-          {% blocktrans %}until&nbsp;the&nbsp;forum{% endblocktrans %}
+          {% blocktrans %}until&nbsp;the&nbsp;debate{% endblocktrans %}
         </div>
       </div>
     </div>
