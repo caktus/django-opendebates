@@ -2,6 +2,7 @@
 from datetime import timedelta
 import os
 import sys
+from textwrap import dedent
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
 
@@ -59,6 +60,30 @@ SITE_THEMES = {
             u'"{idea}" At 7pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
             'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive '
             'Change Institute',
+
+        "EMAIL_SUBJECT":
+            "Help me set the agenda for the debate between Alan Grayson and David Jolly!",
+        "EMAIL_BODY":
+            detdent("""
+            Hi there!
+
+            I just participated in a first-of-its-kind Open Debate for U.S. Senate candidates in
+            Florida where all questions will be chosen from among the Top 30 voted on by the
+            public online.
+
+            Could you vote on this question so David Jolly and Alan Grayson can answer it live at
+            the debate?
+
+            %(url)s
+
+            There are tons of other great questions to vote on at FloridaOpenDebate.com. You can
+            search by topic area or keyword, or you can even submit your own question. Voting
+            closes just before the debate begins at 7:00 pm EDT on Monday, April 25. Tune in to
+            FloridaOpenDebate.com to watch this event, co-hosted by the Open Debate Coalition and
+            the Progressive Change Institute.
+
+            Thanks for helping us create a debate for U.S. Senate that reflects the real concerns
+            of Americans!"""),
     },
     'testing': {  # Presidential Debate
         "HASHTAG": "DemOpenForum",
@@ -108,6 +133,9 @@ SITE_THEMES = {
             u'"{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
             'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive '
             'Change Institute',
+
+        "EMAIL_SUBJECT": "Vote for my progressive idea for @OpenDebaters",
+        "EMAIL_BODY": "Vote for my progressive idea for @OpenDebaters %(url)s",
     },
 }
 SITE_THEME_NAME = 'florida'
