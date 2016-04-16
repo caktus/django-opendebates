@@ -14,12 +14,7 @@
                type="submit" value="Create Account">
       </form>
 
-      <p class="small">{% blocktrans %}Please note:{% endblocktrans %}</p>
-      <ul class="form-notes small">
-        <li>{% blocktrans %}Usernames and passwords are case-sensitive.{% endblocktrans %}</li>
-        <li>{% blocktrans %}All fields are required, except for Display Name and Twitter Handle.{% endblocktrans %}</li>
-      </ul>
-      <p>{% blocktrans %}Already have an account?{% endblocktrans %}</p>
+      <p class="small">{% blocktrans %}Already have an account?{% endblocktrans %}</p>
       <p>
         <a class="btn btn-default" href="{% url "auth_login" %}{% if next %}?next={{ next }}{% endif %}">{% blocktrans %}Log In{% endblocktrans %}</a>
       </p>
