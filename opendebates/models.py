@@ -6,6 +6,7 @@ from django.core.signing import Signer
 from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
 from urllib import quote_plus
+from django.utils.http import urlquote
 from django.utils.translation import ugettext_lazy as _
 from caching.base import CachingManager, CachingMixin
 
@@ -138,7 +139,7 @@ class Submission(models.Model):
         body = settings.SITE_THEME['EMAIL_BODY'] % {
             "url": self.really_absolute_url(),
         }
-        return u"mailto:?subject=%s&body=%s" % (quote_plus(subject), quote_plus(body))
+        return u"mailto:?subject=%s&body=%s" % (urlquote(subject), urlquote(body))
 
     def sms_url(self):
         params = {
