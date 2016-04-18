@@ -167,6 +167,15 @@ body > .container {
     max-width: 1200px;
   }
 
+  > .warning {
+    font-family: Knockout;
+    font-weight: bold;
+    text-align: center;
+    background-color: red;
+    color: white;
+    padding: 10px;
+  }
+
   > header {
     .responsive({
       background-image: url(/static/images/header-bg.png);
@@ -563,6 +572,7 @@ body > .container > footer {
     background-image: url(/static/images/icon-search.png);
     background-position: 99% center;
     background-repeat: no-repeat;
+    background-color: transparent;
     position: absolute;
     right: 10px;
     height: 100%;
@@ -795,6 +805,9 @@ hr.before-idea-list {
         display: none;
       }
     }
+  }, {
+    height: 300px;
+    position: relative;
   });
 
   .votes {
@@ -803,6 +816,8 @@ hr.before-idea-list {
     },{
       min-height: 0;
       order: 3;
+    }, {
+      min-height: 280px;
     });
 
     .vote-tally {
@@ -940,6 +955,12 @@ hr.before-idea-list {
       padding: 0px 12px;
     });
 
+    .full({
+      position: absolute;
+      bottom: 15px;
+      right: 0;
+    });
+
     a {
       font-weight: bold;
       font-size: 13px;
@@ -955,9 +976,18 @@ hr.before-idea-list {
   .social-links {
     padding-top: 5px;
     display: inline-block;
-    .responsive({ margin-left: -11px; }, {
+    .responsive({
+      margin-left: -11px;
+    }, {
       margin-left: 0;
       display: none !important;
+    }, {
+      position: absolute;
+      bottom: 10px;
+
+      .idea-list & {
+        left: 170px;
+      }
     });
 
     .small({
@@ -1629,13 +1659,18 @@ img.mic_icon {
     display: none;
   }
 
-  .social-links > span {
-    margin: 0 10px;
-    padding-left: 15px;
-    padding-right: 15px;
+  .social-links {
+    position: inherit;
+    bottom: auto;
 
-    a {
-      color: white !important;
+    & > span {
+      margin: 0 10px;
+      padding-left: 15px;
+      padding-right: 15px;
+
+      a {
+        color: white !important;
+      }
     }
   }
 }

@@ -194,8 +194,10 @@ NORECAPTCHA_SITE_KEY = '{{ recaptcha_site_key }}'
 NORECAPTCHA_SECRET_KEY = '{{ recaptcha_secret }}'
 USE_CAPTCHA = {{ use_captcha|default(true) }}
 MIXPANEL_KEY = '{{ mixpanel_key }}'
+OPTIMIZELY_KEY = '{{ optimizely_key }}'
 
-SITE_THEME_NAME = '{{ environment }}'
-SITE_THEME = SITE_THEMES[SITE_THEME_NAME]
+# don't customize SITE_THEME, which will make testing use 'florida' theme hardcoded in main settings file
+# SITE_THEME_NAME = '{{ environment }}'
+# SITE_THEME = SITE_THEMES[SITE_THEME_NAME]
 SITE_DOMAIN = '{{ site_domains[0] }}'
 SITE_DOMAIN_WITH_PROTOCOL = "https://" + SITE_DOMAIN

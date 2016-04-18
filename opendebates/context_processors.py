@@ -58,6 +58,7 @@ def global_vars(request):
         'SITE_DOMAIN': settings.SITE_DOMAIN,
         'SITE_LINK': settings.SITE_DOMAIN_WITH_PROTOCOL,
         'MIXPANEL_KEY': settings.MIXPANEL_KEY,
+        'OPTIMIZELY_KEY': settings.OPTIMIZELY_KEY,
         'SHOW_QUESTION_VOTES': mode.show_question_votes,
         'SHOW_TOTAL_VOTES': mode.show_total_votes,
         'ALLOW_SORTING_BY_VOTES': mode.allow_sorting_by_votes,

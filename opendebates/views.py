@@ -328,6 +328,7 @@ def questions(request):
         created_at=timezone.now())
 
     send_email("submitted_new_idea", {"idea": idea})
+    send_email("notify_moderators_submitted_new_idea", {"idea": idea})
 
     url = reverse("vote", kwargs={'id': idea.id})
     return redirect(url + "#created=%s" % idea.id)

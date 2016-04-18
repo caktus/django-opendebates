@@ -19,7 +19,8 @@ SITE_THEMES = {
         "HASHTAG": u"FLOpenDebate",
         "HEADER_TITLE": _(u"WELCOME TO THE\nFLORIDA OPEN DEBATE"),
         "HEADER_COPY": _(
-            u"Ask David Jolly and Alan Grayson about the issues that are most important "
+            u"Ask Congressman David Jolly (R-FL) and Congressman Alan Grayson (D-FL) about "
+            u"the issues that are most important "
             "to you -- then vote and tell others! Watch the Florida Open Debate for U.S. "
             "Senate right here on Monday, April 25, at 7:00 pm EDT. All questions "
             "will be chosen from among those that receive the most votes online."),
@@ -27,23 +28,20 @@ SITE_THEMES = {
             "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
             "OpenDebates_VOTE-NOW_TW-1024x512-FODUrl.png",
         "TWITTER_SITE_TEXT":
-            u"Submit & vote on questions for FL-Sen #OpenDebate between @DavidJollyFL "
-            "& @AlanGrayson hosted by Open Debate Coalition, Progressive Change Inst.",
+            u"VOTE & submit questions for #FLSen #OpenDebate between @DavidJollyFL & "
+            u"@AlanGrayson. h/t @OpenDebates @ProgChangeInst",
         "TWITTER_SITE_TITLE":
             u"U.S. Senate candidates answer YOUR questions!",
         "TWITTER_SITE_DESCRIPTION":
-            u"Mon 4/25 @7pm EDT: Voters set the agenda for groundbreaking #OpenDebate. "
-            "Submit & vote here!",
+            u"Voters set the agenda for groundbreaking #OpenDebate. Tune in Mon 4/25 @7pm EDT "
+            u"on TYTNetwork.com. Submit & vote here!",
         "TWITTER_QUESTION_TEXT":
-            u"Submit & vote on questions for FL-Sen #OpenDebate between @DavidJollyFL "
-            "& @AlanGrayson hosted by Open Debate Coalition, Progressive Change Inst.",
+            u"VOTE & submit questions for #FLSen #OpenDebate between @DavidJollyFL & @AlanGrayson. "
+            u"h/t @OpenDebates @ProgChangeInst",
         "TWITTER_QUESTION_TITLE":
-            u"Click here to vote on this question for U.S. Senate candidates to answer at "
-            "the #OpenDebate in Florida!",
+            u"Vote on this question for the FL-Sen #OpenDebate!",
         "TWITTER_QUESTION_DESCRIPTION":
-            u'"{idea}" At 7pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
-            'at bottom-up #OpenDebate hosted by Open Debate Coalition & '
-            'Progressive Change Institute',
+            u'"{idea}" Debate is 4/25 at 7pm EDT on TYTNetwork.com.',
 
         "FACEBOOK_IMAGE":
             "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
@@ -51,16 +49,14 @@ SITE_THEMES = {
         "FACEBOOK_SITE_TITLE":
             u"HISTORIC: Florida U.S. Senate Candidates answer YOUR top-voted questions!",
         "FACEBOOK_SITE_DESCRIPTION":
-            u"Groundbreaking bottom-up #OpenDebate to take place Mon 4/25 @7pm EDT, hosted "
-            "by Open Debate Coalition & Progressive Change Institute. All "
-            "questions will be chosen from top vote-getters online. Submit & vote here!",
+            u"All questions for groundbreaking #OpenDebate on Mon 4/25 @7pm EDT on TYTNetwork.com "
+            u"will be chosen from top vote-getters online. Hosted by Open Debate Coalition",
         "FACEBOOK_QUESTION_TITLE":
-            u'Click here to vote on this question for U.S. Senate candidates to answer at the '
-            '#OpenDebate in Florida!',
+            u'Click to vote on this question for Senate candidates to answer at the #OpenDebate '
+            u'in Florida!',
         "FACEBOOK_QUESTION_DESCRIPTION":
-            u'"{idea}" At 7pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions '
-            'at bottom-up #OpenDebate hosted by Open Debate Coalition & Progressive '
-            'Change Institute',
+            u'"{idea}" Mon, 4/25 @7pm EDT on TYTNetwork.com, Jolly & Grayson answer YOUR '
+            u'questions!',
 
         "EMAIL_SUBJECT":
             "Help me set the agenda for the debate between Alan Grayson and David Jolly!",
@@ -405,6 +401,7 @@ NORECAPTCHA_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 NORECAPTCHA_SECRET_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
 
 MIXPANEL_KEY = None
+OPTIMIZELY_KEY = None
 
 # Turn this off to never use CAPTCHA
 USE_CAPTCHA = True
