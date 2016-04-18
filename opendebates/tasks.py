@@ -58,10 +58,12 @@ def update_recent_events():
         set_thread_readonly_db()
 
         votes = Vote.objects.select_related(
-            "voter", "voter__user", "submission").exclude(
+            "voter", "voter__user", "submission").filter(
+            submission__approved=True, submission__duplicate_of__isnull=True).exclude(
             voter=F('submission__voter')).order_by("-id")[:10]
         submissions = Submission.objects.select_related(
-            "voter", "voter__user").order_by("-id")[:10]
+            "voter", "voter__user").filter(
+            approved=True, duplicate_of__isnull=True).order_by("-id")[:10]
 
         entries = list(votes) + list(submissions)
         entries = sorted(entries, key=lambda x: x.created_at, reverse=True)[:10]
