@@ -1650,13 +1650,18 @@ img.mic_icon {
     display: none;
   }
 
-  .social-links > span {
-    margin: 0 10px;
-    padding-left: 15px;
-    padding-right: 15px;
+  .social-links {
+    position: inherit;
+    bottom: auto;
 
-    a {
-      color: white !important;
+    & > span {
+      margin: 0 10px;
+      padding-left: 15px;
+      padding-right: 15px;
+
+      a {
+        color: white !important;
+      }
     }
   }
 }
