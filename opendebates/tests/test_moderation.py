@@ -46,6 +46,10 @@ class ModerationTest(TestCase):
         rsp = self.client.get(self.preview_url)
         self.assertContains(rsp, 'Preview Moderation')
 
+    def test_get_with_initial(self):
+        rsp = self.client.get(self.preview_url + "?to_remove=10")
+        self.assertContains(rsp, 'name="to_remove" type="number" value="10"')
+
     def test_merge_submission(self):
         self.assertEqual(self.second_submission.has_duplicates, False)
         self.assertEqual(self.second_submission.duplicate_of, None)

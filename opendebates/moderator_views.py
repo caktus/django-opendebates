@@ -18,7 +18,7 @@ def preview(request):
     if not request.user.is_superuser:
         return HttpResponseNotFound()
 
-    form = ModerationForm(data=request.POST or None)
+    form = ModerationForm(data=request.POST or None, initial=request.GET or None)
     if request.method == 'POST':
         if form.is_valid():
             to_remove = form.cleaned_data['to_remove_obj']
