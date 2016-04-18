@@ -194,6 +194,7 @@ NORECAPTCHA_SITE_KEY = '{{ recaptcha_site_key }}'
 NORECAPTCHA_SECRET_KEY = '{{ recaptcha_secret }}'
 USE_CAPTCHA = {{ use_captcha|default(true) }}
 MIXPANEL_KEY = '{{ mixpanel_key }}'
+OPTIMIZELY_KEY = '{{ optimizely_key }}'
 
 SITE_THEME_NAME = '{{ environment }}'
 SITE_THEME = SITE_THEMES[SITE_THEME_NAME]
