@@ -163,6 +163,7 @@
 
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js'></script>
+<script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/jquery-browser/0.1.0/jquery.browser.min.js'></script>
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.3/handlebars.min.js'></script>
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js'></script>
 <script type="text/javascript" src='//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment-with-locales.js'></script>
@@ -184,6 +185,36 @@ for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElemen
 {% javascript 'base' %}
 {% block loading_javascript %}
 {% endblock %}
+
+<script type="text/javascript">
+  $(window).load(function() {
+    var versions = [
+      ["Internet Explorer", $.browser.msie, 11],
+      ["Google Chrome", $.browser.chrome, 47],
+      ["Firefox", $.browser.mozilla, 44],
+      ["Safari", $.browser.safari, 9],
+      ["Microsoft Edge", $.browser.msedge, 13]
+    ];
+
+    var browsers = '';
+    for (var i=0; i < versions.length; i++) {
+      if (i < versions.length - 1) {
+        browsers += versions[i][0] + " " + versions[i][2] + ", ";
+      } else {
+        browsers += "or " + versions[i][0] + " " + versions[i][2];
+      }
+    }
+
+    for (var i=0; i < versions.length; i++) {
+      var version = versions[i];
+      if (version[1] && $.browser.versionNumber < version[2]) {
+        var msg = '<div class="warning"><h1>PLEASE UPDATE YOUR WEB BROWSER</h1><p>You are using an out-of-date web browser which is not fully supported on this website.  For the best experience, please upgrade to ' + browsers + '.</p></div>'
+        $("div.container").first().prepend(msg);
+        break;
+      }
+    }
+  });
+</script>
 
 <script type="text/javascript">
   $(window).load(function() {
