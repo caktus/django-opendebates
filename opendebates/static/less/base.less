@@ -563,6 +563,7 @@ body > .container > footer {
     background-image: url(/static/images/icon-search.png);
     background-position: 99% center;
     background-repeat: no-repeat;
+    background-color: transparent;
     position: absolute;
     right: 10px;
     height: 100%;
@@ -795,6 +796,9 @@ hr.before-idea-list {
         display: none;
       }
     }
+  }, {
+    height: 300px;
+    position: relative;
   });
 
   .votes {
@@ -940,6 +944,12 @@ hr.before-idea-list {
       padding: 0px 12px;
     });
 
+    .full({
+      position: absolute;
+      bottom: 15px;
+      right: 0;
+    });
+
     a {
       font-weight: bold;
       font-size: 13px;
@@ -955,9 +965,14 @@ hr.before-idea-list {
   .social-links {
     padding-top: 5px;
     display: inline-block;
-    .responsive({ margin-left: -11px; }, {
+    .responsive({
+      margin-left: -11px;
+    }, {
       margin-left: 0;
       display: none !important;
+    }, {
+      position: absolute;
+      bottom: 10px;
     });
 
     .small({
