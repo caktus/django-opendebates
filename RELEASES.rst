@@ -1,6 +1,17 @@
 Release Notes
 =============
 
+v0.0.9 on 2016-04-18
+--------------------
+
+* Ethans' fixes (#143, 144, 145, 146, 147)
+* Remove CNN logo from mobile (#148)
+* Quote mailto links differently (#149)
+* Content changes (#151)
+* Make testing site use Florida content (#153)
+* Set up old browser warning (#152)
+* Fix IE bugs (#150)
+
 v0.0.8 on 2016-04-14
 --------------------
 
