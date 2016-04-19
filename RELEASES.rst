@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+v0.1.0 on 20160-04-19
+---------------------
+
+* Make sorting by most Florida votes stick (#157)
+* Fix list layout bug at middle widths (#155)
+* Fix quoted markup in questions submitted before logging in (#154)
+
 v0.0.9 on 2016-04-18
 --------------------
 
