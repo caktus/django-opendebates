@@ -190,9 +190,8 @@ class Voter(models.Model):
     def user_display_name(self):
         voter = self
         if voter.display_name:
-            return voter.display_name
-
-        if not voter.user:
+            name = voter.display_name
+        elif not voter.user:
             name = _(u"Somebody")
         else:
             user = voter.user
