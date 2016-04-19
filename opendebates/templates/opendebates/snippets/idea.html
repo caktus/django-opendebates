@@ -4,7 +4,7 @@
 
 {% cache 30 question idea.id %}
 <div id="i{{ idea.id }}" data-idea-id="{{ idea.id }}" class="big-idea clearfix">
-    <div class="votes {% if is_related %}col-md-3{% else %}col-md-3{% endif %}">
+    <div class="votes col-md-3">
       {% if is_duplicate %}
       <small class="duplicate-merged-link"><a href="{% url 'show_idea' idea.duplicate_of_id %}">&#8679; Merged</a></small>
       {% else %}
