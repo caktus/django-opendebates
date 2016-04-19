@@ -12,9 +12,6 @@ default architecture described in the Fabulaws docs:
 * We serve the static files from the Django processes in
   our web servers instead of using S3.
 
-(These might change, especially the not using S3 part, but they're
-correct at the time this is written.)
-
 Terms
 -----
 
@@ -219,7 +216,14 @@ an environment to switch to the newer code.
 Read through this whole section before starting to update anything,
 please!
 
-Step 1: Create a new launch configuration. This is a saved EC2 instance image
+Step 1: Make sure secrets are updated. Review your ``fabsecrets_<environment>.py`` file and update
+any secrets that need updating. (Run ``fab <environment> update_local_fabsecrets`` to first pull a
+copy from the current worker server, if needed). If any have changed, or you just want to be sure
+that everything is in sync on the web and worker servers, run the following command::
+
+     fab <environment> update_server_passwords
+
+Step 2: Create a new launch configuration. This is a saved EC2 instance image
 that the autoscaler uses to spin up new web servers::
 
      fab create_launch_config_for_deployment:opendebates,<environment>
@@ -230,7 +234,7 @@ if your web servers are using a faster server.
 At the end of the output of that command, it'll print out a long string that
 is the name of the new launch configuration. Save that somewhere.
 
-Step 2: Update the servers
+Step 3: Update the servers
 
 There are two ways to do this, and it's important to choose the right
 one.
@@ -239,7 +243,7 @@ A "full" deployment should be used any time there are backwards-incompatible
 updates to the application, i.e., when having two versions of the code running
 simultaneously on different servers might have damaging results or raise errors
 for users of the site.  Note that this type of deployment requires downtime,
-which may need to be scheduled ahead of time.
+which needs to be scheduled ahead of time.
 
 To perform a full deployment, including downtime::
 
