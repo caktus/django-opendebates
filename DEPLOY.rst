@@ -223,6 +223,9 @@ that everything is in sync on the web and worker servers, run the following comm
 
      fab <environment> update_server_passwords
 
+NOTE: This does not update the secrets on the database, cache, or queue servers and there is no
+automated way to do that currently.
+
 Step 2: Create a new launch configuration. This is a saved EC2 instance image
 that the autoscaler uses to spin up new web servers::
 
