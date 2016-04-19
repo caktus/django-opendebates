@@ -29,14 +29,14 @@ SITE_THEMES = {
             "OpenDebates_VOTE-NOW_TW-1024x512-FODUrl.png",
         "TWITTER_SITE_TEXT":
             u"VOTE & submit questions for #FLSen #OpenDebate between @DavidJollyFL & "
-            u"@AlanGrayson. h/t @OpenDebates @ProgChangeInst",
+            u"@AlanGrayson h/t @OpenDebates @ProgChangeInst",
         "TWITTER_SITE_TITLE":
             u"U.S. Senate candidates answer YOUR questions!",
         "TWITTER_SITE_DESCRIPTION":
             u"Voters set the agenda for groundbreaking #OpenDebate. Tune in Mon 4/25 @7pm EDT "
             u"on TYTNetwork.com. Submit & vote here!",
         "TWITTER_QUESTION_TEXT":
-            u"VOTE & submit questions for #FLSen #OpenDebate between @DavidJollyFL & @AlanGrayson. "
+            u"VOTE & submit questions for #FLSen #OpenDebate between @DavidJollyFL & @AlanGrayson "
             u"h/t @OpenDebates @ProgChangeInst",
         "TWITTER_QUESTION_TITLE":
             u"Vote on this question for the FL-Sen #OpenDebate!",
