@@ -47,12 +47,15 @@
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
   };
+  ODebates.helpers.htmlDecode = function(encoded) {
+    return $('<div/>').html(encoded).text();
+  };
 
   ODebates.helpers.setTrackingDimension = function(key, value) {
     ODebates.trackingDimensions = ODebates.trackingDimensions || {};
     ODebates.trackingDimensions[key] = value;
   };
-  
+
   ODebates.helpers.track = function(action, dimensions) {
     if (typeof window.mixpanel === 'undefined') {
       return;
@@ -63,7 +66,7 @@
     var merged = $.extend({}, dimensions, ODebates.trackingDimensions || {});
     window.mixpanel.track(action, merged);
   };
-  
+
   ODebates.helpers.castVote = function(voterData, voteUrl, callback) {
     var data = JSON.parse(JSON.stringify(voterData));
     data.csrfmiddlewaretoken = $("[name=csrfmiddlewaretoken]").val();
@@ -122,7 +125,7 @@
     }
     ODebates.helpers.track("share", dimensions);
   });
-  
+
   $("#sidebar_question_btn").on("click", function() {
     $(this).hide();
     $('#add_question').slideDown();
@@ -296,7 +299,7 @@
         $(".big-idea[data-idea-id="+ideaId+"] .social-links").html());
       el.appendTo("body").modal("show");
     }
-    
+
     // Break vote count into spans for styling
     $(".header-votes .number").each(function(){
       var $el = $(this);
@@ -315,10 +318,13 @@
 
     if (typeof ODebates.stashedSubmission !== 'undefined') {
       var form = $("#add_question form");
-      form.find(":input[name=category]").val(ODebates.stashedSubmission.category);
-      form.find(":input[name=headline]").val(ODebates.stashedSubmission.headline);
-      form.find(":input[name=question]").val(ODebates.stashedSubmission.question);
-      form.find(":input[name=citation]").val(ODebates.stashedSubmission.citation || '');
+      var sub = ODebates.stashedSubmission;
+      var htmlDecode = ODebates.helpers.htmlDecode;
+
+      form.find(":input[name=category]").val(htmlDecode(sub.category));
+      form.find(":input[name=headline]").val(htmlDecode(sub.headline));
+      form.find(":input[name=question]").val(htmlDecode(sub.question));
+      form.find(":input[name=citation]").val(htmlDecode(sub.citation) || '');
       form.submit();
     }
 
