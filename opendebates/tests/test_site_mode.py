@@ -55,3 +55,34 @@ class AnnouncementTest(TestCase):
         rsp = self.client.get(self.url)
         self.assertIn('<div class="site-announcement warning">', rsp.content)
         self.assertIn('<a href="%s">' % link, rsp.content)
+
+    def test_announcement_page_regex(self):
+        headline = "Announcement: tune in tonight!"
+        link = "http://example.com/the-special-page"
+        self.mode.announcement_headline = headline
+        self.mode.announcement_link = link
+        self.mode.announcement_page_regex = "/registration/"
+        self.mode.save()
+
+        rsp = self.client.get('/registration/register/')
+        self.assertIn('<div class="site-announcement warning">', rsp.content)
+        self.assertIn('<a href="%s">' % link, rsp.content)
+
+        rsp = self.client.get('/')
+        self.assertNotIn('<div class="site-announcement warning">', rsp.content)
+        self.assertNotIn('<a href="%s">' % link, rsp.content)
+
+        self.mode.announcement_page_regex = "^(?!/registration/register/).*$"
+        self.mode.save()
+
+        rsp = self.client.get('/registration/register/')
+        self.assertNotIn('<div class="site-announcement warning">', rsp.content)
+        self.assertNotIn('<a href="%s">' % link, rsp.content)
+
+        rsp = self.client.get('/registration/login/')
+        self.assertIn('<div class="site-announcement warning">', rsp.content)
+        self.assertIn('<a href="%s">' % link, rsp.content)
+
+        rsp = self.client.get('/')
+        self.assertIn('<div class="site-announcement warning">', rsp.content)
+        self.assertIn('<a href="%s">' % link, rsp.content)

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 from django.utils.html import mark_safe
 import json
+import re
 
 from .models import Category, Vote
 from .utils import get_voter, get_number_of_votes, vote_needs_captcha, get_site_mode
@@ -69,7 +70,10 @@ def global_vars(request):
             'headline': mode.announcement_headline,
             'body': mode.announcement_body,
             'link': mode.announcement_link,
-        } if mode.announcement_headline else None,
+        } if (mode.announcement_headline and
+              (not mode.announcement_page_regex or
+               re.match(mode.announcement_page_regex, request.path))
+              ) else None,
 
         'SUBMISSION_CATEGORIES': SimpleLazyObject(_get_categories),
         'SITE_THEME_NAME': settings.SITE_THEME_NAME,

@@ -43,6 +43,7 @@ class SiteMode(CachingMixin, models.Model):
     announcement_headline = models.CharField(max_length=255, null=True, blank=True)
     announcement_body = models.TextField(null=True, blank=True)
     announcement_link = models.URLField(null=True, blank=True)
+    announcement_page_regex = models.CharField(max_length=255, null=True, blank=True)
 
     objects = CachingManager()
 
