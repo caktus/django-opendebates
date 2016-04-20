@@ -68,6 +68,15 @@ class SubmissionTest(TestCase):
         self.assertIn('citation', form.errors)
         self.assertIn('Enter a valid URL.', str(form.errors))
 
+    def test_citation_too_long(self):
+        data = self.data.copy()
+        data['citation'] = 'https://www.' + 'x' * 250 + '.com'
+        rsp = self.client.post(self.url, data=data)
+        form = rsp.context['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('citation', form.errors)
+        self.assertIn('has at most 255 characters', str(form.errors))
+
     # success
 
     def test_post_submission(self):
