@@ -168,12 +168,50 @@ body > .container {
   }
 
   > .warning {
-    font-family: Knockout;
-    font-weight: bold;
     text-align: center;
-    background-color: red;
+    background-color: @brand-tertiary;
     color: white;
     padding: 10px;
+    .full({
+      min-height: 250px;
+      padding: 10px 191px;
+      position: relative;
+    });
+
+    &::before {
+      .full({
+        content: "";
+        background-image: url(/static/images/megaphone-left.png);
+        left: 15px;
+        bottom: 0;
+        height: 130px;
+        width: 176px;
+        position: absolute;
+      });
+    }
+    &::after {
+      .full({
+        content: "";
+        background-image: url(/static/images/megaphone-right.png);
+        right: 15px;
+        bottom: 0;
+        height: 130px;
+        width: 176px;
+        position: absolute;
+      });
+    }
+
+    h1 {
+      font-family: Knockout;
+      font-weight: bold;
+      font-size: 56px;
+      letter-spacing: 1px;
+    }
+
+    p {
+      font-size: 16px;
+      font-weight: normal;
+    }
   }
 
   > header {
