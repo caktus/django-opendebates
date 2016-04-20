@@ -38,6 +38,17 @@
 <body>
 
 <div class="container container-wide">
+  {% if ANNOUNCEMENT %}
+  <div class="warning">
+    {% if ANNOUNCEMENT.link %}<a href="{{ ANNOUNCEMENT.link }}">{% endif %}
+    <h1>{{ ANNOUNCEMENT.headline|safe }}</h1>
+    {% if ANNOUNCEMENT.body %}
+    <p>{{ ANNOUNCEMENT.body|safe }}</p>
+    {% endif %}
+    {% if ANNOUNCEMENT.link %}</a>{% endif %}
+  </div>
+  {% endif %}
+
   <header>
     <div class="header-logos">
       <a href="{% url 'list_ideas' %}">
