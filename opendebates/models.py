@@ -40,6 +40,11 @@ class SiteMode(CachingMixin, models.Model):
     )
     debate_state = models.CharField(max_length=5, null=True, blank=True)
 
+    announcement_headline = models.CharField(max_length=255, null=True, blank=True)
+    announcement_body = models.TextField(null=True, blank=True)
+    announcement_link = models.URLField(null=True, blank=True)
+    announcement_page_regex = models.CharField(max_length=255, null=True, blank=True)
+
     objects = CachingManager()
 
 
