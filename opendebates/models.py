@@ -40,6 +40,11 @@ class SiteMode(CachingMixin, models.Model):
     )
     debate_state = models.CharField(max_length=5, null=True, blank=True)
 
+    announcement_headline = models.CharField(max_length=255, null=True, blank=True)
+    announcement_body = models.TextField(null=True, blank=True)
+    announcement_link = models.URLField(null=True, blank=True)
+    announcement_page_regex = models.CharField(max_length=255, null=True, blank=True)
+
     objects = CachingManager()
 
 
@@ -190,9 +195,8 @@ class Voter(models.Model):
     def user_display_name(self):
         voter = self
         if voter.display_name:
-            return voter.display_name
-
-        if not voter.user:
+            name = voter.display_name
+        elif not voter.user:
             name = _(u"Somebody")
         else:
             user = voter.user

@@ -38,12 +38,23 @@
 <body>
 
 <div class="container container-wide">
+  {% if ANNOUNCEMENT %}
+  <div class="site-announcement warning">
+    {% if ANNOUNCEMENT.link %}<a href="{{ ANNOUNCEMENT.link }}">{% endif %}
+    <h1>{{ ANNOUNCEMENT.headline|safe }}</h1>
+    {% if ANNOUNCEMENT.body %}
+    <p>{{ ANNOUNCEMENT.body|safe }}</p>
+    {% endif %}
+    {% if ANNOUNCEMENT.link %}</a>{% endif %}
+  </div>
+  {% endif %}
+
   <header>
     <div class="header-logos">
       <a href="{% url 'list_ideas' %}">
         <img src="{% static "images/badge-democratic-open-forum.png" %}">
-        <img src="{% static "images/logo-progressive-change-institute.png" %}">
-        <img src="{% static "images/logo-cnn.png" %}">
+        <img src="{% static "images/logo-header-partner-1.png" %}">
+        <img src="{% static "images/logo-header-partner-2.png" %}">
       </a>
     </div>
     <div class="login-container{% if request.user.is_authenticated %} login-container-authenticated{% endif %}">
@@ -62,8 +73,8 @@
       <h1><a href="/">{{ SITE_THEME.HEADER_TITLE|linebreaks }}</a></h1>
       <div class="header-copy">{{ SITE_THEME.HEADER_COPY }}</div>
       <div class="header-small-logos">
-        <img src="{% static "images/logo-progressive-change-institute.png" %}">
-        <img src="{% static "images/logo-cnn.png" %}">
+        <img src="{% static "images/logo-header-partner-1.png" %}">
+        <img src="{% static "images/logo-header-partner-2.png" %}">
       </div>
       <div class="header-bottom">
         <div class="header-votes">
