@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+v0.1.2 on 2016-04-22
+--------------------
+
+* Change display of partner logos so they can be changed by CF configuration (#167)
+* Add configurable site headline (#166)
+* Validate citation lengths (#162)
+* Include state on all user displays (#161)
+
 v0.1.1 on 2016-04-19
 --------------------
 

@@ -34,7 +34,7 @@ class QuestionForm(forms.Form):
     category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
     headline = forms.CharField(required=True)
     question = forms.CharField(required=False)
-    citation = forms.URLField(required=False)
+    citation = forms.URLField(required=False, max_length=255)
 
     def __init__(self, *args, **kwargs):
         super(QuestionForm, self).__init__(*args, **kwargs)
