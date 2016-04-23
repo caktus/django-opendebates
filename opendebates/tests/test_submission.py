@@ -6,6 +6,7 @@ from django.test import TestCase
 from opendebates.models import Submission, Vote, SiteMode, ZipCode
 from opendebates_emails.models import EmailTemplate
 from .factories import CategoryFactory, UserFactory, VoterFactory, SubmissionFactory
+from .utilities import patch_cache_templatetag
 
 
 class SubmissionTest(TestCase):
@@ -218,3 +219,25 @@ class SubmissionTest(TestCase):
         votes = Vote.objects.filter(voter=self.voter)
         self.assertEqual(1, len(votes))
         self.assertEqual(votes[0].source, None)
+
+
+class SubmissionCacheTest(TestCase):
+
+    def setUp(self):
+        self.submission = SubmissionFactory(has_duplicates=True)
+
+    @patch_cache_templatetag()
+    def test_caching_list_first(self):
+        rsp = self.client.get("/")
+        self.assertNotIn('Click to see the questions that were merged into this', rsp.content)
+
+        rsp = self.client.get(self.submission.get_absolute_url())
+        self.assertIn('Click to see the questions that were merged into this', rsp.content)
+
+    @patch_cache_templatetag()
+    def test_caching_detail_first(self):
+        rsp = self.client.get(self.submission.get_absolute_url())
+        self.assertIn('Click to see the questions that were merged into this', rsp.content)
+
+        rsp = self.client.get("/")
+        self.assertNotIn('Click to see the questions that were merged into this', rsp.content)
