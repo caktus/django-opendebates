@@ -56,6 +56,7 @@ def global_vars(request):
         'FACEBOOK_URL': FACEBOOK_URL,
         'TWITTER_URL': TWITTER_URL,
 
+        'SUBMISSIONS_PER_PAGE': settings.SUBMISSIONS_PER_PAGE,
         'SITE_DOMAIN': settings.SITE_DOMAIN,
         'SITE_LINK': settings.SITE_DOMAIN_WITH_PROTOCOL,
         'MIXPANEL_KEY': settings.MIXPANEL_KEY,
