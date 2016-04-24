@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 from opendebates_emails.models import send_email
 from .forms import ModerationForm
 from .models import Submission, Vote, Flag
+from .utils import get_local_votes_state
 
 
 @rendered_with("opendebates/moderation/preview.html")
@@ -57,11 +58,19 @@ def merge(request):
             submission=duplicate_of).values_list("voter_id", flat=True))
         votes_to_merge = Vote.objects.filter(submission=to_remove).exclude(
             voter__in=votes_already_cast)
+
+        local_state = get_local_votes_state()
+        if local_state:
+            local_votes_to_merge = votes_to_merge.filter(voter__state=local_state).count()
+        else:
+            local_votes_to_merge = 0
+
         duplicate_of.keywords = (duplicate_of.keywords or '') \
             + " " + to_remove.idea \
             + " " + (to_remove.keywords or '')
         duplicate_of.has_duplicates = True
         duplicate_of.votes += votes_to_merge.count()
+        duplicate_of.local_votes += local_votes_to_merge
         duplicate_of.save()
         votes_to_merge.update(original_merged_submission=to_remove, submission=duplicate_of)
         to_remove.duplicate_of = duplicate_of
