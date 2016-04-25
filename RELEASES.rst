@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+v0.1.3 on 2016-04-25
+--------------------
+
+* Cache temporary values longer (#169)
+* Add a template for customization of the video feed page (#172)
+
 v0.1.2 on 2016-04-22
 --------------------
 
