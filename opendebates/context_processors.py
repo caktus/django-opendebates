@@ -13,12 +13,12 @@ from .utils import get_voter, get_number_of_votes, vote_needs_captcha, get_site_
 url_tmpl = u"https://twitter.com/intent/tweet?url=" + \
                    "%(SITE_DOMAIN)s&text=%(tweet_text)s"
 TWITTER_URL = url_tmpl % {
-            "SITE_DOMAIN": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL),
+            "SITE_DOMAIN": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=tw-site"),
             "tweet_text": quote_plus(settings.SITE_THEME['TWITTER_SITE_TEXT']),
             }
 
 FACEBOOK_URL = u"https://www.facebook.com/sharer/sharer.php?&u=%(url)s" % {
-            "url": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL),
+            "url": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=fb-site"),
             }
 
 

@@ -1,6 +1,34 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
+import urlparse
 
-from .factories import UserFactory, VoterFactory
+from .factories import UserFactory, VoterFactory, SubmissionFactory
+
+
+@override_settings(SITE_DOMAIN_WITH_PROTOCOL="https://example.net")
+class SubmissionReallyAbsoluteUrlTest(TestCase):
+
+    def setUp(self):
+        self.submission = SubmissionFactory()
+        self.id = self.submission.id
+
+    def test_default(self):
+        self.assertEqual('https://example.net/questions/%s/vote/' % self.id,
+                         self.submission.really_absolute_url())
+
+    def test_source(self):
+        url = self.submission.really_absolute_url("fb")
+
+        # When a source is included, nothing before querystring is affected
+        self.assertEqual(self.submission.really_absolute_url(),
+                         url.split('?')[0])
+
+        # The query string will include a ?source parameter prefixed with share-
+        # that includes both the platform we are sharing on, and the question ID
+        parsed = urlparse.urlparse(url)
+        self.assertEqual(parsed.query, 'source=share-fb-%s' % self.id)
+
+        parsed = urlparse.urlparse(self.submission.really_absolute_url('foo'))
+        self.assertEqual(parsed.query, 'source=share-foo-%s' % self.id)
 
 
 class VoterUserDisplayNameTest(TestCase):
