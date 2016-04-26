@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from opendebates.models import Submission, Vote, Flag
+from opendebates.models import Submission, Vote, Flag, SiteMode
 from .factories import UserFactory, VoterFactory, SubmissionFactory, RemovalFlagFactory, \
     MergeFlagFactory
 
@@ -176,6 +176,64 @@ class ModerationTest(TestCase):
         # since first_voter had already cast a vote on the remaining submission
         self.assertEqual(1, Vote.objects.filter(
             voter=first_voter, submission=merged).count())
+
+    def test_local_votes_tally_updates_after_merge(self):
+        "During a merge, only unique votes get moved over to the remaining submission"
+
+        mode, _ = SiteMode.objects.get_or_create()
+        mode.debate_state = "FL"
+        mode.save()
+
+        self.client.logout()
+
+        nonlocal_voter = VoterFactory(user=None, state="NY")
+        first_local_voter = VoterFactory(user=None, state="FL")
+        second_local_voter = VoterFactory(user=None, state="FL")
+
+        rsp = self.client.post(self.third_submission.get_absolute_url(), data={
+            'email': nonlocal_voter.email, 'zipcode': nonlocal_voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        rsp = self.client.post(self.third_submission.get_absolute_url(), data={
+            'email': first_local_voter.email, 'zipcode': first_local_voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        rsp = self.client.post(self.second_submission.get_absolute_url(), data={
+            'email': first_local_voter.email, 'zipcode': first_local_voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        rsp = self.client.post(self.third_submission.get_absolute_url(), data={
+            'email': second_local_voter.email, 'zipcode': second_local_voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        self.assertEqual(Submission.objects.get(id=self.second_submission.id).local_votes,
+                         1)
+        self.assertEqual(Submission.objects.get(id=self.third_submission.id).local_votes,
+                         2)
+
+        assert self.client.login(username=self.user.username, password=self.password)
+        rsp = self.client.post(self.merge_url, data={
+            "action": "merge",
+            "to_remove": self.third_submission.id,
+            "duplicate_of": self.second_submission.id,
+        })
+        self.assertRedirects(rsp, self.moderation_home_url)
+
+        merged = Submission.objects.get(id=self.third_submission.id)
+        remaining = Submission.objects.get(id=self.second_submission.id)
+
+        # The merged idea retains its original vote tally, and the remaining idea
+        # has a new vote tally reflecting all unique local voters who have voted on either
+        self.assertEqual(merged.local_votes, 2)
+        self.assertEqual(remaining.local_votes, 2)
 
     def test_unmoderate_does_not_merge_votes(self):
         "During a duplicate unmoderate, no vote merging occurs"
