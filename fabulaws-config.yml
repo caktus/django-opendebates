@@ -1,7 +1,7 @@
   # "testing": demopenquestions
   # "florida" floridaopendebate
   # "production": UNUSED
-  # "staging": UNUSED
+  # "staging": staging
 
   instance_settings:
     # http://uec-images.ubuntu.com/releases/trusty/release/
@@ -94,11 +94,11 @@
     - floridaopendebate.com
     - www.floridaopendebate.com
     staging:
-    -
+    - staging.demopenquestions.com
     testing:
+    - demopenquestions.com
     - testing.demopenquestions.com
     - opendebates-testing-lb-476601241.us-east-1.elb.amazonaws.com
-    - demopenquestions.com
     - www.demopenquestions.com
 
 ## ENVIRONMENT / ROLE SETTINGS ##
@@ -154,11 +154,11 @@
       web: c4.xlarge
       worker: m4.large
     staging:
-      cache: t1.micro
-      db-master: t1.micro
-      db-slave: t1.micro
-      web: m1.small
-      worker: m1.small
+      cache: c4.large
+      db-master: m4.2xlarge
+      db-slave: m4.2xlarge
+      web: c4.xlarge
+      worker: m4.large
 
 # Mapping of Fabric environment names to AWS load balancer names.  Load
 # balancers can be configured in the AWS Management Console.
