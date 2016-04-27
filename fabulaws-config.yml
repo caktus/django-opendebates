@@ -32,7 +32,8 @@
                    newrelic_license_key, newrelic_api_key, s3_secret,
                    secret_key, dbbackup_access_key, dbbackup_access_secret,
                    syslog_server, recaptcha_site_key, recaptcha_secret,
-                   use_captcha, mixpanel_key, email_from, optimizely_key]
+                   use_captcha, mixpanel_key, email_from, optimizely_key,
+                   basic_auth_username, basic_auth_password]
   project: opendebates
   wsgi_app: opendebates.wsgi:application
   requirements_file: requirements/base.txt
@@ -57,6 +58,11 @@
       testing: develop
 
 ## SERVER SETTINGS ##
+  use_basic_auth:
+    florida: False
+    # "testing" is the upcoming production site, hide it until ready to unveil
+    testing: True
+    staging: False
 
 # Local server port for pgbouncer
   pgbouncer_port: 5432
