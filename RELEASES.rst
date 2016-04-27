@@ -1,6 +1,11 @@
 Release Notes
 =============
 
+v0.1.5 on 2016-04-27
+--------------------
+
+* Setup Basic HTTP Auth for presidential site (testing) (#179)
+
 v0.1.4 on 2016-04-27
 --------------------
 
