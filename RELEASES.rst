@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+v0.1.4 on 2016-04-27
+--------------------
+
+* Add source param for social shares (#165)
+* Vary on additional parameters in cache keys (#170)
+* Cache 'recent' view (#164)
+* Add Ethan's SSH key for deploys (#175)
+* Add staging environment for presidential site (#176)
+* Change presidential site (named 'testing') to use master branch (#177)
+
 v0.1.3 on 2016-04-25
 --------------------
 
