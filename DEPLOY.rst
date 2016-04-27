@@ -312,7 +312,7 @@ After initial server setup and after deploys, be sure that you see servers for a
 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:tag:environment=staging;tag:Name=opendebates;sort=desc:launchTime>`_.
 
 You should also be able to view more detailed monitoring info at `NewRelic
-<https://newrelic.com/>`_.
+<https://rpm.newrelic.com/accounts/343744/applications>`_.
 
 To be determined
 ----------------
