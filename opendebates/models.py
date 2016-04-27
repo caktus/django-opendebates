@@ -133,36 +133,38 @@ class Submission(models.Model):
 
     def facebook_url(self):
         return u"https://www.facebook.com/sharer/sharer.php?&u=%(idea_url)s" % {
-            "idea_url": quote_plus(self.really_absolute_url()),
+            "idea_url": quote_plus(self.really_absolute_url('fb')),
             }
 
     def reddit_url(self):
-        return u"//www.reddit.com/submit?url=%s" % (quote_plus(self.really_absolute_url()),)
+        return u"//www.reddit.com/submit?url=%s" % (quote_plus(self.really_absolute_url('reddit')),)
 
     def email_url(self):
         subject = settings.SITE_THEME['EMAIL_SUBJECT']
         body = settings.SITE_THEME['EMAIL_BODY'] % {
-            "url": self.really_absolute_url(),
+            "url": self.really_absolute_url('email'),
         }
         return u"mailto:?subject=%s&body=%s" % (urlquote(subject), urlquote(body))
 
     def sms_url(self):
         params = {
-            "url": self.really_absolute_url(),
+            "url": self.really_absolute_url('sms'),
             "hashtag": settings.SITE_THEME['HASHTAG'],
         }
         body = _(u"Vote for my progressive idea for @OpenDebaters #%(hashtag)s. %(url)s" % params)
         return u"sms:;?body=%s" % (quote_plus(body),)
 
-    def really_absolute_url(self):
-        return settings.SITE_DOMAIN_WITH_PROTOCOL + self.get_absolute_url()
+    def really_absolute_url(self, source=None):
+        url = settings.SITE_DOMAIN_WITH_PROTOCOL + self.get_absolute_url()
+        if source is not None:
+            url += '?source=share-%s-%s' % (source, self.id)
+        return url
 
     def twitter_url(self):
         url_tmpl = u"https://twitter.com/intent/tweet?url=" + \
-                   "%(SITE_DOMAIN)s%(idea_url)s&text=%(tweet_text)s"
+                   "%(idea_url)s&text=%(tweet_text)s"
         return url_tmpl % {
-            "SITE_DOMAIN": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL),
-            "idea_url": quote_plus(self.get_absolute_url()),
+            "idea_url": quote_plus(self.really_absolute_url('tw')),
             "tweet_text": quote_plus(self.tweet_text()),
             }
 

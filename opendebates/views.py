@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.http import Http404, HttpResponse, HttpResponseServerError, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.cache import cache_page
 from djangohelpers.lib import rendered_with, allow_http
 from registration.backends.simple.views import RegistrationView
 
@@ -67,6 +68,7 @@ def test(request):
     }
 
 
+@cache_page(5)  # Cache for 5 seconds after rendering
 @allow_http("GET")
 @rendered_with("opendebates/snippets/recent_activity.html")
 def recent_activity(request):

@@ -97,11 +97,11 @@
     {% endcache %}
     
   {% show_current_number as page_number %}
-  {% cache 30 idea_list search_term category.id sort page_number %}
+  {% cache 30 idea_list search_term category.id sort page_number request.GET.source %}
 
   <hr class="before-idea-list visible-xs" />
   <div class="row idea-list">
-    {% lazy_paginate 25 ideas %}
+    {% lazy_paginate SUBMISSIONS_PER_PAGE ideas %}
 
     {% for idea in ideas %}
       {% include "opendebates/snippets/idea.html" %}

@@ -13,12 +13,12 @@ from .utils import get_voter, get_number_of_votes, vote_needs_captcha, get_site_
 url_tmpl = u"https://twitter.com/intent/tweet?url=" + \
                    "%(SITE_DOMAIN)s&text=%(tweet_text)s"
 TWITTER_URL = url_tmpl % {
-            "SITE_DOMAIN": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL),
+            "SITE_DOMAIN": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=tw-site"),
             "tweet_text": quote_plus(settings.SITE_THEME['TWITTER_SITE_TEXT']),
             }
 
 FACEBOOK_URL = u"https://www.facebook.com/sharer/sharer.php?&u=%(url)s" % {
-            "url": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL),
+            "url": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=fb-site"),
             }
 
 
@@ -56,6 +56,7 @@ def global_vars(request):
         'FACEBOOK_URL': FACEBOOK_URL,
         'TWITTER_URL': TWITTER_URL,
 
+        'SUBMISSIONS_PER_PAGE': settings.SUBMISSIONS_PER_PAGE,
         'SITE_DOMAIN': settings.SITE_DOMAIN,
         'SITE_LINK': settings.SITE_DOMAIN_WITH_PROTOCOL,
         'MIXPANEL_KEY': settings.MIXPANEL_KEY,

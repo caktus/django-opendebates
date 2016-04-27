@@ -14,6 +14,8 @@ SITE_DOMAIN = os.environ.get("DOMAIN", os.environ.get("SITE_DOMAIN", "127.0.0.1:
 SITE_DOMAIN_WITH_PROTOCOL = "https://" + SITE_DOMAIN
 # Both DOMAIN variables are overwritten in local_settings.py
 
+SUBMISSIONS_PER_PAGE = 25
+
 SITE_THEMES = {
     'florida': {
         "HASHTAG": u"FLOpenDebate",
