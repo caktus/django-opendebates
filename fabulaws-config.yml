@@ -54,7 +54,7 @@
       production: master
       florida: master
       staging: develop
-      testing: develop
+      testing: master
 
 ## SERVER SETTINGS ##
 
