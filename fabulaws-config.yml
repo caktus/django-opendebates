@@ -23,7 +23,6 @@
   database_user: dbuser
   home: /home/opendebates # no trailing /
   python: /usr/bin/python2.7
-  log_host:
 
 ## LOCAL / PROJECT SETTINGS ##
   disable_known_hosts: true
@@ -67,7 +66,7 @@
 # Local server port for pgbouncer
   pgbouncer_port: 5432
 
-  less_version: 2.5.3
+  less_version: 2.7.1
 
 # Local server ports used by Gunicorn (the Django apps server)
   server_ports:
@@ -160,11 +159,11 @@
       web: c4.xlarge
       worker: m4.large
     staging:
-      cache: c4.large
-      db-master: m4.2xlarge
-      db-slave: m4.2xlarge
-      web: c4.xlarge
-      worker: m4.large
+      cache: t2.micro
+      db-master: t2.small
+      db-slave: t2.small
+      web: t2.micro
+      worker: t2.micro
 
 # Mapping of Fabric environment names to AWS load balancer names.  Load
 # balancers can be configured in the AWS Management Console.
