@@ -70,7 +70,7 @@
       {% endif %}
     </div>
     <div class="header-title">
-      <h1><a href="/">{{ BANNER_HEADER_TITLE|linebreaks }}</a></h1>
+      <h1><a href="/">{{ BANNER_HEADER_TITLE|safe }}</a></h1>
       <div class="header-copy">{{ BANNER_HEADER_COPY }}</div>
       <div class="header-small-logos">
         <img src="{% static "images/logo-header-partner-1.png" %}">
