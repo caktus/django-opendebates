@@ -79,4 +79,7 @@ def global_vars(request):
         'SUBMISSION_CATEGORIES': SimpleLazyObject(_get_categories),
         'SITE_THEME_NAME': settings.SITE_THEME_NAME,
         'SITE_THEME': settings.SITE_THEMES[settings.SITE_THEME_NAME],
+
+        'BANNER_HEADER_TITLE': mode.banner_header_title,
+        'BANNER_HEADER_COPY': mode.banner_header_copy,
     }
