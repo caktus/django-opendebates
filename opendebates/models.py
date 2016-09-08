@@ -45,6 +45,9 @@ class SiteMode(CachingMixin, models.Model):
     announcement_link = models.URLField(null=True, blank=True)
     announcement_page_regex = models.CharField(max_length=255, null=True, blank=True)
 
+    banner_header_title = models.TextField(default=u'Welcome to the<br>Open Debate')
+    banner_header_copy = models.TextField(default=u'Ask about the issues that are most important to you -- then vote for other important questions and encourage friends to do the same!')
+    
     objects = CachingManager()
 
 
