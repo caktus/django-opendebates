@@ -24,6 +24,7 @@ def presidential(deployment_tag=env.default_deployment, answer=None):
     _setup_env(deployment_tag, 'presidential')
 
 
+@task
 @roles('db-master')
 def pg_create_unaccent_ext():
     """
