@@ -20,7 +20,7 @@
   deploy_user: opendebates
   webserver_user: opendebates-web
   database_host: localhost
-  database_user: dbuser
+  database_user: opendebates
   home: /home/opendebates # no trailing /
   python: /usr/bin/python2.7
 
@@ -161,11 +161,11 @@
       web: c4.xlarge
       worker: m4.large
     presidential:
-      cache: c4.large
-      db-master: m4.2xlarge
-      db-slave: m4.2xlarge
-      web: c4.xlarge
-      worker: m4.large
+      cache: t2.micro
+      db-master: t2.small
+      db-slave: t2.small
+      web: t2.micro
+      worker: t2.micro
 
 # Mapping of Fabric environment names to AWS load balancer names.  Load
 # balancers can be configured in the AWS Management Console.
