@@ -54,7 +54,7 @@
       testing: master
       staging: develop
       florida: master
-      presidential: master
+      presidential: develop # XXX change to master for final prod deploy 9/14/16
 
 ## SERVER SETTINGS ##
   use_basic_auth:
