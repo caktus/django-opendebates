@@ -118,6 +118,9 @@
   - staging
   - florida
   - presidential
+  production_environments:
+  - florida
+  - presidenetial
   valid_roles:
   - cache
   - db-master
