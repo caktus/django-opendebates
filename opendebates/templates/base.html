@@ -70,8 +70,8 @@
       {% endif %}
     </div>
     <div class="header-title">
-      <h1><a href="/">{{ SITE_THEME.HEADER_TITLE|linebreaks }}</a></h1>
-      <div class="header-copy">{{ SITE_THEME.HEADER_COPY }}</div>
+      <h1><a href="/">{{ BANNER_HEADER_TITLE|safe }}</a></h1>
+      <div class="header-copy">{{ BANNER_HEADER_COPY|safe }}</div>
       <div class="header-small-logos">
         <img src="{% static "images/logo-header-partner-1.png" %}">
         <img src="{% static "images/logo-header-partner-2.png" %}">
@@ -141,6 +141,9 @@
   ODebates.paths.merge = "{% url 'merge' 0 %}";
   ODebates.paths.login = "{% url 'auth_login' %}";
   ODebates.paths.register = "{% url 'registration_register' %}";
+
+  ODebates.strings = ODebates.strings || {};
+  ODebates.strings.afterQuestionSubmittedText = {{ POPUP_AFTER_SUBMISSION_TEXT|safe }};
 
   {% if DEBUG %}
     ODebates.configs.debug = true;
