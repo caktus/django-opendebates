@@ -1,10 +1,11 @@
 import urlparse
 
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from mock import patch, Mock
 
 from opendebates.context_processors import global_vars
 from opendebates.tests.factories import SubmissionFactory
+from opendebates.utils import get_site_mode
 
 
 class NumberOfVotesTest(TestCase):
@@ -21,11 +22,11 @@ class ThemeTests(TestCase):
     def setUp(self):
         self.idea = SubmissionFactory()
 
-    @override_settings(SITE_THEME={
-        'EMAIL_SUBJECT': 'THE EMAIL SUBJECT',
-        'EMAIL_BODY': 'THE EMAIL BODY\nAND SECOND LINE',
-    })
     def test_email_url(self):
+        mode = get_site_mode()
+        mode.email_subject = 'THE EMAIL SUBJECT'
+        mode.email_body = 'THE EMAIL BODY\nAND SECOND LINE'
+        mode.save()
         email_url = self.idea.email_url()
         fields = urlparse.parse_qs(urlparse.urlparse(email_url).query)
         self.assertTrue('subject' in fields, fields)

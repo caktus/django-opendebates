@@ -7,13 +7,13 @@
   {# <meta name="twitter:creator" content="@Opendebaters"> #}
   <meta name="twitter:title" content="{{ idea.twitter_title }}">
   <meta name="twitter:description" content="{{ idea.twitter_description }}">
-  <meta name="twitter:image" content="{{ SITE_THEME.TWITTER_IMAGE }}">
+  <meta name="twitter:image" content="{{ SITE_MODE.twitter_image }}">
 
   <meta property="og:url" content="{{ idea.really_absolute_url }}"/>
   <meta property="og:type" content="website"/>
   <meta property="og:title" content="{{ idea.facebook_title }}"/>
   <meta property="og:description" content="{{ idea.facebook_description }}"/>
-  <meta property="og:image" content="{{ SITE_THEME.FACEBOOK_IMAGE }}"/>
+  <meta property="og:image" content="{{ SITE_MODE.facebook_image }}"/>
 {% endblock metadata %}
 
 {% block title %}
