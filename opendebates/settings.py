@@ -17,6 +17,7 @@ SUBMISSIONS_PER_PAGE = 25
 
 SITE_THEMES = ['testing', 'florida']
 SITE_THEME_NAME = 'florida'
+# SITE_THEME_NAME gets overriden in local_settings
 
 ENABLE_USER_DISPLAY_NAME = False
 

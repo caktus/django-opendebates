@@ -196,5 +196,9 @@ USE_CAPTCHA = {{ use_captcha|default(true) }}
 MIXPANEL_KEY = '{{ mixpanel_key }}'
 OPTIMIZELY_KEY = '{{ optimizely_key }}'
 
+if '{{ environment }}' in SITE_THEMES:
+    SITE_THEME_NAME = '{{ environment }}'
+else:
+    SITE_THEME_NAME = 'testing'
 SITE_DOMAIN = '{{ site_domains[0] }}'
 SITE_DOMAIN_WITH_PROTOCOL = "https://" + SITE_DOMAIN
