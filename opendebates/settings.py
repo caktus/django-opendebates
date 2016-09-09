@@ -19,13 +19,6 @@ SUBMISSIONS_PER_PAGE = 25
 SITE_THEMES = {
     'florida': {
         "HASHTAG": u"FLOpenDebate",
-        "HEADER_TITLE": _(u"WELCOME TO THE\nFLORIDA OPEN DEBATE"),
-        "HEADER_COPY": _(
-            u"Ask Congressman David Jolly (R-FL) and Congressman Alan Grayson (D-FL) about "
-            u"the issues that are most important "
-            "to you -- then vote and tell others! Watch the Florida Open Debate for U.S. "
-            "Senate right here on Monday, April 25, at 7:00 pm EDT. All questions "
-            "will be chosen from among those that receive the most votes online."),
         "TWITTER_IMAGE":
             "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
             "OpenDebates_VOTE-NOW_TW-1024x512-FODUrl.png",
@@ -86,12 +79,6 @@ SITE_THEMES = {
     },
     'testing': {  # Presidential Debate
         "HASHTAG": "DemOpenForum",
-        "HEADER_TITLE": _("WELCOME TO THE\nDEMOCRATIC OPEN FORUM"),
-        "HEADER_COPY": _(
-            u"Ask Bernie Sanders and Hillary Clinton about the issues that are most important "
-            "to you -- then vote and tell others! Watch the Democratic Open Forum on CNN "
-            "or right here on Monday, April 25, at 8:00 pm EDT. All questions will be chosen from "
-            "among those that receive the most votes online."),
 
         # FIXME: Twitter & Facebook settings for Presidential debate
         "TWITTER_IMAGE":
@@ -140,6 +127,8 @@ SITE_THEMES = {
 SITE_THEME_NAME = 'florida'
 SITE_THEME = SITE_THEMES[SITE_THEME_NAME]
 # SITE_THEME_NAME and SITE_THEME get overriden in local_settings
+
+ENABLE_USER_DISPLAY_NAME = False
 
 # SECRET_KEY is overriden in deploy settings
 SECRET_KEY = 'secret-key-for-local-use-only'

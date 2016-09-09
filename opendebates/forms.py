@@ -1,6 +1,7 @@
 from urlparse import urlparse
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import resolve, Resolver404
@@ -60,9 +61,12 @@ class OpenDebatesRegistrationForm(RegistrationForm):
 
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
-    display_name = forms.CharField(max_length=255,
-                                   label=mark_safe(display_name_label),
-                                   required=False)
+
+    if settings.ENABLE_USER_DISPLAY_NAME:
+        display_name = forms.CharField(max_length=255,
+                                       label=mark_safe(display_name_label),
+                                       required=False)
+
     twitter_handle = forms.CharField(max_length=255,
                                      label=mark_safe(twitter_handle_label),
                                      required=False)
