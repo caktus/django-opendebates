@@ -141,6 +141,8 @@ SITE_THEME_NAME = 'florida'
 SITE_THEME = SITE_THEMES[SITE_THEME_NAME]
 # SITE_THEME_NAME and SITE_THEME get overriden in local_settings
 
+ENABLE_USER_DISPLAY_NAME = False
+
 # SECRET_KEY is overriden in deploy settings
 SECRET_KEY = 'secret-key-for-local-use-only'
 
