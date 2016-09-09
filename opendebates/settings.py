@@ -32,7 +32,7 @@ SITE_THEMES = {
             u"and email it to friends. For the live event, all questions will be "
             u"chosen from among the Top 30 that received the most votes (and no "
             u"more than the Top 5 in each category)."),
-        
+
         "TWITTER_IMAGE":
             "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
             "OpenDebates_VOTE-NOW_TW-1024x512-FODUrl.png",
@@ -104,7 +104,7 @@ SITE_THEMES = {
             u"Next, help your question collect votes. Share it on social media "
             u"and email it to friends. The Top 30 questions with the most votes "
             u"will be shared with debate moderators."),
-        
+
         # FIXME: Twitter & Facebook settings for Presidential debate
         "TWITTER_IMAGE":
             "https://s3.amazonaws.com/s3.boldprogressives.org/images/"
