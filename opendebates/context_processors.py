@@ -78,6 +78,9 @@ def global_vars(request):
 
         'BANNER_HEADER_TITLE': mode.banner_header_title,
         'BANNER_HEADER_COPY': mode.banner_header_copy,
+        # Note: POPUP_AFTER_SUBMISSION_TEXT is not actually json; this is used
+        # to provide a string surrounded by double quotes with all the necessary
+        # characters escaped. See PR #188.
         'POPUP_AFTER_SUBMISSION_TEXT': json.dumps(mode.popup_after_submission_text),
 
         'SUBMISSION_CATEGORIES': SimpleLazyObject(_get_categories),
