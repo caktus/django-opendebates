@@ -142,6 +142,9 @@
   ODebates.paths.login = "{% url 'auth_login' %}";
   ODebates.paths.register = "{% url 'registration_register' %}";
 
+  ODebates.strings = ODebates.strings || {};
+  ODebates.strings.afterQuestionSubmittedText = "{{ SITE_THEME.AFTER_QUESTION_SUBMITTED_TEXT }}";
+  
   {% if DEBUG %}
     ODebates.configs.debug = true;
   {% else %}
