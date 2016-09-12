@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sitemode',
             name='facebook_question_title',
-            field=models.TextField(default='Click here to vote on this question for U.S. Senate candidates to answer at the #OpenDebate in [STATE!'),
+            field=models.TextField(default='Click here to vote on this question for U.S. Senate candidates to answer at the #OpenDebate in [STATE]!'),
         ),
         migrations.AddField(
             model_name='sitemode',

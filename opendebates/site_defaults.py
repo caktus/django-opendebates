@@ -41,7 +41,7 @@ FACEBOOK_SITE_DESCRIPTION =\
     "questions will be chosen from top vote-getters online. Submit & vote here!"
 FACEBOOK_QUESTION_TITLE =\
     u'Click here to vote on this question for U.S. Senate candidates to answer at the '\
-    '#OpenDebate in [STATE!'
+    '#OpenDebate in [STATE]!'
 FACEBOOK_QUESTION_DESCRIPTION =\
     u'"{idea}" At [TIME] on [DATE], [CANDIDATES] answer top vote-getting questions '\
     'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive '\
