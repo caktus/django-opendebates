@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sitemode',
             name='twitter_question_text_with_handle',
-            field=models.TextField(default='Submit & vote on questions for #OpenDebate hosted by Open Debate Coalition, Progressive Change Inst.'),
+            field=models.TextField(default='Submit & vote on questions for #OpenDebate hosted by Open Debate Coalition, Progressive Change Inst. h/t @{handle}'),
         ),
         migrations.AddField(
             model_name='sitemode',

@@ -19,7 +19,10 @@ TWITTER_SITE_TITLE = u"U.S. Senate candidates answer YOUR questions!"
 TWITTER_SITE_DESCRIPTION =\
     u"[DATE] [TIME] on [TBD]: Voters set the agenda for groundbreaking #OpenDebate. "\
     "Submit & vote here!"
-TWITTER_QUESTION_TEXT =\
+TWITTER_QUESTION_TEXT_WITH_HANDLE =\
+    u"Submit & vote on questions for #OpenDebate "\
+    "hosted by Open Debate Coalition, Progressive Change Inst. h/t @{handle}"
+TWITTER_QUESTION_TEXT_NO_HANDLE =\
     u"Submit & vote on questions for #OpenDebate "\
     "hosted by Open Debate Coalition, Progressive Change Inst."
 TWITTER_QUESTION_TITLE =\

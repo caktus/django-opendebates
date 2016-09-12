@@ -71,9 +71,11 @@ class SiteMode(CachingMixin, models.Model):
         default=site_defaults.TWITTER_QUESTION_DESCRIPTION,
     )
     twitter_question_text_with_handle = models.TextField(
-        default=site_defaults.TWITTER_QUESTION_TEXT,
+        default=site_defaults.TWITTER_QUESTION_TEXT_WITH_HANDLE,
     )
-    twitter_question_text_no_handle = models.TextField(default=site_defaults.TWITTER_QUESTION_TEXT)
+    twitter_question_text_no_handle = models.TextField(
+        default=site_defaults.TWITTER_QUESTION_TEXT_NO_HANDLE,
+    )
     twitter_question_title = models.TextField(default=site_defaults.TWITTER_QUESTION_TITLE)
     twitter_site_description = models.TextField(default=site_defaults.TWITTER_SITE_DESCRIPTION)
     twitter_site_text = models.TextField(default=site_defaults.TWITTER_SITE_TEXT)
@@ -171,8 +173,9 @@ class Submission(CachedSiteModeMixin, models.Model):
 
     def tweet_text(self):
         if self.voter.twitter_handle:
-            text = self.site_mode.twitter_question_text_with_handle
-            text += u" h/t @%s" % self.voter.twitter_handle
+            text = self.site_mode.twitter_question_text_with_handle.format(
+                handle=self.voter.twitter_handle,
+            )
         else:
             text = self.site_mode.twitter_question_text_no_handle
         return text
