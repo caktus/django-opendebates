@@ -63,7 +63,12 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='sitemode',
-            name='twitter_question_text',
+            name='twitter_question_text_with_handle',
+            field=models.TextField(default='Submit & vote on questions for #OpenDebate hosted by Open Debate Coalition, Progressive Change Inst.'),
+        ),
+        migrations.AddField(
+            model_name='sitemode',
+            name='twitter_question_text_no_handle',
             field=models.TextField(default='Submit & vote on questions for #OpenDebate hosted by Open Debate Coalition, Progressive Change Inst.'),
         ),
         migrations.AddField(

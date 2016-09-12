@@ -52,7 +52,7 @@ class SiteMode(CachingMixin, models.Model):
     banner_header_copy = models.TextField(default=site_defaults.BANNER_HEADER_COPY)
 
     popup_after_submission_text = models.TextField(
-        default=site_defaults.POPUP_AFTER_SUBMISSION_TEXT
+        default=site_defaults.POPUP_AFTER_SUBMISSION_TEXT,
     )
 
     email_subject = models.CharField(default=site_defaults.EMAIL_SUBJECT, max_length=998)
@@ -60,7 +60,7 @@ class SiteMode(CachingMixin, models.Model):
 
     facebook_image = models.URLField(default=site_defaults.FACEBOOK_IMAGE)
     facebook_question_description = models.TextField(
-        default=site_defaults.FACEBOOK_QUESTION_DESCRIPTION
+        default=site_defaults.FACEBOOK_QUESTION_DESCRIPTION,
     )
     facebook_question_title = models.TextField(default=site_defaults.FACEBOOK_QUESTION_TITLE)
     facebook_site_description = models.TextField(default=site_defaults.FACEBOOK_SITE_DESCRIPTION)
@@ -68,9 +68,12 @@ class SiteMode(CachingMixin, models.Model):
 
     twitter_image = models.URLField(default=site_defaults.TWITTER_IMAGE)
     twitter_question_description = models.TextField(
-        default=site_defaults.TWITTER_QUESTION_DESCRIPTION
+        default=site_defaults.TWITTER_QUESTION_DESCRIPTION,
     )
-    twitter_question_text = models.TextField(default=site_defaults.TWITTER_QUESTION_TEXT)
+    twitter_question_text_with_handle = models.TextField(
+        default=site_defaults.TWITTER_QUESTION_TEXT,
+    )
+    twitter_question_text_no_handle = models.TextField(default=site_defaults.TWITTER_QUESTION_TEXT)
     twitter_question_title = models.TextField(default=site_defaults.TWITTER_QUESTION_TITLE)
     twitter_site_description = models.TextField(default=site_defaults.TWITTER_SITE_DESCRIPTION)
     twitter_site_text = models.TextField(default=site_defaults.TWITTER_SITE_TEXT)
@@ -163,9 +166,11 @@ class Submission(CachedSiteModeMixin, models.Model):
                  "30 leaders in Congress will see top ideas!" % params)
 
     def tweet_text(self):
-        text = self.site_mode.twitter_question_text
         if self.voter.twitter_handle:
+            text = self.site_mode.twitter_question_text_with_handle
             text += u" h/t @%s" % self.voter.twitter_handle
+        else:
+            text = self.site_mode.twitter_question_text_no_handle
         return text
 
     def facebook_text(self):
