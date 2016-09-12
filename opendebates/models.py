@@ -84,12 +84,16 @@ class SiteMode(CachingMixin, models.Model):
 
 class CachedSiteModeMixin(object):
 
+    def _get_site_mode(self):
+        # extracted in its own method for testing purposes
+        from opendebates.utils import get_site_mode
+        return get_site_mode()
+
     @property
     def site_mode(self):
         # avoid lots of unneeded round trips to memcached in production
         if not hasattr(self, '_cached_site_mode'):
-            from opendebates.utils import get_site_mode
-            self._cached_site_mode = get_site_mode()
+            self._cached_site_mode = self._get_site_mode()
         return self._cached_site_mode
 
 
