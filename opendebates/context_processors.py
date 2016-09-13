@@ -10,18 +10,6 @@ from .models import Category, Vote
 from .utils import get_voter, get_number_of_votes, vote_needs_captcha, get_site_mode
 
 
-url_tmpl = u"https://twitter.com/intent/tweet?url=" + \
-                   "%(SITE_DOMAIN)s&text=%(tweet_text)s"
-TWITTER_URL = url_tmpl % {
-            "SITE_DOMAIN": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=tw-site"),
-            "tweet_text": quote_plus(settings.SITE_THEME['TWITTER_SITE_TEXT']),
-            }
-
-FACEBOOK_URL = u"https://www.facebook.com/sharer/sharer.php?&u=%(url)s" % {
-            "url": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=fb-site"),
-            }
-
-
 def voter(request):
     def _get_voter():
         return get_voter(request)
@@ -45,6 +33,15 @@ def global_vars(request):
         return Category.objects.all()
 
     mode = get_site_mode()
+
+    url_tmpl = u"https://twitter.com/intent/tweet?url=%(SITE_DOMAIN)s&text=%(tweet_text)s"
+    TWITTER_URL = url_tmpl % {
+        "SITE_DOMAIN": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=tw-site"),
+        "tweet_text": quote_plus(mode.twitter_site_text),
+    }
+    FACEBOOK_URL = u"https://www.facebook.com/sharer/sharer.php?&u=%(url)s" % {
+        "url": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=fb-site"),
+    }
 
     return {
         'CAPTCHA_SITE_KEY': settings.NORECAPTCHA_SITE_KEY,
@@ -85,5 +82,5 @@ def global_vars(request):
 
         'SUBMISSION_CATEGORIES': SimpleLazyObject(_get_categories),
         'SITE_THEME_NAME': settings.SITE_THEME_NAME,
-        'SITE_THEME': settings.SITE_THEMES[settings.SITE_THEME_NAME],
+        'SITE_MODE': mode,
     }

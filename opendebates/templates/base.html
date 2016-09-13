@@ -10,19 +10,19 @@
     <meta name="twitter:card" content="summary_large_image">
     {# <meta name="twitter:site" content="@Opendebaters"> #}
     {# <meta name="twitter:creator" content="@Opendebaters"> #}
-    <meta name="twitter:title" content="{{ SITE_THEME.TWITTER_SITE_TITLE }}">
-    <meta name="twitter:description" content="{{ SITE_THEME.TWITTER_SITE_DESCRIPTION }}">
-    <meta name="twitter:image" content="{{ SITE_THEME.TWITTER_IMAGE }}">
+    <meta name="twitter:title" content="{{ SITE_MODE.twitter_site_title }}">
+    <meta name="twitter:description" content="{{ SITE_MODE.twitter_site_description }}">
+    <meta name="twitter:image" content="{{ SITE_MODE.twitter_image }}">
 
     <meta property="og:url" content="{{ SITE_LINK }}"/>
     <meta property="og:type" content="website"/>
-    <meta property="og:title" content="{{ SITE_THEME.FACEBOOK_SITE_TITLE }}"/>
-    <meta property="og:description" content="{{ SITE_THEME.FACEBOOK_SITE_DESCRIPTION }}"/>
-    <meta property="og:image" content="{{ SITE_THEME.FACEBOOK_IMAGE }}"/>
+    <meta property="og:title" content="{{ SITE_MODE.facebook_site_title }}"/>
+    <meta property="og:description" content="{{ SITE_MODE.facebook_site_description }}"/>
+    <meta property="og:image" content="{{ SITE_MODE.facebook_image }}"/>
   {% endblock metadata %}
   {% load pipeline %}
   {% stylesheet 'base' %}
-  {% if SITE_THEME %}
+  {% if SITE_THEME_NAME %}
     {% with "theme-"|add:SITE_THEME_NAME as theme %}
       {% stylesheet theme %}
     {% endwith %}

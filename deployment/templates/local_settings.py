@@ -200,6 +200,5 @@ if '{{ environment }}' in SITE_THEMES:
     SITE_THEME_NAME = '{{ environment }}'
 else:
     SITE_THEME_NAME = 'testing'
-SITE_THEME = SITE_THEMES[SITE_THEME_NAME]
 SITE_DOMAIN = '{{ site_domains[0] }}'
 SITE_DOMAIN_WITH_PROTOCOL = "https://" + SITE_DOMAIN
