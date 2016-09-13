@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='voter',
             name='phone_number',
-            field=localflavor.us.models.PhoneNumberField(max_length=20, null=True, blank=True),
+            field=localflavor.us.models.PhoneNumberField(max_length=20, blank=True),
         ),
     ]

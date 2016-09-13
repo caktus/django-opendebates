@@ -272,7 +272,7 @@ class Voter(models.Model):
 
     display_name = models.CharField(max_length=255, null=True, blank=True)
     twitter_handle = models.CharField(max_length=255, null=True, blank=True)
-    phone_number = PhoneNumberField(null=True, blank=True)
+    phone_number = PhoneNumberField(blank=True)
 
     unsubscribed = models.BooleanField(default=False)
 
