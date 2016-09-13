@@ -9,6 +9,7 @@ from urllib import quote_plus
 from django.utils.http import urlquote
 from django.utils.translation import ugettext_lazy as _
 from caching.base import CachingManager, CachingMixin
+from localflavor.us.models import PhoneNumberField
 
 from opendebates import site_defaults
 
@@ -271,6 +272,7 @@ class Voter(models.Model):
 
     display_name = models.CharField(max_length=255, null=True, blank=True)
     twitter_handle = models.CharField(max_length=255, null=True, blank=True)
+    phone_number = PhoneNumberField(null=True, blank=True)
 
     unsubscribed = models.BooleanField(default=False)
 
