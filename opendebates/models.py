@@ -164,13 +164,6 @@ class Submission(CachedSiteModeMixin, models.Model):
     def get_absolute_url(self):
         return "vote", [self.id]
 
-    def my_tweet_text(self):
-        params = {
-            "hashtag": self.site_mode.hashtag,
-        }
-        return _(u"Vote for my progressive idea for @ThinkBigUS #%s(hashtag)s. "
-                 "30 leaders in Congress will see top ideas!" % params)
-
     def tweet_text(self):
         if self.voter.twitter_handle:
             text = self.site_mode.twitter_question_text_with_handle.format(
