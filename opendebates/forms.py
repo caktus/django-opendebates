@@ -71,19 +71,36 @@ class OpenDebatesRegistrationForm(RegistrationForm):
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
 
-    if settings.ENABLE_USER_DISPLAY_NAME:
-        display_name = forms.CharField(max_length=255,
-                                       label=mark_safe(display_name_label),
-                                       required=False)
-    if settings.ENABLE_USER_PHONE_NUMBER:
-        phone_number = USPhoneNumberField(label=mark_safe(phone_number_label),
-                                          required=False)
+    # Additional fields which we want to add in __init__, *after* adding
+    # the phone number and display name fields (if enabled). In Django 1.8,
+    # SortedDict is deprecated and the only way to modify the order of fields
+    # (collections.OrderedDict) on Python 2.7 is to create an entirely new
+    # dictionary. Django 1.9 adds a 'field_order' attribute on forms, but
+    # we're not using that yet. This attempts to maintain proper field order
+    # while doing as little as possible at runtime.
+    additional_fields = [
+        ('twitter_handle', forms.CharField(max_length=255,
+                                           label=mark_safe(twitter_handle_label),
+                                           required=False)),
+        ('zip', USZipCodeField()),
+        ('captcha', NoReCaptchaField(label=_("Are you human?"))),
+    ]
 
-    twitter_handle = forms.CharField(max_length=255,
-                                     label=mark_safe(twitter_handle_label),
-                                     required=False)
-    zip = USZipCodeField()
-    captcha = NoReCaptchaField(label=_("Are you human?"))
+    def __init__(self, *args, **kwargs):
+        super(OpenDebatesRegistrationForm, self).__init__(*args, **kwargs)
+        if settings.ENABLE_USER_PHONE_NUMBER:
+            self.fields['phone_number'] = USPhoneNumberField(
+                label=mark_safe(phone_number_label),
+                required=False,
+            )
+        if settings.ENABLE_USER_DISPLAY_NAME:
+            self.fields['display_name'] = forms.CharField(
+                max_length=255,
+                label=mark_safe(display_name_label),
+                required=False,
+            )
+        for name, field in self.additional_fields:
+            self.fields[name] = field
 
     def clean_twitter_handle(self):
         if self.cleaned_data.get("twitter_handle", "").startswith("@"):
