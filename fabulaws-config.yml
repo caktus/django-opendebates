@@ -144,13 +144,22 @@
     web: [opendebates-sg, opendebates-web-sg]
 
 # Mapping of environment and role to EC2 instance types (sizes)
+# Except for very small instance types where it doesn't matter as much,
+# it's best to use 'c3' or 'm3' generation instances that have local SSD
+# storage for swap. This is especially true for 'web' instances that will
+# be used to create AMIs (and keep a small volume_size), as it dramatically
+# speeds up AMI creation (by ~10 min).
+# Additionally, 2xlarge or higher instance types are needed to get >= 1000 Mbps
+# on the network. This is important for the cache server which might not have
+# a lot of CPU load but will be transfering lots of data back & forth. See:
+# http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-ec2-config.html
   instance_types:
     testing:
-      cache: c4.large
-      db-master: m4.2xlarge
-      db-slave: m4.2xlarge
-      web: c4.xlarge
-      worker: m4.large
+      cache: c3.2xlarge # for 1000Mbps network
+      db-master: c3.2xlarge
+      db-slave: c3.2xlarge
+      web: c3.xlarge
+      worker: m3.large
     staging:
       cache: t2.micro
       db-master: t2.small
@@ -158,17 +167,17 @@
       web: t2.micro
       worker: t2.micro
     florida:
-      cache: c4.large
-      db-master: m4.2xlarge
-      db-slave: m4.2xlarge
-      web: c4.xlarge
-      worker: m4.large
+      cache: c3.large
+      db-master: c3.2xlarge
+      db-slave: c3.2xlarge
+      web: c3.xlarge
+      worker: m3.large
     presidential:
-      cache: t2.micro
-      db-master: t2.small
-      db-slave: t2.small
-      web: t2.micro
-      worker: t2.micro
+      cache: c3.2xlarge # for 1000Mbps network
+      db-master: c3.2xlarge
+      db-slave: c3.2xlarge
+      web: c3.xlarge
+      worker: m3.large
 
 # Mapping of Fabric environment names to AWS load balancer names.  Load
 # balancers can be configured in the AWS Management Console.
@@ -192,13 +201,15 @@
       florida: opendebates-florida-ag
       presidential: opendebates-presidential-ag
 
-# Mapping of Fabric environment and role to Elastic Block Device sizes (in GB)
+# Mapping of Fabric environment and role to Elastic Block Device sizes (in GB).
+# If you have any 'm4' or 'c4' instances, make sure these are large enough to
+# hold your data plus a swap file (these instance types have no local storage).
   volume_sizes:
     testing:
       cache: 10
       db-master: 250
       db-slave: 250
-      web: 30
+      web: 10
       worker: 50
     staging:
       cache: 10
@@ -210,13 +221,13 @@
       cache: 10
       db-master: 250
       db-slave: 250
-      web: 30
+      web: 10
       worker: 50
     presidential:
       cache: 10
       db-master: 250
       db-slave: 250
-      web: 30
+      web: 10
       worker: 50
 
 # Mapping of Fabric environment and role to Elastic Block Device volume types
