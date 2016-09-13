@@ -34,7 +34,7 @@
         rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
   {% if SITE_MODE.inline_css %}
-  <style type="text/css">
+  <style type="text/css" id="site-mode-inline-css">
     {{ SITE_MODE.inline_css|safe }}
   </style>
   {% endif %}
