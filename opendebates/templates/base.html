@@ -33,7 +33,11 @@
   <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,300,600,400|Open+Sans+Condensed:700"
         rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-
+  {% if SITE_MODE.inline_css %}
+  <style type="text/css" id="site-mode-inline-css">
+    {{ SITE_MODE.inline_css|safe }}
+  </style>
+  {% endif %}
 </head>
 <body>
 
@@ -53,8 +57,10 @@
     <div class="header-logos">
       <a href="{% url 'list_ideas' %}">
         <img src="{% static "images/badge-democratic-open-forum.png" %}">
-        <img src="{% static "images/logo-header-partner-1.png" %}">
-        <img src="{% static "images/logo-header-partner-2.png" %}">
+        <img class="partner-logo partner-logo-1"
+             src="{% static "images/logo-header-partner-1.png" %}">
+        <img class="partner-logo partner-logo-2"
+             src="{% static "images/logo-header-partner-2.png" %}">
       </a>
     </div>
     <div class="login-container{% if request.user.is_authenticated %} login-container-authenticated{% endif %}">
@@ -73,8 +79,10 @@
       <h1><a href="/">{{ BANNER_HEADER_TITLE|safe }}</a></h1>
       <div class="header-copy">{{ BANNER_HEADER_COPY|safe }}</div>
       <div class="header-small-logos">
-        <img src="{% static "images/logo-header-partner-1.png" %}">
-        <img src="{% static "images/logo-header-partner-2.png" %}">
+        <img class="partner-logo partner-logo-1"
+             src="{% static "images/logo-header-partner-1.png" %}">
+        <img class="partner-logo partner-logo-2"
+             src="{% static "images/logo-header-partner-2.png" %}">
       </div>
       <div class="header-bottom">
         <div class="header-votes">

@@ -53,8 +53,10 @@ class SiteModeAdmin(ModelAdmin):
     _fields = [f.name for f in models.SiteMode._meta.get_fields() if f.name != 'id']
     fieldsets = [
         ('General Settings', {
-            'fields': ['show_question_votes', 'show_total_votes', 'allow_sorting_by_votes',
-                       'allow_voting_and_submitting_questions']
+            'fields': ['show_question_votes', 'show_total_votes',
+                       'allow_sorting_by_votes',
+                       'allow_voting_and_submitting_questions',
+                       'inline_css']
         }),
         ('Debate Details', {
             'fields': [f for f in _fields if f.startswith('debate_')],
