@@ -362,6 +362,7 @@ class OpenDebatesRegistrationView(RegistrationView):
                 zip=form.cleaned_data['zip'],
                 display_name=form.cleaned_data.get('display_name'),
                 twitter_handle=form.cleaned_data.get('twitter_handle'),
+                phone_number=form.cleaned_data.get('phone_number'),
                 user=new_user,
             )
         )

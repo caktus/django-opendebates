@@ -7,7 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils.html import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from localflavor.us.forms import USZipCodeField
+from localflavor.us.forms import USPhoneNumberField, USZipCodeField
 from nocaptcha_recaptcha.fields import NoReCaptchaField
 from registration.forms import RegistrationForm
 
@@ -48,13 +48,22 @@ display_name_help_text = _("How your name will be displayed on the site. If you 
                            "blank, your first name and last initial will be used "
                            "instead.")  # @@TODO
 display_name_label = (u"Display name <span data-toggle='tooltip' title='%s' "
+                      "data-placement='bottom' "
                       "class='glyphicon glyphicon-question-sign'></span>" % display_name_help_text)
 twitter_handle_help_text = _("Fill in your Twitter username (without the @) if you "
                              "would like to be @mentioned on Twitter when people "
                              "tweet your ideas.")  # @@TODO
 twitter_handle_label = (u"Twitter handle <span data-toggle='tooltip' title='%s' "
+                        "data-placement='bottom' "
                         "class='glyphicon glyphicon-question-sign'></span>"
                         % twitter_handle_help_text)
+phone_number_help_text = _("We will be inviting some participants to "
+                           "attend the event live or read their question "
+                           "via video. Enter your phone number for a "
+                           "chance to participate!")  # @@TODO
+phone_number_label = (u"Phone number <span data-toggle='tooltip' title='%s' "
+                      "data-placement='bottom' "
+                      "class='glyphicon glyphicon-question-sign'></span>" % phone_number_help_text)
 
 
 class OpenDebatesRegistrationForm(RegistrationForm):
@@ -66,6 +75,9 @@ class OpenDebatesRegistrationForm(RegistrationForm):
         display_name = forms.CharField(max_length=255,
                                        label=mark_safe(display_name_label),
                                        required=False)
+    if settings.ENABLE_USER_PHONE_NUMBER:
+        phone_number = USPhoneNumberField(label=mark_safe(phone_number_label),
+                                          required=False)
 
     twitter_handle = forms.CharField(max_length=255,
                                      label=mark_safe(twitter_handle_label),

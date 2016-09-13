@@ -20,6 +20,7 @@ SITE_THEME_NAME = 'florida'
 # SITE_THEME_NAME gets overriden in local_settings
 
 ENABLE_USER_DISPLAY_NAME = False
+ENABLE_USER_PHONE_NUMBER = True
 
 # SECRET_KEY is overriden in deploy settings
 SECRET_KEY = 'secret-key-for-local-use-only'
