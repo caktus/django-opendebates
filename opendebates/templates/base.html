@@ -57,8 +57,10 @@
     <div class="header-logos">
       <a href="{% url 'list_ideas' %}">
         <img src="{% static "images/badge-democratic-open-forum.png" %}">
-        <img src="{% static "images/logo-header-partner-1.png" %}">
-        <img src="{% static "images/logo-header-partner-2.png" %}">
+        <img class="partner-logo partner-logo-1"
+             src="{% static "images/logo-header-partner-1.png" %}">
+        <img class="partner-logo partner-logo-1"
+             src="{% static "images/logo-header-partner-2.png" %}">
       </a>
     </div>
     <div class="login-container{% if request.user.is_authenticated %} login-container-authenticated{% endif %}">
@@ -77,8 +79,10 @@
       <h1><a href="/">{{ BANNER_HEADER_TITLE|safe }}</a></h1>
       <div class="header-copy">{{ BANNER_HEADER_COPY|safe }}</div>
       <div class="header-small-logos">
-        <img src="{% static "images/logo-header-partner-1.png" %}">
-        <img src="{% static "images/logo-header-partner-2.png" %}">
+        <img class="partner-logo partner-logo-1"
+             src="{% static "images/logo-header-partner-1.png" %}">
+        <img class="partner-logo partner-logo-2"
+             src="{% static "images/logo-header-partner-2.png" %}">
       </div>
       <div class="header-bottom">
         <div class="header-votes">
