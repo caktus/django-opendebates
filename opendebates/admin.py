@@ -66,14 +66,29 @@ class SiteModeAdmin(ModelAdmin):
             'fields': ['hashtag', 'banner_header_title', 'banner_header_copy',
                        'popup_after_submission_text'],
         }),
-        ('Email Sharing Defaults', {
+        ('Email Share', {
             'fields': [f for f in _fields if f.startswith('email_')],
         }),
-        ('Facebook Sharing Defaults', {
-            'fields': [f for f in _fields if f.startswith('facebook_')],
+        ('Facebook Meta Data', {
+            'fields': ['facebook_image'],
         }),
-        ('Twitter Sharing Defaults', {
-            'fields': [f for f in _fields if f.startswith('twitter_')],
+        ('Facebook Share of the Whole Site', {
+            'fields': ['facebook_site_title', 'facebook_site_description'],
+        }),
+        ('Facebook Share of Individual Questions', {
+            'fields': ['facebook_question_title', 'facebook_question_description'],
+        }),
+        ('Twitter Meta Data', {
+            'fields': ['twitter_image', 'twitter_site_description',
+                       'twitter_question_description'],
+        }),
+        ('Twitter Share of the Whole Site', {
+            'fields': ['twitter_site_title', 'twitter_site_text'],
+        }),
+        ('Twitter Share of Individual Questions', {
+            'fields': ['twitter_question_title',
+                       'twitter_question_text_with_handle',
+                       'twitter_question_text_no_handle'],
         }),
     ]
     _used_fields = [fieldset[1]['fields'] for fieldset in fieldsets]
