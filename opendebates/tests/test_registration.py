@@ -33,35 +33,21 @@ class RegisterTest(TestCase):
             rsp = self.client.get(self.url)
         self.assertEqual(200, rsp.status_code)
 
-    def _reload_form_features(self):
-        """
-        Force the registration view to use an up-to-date reference to the
-        OpenDebatesRegistrationForm class after dynamically changing settings
-        which affect the definition of that class.
-        """
-        from opendebates import forms, views
-        reload(forms)
-        views.OpenDebatesRegistrationView.form_class = (
-            forms.OpenDebatesRegistrationForm)
-
-    def test_toggle_form_features(self):
+    def test_toggle_form_display_name(self):
         with override_settings(ENABLE_USER_DISPLAY_NAME=True):
-            self._reload_form_features()
             rsp = self.client.get(self.url)
             self.assertContains(rsp, 'Display name')
 
         with override_settings(ENABLE_USER_DISPLAY_NAME=False):
-            self._reload_form_features()
             rsp = self.client.get(self.url)
             self.assertNotContains(rsp, 'Display name')
 
+    def test_toggle_form_phone_number(self):
         with override_settings(ENABLE_USER_PHONE_NUMBER=True):
-            self._reload_form_features()
             rsp = self.client.get(self.url)
             self.assertContains(rsp, 'Phone number')
 
         with override_settings(ENABLE_USER_PHONE_NUMBER=False):
-            self._reload_form_features()
             rsp = self.client.get(self.url)
             self.assertNotContains(rsp, 'Phone number')
 
