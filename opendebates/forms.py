@@ -7,8 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils.html import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from localflavor.us.forms import USZipCodeField
-from localflavor.us.forms import USPhoneNumberField
+from localflavor.us.forms import USPhoneNumberField, USZipCodeField
 from nocaptcha_recaptcha.fields import NoReCaptchaField
 from registration.forms import RegistrationForm
 
