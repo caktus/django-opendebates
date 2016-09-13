@@ -7,7 +7,6 @@ class AnnouncementTest(TestCase):
 
     def setUp(self):
         self.mode, _ = SiteMode.objects.get_or_create()
-        self.mode.save()
         self.url = '/'
 
     def test_default_no_announcement(self):
@@ -92,7 +91,6 @@ class InlineCSSTest(TestCase):
 
     def setUp(self):
         self.mode, _ = SiteMode.objects.get_or_create()
-        self.mode.save()
         self.url = '/'
 
     def test_default_no_inline_css(self):
