@@ -145,21 +145,23 @@
 
 # Mapping of environment and role to EC2 instance types (sizes)
 # Except for very small instance types where it doesn't matter as much,
-# it's best to use 'c3' or 'm3' generation instances that have local SSD
-# storage for swap. This is especially true for 'web' instances that will
-# be used to create AMIs (and keep a small volume_size), as it dramatically
-# speeds up AMI creation (by ~10 min).
+# it's best to use 'c3' or 'm3' generation instances with local SSD storage
+# for 'web' instances that will be used to create AMIs (and use a small
+# volume_size), as it dramatically speeds up AMI creation (by ~10 min).
+# The c4 and m4 suite of instances support EBS optimization by default and
+# may be better for database or other high-I/O services:
+# http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html#ebs-optimization-support
 # Additionally, 2xlarge or higher instance types are needed to get >= 1000 Mbps
 # on the network. This is important for the cache server which might not have
 # a lot of CPU load but will be transfering lots of data back & forth. See:
 # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-ec2-config.html
   instance_types:
     testing:
-      cache: c3.2xlarge # for 1000Mbps network
-      db-master: c3.2xlarge
-      db-slave: c3.2xlarge
-      web: c3.xlarge
-      worker: m3.large
+      cache: c4.2xlarge # for 1000Mbps network
+      db-master: m4.2xlarge
+      db-slave: m4.2xlarge
+      web: c3.xlarge # for faster AMI creation (no swap file)
+      worker: m4.large
     staging:
       cache: t2.micro
       db-master: t2.small
@@ -167,17 +169,17 @@
       web: t2.micro
       worker: t2.micro
     florida:
-      cache: c3.large
-      db-master: c3.2xlarge
-      db-slave: c3.2xlarge
-      web: c3.xlarge
-      worker: m3.large
+      cache: c4.large
+      db-master: m4.2xlarge
+      db-slave: m4.2xlarge
+      web: c3.xlarge # for faster AMI creation (no swap file)
+      worker: m4.large
     presidential:
-      cache: c3.2xlarge # for 1000Mbps network
-      db-master: c3.2xlarge
-      db-slave: c3.2xlarge
-      web: c3.xlarge
-      worker: m3.large
+      cache: m4.2xlarge # for 1000Mbps network
+      db-master: m4.2xlarge
+      db-slave: m4.2xlarge
+      web: c3.xlarge # for faster AMI creation (no swap file)
+      worker: m4.large
 
 # Mapping of Fabric environment names to AWS load balancer names.  Load
 # balancers can be configured in the AWS Management Console.
