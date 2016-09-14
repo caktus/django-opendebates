@@ -175,7 +175,7 @@
       web: c3.xlarge # for faster AMI creation (no swap file)
       worker: m4.large
     presidential:
-      cache: m4.2xlarge # for 1000Mbps network
+      cache: c4.2xlarge # for 1000Mbps network
       db-master: m4.2xlarge
       db-slave: m4.2xlarge
       web: c3.xlarge # for faster AMI creation (no swap file)
@@ -208,11 +208,11 @@
 # hold your data plus a swap file (these instance types have no local storage).
   volume_sizes:
     testing:
-      cache: 10
-      db-master: 250
-      db-slave: 250
-      web: 10
-      worker: 50
+      cache: 25 # 10 GB data + 15 GB swap
+      db-master: 132 # 100 GB data + 32 GB swap
+      db-slave: 132 # 100 GB data + 32 GB swap
+      web: 10 # 10 GB data (no swap)
+      worker: 66 # 50 GB data + 16 GB swap
     staging:
       cache: 10
       db-master: 100
@@ -220,17 +220,17 @@
       web: 10
       worker: 50
     florida:
-      cache: 10
-      db-master: 250
-      db-slave: 250
-      web: 10
-      worker: 50
+      cache: 25 # 10 GB data + 15 GB swap
+      db-master: 282 # 250 GB data + 32 GB swap
+      db-slave: 282 # 250 GB data + 32 GB swap
+      web: 10 # 10 GB data (no swap)
+      worker: 66 # 50 GB data + 16 GB swap
     presidential:
-      cache: 10
-      db-master: 250
-      db-slave: 250
-      web: 10
-      worker: 50
+      cache: 25 # 10 GB data + 15 GB swap
+      db-master: 282 # 250 GB data + 32 GB swap
+      db-slave: 282 # 250 GB data + 32 GB swap
+      web: 10 # 10 GB data (no swap)
+      worker: 66 # 50 GB data + 16 GB swap
 
 # Mapping of Fabric environment and role to Elastic Block Device volume types
 # Use SSD-backed storage (gp2) for all servers. Change to 'standard' for slower
