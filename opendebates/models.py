@@ -343,3 +343,31 @@ class Flag(models.Model):
         unique_together = [
             ('to_remove', 'voter'),
         ]
+
+
+class TopSubmissionCategory(models.Model):
+    slug = models.SlugField(unique=True)
+    title = models.TextField()
+    caption = models.CharField(max_length=255, blank=True)
+
+    def __unicode__(self):
+        return self.slug
+
+
+class TopSubmission(models.Model):
+    category = models.ForeignKey(TopSubmissionCategory, related_name='submissions')
+    submission = models.ForeignKey(Submission, null=True, blank=False,
+                                   on_delete=models.SET_NULL)
+
+    headline = models.TextField(null=False, blank=False)
+    followup = models.TextField(null=False, blank=True)
+
+    votes = models.IntegerField()
+    rank = models.IntegerField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [
+            ('category', 'submission'),
+        ]

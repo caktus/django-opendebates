@@ -11,7 +11,7 @@ from localflavor.us.forms import USPhoneNumberField, USZipCodeField
 from nocaptcha_recaptcha.fields import NoReCaptchaField
 from registration.forms import RegistrationForm
 
-from .models import Category, Flag, Submission
+from .models import Category, Flag, Submission, TopSubmission
 
 VALID_SUBMISSION_DETAIL_URL_NAMES = ['vote', 'show_idea']
 
@@ -218,3 +218,24 @@ class ModerationForm(forms.Form):
         if to_remove_pk and duplicate_of_pk and to_remove_pk == duplicate_of_pk:
             raise forms.ValidationError('Cannot merge a submission into itself.')
         return self.cleaned_data
+
+
+class TopSubmissionForm(forms.ModelForm):
+    class Meta:
+        model = TopSubmission
+        fields = ('category', 'submission', 'rank')
+
+    def __init__(self, *args, **kwargs):
+        super(TopSubmissionForm, self).__init__(*args, **kwargs)
+        self.fields['submission'].widget = forms.NumberInput()
+
+    def save(self, commit=True):
+        top = super(TopSubmissionForm, self).save(commit=False)
+        submission = top.submission
+
+        top.headline = submission.headline
+        top.followup = submission.followup
+        top.votes = submission.votes
+        if commit:
+            top.save()
+        return top

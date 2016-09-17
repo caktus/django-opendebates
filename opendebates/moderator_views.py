@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 
 from opendebates_emails.models import send_email
-from .forms import ModerationForm
+from .forms import ModerationForm, TopSubmissionForm
 from .models import Submission, Vote, Flag
 from .utils import get_local_votes_state
 
@@ -141,3 +141,17 @@ def home(request):
         'flagged_for_removal': flagged_for_removal,
         'merge_flags': merge_flags,
     }
+
+
+@rendered_with("opendebates/moderation/top_archive.html")
+def add_to_top_archive(request):
+    if not request.user.is_superuser:
+        return HttpResponseNotFound()
+
+    form = TopSubmissionForm(data=request.POST or None, initial=request.GET or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            entry = form.save()
+            return redirect("top_archive", slug=entry.category.slug)
+
+    return {"form": form}

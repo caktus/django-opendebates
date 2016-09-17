@@ -46,6 +46,11 @@ class FlagAdmin(ModelAdmin):
     raw_id_fields = ['to_remove', 'duplicate_of', 'voter']
 
 
+@register(models.TopSubmissionCategory)
+class TopSubmissionCategoryAdmin(ModelAdmin):
+    list_display = ['slug', 'title']
+
+
 @register(models.SiteMode)
 class SiteModeAdmin(ModelAdmin):
     list_display = ['debate_time', 'show_question_votes', 'show_total_votes',
