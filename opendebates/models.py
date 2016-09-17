@@ -343,3 +343,9 @@ class Flag(models.Model):
         unique_together = [
             ('to_remove', 'voter'),
         ]
+
+
+class FlatPageMetadataOverride(models.Model):
+    page = models.OneToOneField('flatpages.FlatPage',
+                                related_name='metadata')
+    metadata_html = models.TextField()

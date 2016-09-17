@@ -46,6 +46,18 @@ class FlagAdmin(ModelAdmin):
     raw_id_fields = ['to_remove', 'duplicate_of', 'voter']
 
 
+@register(models.FlatPageMetadataOverride)
+class FlatPageMetadataOverrideAdmin(ModelAdmin):
+    list_display = ['flatpage_url']
+
+    def flatpage_url(self, obj):
+        return obj.page.url
+
+    def get_queryset(self, request):
+        return super(FlatPageMetadataOverrideAdmin, self).get_queryset(
+            request).select_related("page")
+
+
 @register(models.SiteMode)
 class SiteModeAdmin(ModelAdmin):
     list_display = ['debate_time', 'show_question_votes', 'show_total_votes',

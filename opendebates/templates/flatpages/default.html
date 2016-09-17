@@ -1,4 +1,16 @@
 {% extends "opendebates/base.html" %}
+{% load opendebates_tags %}
+
+{% block metadata %}
+{% with flatpage|flatpage_metadata as metadata %}
+{% if metadata %}
+{{ metadata.metadata_html|safe }}
+{% else %}
+{{ block.super }}
+{% endif %}
+{% endwith %}
+{% endblock %}
+
 {% block content %}
 
 <div class="row flatpage">
