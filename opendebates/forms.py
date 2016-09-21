@@ -2,7 +2,7 @@ from urlparse import urlparse
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils.html import mark_safe
@@ -32,14 +32,16 @@ class VoterForm(forms.Form):
 
 
 class QuestionForm(forms.Form):
-    category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
+    category = forms.ModelMultipleChoiceField(queryset=Category.objects.none())
     headline = forms.CharField(required=True)
     question = forms.CharField(required=False)
     citation = forms.URLField(required=False, max_length=255)
 
     def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request')
         super(QuestionForm, self).__init__(*args, **kwargs)
         self.fields['category'].error_messages['invalid_pk_value'] = _("You must select a category")
+        self.fields['category'].queryset = Category.objects.filter(site_mode=request.site_mode)
 
 display_name_help_text = _("How your name will be displayed on the site. If you "
                            "are an expert in a particular field or have a professional "
@@ -87,6 +89,7 @@ class OpenDebatesRegistrationForm(RegistrationForm):
     ]
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request')
         super(OpenDebatesRegistrationForm, self).__init__(*args, **kwargs)
         if settings.ENABLE_USER_PHONE_NUMBER:
             self.fields['phone_number'] = USPhoneNumberField(
@@ -139,7 +142,30 @@ class OpenDebatesRegistrationForm(RegistrationForm):
 
 class OpenDebatesAuthenticationForm(AuthenticationForm):
     username = forms.CharField(max_length=254,
-                               label="Username or Email")
+                               label="Email")
+
+    def clean(self):
+        """
+        Override super class AuthenticationForm to pass request to
+        authenticate method.
+        """
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username and password:
+            self.user_cache = authenticate(username=username,
+                                           password=password,
+                                           request=self.request)
+            if self.user_cache is None:
+                raise forms.ValidationError(
+                    self.error_messages['invalid_login'],
+                    code='invalid_login',
+                    params={'username': self.username_field.verbose_name},
+                )
+            else:
+                self.confirm_login_allowed(self.user_cache)
+
+        return self.cleaned_data
 
 
 class MergeFlagForm(forms.ModelForm):

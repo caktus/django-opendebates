@@ -1,7 +1,7 @@
 from django.test import TestCase, override_settings
 from mock import Mock, patch
 
-from opendebates.tests.factories import VoteFactory
+from opendebates.tests.factories import VoteFactory, SiteModeFactory
 from opendebates.utils import registration_needs_captcha, vote_needs_captcha
 
 
@@ -11,6 +11,7 @@ class TestCaptchaUtils(TestCase):
         self.mock_request = Mock(spec=object)
         self.mock_request.user = Mock()
         self.mock_request.user.is_authenticated = lambda: False
+        self.mock_request.site_mode = SiteModeFactory()
 
     def test_registration_captcha(self):
         self.assertTrue(registration_needs_captcha(self.mock_request))
@@ -46,7 +47,7 @@ class TestCaptchaUtils(TestCase):
     def test_vote_captcha_second_vote(self):
         # second vote does not require captcha
         email = 'hasvoted@example.com'
-        VoteFactory(voter__email=email)
+        VoteFactory(voter__email=email, voter__site_mode=self.mock_request.site_mode)
         with patch('opendebates.utils.get_voter') as mock_get_voter:
             mock_get_voter.return_value = {'email': email}
             self.assertFalse(vote_needs_captcha(self.mock_request))

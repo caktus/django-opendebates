@@ -2,13 +2,12 @@ from django.conf import settings
 from django.test import TestCase
 from django.utils.html import escape
 
-from opendebates.tests.factories import SubmissionFactory
-from opendebates.utils import get_site_mode
+from opendebates.tests.factories import SubmissionFactory, _testserver_site_mode
 
 
 class FacebookTest(TestCase):
     def setUp(self):
-        self.mode = get_site_mode()
+        self.mode = _testserver_site_mode(None)
 
     def test_facebook_site(self):
         rsp = self.client.get('/')
@@ -79,7 +78,7 @@ class FacebookTest(TestCase):
 
 class TwitterTest(TestCase):
     def setUp(self):
-        self.mode = get_site_mode()
+        self.mode = _testserver_site_mode(None)
 
     def test_twitter_site_card(self):
         rsp = self.client.get('/')

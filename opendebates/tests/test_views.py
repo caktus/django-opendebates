@@ -1,5 +1,3 @@
-import mock
-
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -14,12 +12,11 @@ class ListIdeasTest(TestCase):
         for i in range(10):
             SubmissionFactory()
 
-    @mock.patch('opendebates.models.Submission._get_site_mode')
-    def test_list_ideas_uses_site_mode_from_context(self, gsm_mock):
+    def test_list_ideas_uses_site_mode_from_context(self):
         """
-        The _get_site_mode method in the Submission model shouldn't be called
+        The category.site_mode in the Submission model shouldn't be accessed
         at all during list_ideas if we've successfully provided the SITE_MODE
         in the template context to the model.
         """
-        self.client.get(self.url)
-        self.assertEqual(gsm_mock.call_count, 0)
+        with self.assertNumQueries(4):
+            self.client.get(self.url)

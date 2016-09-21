@@ -19,7 +19,10 @@ def vote_needs_captcha(request):
             voter = get_voter(request)
             if voter:
                 # A user's first vote requires a captcha
-                need = not Vote.objects.filter(voter__email=voter['email']).exists()
+                need = not Vote.objects.filter(
+                    voter__site_mode=request.site_mode,
+                    voter__email=voter['email'],
+                ).exists()
             else:
                 need = True
         request.vote_needs_captcha = need
@@ -30,8 +33,9 @@ def registration_needs_captcha(request):
     return settings.USE_CAPTCHA
 
 
-def get_number_of_votes():
-    number = cache.get(NUMBER_OF_VOTES_CACHE_ENTRY)
+def get_number_of_votes(request):
+    cache_key = '%s-%d' % (NUMBER_OF_VOTES_CACHE_ENTRY, request.site_mode.pk)
+    number = cache.get(cache_key)
     return number or 0
 
 
@@ -99,9 +103,9 @@ def get_ip_address_from_request(request):
     return ip_address
 
 
-def choose_sort(sort):
+def choose_sort(request, sort):
     sort = sort or random.choice(["trending", "trending", "random"])
-    if sort.endswith('votes') and not allow_sorting_by_votes():
+    if sort.endswith('votes') and not request.site_mode.allow_sorting_by_votes:
         sort = 'trending'
     return sort
 
@@ -135,25 +139,10 @@ def sort_list(citations_only, sort, ideas):
     return ideas
 
 
-def get_site_mode():
+def get_site_mode(request):
+    domain = request.get_host().lower().strip('.')
     try:
-        return SiteMode.objects.get()
+        return SiteMode.objects.get(domain__exact=domain)
     except SiteMode.DoesNotExist:
         with readwrite_db():
-            return SiteMode.objects.get_or_create()[0]
-
-
-def allow_sorting_by_votes():
-    return get_site_mode().allow_sorting_by_votes
-
-
-def show_question_votes():
-    return get_site_mode().show_question_votes
-
-
-def allow_voting_and_submitting_questions():
-    return get_site_mode().allow_voting_and_submitting_questions
-
-
-def get_local_votes_state():
-    return get_site_mode().debate_state
+            return SiteMode.objects.get_or_create(domain=domain)[0]

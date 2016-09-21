@@ -19,6 +19,7 @@ RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry'
 
 class Category(CachingMixin, models.Model):
 
+    site_mode = models.ForeignKey('SiteMode', related_name='categories')
     name = models.CharField(max_length=255)
 
     objects = CachingManager()
@@ -32,6 +33,11 @@ class Category(CachingMixin, models.Model):
 
 
 class SiteMode(CachingMixin, models.Model):
+    THEME_CHOICES = [(theme, theme) for theme in settings.SITE_THEMES]
+
+    domain = models.CharField(_('domain name'), unique=True, max_length=100)
+    theme = models.CharField(max_length=255, choices=THEME_CHOICES)
+
     show_question_votes = models.BooleanField(default=True, blank=True)
     show_total_votes = models.BooleanField(default=True, blank=True)
     allow_sorting_by_votes = models.BooleanField(default=True, blank=True)
@@ -87,22 +93,7 @@ class SiteMode(CachingMixin, models.Model):
     objects = CachingManager()
 
 
-class CachedSiteModeMixin(object):
-
-    def _get_site_mode(self):
-        # extracted in its own method for testing purposes
-        from opendebates.utils import get_site_mode
-        return get_site_mode()
-
-    @property
-    def site_mode(self):
-        # avoid lots of unneeded round trips to memcached in production
-        if not hasattr(self, '_cached_site_mode'):
-            self._cached_site_mode = self._get_site_mode()
-        return self._cached_site_mode
-
-
-class Submission(CachedSiteModeMixin, models.Model):
+class Submission(models.Model):
 
     def user_display_name(self):
         return self.voter.user_display_name()
@@ -148,6 +139,15 @@ class Submission(CachedSiteModeMixin, models.Model):
                             auto_update_search_field=True)
 
     source = models.CharField(max_length=255, null=True, blank=True)
+
+    @property
+    def site_mode(self):
+        # avoid lots of unneeded round trips to memcached in production by
+        # allowing this cached attribute to be set via the {% provide_site_to %}
+        # template tag
+        if not hasattr(self, '_cached_site_mode'):
+            self._cached_site_mode = self.category.site_mode
+        return self._cached_site_mode
 
     def get_recent_votes(self):
         timespan = datetime.datetime.now() - datetime.timedelta(1)
@@ -262,6 +262,8 @@ class Voter(models.Model):
             name = _(u"%(name)s from %(state)s" % {"name": name, "state": voter.state})
         return name
 
+    site_mode = models.ForeignKey('SiteMode', related_name='voters')
+
     email = models.EmailField(unique=True)
     zip = models.CharField(max_length=10, db_index=True)
     state = models.CharField(max_length=255, null=True, blank=True)
@@ -310,6 +312,8 @@ class Vote(models.Model):
 
 
 class Candidate(models.Model):
+    site_mode = models.ForeignKey('SiteMode', related_name='candidates')
+
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
     current_title = models.CharField(max_length=255, null=True, blank=True)

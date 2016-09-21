@@ -9,7 +9,6 @@ from django.utils.translation import ugettext as _
 from opendebates_emails.models import send_email
 from .forms import ModerationForm
 from .models import Submission, Vote, Flag
-from .utils import get_local_votes_state
 
 
 @rendered_with("opendebates/moderation/preview.html")
@@ -41,8 +40,18 @@ def merge(request):
     if not request.user.is_superuser:
         return HttpResponseNotFound()
 
-    to_remove = get_object_or_404(Submission, pk=request.POST['to_remove'], approved=True)
-    duplicate_of = get_object_or_404(Submission, pk=request.POST['duplicate_of'], approved=True)
+    to_remove = get_object_or_404(
+        Submission,
+        pk=request.POST['to_remove'],
+        approved=True,
+        category__site_mode=request.site_mode,
+    )
+    duplicate_of = get_object_or_404(
+        Submission,
+        pk=request.POST['duplicate_of'],
+        approved=True,
+        category__site_mode=request.site_mode,
+    )
 
     if request.POST.get("action").lower() == "reject":
         msg = _(u'No changes made and flag has been removed.')
@@ -59,7 +68,7 @@ def merge(request):
         votes_to_merge = Vote.objects.filter(submission=to_remove).exclude(
             voter__in=votes_already_cast)
 
-        local_state = get_local_votes_state()
+        local_state = request.site_mode.debate_state
         if local_state:
             local_votes_to_merge = votes_to_merge.filter(voter__state=local_state).count()
         else:
@@ -128,7 +137,9 @@ def home(request):
     #   - which have removal flags without duplicate_of (so not merges)
     #   - which have not already been moderated
     #   - ordered by flag count
-    flagged_for_removal = Submission.objects.filter(removal_flags__duplicate_of=None) \
+    flagged_for_removal = Submission.objects.filter(
+                                                removal_flags__duplicate_of=None,
+                                                category__site_mode=request.site_mode) \
                                             .exclude(moderated_removal=True) \
                                             .annotate(num_flags=Count('removal_flags')) \
                                             .filter(num_flags__gt=0) \

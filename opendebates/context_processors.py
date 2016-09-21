@@ -7,7 +7,7 @@ import json
 import re
 
 from .models import Category, Vote
-from .utils import get_voter, get_number_of_votes, vote_needs_captcha, get_site_mode
+from .utils import get_voter, get_number_of_votes, vote_needs_captcha
 
 
 def voter(request):
@@ -18,7 +18,10 @@ def voter(request):
         voter = get_voter(request)
         if not voter:
             return '{}'
-        votes = Vote.objects.filter(voter__email=voter['email'])
+        votes = Vote.objects.filter(
+            voter__email=voter['email'],
+            voter__site_mode=request.site_mode,
+        )
         votes = [i.submission_id for i in votes]
         return mark_safe(json.dumps({"submissions": votes}))
 
@@ -29,10 +32,10 @@ def voter(request):
 
 
 def global_vars(request):
-    def _get_categories():
-        return Category.objects.all()
+    mode = request.site_mode
 
-    mode = get_site_mode()
+    def _get_categories():
+        return Category.objects.filter(site_mode=mode)
 
     url_tmpl = u"https://twitter.com/intent/tweet?url=%(SITE_DOMAIN)s&text=%(tweet_text)s"
     TWITTER_URL = url_tmpl % {
@@ -47,7 +50,7 @@ def global_vars(request):
         'CAPTCHA_SITE_KEY': settings.NORECAPTCHA_SITE_KEY,
         'DEBUG': settings.DEBUG,
         'VOTE_NEEDS_CAPTCHA': vote_needs_captcha(request),
-        'NUMBER_OF_VOTES': get_number_of_votes() if mode.show_total_votes else 0,  # Just in case
+        'NUMBER_OF_VOTES': get_number_of_votes(request) if mode.show_total_votes else 0,
         'STATIC_URL': settings.STATIC_URL,
 
         'FACEBOOK_URL': FACEBOOK_URL,

@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from .factories import UserFactory
+from .factories import UserFactory, VoterFactory, SiteModeFactory
 
 
 class RegisterTest(TestCase):
@@ -114,9 +114,13 @@ class LoginLogoutTest(TestCase):
         self.username = 'gwash'
         self.email = 'gwash@example.com'
         self.password = 'secretpassword'
-        UserFactory(username=self.username,
-                    email=self.email,
-                    password=self.password)
+        # use VoterFactory so we have a SiteMode to authenticate against in
+        # our custom auth backend when logging in via email
+        self.voter = VoterFactory(
+            user__username=self.username,
+            user__email=self.email,
+            user__password=self.password,
+        )
         self.login_url = reverse('auth_login')
         self.home_url = reverse('list_ideas')
 
@@ -133,6 +137,18 @@ class LoginLogoutTest(TestCase):
             data={'username': self.email, 'password': self.password, 'next': '/'}
         )
         self.assertRedirects(rsp, self.home_url)
+
+    def test_login_with_email_wrong_site(self):
+        """Logins with an email address don't work on sites with other domains."""
+        self.voter.site_mode = SiteModeFactory(domain='otherdomain.com')
+        self.voter.save()
+        rsp = self.client.post(
+            self.login_url,
+            data={'username': self.email, 'password': self.password, 'next': '/'}
+        )
+        self.assertEqual(200, rsp.status_code)
+        form = rsp.context['form']
+        self.assertIn('enter a correct username and password', str(form.errors))
 
     def test_failed_login(self):
         rsp = self.client.post(

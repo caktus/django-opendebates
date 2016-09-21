@@ -75,6 +75,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'opendebates.router.DBRoutingMiddleware',
+    'opendebates.middleware.SiteModeMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = [

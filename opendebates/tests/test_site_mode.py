@@ -1,12 +1,12 @@
 from django.test import TestCase
 
-from opendebates.models import SiteMode
+from opendebates.tests.factories import _testserver_site_mode
 
 
 class AnnouncementTest(TestCase):
 
     def setUp(self):
-        self.mode, _ = SiteMode.objects.get_or_create()
+        self.mode = _testserver_site_mode(None)
         self.url = '/'
 
     def test_default_no_announcement(self):
@@ -90,7 +90,7 @@ class AnnouncementTest(TestCase):
 class InlineCSSTest(TestCase):
 
     def setUp(self):
-        self.mode, _ = SiteMode.objects.get_or_create()
+        self.mode = _testserver_site_mode(None)
         self.url = '/'
 
     def test_default_no_inline_css(self):
