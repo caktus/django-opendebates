@@ -753,32 +753,34 @@ hr.before-idea-list {
   });
 }
 
-@media (min-width: @responsive-shim-min) {
-  .big-idea.already-voted:hover,
-  #modal-thanks .social-links-container {
-    .social-links {
-      .fb-button {
-        background: #3b5998;
-        a {
-          color: white;
-        }
+.big-idea.already-voted:hover,
+#modal-thanks .social-links-container {
+  .social-links {
+    .fb-button {
+      background: #3b5998;
+      a {
+        color: white;
       }
-      .tweet-button {
-        background: #50abf1;
-        a {
-          color: white;
-        }
+    }
+    .tweet-button {
+      background: #50abf1;
+      a {
+        color: white;
       }
-      .reddit-button {
-        background: #FF4808;
-        a {
-          color: white;
-        }
+    }
+    .reddit-button {
+      background: #FF4808;
+      a {
+        color: white;
       }
-      .email-button {
-        background: @brand-primary;
-        a {
-          color: white;
+    }
+    .email-button {
+      background: @brand-primary;
+      a {
+        color: white;
+
+        i.fa-envelope {
+          margin-right: 4px;
         }
       }
     }
@@ -795,28 +797,8 @@ hr.before-idea-list {
           margin: 0 auto;
         }
       }
-      .fb-button {
-        background: #3b5998;
-        a {
-          color: white;
-        }
-      }
-      .tweet-button {
-        background: #50abf1;
-        a {
-          color: white;
-        }
-      }
-      .reddit-button {
-        background: #FF4808;
-        a {
-          color: white;
-        }
-      }
       .email-button {
-        background: @brand-primary;
         a {
-          color: white;
           span {
             margin-left: 5px;
           }
@@ -848,7 +830,6 @@ hr.before-idea-list {
       }
     }
   }, {
-    height: 300px;
     position: relative;
   });
 
@@ -1056,6 +1037,23 @@ hr.before-idea-list {
         flex-wrap: nowrap;
       }
     });
+
+    @media (max-width: 440px) {
+      /***
+       * On "iPhone 6 Plus portrait" width and lower, horizontally aligned
+       * buttons look pretty rough. This one-time breakpoint rule
+       * puts them in a vertical stack. 
+       */
+
+      flex-direction: column;
+
+      > * {
+        flex-basis: auto;
+        height: auto;
+        display: block;
+      }
+    }
+
     (.big-idea).already-voted & {
       display: none;
     }
@@ -1077,6 +1075,7 @@ hr.before-idea-list {
         vertical-align: top;
         font-size: 13px;
         font-weight: bold;
+        white-space: nowrap;
 
         .fa {
           font-size: 20px;
