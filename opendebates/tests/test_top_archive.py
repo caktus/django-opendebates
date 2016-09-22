@@ -43,6 +43,7 @@ class TopArchiveTest(TestCase):
         idea.headline = "An entirely new headline"
         idea.followup = "Some totally different followup text"
         idea.votes += 1500
+        idea.save()
 
         archive = TopSubmission.objects.get(id=id)
         self.assertNotEqual(archive.headline, idea.headline)
