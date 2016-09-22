@@ -1,4 +1,4 @@
-from httplib import NOT_FOUND, OK
+from httplib import FORBIDDEN, NOT_FOUND, OK
 import json
 import os
 
@@ -36,11 +36,11 @@ class ModerationTest(TestCase):
         rsp = self.client.get(self.preview_url)
         self.assertRedirects(rsp, login_url)
 
-    def test_nonsuperuser_404(self):
+    def test_nonsuperuser_403(self):
         self.user.is_superuser = False
         self.user.save()
         rsp = self.client.get(self.preview_url)
-        self.assertEqual(NOT_FOUND, rsp.status_code)
+        self.assertEqual(FORBIDDEN, rsp.status_code)
 
     def test_get(self):
         rsp = self.client.get(self.preview_url)
@@ -392,11 +392,11 @@ class ModerationHomeTest(TestCase):
         rsp = self.client.get(self.url)
         self.assertRedirects(rsp, login_url)
 
-    def test_nonsuperuser_404(self):
+    def test_nonsuperuser_403(self):
         self.user.is_superuser = False
         self.user.save()
         rsp = self.client.get(self.url)
-        self.assertEqual(NOT_FOUND, rsp.status_code)
+        self.assertEqual(FORBIDDEN, rsp.status_code)
 
     def test_removal_flags_queryset(self):
         # these submissions should not be on our page

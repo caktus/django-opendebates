@@ -1,6 +1,7 @@
 from djangohelpers.lib import rendered_with, allow_http
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
@@ -17,7 +18,7 @@ from .utils import get_local_votes_state
 @login_required
 def preview(request):
     if not request.user.is_superuser:
-        return HttpResponseNotFound()
+        raise PermissionDenied
 
     form = ModerationForm(data=request.POST or None, initial=request.GET or None)
     if request.method == 'POST':
@@ -39,7 +40,7 @@ def preview(request):
 @login_required
 def merge(request):
     if not request.user.is_superuser:
-        return HttpResponseNotFound()
+        raise PermissionDenied
 
     to_remove = get_object_or_404(Submission, pk=request.POST['to_remove'], approved=True)
     duplicate_of = get_object_or_404(Submission, pk=request.POST['duplicate_of'], approved=True)
@@ -97,7 +98,7 @@ def merge(request):
 @login_required
 def remove(request):
     if not request.user.is_superuser:
-        return HttpResponseNotFound()
+        raise PermissionDenied
 
     to_remove = get_object_or_404(Submission, pk=request.POST.get('to_remove'), approved=True)
 
@@ -122,7 +123,7 @@ def remove(request):
 @login_required
 def home(request):
     if not request.user.is_superuser:
-        return HttpResponseNotFound()
+        raise PermissionDenied
 
     # submissions:
     #   - which have removal flags without duplicate_of (so not merges)
@@ -146,7 +147,7 @@ def home(request):
 @rendered_with("opendebates/moderation/top_archive.html")
 def add_to_top_archive(request):
     if not request.user.is_superuser:
-        return HttpResponseNotFound()
+        raise PermissionDenied
 
     form = TopSubmissionForm(data=request.POST or None, initial=request.GET or None)
     if request.method == 'POST':

@@ -1,3 +1,4 @@
+from httplib import FORBIDDEN
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.formats import date_format
@@ -171,7 +172,7 @@ class TopArchiveTest(TestCase):
     def test_moderator_view_only_accessible_to_superusers(self):
         self.client.logout()
         rsp = self.client.get(self.mod_url)
-        self.assertEqual(rsp.status_code, 404)
+        self.assertEqual(rsp.status_code, FORBIDDEN)
 
         password = 'secretpassword'
 
@@ -179,13 +180,13 @@ class TopArchiveTest(TestCase):
                            is_staff=False, is_superuser=False)
         self.client.login(username=user.username, password=password)
         rsp = self.client.get(self.mod_url)
-        self.assertEqual(rsp.status_code, 404)
+        self.assertEqual(rsp.status_code, FORBIDDEN)
 
         user = UserFactory(password=password,
                            is_staff=True, is_superuser=False)
         self.client.login(username=user.username, password=password)
         rsp = self.client.get(self.mod_url)
-        self.assertEqual(rsp.status_code, 404)
+        self.assertEqual(rsp.status_code, FORBIDDEN)
 
         user = UserFactory(password=password,
                            is_staff=True, is_superuser=True)
