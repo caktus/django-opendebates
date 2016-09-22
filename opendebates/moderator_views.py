@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
-from django.http import HttpResponseNotFound, HttpResponseBadRequest
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 
