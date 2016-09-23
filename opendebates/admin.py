@@ -53,7 +53,7 @@ class SiteModeAdmin(ModelAdmin):
     _fields = [f.name for f in models.SiteMode._meta.get_fields() if f.name != 'id']
     fieldsets = [
         ('General Settings', {
-            'fields': ['show_question_votes', 'show_total_votes',
+            'fields': ['site', 'theme', 'show_question_votes', 'show_total_votes',
                        'allow_sorting_by_votes',
                        'allow_voting_and_submitting_questions',
                        'inline_css']
@@ -93,8 +93,9 @@ class SiteModeAdmin(ModelAdmin):
                        'twitter_question_text_no_handle'],
         }),
     ]
-    _used_fields = [fieldset[1]['fields'] for fieldset in fieldsets]
-    _used_fields = set(itertools.chain.from_iterable(_used_fields))
-    _missed_fields = set(_fields) - _used_fields
-    if _missed_fields:
-        fieldsets.append(('Other', {'fields': sorted(list(_missed_fields))}))
+    # XXX need to remove related fields from this (e.g., 'candidates')
+    #_used_fields = [fieldset[1]['fields'] for fieldset in fieldsets]
+    #_used_fields = set(itertools.chain.from_iterable(_used_fields))
+    #_missed_fields = set(_fields) - _used_fields
+    #if _missed_fields:
+    #    fieldsets.append(('Other', {'fields': sorted(list(_missed_fields))}))
