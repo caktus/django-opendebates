@@ -94,8 +94,8 @@ class SiteModeAdmin(ModelAdmin):
         }),
     ]
     # XXX need to remove related fields from this (e.g., 'candidates')
-    #_used_fields = [fieldset[1]['fields'] for fieldset in fieldsets]
-    #_used_fields = set(itertools.chain.from_iterable(_used_fields))
-    #_missed_fields = set(_fields) - _used_fields
-    #if _missed_fields:
-    #    fieldsets.append(('Other', {'fields': sorted(list(_missed_fields))}))
+    _used_fields = [fieldset[1]['fields'] for fieldset in fieldsets]
+    _used_fields = set(itertools.chain.from_iterable(_used_fields))
+    _missed_fields = set(_fields) - _used_fields
+    # if _missed_fields:
+    #     fieldsets.append(('Other', {'fields': sorted(list(_missed_fields))}))
