@@ -1038,22 +1038,6 @@ hr.before-idea-list {
       }
     });
 
-    @media (max-width: 440px) {
-      /***
-       * On "iPhone 6 Plus portrait" width and lower, horizontally aligned
-       * buttons look pretty rough. This one-time breakpoint rule
-       * puts them in a vertical stack. 
-       */
-
-      flex-direction: column;
-
-      > * {
-        flex-basis: auto;
-        height: auto;
-        display: block;
-      }
-    }
-
     (.big-idea).already-voted & {
       display: none;
     }
@@ -1736,6 +1720,31 @@ img.mic_icon {
 
       a {
         color: white !important;
+      }
+    }
+
+    @media (max-width: 440px) {
+      /***
+       * On "iPhone 6 Plus portrait" width and lower, horizontally aligned
+       * buttons look pretty rough. This one-time breakpoint rule
+       * puts them in a vertical stack.
+       */
+
+      flex-direction: column;
+
+      > span {
+        flex-basis: auto;
+        height: auto;
+        display: block;
+        margin: 5px 10px;
+
+        &:first-child {
+          margin-top: 0;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
       }
     }
   }
