@@ -1914,3 +1914,19 @@ nav ul.pagination:after {
   display: inline-block;
   content: "of many more pages";
 }
+
+.winners {
+  .big-idea .vote-bottom {
+    background-color: white;
+    &:hover {
+      background-color: white;
+    }
+    display: flex;
+    height: auto;
+  }
+  @media (max-width: 799px) {
+    .big-idea .vote-bottom {
+      height: 65px;
+    }
+  }
+}
