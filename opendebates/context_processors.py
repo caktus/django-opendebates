@@ -37,13 +37,14 @@ def global_vars(request):
     def _get_categories():
         return Category.objects.filter(site_mode=mode)
 
+    site_domain_with_protocol = "%s://%s" % (request.scheme, mode.site.domain)
     url_tmpl = u"https://twitter.com/intent/tweet?url=%(SITE_DOMAIN)s&text=%(tweet_text)s"
     TWITTER_URL = url_tmpl % {
-        "SITE_DOMAIN": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=tw-site"),
+        "SITE_DOMAIN": quote_plus(site_domain_with_protocol + "?source=tw-site"),
         "tweet_text": quote_plus(mode.twitter_site_text),
     }
     FACEBOOK_URL = u"https://www.facebook.com/sharer/sharer.php?&u=%(url)s" % {
-        "url": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=fb-site"),
+        "url": quote_plus(site_domain_with_protocol + "?source=fb-site"),
     }
 
     return {
@@ -57,8 +58,8 @@ def global_vars(request):
         'TWITTER_URL': TWITTER_URL,
 
         'SUBMISSIONS_PER_PAGE': settings.SUBMISSIONS_PER_PAGE,
-        'SITE_DOMAIN': settings.SITE_DOMAIN,
-        'SITE_LINK': settings.SITE_DOMAIN_WITH_PROTOCOL,
+        'SITE_DOMAIN': mode.site.domain,
+        'SITE_LINK': site_domain_with_protocol,
         'MIXPANEL_KEY': settings.MIXPANEL_KEY,
         'OPTIMIZELY_KEY': settings.OPTIMIZELY_KEY,
         'SHOW_QUESTION_VOTES': mode.show_question_votes,

@@ -8,9 +8,6 @@ import dj_database_url
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 
-SITE_ID = 1
-SITE_DOMAIN = os.environ.get("DOMAIN", os.environ.get("SITE_DOMAIN", "127.0.0.1:8000"))
-SITE_DOMAIN_WITH_PROTOCOL = "https://" + SITE_DOMAIN
 # Both DOMAIN variables are overwritten in local_settings.py
 
 SUBMISSIONS_PER_PAGE = 25

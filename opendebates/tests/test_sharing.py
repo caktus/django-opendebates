@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.test import TestCase
 from django.utils.html import escape
 
@@ -13,7 +12,7 @@ class FacebookTest(TestCase):
         rsp = self.client.get('/')
         self.assertContains(
             rsp,
-            '<meta property="og:url" content="%s"/>' % settings.SITE_DOMAIN_WITH_PROTOCOL
+            '<meta property="og:url" content="http://%s"/>' % self.mode.site.domain
         )
         self.assertContains(
             rsp,

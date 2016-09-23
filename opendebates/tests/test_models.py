@@ -1,14 +1,15 @@
-from django.test import TestCase, override_settings
+from django.test import TestCase
 import urlparse
 
 from .factories import UserFactory, VoterFactory, SubmissionFactory
 
 
-@override_settings(SITE_DOMAIN_WITH_PROTOCOL="https://example.net")
 class SubmissionReallyAbsoluteUrlTest(TestCase):
 
     def setUp(self):
         self.submission = SubmissionFactory()
+        self.submission.category.site_mode.site.domain = 'example.net'
+        self.submission.category.site_mode.site.save()
         self.id = self.submission.id
 
     def test_default(self):

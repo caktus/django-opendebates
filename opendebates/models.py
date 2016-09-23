@@ -206,7 +206,7 @@ class Submission(models.Model):
         return u"sms:;?body=%s" % (quote_plus(body),)
 
     def really_absolute_url(self, source=None):
-        url = settings.SITE_DOMAIN_WITH_PROTOCOL + self.get_absolute_url()
+        url = 'https://' + self.site_mode.site.domain + self.get_absolute_url()
         if source is not None:
             url += '?source=share-%s-%s' % (source, self.id)
         return url
