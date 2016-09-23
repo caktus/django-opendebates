@@ -174,7 +174,6 @@ def vote(request, id):
 
     if request.method == "GET":
         two_other_approved_ideas = list(Submission.objects.filter(
-            category__site_mode=request.site_mode,
             category=idea.category,
             duplicate_of=None,
             approved=True).exclude(id=idea.id)[:2]) + [None, None]
