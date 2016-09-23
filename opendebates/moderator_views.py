@@ -108,7 +108,12 @@ def remove(request):
     if not request.user.is_superuser:
         return HttpResponseNotFound()
 
-    to_remove = get_object_or_404(Submission, pk=request.POST.get('to_remove'), approved=True)
+    to_remove = get_object_or_404(
+        Submission,
+        pk=request.POST.get('to_remove'),
+        approved=True,
+        category__site_mode=request.site_mode,
+    )
 
     remove = request.POST.get('action').lower() == 'remove'
     if remove:

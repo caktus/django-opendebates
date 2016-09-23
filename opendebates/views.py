@@ -96,7 +96,7 @@ def list_ideas(request):
 
 @rendered_with("opendebates/list_ideas.html")
 def list_category(request, cat_id):
-    category = get_object_or_404(Category, id=cat_id)
+    category = get_object_or_404(Category, id=cat_id, site_mode=request.site_mode)
     ideas = Submission.objects.filter(category__site_mode=request.site_mode, category=cat_id)
     citations_only = request.GET.get("citations_only")
     sort = choose_sort(request, request.GET.get('sort'))
@@ -420,7 +420,7 @@ def report(request, id):
     if not request.site_mode.allow_voting_and_submitting_questions and not request.user.is_staff:
         raise Http404
 
-    idea = get_object_or_404(Submission, pk=id)
+    idea = get_object_or_404(Submission, pk=id, category__site_mode=request.site_mode)
     voter = Voter.objects.get(site_mode=request.site_mode, user=request.user)
 
     if request.method == 'POST':
@@ -444,7 +444,7 @@ def merge(request, id):
     if not request.site_mode.allow_voting_and_submitting_questions and not request.user.is_staff:
         raise Http404
 
-    idea = get_object_or_404(Submission, pk=id)
+    idea = get_object_or_404(Submission, pk=id, category__site_mode=request.site_mode)
     voter = Voter.objects.get(site_mode=request.site_mode, user=request.user)
 
     if Flag.objects.filter(to_remove=idea, voter=voter).exists():
