@@ -3,6 +3,7 @@ import random
 
 from django.conf import settings
 from django.core.cache import cache
+from django.contrib.sites.models import Site
 
 from .models import Vote, Voter, NUMBER_OF_VOTES_CACHE_ENTRY, SiteMode
 from .router import readwrite_db
@@ -142,7 +143,8 @@ def sort_list(citations_only, sort, ideas):
 def get_site_mode(request):
     domain = request.get_host().lower().strip('.')
     try:
-        return SiteMode.objects.get(domain__exact=domain)
+        return SiteMode.objects.select_related('site').get(site__domain__exact=domain)
     except SiteMode.DoesNotExist:
         with readwrite_db():
-            return SiteMode.objects.get_or_create(domain=domain)[0]
+            site = Site.objects.get_or_create(domain=domain)[0]
+            return SiteMode.objects.select_related('site').get_or_create(site=site)[0]

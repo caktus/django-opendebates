@@ -3,6 +3,7 @@ import datetime
 from django.db import models
 from django.conf import settings
 from django.core.signing import Signer
+from django.contrib.sites.models import Site
 from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
 from urllib import quote_plus
@@ -35,7 +36,7 @@ class Category(CachingMixin, models.Model):
 class SiteMode(CachingMixin, models.Model):
     THEME_CHOICES = [(theme, theme) for theme in settings.SITE_THEMES]
 
-    domain = models.CharField(_('domain name'), unique=True, max_length=100)
+    site = models.OneToOneField(Site, related_name='site_mode')
     theme = models.CharField(max_length=255, choices=THEME_CHOICES)
 
     show_question_votes = models.BooleanField(default=True, blank=True)

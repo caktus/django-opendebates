@@ -140,7 +140,7 @@ class LoginLogoutTest(TestCase):
 
     def test_login_with_email_wrong_site(self):
         """Logins with an email address don't work on sites with other domains."""
-        self.voter.site_mode = SiteModeFactory(domain='otherdomain.com')
+        self.voter.site_mode = SiteModeFactory(site__domain='otherdomain.com')
         self.voter.save()
         rsp = self.client.post(
             self.login_url,

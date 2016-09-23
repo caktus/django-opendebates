@@ -2,6 +2,7 @@ import random
 import string
 
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.utils.timezone import now
 import factory
 import factory.fuzzy
@@ -13,14 +14,22 @@ _random = random.Random()
 
 
 def _testserver_site_mode(obj):
-    return models.SiteMode.objects.get_or_create(domain='testserver')[0]
+    site = Site.objects.get_or_create(domain='testserver')[0]
+    return models.SiteMode.objects.get_or_create(site=site)[0]
+
+
+class SiteFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Site
+
+    domain = factory.Sequence(lambda n: 'site-{0}.example.com'.format(n))
 
 
 class SiteModeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SiteMode
 
-    domain = factory.Sequence(lambda n: 'site-{0}.example.com'.format(n))
+    site = factory.SubFactory(SiteFactory)
 
 
 class UserFactory(factory.DjangoModelFactory):

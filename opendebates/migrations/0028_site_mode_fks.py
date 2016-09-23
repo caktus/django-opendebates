@@ -7,6 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('sites', '0001_initial'),
         ('opendebates', '0027_sitemode_inline_css'),
     ]
 
@@ -25,14 +26,14 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='sitemode',
-            name='domain',
-            field=models.CharField(default=1, unique=True, max_length=100, verbose_name='domain name'),
+            name='site',
+            field=models.OneToOneField(related_name='site_mode', default=1, to='sites.Site'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='sitemode',
             name='theme',
-            field=models.CharField(default=1, max_length=255, choices=[(b'testing', b'testing'), (b'florida', b'florida')]),
+            field=models.CharField(default='testing', max_length=255, choices=[(b'testing', b'testing'), (b'florida', b'florida')]),
             preserve_default=False,
         ),
         migrations.AddField(
