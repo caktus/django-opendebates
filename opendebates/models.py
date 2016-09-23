@@ -42,6 +42,8 @@ class SiteMode(CachingMixin, models.Model):
     )
     debate_state = models.CharField(max_length=5, null=True, blank=True)
 
+    redirect_site_to_url = models.CharField(max_length=100, blank=True)
+
     inline_css = models.TextField(blank=True)
 
     announcement_headline = models.CharField(max_length=255, null=True, blank=True)
@@ -343,3 +345,9 @@ class Flag(models.Model):
         unique_together = [
             ('to_remove', 'voter'),
         ]
+
+
+class FlatPageMetadataOverride(models.Model):
+    page = models.OneToOneField('flatpages.FlatPage',
+                                related_name='metadata')
+    metadata_html = models.TextField()

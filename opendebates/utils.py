@@ -157,3 +157,13 @@ def allow_voting_and_submitting_questions():
 
 def get_local_votes_state():
     return get_site_mode().debate_state
+
+
+def should_redirect_to_url(request):
+    if 'page' in request.GET or 'sort' in request.GET:
+        return False
+    if 'HTTP_REFERER' in request.META \
+       and request.META['HTTP_REFERER'].startswith(settings.SITE_DOMAIN):
+        return False
+    url = get_site_mode().redirect_site_to_url
+    return url or False

@@ -21,7 +21,8 @@ from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, \
 from .router import readonly_db
 from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list, \
     vote_needs_captcha, registration_needs_captcha, show_question_votes, \
-    allow_voting_and_submitting_questions, get_local_votes_state
+    allow_voting_and_submitting_questions, get_local_votes_state, \
+    should_redirect_to_url
 # from opendebates_comments.forms import CommentForm
 from opendebates_emails.models import send_email
 
@@ -80,6 +81,11 @@ def recent_activity(request):
 
 @rendered_with("opendebates/list_ideas.html")
 def list_ideas(request):
+
+    redirect_url = should_redirect_to_url(request)
+    if redirect_url:
+        return redirect(redirect_url)
+
     ideas = Submission.objects.all()
     citations_only = request.GET.get("citations_only")
     sort = choose_sort(request.GET.get('sort'))
@@ -158,6 +164,11 @@ def category_search(request, cat_id):
 @allow_http("GET", "POST")
 def vote(request, id):
     """Despite the name, this is both the page for voting AND the detail page for submissions"""
+
+    redirect_url = should_redirect_to_url(request)
+    if redirect_url:
+        return redirect(redirect_url)
+
     try:
         with readonly_db():
             idea = Submission.objects.get(id=id, approved=True)
