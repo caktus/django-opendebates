@@ -131,6 +131,10 @@ def sort_list(citations_only, sort, ideas):
         ideas = ideas.order_by("votes")
     elif sort == "-local_votes":
         ideas = ideas.order_by("-local_votes")
+    elif sort == "+current_votes":
+        ideas = ideas.order_by("current_votes")
+    elif sort == "-current_votes":
+        ideas = ideas.order_by("-current_votes")
 
     return ideas
 
@@ -157,3 +161,7 @@ def allow_voting_and_submitting_questions():
 
 def get_local_votes_state():
     return get_site_mode().debate_state
+
+
+def get_previous_debate_time():
+    return get_site_mode().previous_debate_time

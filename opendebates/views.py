@@ -21,7 +21,7 @@ from .models import Candidate, Category, Flag, Submission, \
 from .router import readonly_db
 from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list, \
     vote_needs_captcha, registration_needs_captcha, show_question_votes, \
-    allow_voting_and_submitting_questions, get_local_votes_state
+    allow_voting_and_submitting_questions, get_local_votes_state, get_previous_debate_time
 # from opendebates_comments.forms import CommentForm
 from opendebates_emails.models import send_email
 
@@ -246,10 +246,15 @@ def vote(request, id):
 
         )
     )
+    previous_debate_time = get_previous_debate_time()
     if created:
         # update the DB with the real tally
         Submission.objects.filter(id=id).update(
             votes=F('votes')+1,
+            current_votes=F('current_votes')+(
+                1 if previous_debate_time is None or vote.created_at > previous_debate_time
+                else 0
+            ),
             local_votes=F('local_votes')+(
                 1 if voter.state and voter.state == get_local_votes_state()
                 else 0)
@@ -313,6 +318,7 @@ def questions(request):
         )
     )
 
+    previous_debate_time = get_previous_debate_time()
     idea = Submission.objects.create(
         voter=voter,
         category_id=category,
@@ -324,6 +330,8 @@ def questions(request):
         ip_address=get_ip_address_from_request(request),
         approved=True,
         votes=1,
+        current_votes=(1 if previous_debate_time is None or vote.created_at > previous_debate_time
+                       else 0),
         local_votes=1 if voter.state and voter.state == get_local_votes_state() else 0,
         source=request.COOKIES.get('opendebates.source'),
     )

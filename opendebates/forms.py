@@ -236,6 +236,7 @@ class TopSubmissionForm(forms.ModelForm):
         top.headline = submission.headline
         top.followup = submission.followup
         top.votes = submission.votes
+        top.current_votes = submission.current_votes
         if commit:
             top.save()
         return top
