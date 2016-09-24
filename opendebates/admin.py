@@ -103,3 +103,15 @@ class SiteModeAdmin(ModelAdmin):
     _missed_fields = set(_fields) - _used_fields
     if _missed_fields:
         fieldsets.append(('Other', {'fields': sorted(list(_missed_fields))}))
+
+
+@register(models.FlatPageMetadataOverride)
+class FlatPageMetadataOverrideAdmin(ModelAdmin):
+    list_display = ['flatpage_url']
+
+    def flatpage_url(self, obj):
+        return obj.page.url
+
+    def get_queryset(self, request):
+        return super(FlatPageMetadataOverrideAdmin, self).get_queryset(
+            request).select_related("page")

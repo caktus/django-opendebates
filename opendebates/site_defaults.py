@@ -50,5 +50,21 @@ FACEBOOK_QUESTION_DESCRIPTION =\
     'at bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive '\
     'Change Institute'
 
+FLATPAGE_TWITTER_IMAGE =\
+    "https://s3.amazonaws.com/s3.boldprogressives.org/images/"\
+    "OpenDebates_WATCH-NOW_TW-1024x512-FODUrl.png"
+FLATPAGE_TWITTER_TITLE = u"U.S. Senate candidates are answering YOUR questions!"
+FLATPAGE_TWITTER_DESCRIPTION =\
+    u"WATCH NOW: Voters set the agenda for groundbreaking #OpenDebate."
+FLATPAGE_FACEBOOK_IMAGE =\
+    "https://s3.amazonaws.com/s3.boldprogressives.org/images/"\
+    "OpenDebates_WATCH-NOW_FB-1200x717-FODUrl.png"
+FLATPAGE_FACEBOOK_TITLE =\
+    u"WATCH NOW: [CANDIDATES] answer YOUR top-voted questions!"
+FLATPAGE_FACEBOOK_DESCRIPTION =\
+    u"Groundbreaking bottom-up #OpenDebate taking place NOW, hosted "\
+    "by Open Debate Coalition, Progressive Change Institute, & [MEDIA PARTNER]. All "\
+    "questions were chosen from top vote-getters online. WATCH LIVE HERE!"
+
 EMAIL_SUBJECT = "Vote for my progressive idea for @OpenDebaters"
 EMAIL_BODY = "Vote for my progressive idea for @OpenDebaters %(url)s"

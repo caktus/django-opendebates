@@ -1,4 +1,26 @@
 {% extends "opendebates/base.html" %}
+{% load opendebates_tags %}
+
+{% block metadata %}
+{% with flatpage|flatpage_metadata as metadata %}
+{% if metadata %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ metadata.twitter_title }}">
+<meta name="twitter:description" content="{{ metadata.twitter_description }}">
+<meta name="twitter:image" content="{{ metadata.twitter_image }}">
+
+<meta property="og:url" content="{{ SITE_LINK }}{{ flatpage.get_absolute_url }}">
+<meta property="og:type" content="website">
+
+<meta property="og:title" content="{{ metadata.facebook_title }}">
+<meta property="og:description" content="{{ metadata.facebook_description }}">
+<meta property="og:image" content="{{ metadata.facebook_image }}">
+{% else %}
+{{ block.super }}
+{% endif %}
+{% endwith %}
+{% endblock %}
+
 {% block content %}
 
 <div class="row flatpage">
