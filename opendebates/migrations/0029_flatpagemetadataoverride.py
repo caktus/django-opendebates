@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('twitter_image', models.URLField(default=b'https://s3.amazonaws.com/s3.boldprogressives.org/images/OpenDebates_WATCH-NOW_TW-1024x512-FODUrl.png')),
                 ('twitter_description', models.TextField(default='WATCH NOW: Voters set the agenda for groundbreaking #OpenDebate.')),
                 ('twitter_title', models.TextField(default='U.S. Senate candidates are answering YOUR questions!')),
-                ('page', models.OneToOneField(to='flatpages.FlatPage')),
+                ('page', models.OneToOneField(related_name='metadata', to='flatpages.FlatPage')),
             ],
         ),
     ]
