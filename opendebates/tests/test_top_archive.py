@@ -37,6 +37,7 @@ class TopArchiveTest(TestCase):
         self.assertEqual(archive.headline, original_headline)
         self.assertEqual(archive.followup, idea.followup)
         self.assertEqual(archive.votes, idea.votes)
+        self.assertEqual(archive.current_votes, idea.current_votes)
 
         # These are just copies; if the underlying idea changes
         # because of additional platform use or moderator edits,
@@ -44,6 +45,7 @@ class TopArchiveTest(TestCase):
         idea.headline = "An entirely new headline"
         idea.followup = "Some totally different followup text"
         idea.votes += 1500
+        idea.current_votes += 1500
         idea.save()
 
         archive = TopSubmission.objects.get(id=id)
@@ -51,6 +53,7 @@ class TopArchiveTest(TestCase):
         self.assertEqual(archive.headline, original_headline)
         self.assertNotEqual(archive.followup, idea.followup)
         self.assertEqual(archive.votes, idea.votes - 1500)
+        self.assertEqual(archive.current_votes, idea.current_votes - 1500)
 
         # Even if the idea is deleted altogether, the archive remains.
         idea.delete()
