@@ -1,8 +1,62 @@
+import datetime
+
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from mock import Mock, patch
 
-from opendebates.tests.factories import VoteFactory
-from opendebates.utils import registration_needs_captcha, vote_needs_captcha
+from opendebates.tests.factories import VoteFactory, SiteModeFactory
+from opendebates.utils import (
+    registration_needs_captcha, vote_needs_captcha, get_site_mode,
+    allow_sorting_by_votes, show_question_votes, allow_voting_and_submitting_questions,
+    get_local_votes_state, get_previous_debate_time
+)
+
+
+class TestUtils(TestCase):
+    def setUp(self):
+        self.site_mode = SiteModeFactory()
+
+    def test_get_site_mode(self):
+        site_mode = get_site_mode()
+        self.assertEqual(site_mode, self.site_mode)
+
+    def test_allow_sorting_by_votes(self):
+        self.assertTrue(allow_sorting_by_votes())
+
+        self.site_mode.allow_sorting_by_votes = False
+        self.site_mode.save()
+        self.assertFalse(allow_sorting_by_votes())
+
+    def test_show_question_votes(self):
+        self.assertTrue(show_question_votes())
+
+        self.site_mode.show_question_votes = False
+        self.site_mode.save()
+        self.assertFalse(show_question_votes())
+
+    def test_allow_voting_and_submitting_questions(self):
+        self.assertTrue(allow_voting_and_submitting_questions())
+
+        self.site_mode.allow_voting_and_submitting_questions = False
+        self.site_mode.save()
+        self.assertFalse(allow_voting_and_submitting_questions())
+
+    def test_get_local_votes_state(self):
+        self.assertEqual(get_local_votes_state(), 'NY')
+
+        self.site_mode.debate_state = 'NJ'
+        self.site_mode.save()
+        self.assertEqual(get_local_votes_state(), 'NJ')
+
+    def test_get_previous_debate_time(self):
+        self.assertIsNone(get_previous_debate_time())
+
+        previous_debate_time = timezone.make_aware(
+            datetime.datetime(2016, 1, 1, 12)
+        )
+        self.site_mode.previous_debate_time = previous_debate_time
+        self.site_mode.save()
+        self.assertEqual(get_previous_debate_time(), previous_debate_time)
 
 
 @override_settings(USE_CAPTCHA=True)
