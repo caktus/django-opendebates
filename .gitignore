@@ -10,7 +10,7 @@
 *.DS_Store
 .coverage
 .vagrant
-*/settings/local.py
+*/local_settings.py
 public/static/
 public/media/
 conf/pillar/*/deploy
@@ -22,3 +22,4 @@ node_modules
 *.sqlite3
 aws.sh
 fabsecrets*.py
+/static/

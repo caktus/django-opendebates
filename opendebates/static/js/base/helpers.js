@@ -293,7 +293,8 @@
     if (window.location.hash && window.location.hash.match(/created=(\d+)/)) {
       var ideaId = window.location.hash.match(/created=(\d+)/)[1];
       var el = $(window.Handlebars.templates.after_question_submitted_modal({
-        "static": ODebates.paths.static
+        "static": ODebates.paths.static,
+        "strings": ODebates.strings
       }));
       el.find(".social-links-container .social-links").html(
         $(".big-idea[data-idea-id="+ideaId+"] .social-links").html());

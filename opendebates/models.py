@@ -9,7 +9,9 @@ from urllib import quote_plus
 from django.utils.http import urlquote
 from django.utils.translation import ugettext_lazy as _
 from caching.base import CachingManager, CachingMixin
+from localflavor.us.models import PhoneNumberField
 
+from opendebates import site_defaults
 
 NUMBER_OF_VOTES_CACHE_ENTRY = 'number_of_votes'
 RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry'
@@ -40,15 +42,67 @@ class SiteMode(CachingMixin, models.Model):
     )
     debate_state = models.CharField(max_length=5, null=True, blank=True)
 
+    inline_css = models.TextField(blank=True)
+
     announcement_headline = models.CharField(max_length=255, null=True, blank=True)
     announcement_body = models.TextField(null=True, blank=True)
     announcement_link = models.URLField(null=True, blank=True)
     announcement_page_regex = models.CharField(max_length=255, null=True, blank=True)
 
+    hashtag = models.CharField(default=site_defaults.HASHTAG, max_length=255)
+
+    banner_header_title = models.TextField(default=site_defaults.BANNER_HEADER_TITLE)
+    banner_header_copy = models.TextField(default=site_defaults.BANNER_HEADER_COPY)
+
+    popup_after_submission_text = models.TextField(
+        default=site_defaults.POPUP_AFTER_SUBMISSION_TEXT,
+    )
+
+    email_subject = models.CharField(default=site_defaults.EMAIL_SUBJECT, max_length=998)
+    email_body = models.TextField(default=site_defaults.EMAIL_BODY)
+
+    facebook_image = models.URLField(default=site_defaults.FACEBOOK_IMAGE)
+    facebook_question_description = models.TextField(
+        default=site_defaults.FACEBOOK_QUESTION_DESCRIPTION,
+    )
+    facebook_question_title = models.TextField(default=site_defaults.FACEBOOK_QUESTION_TITLE)
+    facebook_site_description = models.TextField(default=site_defaults.FACEBOOK_SITE_DESCRIPTION)
+    facebook_site_title = models.TextField(default=site_defaults.FACEBOOK_SITE_TITLE)
+
+    twitter_image = models.URLField(default=site_defaults.TWITTER_IMAGE)
+    twitter_question_description = models.TextField(
+        default=site_defaults.TWITTER_QUESTION_DESCRIPTION,
+    )
+    twitter_question_text_with_handle = models.TextField(
+        default=site_defaults.TWITTER_QUESTION_TEXT_WITH_HANDLE,
+    )
+    twitter_question_text_no_handle = models.TextField(
+        default=site_defaults.TWITTER_QUESTION_TEXT_NO_HANDLE,
+    )
+    twitter_question_title = models.TextField(default=site_defaults.TWITTER_QUESTION_TITLE)
+    twitter_site_description = models.TextField(default=site_defaults.TWITTER_SITE_DESCRIPTION)
+    twitter_site_text = models.TextField(default=site_defaults.TWITTER_SITE_TEXT)
+    twitter_site_title = models.TextField(default=site_defaults.TWITTER_SITE_TITLE)
+
     objects = CachingManager()
 
 
-class Submission(models.Model):
+class CachedSiteModeMixin(object):
+
+    def _get_site_mode(self):
+        # extracted in its own method for testing purposes
+        from opendebates.utils import get_site_mode
+        return get_site_mode()
+
+    @property
+    def site_mode(self):
+        # avoid lots of unneeded round trips to memcached in production
+        if not hasattr(self, '_cached_site_mode'):
+            self._cached_site_mode = self._get_site_mode()
+        return self._cached_site_mode
+
+
+class Submission(CachedSiteModeMixin, models.Model):
 
     def user_display_name(self):
         return self.voter.user_display_name()
@@ -113,17 +167,13 @@ class Submission(models.Model):
     def get_absolute_url(self):
         return "vote", [self.id]
 
-    def my_tweet_text(self):
-        params = {
-            "hashtag": settings.SITE_THEME['HASHTAG'],
-        }
-        return _(u"Vote for my progressive idea for @ThinkBigUS #%s(hashtag)s. "
-                 "30 leaders in Congress will see top ideas!" % params)
-
     def tweet_text(self):
-        text = settings.SITE_THEME['TWITTER_QUESTION_TEXT']
         if self.voter.twitter_handle:
-            text += u" h/t @%s" % self.voter.twitter_handle
+            text = self.site_mode.twitter_question_text_with_handle.format(
+                handle=self.voter.twitter_handle,
+            )
+        else:
+            text = self.site_mode.twitter_question_text_no_handle
         return text
 
     def facebook_text(self):
@@ -140,8 +190,8 @@ class Submission(models.Model):
         return u"//www.reddit.com/submit?url=%s" % (quote_plus(self.really_absolute_url('reddit')),)
 
     def email_url(self):
-        subject = settings.SITE_THEME['EMAIL_SUBJECT']
-        body = settings.SITE_THEME['EMAIL_BODY'] % {
+        subject = self.site_mode.email_subject
+        body = self.site_mode.email_body % {
             "url": self.really_absolute_url('email'),
         }
         return u"mailto:?subject=%s&body=%s" % (urlquote(subject), urlquote(body))
@@ -149,7 +199,7 @@ class Submission(models.Model):
     def sms_url(self):
         params = {
             "url": self.really_absolute_url('sms'),
-            "hashtag": settings.SITE_THEME['HASHTAG'],
+            "hashtag": self.site_mode.hashtag,
         }
         body = _(u"Vote for my progressive idea for @OpenDebaters #%(hashtag)s. %(url)s" % params)
         return u"sms:;?body=%s" % (quote_plus(body),)
@@ -170,18 +220,18 @@ class Submission(models.Model):
 
     def twitter_title(self):
         # Vote on this question for the FL-Sen #OpenDebate!
-        return settings.SITE_THEME['TWITTER_QUESTION_TITLE'].format(idea=self.idea)
+        return self.site_mode.twitter_question_title.format(idea=self.idea)
 
     def twitter_description(self):
         # "{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions at
         # bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive Change Institute
-        return settings.SITE_THEME['TWITTER_QUESTION_DESCRIPTION'].format(idea=self.idea)
+        return self.site_mode.twitter_question_description.format(idea=self.idea)
 
     def facebook_title(self):
-        return settings.SITE_THEME['FACEBOOK_QUESTION_TITLE'].format(idea=self.idea)
+        return self.site_mode.facebook_question_title.format(idea=self.idea)
 
     def facebook_description(self):
-        return settings.SITE_THEME['FACEBOOK_QUESTION_DESCRIPTION'].format(idea=self.idea)
+        return self.site_mode.facebook_question_description.format(idea=self.idea)
 
 
 class ZipCode(CachingMixin, models.Model):
@@ -224,6 +274,7 @@ class Voter(models.Model):
 
     display_name = models.CharField(max_length=255, null=True, blank=True)
     twitter_handle = models.CharField(max_length=255, null=True, blank=True)
+    phone_number = PhoneNumberField(blank=True)
 
     unsubscribed = models.BooleanField(default=False)
 
@@ -291,4 +342,32 @@ class Flag(models.Model):
     class Meta:
         unique_together = [
             ('to_remove', 'voter'),
+        ]
+
+
+class TopSubmissionCategory(models.Model):
+    slug = models.SlugField(unique=True)
+    title = models.TextField()
+    caption = models.CharField(max_length=255, blank=True)
+
+    def __unicode__(self):
+        return self.slug
+
+
+class TopSubmission(models.Model):
+    category = models.ForeignKey(TopSubmissionCategory, related_name='submissions')
+    submission = models.ForeignKey(Submission, null=True, blank=False,
+                                   on_delete=models.SET_NULL)
+
+    headline = models.TextField(null=False, blank=False)
+    followup = models.TextField(null=False, blank=True)
+
+    votes = models.IntegerField()
+    rank = models.IntegerField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [
+            ('category', 'submission'),
         ]

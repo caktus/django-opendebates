@@ -33,6 +33,24 @@ class RegisterTest(TestCase):
             rsp = self.client.get(self.url)
         self.assertEqual(200, rsp.status_code)
 
+    def test_toggle_form_display_name(self):
+        with override_settings(ENABLE_USER_DISPLAY_NAME=True):
+            rsp = self.client.get(self.url)
+            self.assertContains(rsp, 'Display name')
+
+        with override_settings(ENABLE_USER_DISPLAY_NAME=False):
+            rsp = self.client.get(self.url)
+            self.assertNotContains(rsp, 'Display name')
+
+    def test_toggle_form_phone_number(self):
+        with override_settings(ENABLE_USER_PHONE_NUMBER=True):
+            rsp = self.client.get(self.url)
+            self.assertContains(rsp, 'Phone number')
+
+        with override_settings(ENABLE_USER_PHONE_NUMBER=False):
+            rsp = self.client.get(self.url)
+            self.assertNotContains(rsp, 'Phone number')
+
     def test_post_success(self):
         "POST the form with all required values."
         home_url = reverse('list_ideas')

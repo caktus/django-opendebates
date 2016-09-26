@@ -1,16 +1,17 @@
 from urlparse import urlparse
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils.html import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from localflavor.us.forms import USZipCodeField
+from localflavor.us.forms import USPhoneNumberField, USZipCodeField
 from nocaptcha_recaptcha.fields import NoReCaptchaField
 from registration.forms import RegistrationForm
 
-from .models import Category, Flag, Submission
+from .models import Category, Flag, Submission, TopSubmission
 
 VALID_SUBMISSION_DETAIL_URL_NAMES = ['vote', 'show_idea']
 
@@ -47,27 +48,59 @@ display_name_help_text = _("How your name will be displayed on the site. If you 
                            "blank, your first name and last initial will be used "
                            "instead.")  # @@TODO
 display_name_label = (u"Display name <span data-toggle='tooltip' title='%s' "
+                      "data-placement='bottom' "
                       "class='glyphicon glyphicon-question-sign'></span>" % display_name_help_text)
 twitter_handle_help_text = _("Fill in your Twitter username (without the @) if you "
                              "would like to be @mentioned on Twitter when people "
                              "tweet your ideas.")  # @@TODO
 twitter_handle_label = (u"Twitter handle <span data-toggle='tooltip' title='%s' "
+                        "data-placement='bottom' "
                         "class='glyphicon glyphicon-question-sign'></span>"
                         % twitter_handle_help_text)
+phone_number_help_text = _("We will be inviting some participants to "
+                           "attend the event live or read their question "
+                           "via video. Enter your phone number for a "
+                           "chance to participate!")  # @@TODO
+phone_number_label = (u"Phone number <span data-toggle='tooltip' title='%s' "
+                      "data-placement='bottom' "
+                      "class='glyphicon glyphicon-question-sign'></span>" % phone_number_help_text)
 
 
 class OpenDebatesRegistrationForm(RegistrationForm):
 
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
-    display_name = forms.CharField(max_length=255,
-                                   label=mark_safe(display_name_label),
-                                   required=False)
-    twitter_handle = forms.CharField(max_length=255,
-                                     label=mark_safe(twitter_handle_label),
-                                     required=False)
-    zip = USZipCodeField()
-    captcha = NoReCaptchaField(label=_("Are you human?"))
+
+    # Additional fields which we want to add in __init__, *after* adding
+    # the phone number and display name fields (if enabled). In Django 1.8,
+    # SortedDict is deprecated and the only way to modify the order of fields
+    # (collections.OrderedDict) on Python 2.7 is to create an entirely new
+    # dictionary. Django 1.9 adds a 'field_order' attribute on forms, but
+    # we're not using that yet. This attempts to maintain proper field order
+    # while doing as little as possible at runtime.
+    additional_fields = [
+        ('twitter_handle', forms.CharField(max_length=255,
+                                           label=mark_safe(twitter_handle_label),
+                                           required=False)),
+        ('zip', USZipCodeField()),
+        ('captcha', NoReCaptchaField(label=_("Are you human?"))),
+    ]
+
+    def __init__(self, *args, **kwargs):
+        super(OpenDebatesRegistrationForm, self).__init__(*args, **kwargs)
+        if settings.ENABLE_USER_PHONE_NUMBER:
+            self.fields['phone_number'] = USPhoneNumberField(
+                label=mark_safe(phone_number_label),
+                required=False,
+            )
+        if settings.ENABLE_USER_DISPLAY_NAME:
+            self.fields['display_name'] = forms.CharField(
+                max_length=255,
+                label=mark_safe(display_name_label),
+                required=False,
+            )
+        for name, field in self.additional_fields:
+            self.fields[name] = field
 
     def clean_twitter_handle(self):
         if self.cleaned_data.get("twitter_handle", "").startswith("@"):
@@ -185,3 +218,24 @@ class ModerationForm(forms.Form):
         if to_remove_pk and duplicate_of_pk and to_remove_pk == duplicate_of_pk:
             raise forms.ValidationError('Cannot merge a submission into itself.')
         return self.cleaned_data
+
+
+class TopSubmissionForm(forms.ModelForm):
+    class Meta:
+        model = TopSubmission
+        fields = ('category', 'submission', 'rank')
+
+    def __init__(self, *args, **kwargs):
+        super(TopSubmissionForm, self).__init__(*args, **kwargs)
+        self.fields['submission'].widget = forms.NumberInput()
+
+    def save(self, commit=True):
+        top = super(TopSubmissionForm, self).save(commit=False)
+        submission = top.submission
+
+        top.headline = submission.headline
+        top.followup = submission.followup
+        top.votes = submission.votes
+        if commit:
+            top.save()
+        return top

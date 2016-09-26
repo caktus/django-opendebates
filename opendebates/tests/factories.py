@@ -88,3 +88,12 @@ class RemovalFlagFactory(factory.DjangoModelFactory):
 
 class MergeFlagFactory(RemovalFlagFactory):
     duplicate_of = factory.SubFactory(SubmissionFactory)
+
+
+class TopSubmissionCategoryFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.TopSubmissionCategory
+
+    slug = factory.fuzzy.FuzzyText()
+    title = factory.fuzzy.FuzzyText()
+    caption = factory.fuzzy.FuzzyText()

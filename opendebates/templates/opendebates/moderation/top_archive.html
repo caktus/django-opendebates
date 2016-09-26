@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+
+{% block content %}
+  <h2>Admin - Add Top Ranking Submission to Archive</h2>
+
+  <div class="row">
+    <div class="col-md-12">
+      <form action="{% url 'moderation_add_to_top_archive' %}" method="POST">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input class="btn btn-default" type="submit" value="Submit" />
+      </form>
+
+    </div>
+  </div>
+
+{% endblock %}

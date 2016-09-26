@@ -7,7 +7,6 @@ class AnnouncementTest(TestCase):
 
     def setUp(self):
         self.mode, _ = SiteMode.objects.get_or_create()
-        self.mode.save()
         self.url = '/'
 
     def test_default_no_announcement(self):
@@ -86,3 +85,42 @@ class AnnouncementTest(TestCase):
         rsp = self.client.get('/')
         self.assertIn('<div class="site-announcement warning">', rsp.content)
         self.assertIn('<a href="%s">' % link, rsp.content)
+
+
+class InlineCSSTest(TestCase):
+
+    def setUp(self):
+        self.mode, _ = SiteMode.objects.get_or_create()
+        self.url = '/'
+
+    def test_default_no_inline_css(self):
+        rsp = self.client.get(self.url)
+        self.assertNotIn(u'<style type="text/css" id="site-mode-inline-css">',
+                         rsp.content)
+
+    def test_inline_css(self):
+        css = u"header { background: green !important; }"
+        self.mode.inline_css = css
+        self.mode.save()
+
+        rsp = self.client.get(self.url)
+        self.assertIn(u'<style type="text/css" id="site-mode-inline-css">',
+                      rsp.content)
+        self.assertIn(css, rsp.content)
+
+        rsp = self.client.get('/registration/login/')
+        self.assertIn(css, rsp.content)
+
+    def test_admins_can_be_pretty_malicious_with_inline_css(self):
+        """
+        @@TODO maybe content should be validated as legitimate CSS;
+        at the moment there's no validation or html-escaping anywhere.
+        """
+        css = u"</style></head><body></body></html>"
+        self.mode.inline_css = css
+        self.mode.save()
+
+        rsp = self.client.get(self.url)
+        self.assertIn(u'<style type="text/css" id="site-mode-inline-css">',
+                      rsp.content)
+        self.assertIn(css, rsp.content)

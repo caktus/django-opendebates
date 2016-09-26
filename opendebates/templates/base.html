@@ -10,19 +10,19 @@
     <meta name="twitter:card" content="summary_large_image">
     {# <meta name="twitter:site" content="@Opendebaters"> #}
     {# <meta name="twitter:creator" content="@Opendebaters"> #}
-    <meta name="twitter:title" content="{{ SITE_THEME.TWITTER_SITE_TITLE }}">
-    <meta name="twitter:description" content="{{ SITE_THEME.TWITTER_SITE_DESCRIPTION }}">
-    <meta name="twitter:image" content="{{ SITE_THEME.TWITTER_IMAGE }}">
+    <meta name="twitter:title" content="{{ SITE_MODE.twitter_site_title }}">
+    <meta name="twitter:description" content="{{ SITE_MODE.twitter_site_description }}">
+    <meta name="twitter:image" content="{{ SITE_MODE.twitter_image }}">
 
     <meta property="og:url" content="{{ SITE_LINK }}"/>
     <meta property="og:type" content="website"/>
-    <meta property="og:title" content="{{ SITE_THEME.FACEBOOK_SITE_TITLE }}"/>
-    <meta property="og:description" content="{{ SITE_THEME.FACEBOOK_SITE_DESCRIPTION }}"/>
-    <meta property="og:image" content="{{ SITE_THEME.FACEBOOK_IMAGE }}"/>
+    <meta property="og:title" content="{{ SITE_MODE.facebook_site_title }}"/>
+    <meta property="og:description" content="{{ SITE_MODE.facebook_site_description }}"/>
+    <meta property="og:image" content="{{ SITE_MODE.facebook_image }}"/>
   {% endblock metadata %}
   {% load pipeline %}
   {% stylesheet 'base' %}
-  {% if SITE_THEME %}
+  {% if SITE_THEME_NAME %}
     {% with "theme-"|add:SITE_THEME_NAME as theme %}
       {% stylesheet theme %}
     {% endwith %}
@@ -33,7 +33,11 @@
   <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,300,600,400|Open+Sans+Condensed:700"
         rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-
+  {% if SITE_MODE.inline_css %}
+  <style type="text/css" id="site-mode-inline-css">
+    {{ SITE_MODE.inline_css|safe }}
+  </style>
+  {% endif %}
 </head>
 <body>
 
@@ -53,8 +57,10 @@
     <div class="header-logos">
       <a href="{% url 'list_ideas' %}">
         <img src="{% static "images/badge-democratic-open-forum.png" %}">
-        <img src="{% static "images/logo-header-partner-1.png" %}">
-        <img src="{% static "images/logo-header-partner-2.png" %}">
+        <img class="partner-logo partner-logo-1"
+             src="{% static "images/logo-header-partner-1.png" %}">
+        <img class="partner-logo partner-logo-2"
+             src="{% static "images/logo-header-partner-2.png" %}">
       </a>
     </div>
     <div class="login-container{% if request.user.is_authenticated %} login-container-authenticated{% endif %}">
@@ -70,11 +76,13 @@
       {% endif %}
     </div>
     <div class="header-title">
-      <h1><a href="/">{{ SITE_THEME.HEADER_TITLE|linebreaks }}</a></h1>
-      <div class="header-copy">{{ SITE_THEME.HEADER_COPY }}</div>
+      <h1><a href="/">{{ BANNER_HEADER_TITLE|safe }}</a></h1>
+      <div class="header-copy">{{ BANNER_HEADER_COPY|safe }}</div>
       <div class="header-small-logos">
-        <img src="{% static "images/logo-header-partner-1.png" %}">
-        <img src="{% static "images/logo-header-partner-2.png" %}">
+        <img class="partner-logo partner-logo-1"
+             src="{% static "images/logo-header-partner-1.png" %}">
+        <img class="partner-logo partner-logo-2"
+             src="{% static "images/logo-header-partner-2.png" %}">
       </div>
       <div class="header-bottom">
         <div class="header-votes">
@@ -141,6 +149,9 @@
   ODebates.paths.merge = "{% url 'merge' 0 %}";
   ODebates.paths.login = "{% url 'auth_login' %}";
   ODebates.paths.register = "{% url 'registration_register' %}";
+
+  ODebates.strings = ODebates.strings || {};
+  ODebates.strings.afterQuestionSubmittedText = {{ POPUP_AFTER_SUBMISSION_TEXT|safe }};
 
   {% if DEBUG %}
     ODebates.configs.debug = true;

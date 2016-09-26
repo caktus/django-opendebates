@@ -1,7 +1,7 @@
   # "testing": demopenquestions
-  # "florida" floridaopendebate
-  # "production": UNUSED
   # "staging": staging
+  # "florida" floridaopendebate
+  # "presidential": presidentialopenquestions
 
   instance_settings:
     # http://uec-images.ubuntu.com/releases/trusty/release/
@@ -20,10 +20,9 @@
   deploy_user: opendebates
   webserver_user: opendebates-web
   database_host: localhost
-  database_user: dbuser
+  database_user: opendebates
   home: /home/opendebates # no trailing /
   python: /usr/bin/python2.7
-  log_host:
 
 ## LOCAL / PROJECT SETTINGS ##
   disable_known_hosts: true
@@ -52,29 +51,30 @@
 # that should be deployed.
   branches:
     opendebates:
-      production: master
-      florida: master
-      staging: develop
       testing: master
+      staging: develop
+      florida: master
+      presidential: develop # XXX change to master for final prod deploy 9/14/16
 
 ## SERVER SETTINGS ##
   use_basic_auth:
-    florida: False
-    # "testing" is the upcoming production site, hide it until ready to unveil
     testing: True
-    staging: False
+    staging: True
+    florida: False
+    # "presidential" is the upcoming production site, hide it until ready to unveil
+    presidential: True
 
 # Local server port for pgbouncer
   pgbouncer_port: 5432
 
-  less_version: 2.5.3
+  less_version: 2.7.1
 
 # Local server ports used by Gunicorn (the Django apps server)
   server_ports:
-    staging: 8000
-    production: 8001
-    testing: 8002
-    florida: 8003
+    testing: 8000
+    staging: 8001
+    florida: 8002
+    presidential: 8003
 
 
 # Whether we're hosting static files on our webservers ('local')
@@ -94,18 +94,20 @@
 # is used to update a Site object in the database.
 # Wildcard format used per ALLOWED_HOSTS setting
   site_domains_map:
-    production:
-    -
-    florida:
-    - floridaopendebate.com
-    - www.floridaopendebate.com
-    staging:
-    - staging.demopenquestions.com
     testing:
     - demopenquestions.com
     - testing.demopenquestions.com
     - opendebates-testing-lb-476601241.us-east-1.elb.amazonaws.com
     - www.demopenquestions.com
+    staging:
+    - staging.demopenquestions.com
+    - staging.presidentialopenquestions.com
+    florida:
+    - floridaopendebate.com
+    - www.floridaopendebate.com
+    presidential:
+    - presidentialopenquestions.com
+    - www.presidentialopenquestions.com
 
 ## ENVIRONMENT / ROLE SETTINGS ##
 
@@ -113,10 +115,13 @@
   deployments:
   - opendebates
   environments:
-  - staging
-  - production
-  - florida
   - testing
+  - staging
+  - florida
+  - presidential
+  production_environments:
+  - florida
+  - presidenetial
   valid_roles:
   - cache
   - db-master
@@ -140,80 +145,93 @@
     web: [opendebates-sg, opendebates-web-sg]
 
 # Mapping of environment and role to EC2 instance types (sizes)
+# Except for very small instance types where it doesn't matter as much,
+# it's best to use 'c3' or 'm3' generation instances with local SSD storage
+# for 'web' instances that will be used to create AMIs (and use a small
+# volume_size), as it dramatically speeds up AMI creation (by ~10 min).
+# The c4 and m4 suite of instances support EBS optimization by default and
+# may be better for database or other high-I/O services:
+# http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html#ebs-optimization-support
+# Additionally, 2xlarge or higher instance types are needed to get >= 1000 Mbps
+# on the network. This is important for the cache server which might not have
+# a lot of CPU load but will be transfering lots of data back & forth. See:
+# http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-ec2-config.html
   instance_types:
-    production:
-      cache: c4.large
+    testing:
+      cache: c4.2xlarge # for 1000Mbps network
       db-master: m4.2xlarge
       db-slave: m4.2xlarge
-      web: c4.xlarge
+      web: c3.xlarge # for faster AMI creation (no swap file)
       worker: m4.large
+    staging:
+      cache: t2.micro
+      db-master: t2.small
+      db-slave: t2.small
+      web: t2.micro
+      worker: t2.micro
     florida:
       cache: c4.large
       db-master: m4.2xlarge
       db-slave: m4.2xlarge
-      web: c4.xlarge
+      web: c3.xlarge # for faster AMI creation (no swap file)
       worker: m4.large
-    testing:
-      cache: c4.large
+    presidential:
+      cache: c4.2xlarge # for 1000Mbps network
       db-master: m4.2xlarge
       db-slave: m4.2xlarge
-      web: c4.xlarge
-      worker: m4.large
-    staging:
-      cache: c4.large
-      db-master: m4.2xlarge
-      db-slave: m4.2xlarge
-      web: c4.xlarge
+      web: c3.xlarge # for faster AMI creation (no swap file)
       worker: m4.large
 
 # Mapping of Fabric environment names to AWS load balancer names.  Load
 # balancers can be configured in the AWS Management Console.
   load_balancers:
     opendebates:
-      production:
-      - opendebates-production-lb
-      florida:
-      - opendebates-florida-lb
-      staging:
-      - opendebates-staging-lb
       testing:
       - opendebates-testing-lb
+      staging:
+      - opendebates-staging-lb
+      florida:
+      - opendebates-florida-lb
+      presidential:
+      - opendebates-presidential-lb
 
 # Mapping of Fabric environment names to AWS auto scaling group names. Auto
 # scaling groups can be configured in the AWS Management Console.
   auto_scaling_groups:
     opendebates:
-      production: opendebates-production-ag
-      florida: opendebates-florida-ag
-      staging: opendebates-staging-ag
       testing: opendebates-testing-ag
+      staging: opendebates-staging-ag
+      florida: opendebates-florida-ag
+      presidential: opendebates-presidential-ag
 
-# Mapping of Fabric environment and role to Elastic Block Device sizes (in GB)
+# Mapping of Fabric environment and role to Elastic Block Device sizes (in GB).
+# If you have any 'm4' or 'c4' instances, make sure these are large enough to
+# hold your data plus a swap file (these instance types have no local storage).
   volume_sizes:
-    production:
-      cache: 10
-      db-master: 250
-      db-slave: 250
-      web: 30
-      worker: 50
-    florida:
-      cache: 10
-      db-master: 250
-      db-slave: 250
-      web: 30
-      worker: 50
     testing:
-      cache: 10
-      db-master: 250
-      db-slave: 250
-      web: 30
-      worker: 50
+      cache: 25 # 10 GB data + 15 GB swap
+      db-master: 132 # 100 GB data + 32 GB swap
+      db-slave: 132 # 100 GB data + 32 GB swap
+      web: 10 # 10 GB data (no swap)
+      worker: 66 # 50 GB data + 16 GB swap
     staging:
       cache: 10
       db-master: 100
       db-slave: 100
       web: 10
       worker: 50
+    florida:
+      cache: 25 # 10 GB data + 15 GB swap
+      db-master: 282 # 250 GB data + 32 GB swap
+      db-slave: 282 # 250 GB data + 32 GB swap
+      web: 10 # 10 GB data (no swap)
+      worker: 66 # 50 GB data + 16 GB swap
+    presidential:
+      cache: 25 # 10 GB data + 15 GB swap
+      db-master: 282 # 250 GB data + 32 GB swap
+      db-slave: 282 # 250 GB data + 32 GB swap
+      web: 10 # 10 GB data (no swap)
+      worker: 66 # 50 GB data + 16 GB swap
 
 # Mapping of Fabric environment and role to Elastic Block Device volume types
 # Use SSD-backed storage (gp2) for all servers. Change to 'standard' for slower

@@ -16,8 +16,8 @@ from djangohelpers.lib import rendered_with, allow_http
 from registration.backends.simple.views import RegistrationView
 
 from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm, MergeFlagForm
-from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, \
-    RECENT_EVENTS_CACHE_ENTRY, Flag
+from .models import Candidate, Category, Flag, Submission, \
+    TopSubmissionCategory, Vote, Voter, ZipCode, RECENT_EVENTS_CACHE_ENTRY
 from .router import readonly_db
 from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list, \
     vote_needs_captcha, registration_needs_captcha, show_question_votes, \
@@ -362,6 +362,7 @@ class OpenDebatesRegistrationView(RegistrationView):
                 zip=form.cleaned_data['zip'],
                 display_name=form.cleaned_data.get('display_name'),
                 twitter_handle=form.cleaned_data.get('twitter_handle'),
+                phone_number=form.cleaned_data.get('phone_number'),
                 user=new_user,
             )
         )
@@ -440,4 +441,17 @@ def merge(request, id):
     return {
         'idea': idea,
         'form': form,
+    }
+
+
+@rendered_with("opendebates/top_archive.html")
+@allow_http("GET")
+def top_archive(request, slug):
+    category = get_object_or_404(TopSubmissionCategory, slug=slug)
+    submissions = category.submissions.select_related(
+        "submission", "submission__voter", "submission__voter__user",
+        "submission__category").order_by("rank", "created_at").all()
+    return {
+        'category': category,
+        'submissions': submissions,
     }

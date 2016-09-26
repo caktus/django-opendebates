@@ -37,6 +37,6 @@ of your old nameservers, but you can keep setting things up meanwhile.
   use https".
 
 * Add another page rule, pattern "https://*websitedomain/recent/", and choose
-  Custom Caching: Bypass Cache.
+  Cache Level: Bypass.
 
 Now wait for the DNS to update.
