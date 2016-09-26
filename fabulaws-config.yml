@@ -164,11 +164,11 @@
       web: c3.xlarge # for faster AMI creation (no swap file)
       worker: m4.large
     staging:
-      cache: t2.small
-      db-master: t2.medium
-      db-slave: t2.medium
-      web: t2.small
-      worker: t2.small
+      cache: t2.micro
+      db-master: t2.small
+      db-slave: t2.small
+      web: t2.micro
+      worker: t2.micro
     florida:
       cache: c4.large
       db-master: m4.2xlarge
