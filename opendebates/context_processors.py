@@ -63,6 +63,7 @@ def global_vars(request):
         'ALLOW_SORTING_BY_VOTES': mode.allow_sorting_by_votes,
         'ALLOW_VOTING_AND_SUBMITTING_QUESTIONS': mode.allow_voting_and_submitting_questions,
         'DEBATE_TIME': mode.debate_time,
+        'PREVIOUS_DEBATE_TIME': mode.previous_debate_time,
         'LOCAL_VOTES_STATE': mode.debate_state,
         'ANNOUNCEMENT': {
             'headline': mode.announcement_headline,

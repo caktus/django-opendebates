@@ -131,10 +131,8 @@ def sort_list(citations_only, sort, ideas):
         ideas = ideas.order_by("votes")
     elif sort == "-local_votes":
         ideas = ideas.order_by("-local_votes")
-    elif sort == "+current_votes":
-        ideas = ideas.order_by("current_votes")
     elif sort == "-current_votes":
-        ideas = ideas.order_by("-current_votes")
+        ideas = ideas.order_by("-current_votes")[:30]
 
     return ideas
 
