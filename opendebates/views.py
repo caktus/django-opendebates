@@ -319,6 +319,7 @@ def questions(request):
     )
 
     previous_debate_time = get_previous_debate_time()
+    created_at = timezone.now()
     idea = Submission.objects.create(
         voter=voter,
         category_id=category,
@@ -326,11 +327,11 @@ def questions(request):
         followup=form_data['question'],
         idea=(u'%s %s' % (form_data['headline'], form_data['question'])).strip(),
         citation=form_data['citation'],
-        created_at=timezone.now(),
+        created_at=created_at,
         ip_address=get_ip_address_from_request(request),
         approved=True,
         votes=1,
-        current_votes=(1 if previous_debate_time is None or vote.created_at > previous_debate_time
+        current_votes=(1 if previous_debate_time is None or created_at > previous_debate_time
                        else 0),
         local_votes=1 if voter.state and voter.state == get_local_votes_state() else 0,
         source=request.COOKIES.get('opendebates.source'),
@@ -342,7 +343,7 @@ def questions(request):
         source=idea.source,
         ip_address=get_ip_address_from_request(request),
         request_headers=get_headers_from_request(request),
-        created_at=timezone.now())
+        created_at=created_at)
 
     send_email("submitted_new_idea", {"idea": idea})
     send_email("notify_moderators_submitted_new_idea", {"idea": idea})

@@ -1,7 +1,9 @@
+import datetime
 from urlparse import urlparse
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.utils import timezone
 
 from opendebates.models import Submission, Vote, SiteMode, ZipCode
 from opendebates_emails.models import EmailTemplate
@@ -97,6 +99,38 @@ class SubmissionTest(TestCase):
         self.assertEqual(submission.approved, True)
         # vote count is kept on the submission model
         self.assertEqual(submission.votes, 1)
+        self.assertEqual(submission.current_votes, 1)
+        # but Vote objects are also created
+        votes = Vote.objects.filter(voter=self.voter)
+        self.assertEqual(1, len(votes))
+
+    def test_post_submission_after_previous_debate(self):
+        mode, _ = SiteMode.objects.get_or_create()
+        mode.previous_debate_time = timezone.make_aware(
+            datetime.datetime(2016, 1, 1, 12)
+        )
+        mode.save()
+
+        self.client.post(self.url, data=self.data)
+        submission = Submission.objects.first()
+        # vote count is kept on the submission model
+        self.assertEqual(submission.votes, 1)
+        self.assertEqual(submission.current_votes, 1)
+        # but Vote objects are also created
+        votes = Vote.objects.filter(voter=self.voter)
+        self.assertEqual(1, len(votes))
+
+    def test_post_submission_before_previous_debate(self):
+        mode, _ = SiteMode.objects.get_or_create()
+        mode.previous_debate_time = timezone.now() + datetime.timedelta(days=1)
+        mode.save()
+
+        self.client.post(self.url, data=self.data)
+        submission = Submission.objects.first()
+        # vote count is kept on the submission model
+        self.assertEqual(submission.votes, 1)
+        # We haven't hit the deadline for the previous debate, so no current_vote
+        self.assertEqual(submission.current_votes, 0)
         # but Vote objects are also created
         votes = Vote.objects.filter(voter=self.voter)
         self.assertEqual(1, len(votes))
@@ -120,6 +154,7 @@ class SubmissionTest(TestCase):
             rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
 
         self.assertEqual(submission.votes, 1)
+        self.assertEqual(submission.current_votes, 1)
         self.assertEqual(submission.local_votes, 1)
 
     def test_post_submission_from_nonlocal_user(self):
@@ -141,6 +176,7 @@ class SubmissionTest(TestCase):
             rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
 
         self.assertEqual(submission.votes, 1)
+        self.assertEqual(submission.current_votes, 1)
         self.assertEqual(submission.local_votes, 0)
 
     def test_post_submission_when_no_local_district_configured(self):
@@ -162,6 +198,7 @@ class SubmissionTest(TestCase):
             rsp, submission.get_absolute_url() + "#created=%s" % submission.id)
 
         self.assertEqual(submission.votes, 1)
+        self.assertEqual(submission.current_votes, 1)
         self.assertEqual(submission.local_votes, 0)
 
     def test_post_submission_anon(self):
