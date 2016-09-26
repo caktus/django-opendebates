@@ -88,6 +88,7 @@ class TopSubmissionCategoryAdmin(ModelAdmin):
 class SiteModeAdmin(ModelAdmin):
     list_display = ['debate_time', 'previous_debate_time', 'show_question_votes',
                     'show_total_votes', 'allow_sorting_by_votes']
+    actions = ['reset_current_votes']
     _fields = [f.name for f in models.SiteMode._meta.get_fields() if f.name != 'id']
     fieldsets = [
         ('General Settings', {
@@ -136,6 +137,11 @@ class SiteModeAdmin(ModelAdmin):
     _missed_fields = set(_fields) - _used_fields
     if _missed_fields:
         fieldsets.append(('Other', {'fields': sorted(list(_missed_fields))}))
+
+    def reset_current_votes(self, request, queryset):
+        # Note, currently all submissions are under the one and only SiteMode.
+        models.Submission.objects.update(current_votes=0)
+    reset_current_votes.short_description = "Reset vote counts since the last debate"
 
 
 @register(models.FlatPageMetadataOverride)
