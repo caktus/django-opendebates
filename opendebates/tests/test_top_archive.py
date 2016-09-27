@@ -2,6 +2,7 @@ from httplib import FORBIDDEN
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.formats import date_format
+from django.utils.timezone import localtime
 
 from opendebates.forms import TopSubmissionForm
 from opendebates.models import TopSubmission
@@ -115,13 +116,13 @@ class TopArchiveTest(TestCase):
         rsp = self.client.get(self.url(self.categories[0].slug))
         self.assertContains(rsp, self.ideas[2].voter.user_display_name())
         self.assertContains(rsp, self.ideas[2].category.name)
-        self.assertContains(rsp, date_format(self.ideas[2].created_at))
+        self.assertContains(rsp, date_format(localtime(self.ideas[2].created_at)))
 
         self.ideas[2].delete()
         rsp = self.client.get(self.url(self.categories[0].slug))
         self.assertNotContains(rsp, self.ideas[2].voter.user_display_name())
         self.assertNotContains(rsp, self.ideas[2].category.name)
-        self.assertNotContains(rsp, date_format(self.ideas[2].created_at))
+        self.assertNotContains(rsp, date_format(localtime(self.ideas[2].created_at)))
         self.assertContains(rsp, self.ideas[2].headline)
 
     def test_multiple_archives(self):
