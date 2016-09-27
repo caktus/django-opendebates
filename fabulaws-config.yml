@@ -62,7 +62,7 @@
     staging: True
     florida: False
     # "presidential" is the upcoming production site, hide it until ready to unveil
-    presidential: True
+    presidential: False
 
 # Local server port for pgbouncer
   pgbouncer_port: 5432
