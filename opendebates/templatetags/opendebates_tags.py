@@ -1,4 +1,6 @@
 from django import template
+from opendebates.models import FlatPageMetadataOverride
+
 
 register = template.Library()
 
@@ -12,3 +14,11 @@ def provide_site_mode_to(context, obj):
     """
     obj._cached_site_mode = context['SITE_MODE']
     return ''
+
+
+@register.filter
+def flatpage_metadata(flatpage):
+    try:
+        return flatpage.metadata
+    except FlatPageMetadataOverride.DoesNotExist:
+        return None

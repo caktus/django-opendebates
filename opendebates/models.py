@@ -31,6 +31,19 @@ class Category(CachingMixin, models.Model):
         verbose_name_plural = _("categories")
 
 
+class FlatPageMetadataOverride(models.Model):
+
+    page = models.OneToOneField('flatpages.FlatPage', related_name='metadata')
+
+    facebook_image = models.URLField(default=site_defaults.FLATPAGE_FACEBOOK_IMAGE)
+    facebook_description = models.TextField(default=site_defaults.FLATPAGE_FACEBOOK_DESCRIPTION)
+    facebook_title = models.TextField(default=site_defaults.FLATPAGE_FACEBOOK_TITLE)
+
+    twitter_image = models.URLField(default=site_defaults.FLATPAGE_TWITTER_IMAGE)
+    twitter_description = models.TextField(default=site_defaults.FLATPAGE_TWITTER_DESCRIPTION)
+    twitter_title = models.TextField(default=site_defaults.FLATPAGE_TWITTER_TITLE)
+
+
 class SiteMode(CachingMixin, models.Model):
     show_question_votes = models.BooleanField(default=True, blank=True)
     show_total_votes = models.BooleanField(default=True, blank=True)
