@@ -127,6 +127,7 @@ class Submission(CachedSiteModeMixin, models.Model):
     followup = models.TextField(null=True, blank=True)
 
     citation = models.URLField(null=True, blank=True, db_index=True,
+                               max_length=1024,
                                verbose_name=_("Optional link to full proposal or reference"))
     citation_verified = models.BooleanField(default=False, db_index=True)
 
