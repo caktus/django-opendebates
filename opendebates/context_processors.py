@@ -1,10 +1,11 @@
+import json
+import re
 from urllib import quote_plus
 
 from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 from django.utils.html import mark_safe
-import json
-import re
+from django.utils.timezone import now
 
 from .models import Category, Vote
 from .utils import get_voter, get_number_of_votes, vote_needs_captcha, get_site_mode
@@ -63,7 +64,10 @@ def global_vars(request):
         'ALLOW_SORTING_BY_VOTES': mode.allow_sorting_by_votes,
         'ALLOW_VOTING_AND_SUBMITTING_QUESTIONS': mode.allow_voting_and_submitting_questions,
         'DEBATE_TIME': mode.debate_time,
-        'PREVIOUS_DEBATE_TIME': mode.previous_debate_time,
+        'PREVIOUS_DEBATE_TIME': (
+            mode.previous_debate_time if mode.previous_debate_time and
+            mode.previous_debate_time < now() else None
+        ),
         'LOCAL_VOTES_STATE': mode.debate_state,
         'ANNOUNCEMENT': {
             'headline': mode.announcement_headline,

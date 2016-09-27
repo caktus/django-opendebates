@@ -311,9 +311,7 @@ class VoteTest(TestCase):
     def test_vote_after_previous_debate(self):
         "Votes after the previous debate get tracked separately."
         mode, _ = SiteMode.objects.get_or_create()
-        mode.previous_debate_time = timezone.make_aware(
-            datetime.datetime(2016, 1, 1, 12)
-        )
+        mode.previous_debate_time = timezone.now() - datetime.timedelta(days=7)
         mode.save()
 
         data = {
@@ -324,12 +322,10 @@ class VoteTest(TestCase):
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
-        json_rsp = json.loads(rsp.content)
-        # vote is incremented in JSON response
-        self.assertEqual(self.votes + 1, json_rsp['tally'])
+        json.loads(rsp.content)
+
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
-        # ... and in DB
-        self.assertEqual(self.votes + 1, refetched_sub.votes)
+        # count of votes since previous debate gets incremented
         self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
 
     def test_vote_before_previous_debate(self):
@@ -346,12 +342,12 @@ class VoteTest(TestCase):
         rsp = self.client.post(self.submission_url, data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
-        json_rsp = json.loads(rsp.content)
-        # vote is incremented in JSON response
-        self.assertEqual(self.votes + 1, json_rsp['tally'])
+        json.loads(rsp.content)
+
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
-        # ... and in DB
-        self.assertEqual(self.votes + 1, refetched_sub.votes)
+        # count of votes since previous debate does not get
+        # incremented, since the previous debate checkpoint is still
+        # in the future.
         self.assertEqual(self.current_votes, refetched_sub.current_votes)
 
     # non AJAX tests

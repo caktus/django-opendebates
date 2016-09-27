@@ -51,9 +51,7 @@ class TestUtils(TestCase):
     def test_get_previous_debate_time(self):
         self.assertIsNone(get_previous_debate_time())
 
-        previous_debate_time = timezone.make_aware(
-            datetime.datetime(2016, 1, 1, 12)
-        )
+        previous_debate_time = timezone.now() - datetime.timedelta(days=7)
         self.site_mode.previous_debate_time = previous_debate_time
         self.site_mode.save()
         self.assertEqual(get_previous_debate_time(), previous_debate_time)

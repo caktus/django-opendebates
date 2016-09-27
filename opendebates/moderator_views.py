@@ -65,7 +65,7 @@ def merge(request):
             current_votes_to_merge = votes_to_merge.filter(
                 created_at__gt=previous_debate_time).count()
         else:
-            current_votes_to_merge = 0
+            current_votes_to_merge = votes_to_merge.count()
 
         local_state = get_local_votes_state()
         if local_state:

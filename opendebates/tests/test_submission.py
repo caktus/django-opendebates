@@ -106,9 +106,7 @@ class SubmissionTest(TestCase):
 
     def test_post_submission_after_previous_debate(self):
         mode, _ = SiteMode.objects.get_or_create()
-        mode.previous_debate_time = timezone.make_aware(
-            datetime.datetime(2016, 1, 1, 12)
-        )
+        mode.previous_debate_time = timezone.now() - datetime.timedelta(days=7)
         mode.save()
 
         self.client.post(self.url, data=self.data)
