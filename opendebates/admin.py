@@ -1,9 +1,11 @@
 import itertools
 
 from django.contrib.admin import ModelAdmin, register
+from django.shortcuts import render
 from djangohelpers.export_action import admin_list_export
 
 from . import models
+from opendebates_emails.models import send_email
 
 
 @register(models.Category)
@@ -15,8 +17,39 @@ class CategoryAdmin(ModelAdmin):
 @register(models.Submission)
 class SubmissionAdmin(ModelAdmin):
     list_display = [f.name for f in models.Submission._meta.fields]
-    actions = [admin_list_export]
+    list_filter = ('approved', )
+    search_fields = ('idea', )
+    actions = [admin_list_export, 'remove_submissions']
     raw_id_fields = ['voter', 'duplicate_of']
+
+    def remove_submissions(self, request, queryset):
+        "Custom action to mark submissions 'unapproved' and to notify users by email."
+        if request.POST.get('post'):
+            count = 0
+            # only email user if submission changes status, hence the filter
+            for submission in queryset.filter(approved=True):
+                count += 1
+                submission.approved = False
+                submission.moderated_removal = True
+                submission.removal_flags.all().update(reviewed=True)
+                submission.save()
+                send_email("idea_is_removed", {"idea": submission})
+            if count == 1:
+                msg = "Removed 1 submission"
+            else:
+                msg = "Removed {} submissions".format(count)
+            self.message_user(request, msg)
+            return None  # returning None causes us to return to changelist
+        context = {'queryset': queryset}
+        return render(request, 'opendebates/admin/remove_submissions.html', context)
+    remove_submissions.short_description = 'Remove selected submissions'
+
+    def get_actions(self, request):
+        # Remove the default 'Delete selected...' action
+        actions = super(SubmissionAdmin, self).get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
 
 @register(models.Voter)
