@@ -183,6 +183,13 @@ STATICFILES_FINDERS = (
     'djangobower.finders.BowerFinder',
 )
 
+if TEST:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    STATICFILES_FINDERS = (
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    )
+
 PIPELINE_COMPILERS = (
     'pipeline.compilers.less.LessCompiler',
 )
