@@ -160,11 +160,18 @@ def vote(request, id):
     """Despite the name, this is both the page for voting AND the detail page for submissions"""
     try:
         with readonly_db():
-            idea = Submission.objects.get(id=id, approved=True)
+            idea = Submission.objects.get(id=id)
     except Submission.DoesNotExist:
+        raise Http404
+    if request.method == "POST" and not idea.approved:
+        # Don't allow voting on removed submissions, but do allow viewing them
         raise Http404
 
     if idea.duplicate_of_id:
+        if not idea.approved:
+            # Submissions which have been "unmoderated as duplicates"
+            # should remain completely inaccessible, and should not redirect
+            raise Http404
         url = reverse("show_idea", kwargs={"id": idea.duplicate_of_id})
         url = url + "#i"+str(idea.id)
         return redirect(url)

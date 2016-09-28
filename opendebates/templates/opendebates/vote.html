@@ -34,8 +34,20 @@
   </div>
 
   <div class="col-sm-4 social-side-bar" data-idea-id="{{ idea.id }}">
+    {% if idea.approved %}
     <h2>{% blocktrans %}Share This Question!{% endblocktrans %}</h2>
     {% include "opendebates/snippets/social-links.html" %}
+    {% else %}
+    <h3 class="removal-notice">
+      {% blocktrans %}This question has been removed.{% endblocktrans %}
+    </h3>
+    <p class="small removal-notice-text">
+      Our team of moderators has determined that this question violates our
+      <a href="/participation/">participation guidelines</a>.  If you have any
+      questions or concerns, or believe we should reconsider the moderators'
+      review, please <a href="/contact/">contact us</a>.
+    </p>
+    {% endif %}
   </div>
 
   {% if related1 %}
