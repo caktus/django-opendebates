@@ -13,7 +13,7 @@
       <div class="vote-tally text-center">
         <span class="vote-tally-number">{% if SHOW_QUESTION_VOTES %}{{ idea.votes|localize }}{% endif %}</span>
       </div>
-      {% if ALLOW_VOTING_AND_SUBMITTING_QUESTIONS %}
+      {% if ALLOW_VOTING_AND_SUBMITTING_QUESTIONS and idea.approved %}
         <div class="vote-bottom center-block center-text">
           <a id="vote-button-{{ idea.id }}"
              data-target="#modal-vote"
@@ -72,6 +72,7 @@
       {{ idea.created_at }}<br />
       {% trans "Issue area" %}: <a href="{% url 'list_category' idea.category.id %}"><strong>{{ idea.category.name }}</strong></a>
     </div>
+    {% if idea.approved %}
     {% include "opendebates/snippets/social-links.html" %}
     <div class="idea-actions">
       {% if ALLOW_VOTING_AND_SUBMITTING_QUESTIONS %}
@@ -85,6 +86,7 @@
         </span>
       {% endif %}
     </div>
+    {% endif %}
 </div>
 
 {% if show_duplicates and idea.has_duplicates %}
@@ -94,7 +96,9 @@
 <div class="duplicates-list row hidden">
   <div class="col-xs-12 idea-duplicates-list">
     {% for duplicate in idea.get_duplicates %}
+    {% if duplicate.approved %}
     {% include "opendebates/snippets/idea.html" with idea=duplicate is_duplicate=1 %}
+    {% endif %}
     {% endfor %}
   </div>
 </div>

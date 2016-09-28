@@ -183,6 +183,40 @@ class SubmissionTest(TestCase):
         self.assertContains(rsp, twitter_link)
         self.assertContains(rsp, facebook_link)
 
+    def test_unmoderated_merged_question_404s(self):
+        "Question page should 404 if the question has been removed as a duplicate"
+        submission = SubmissionFactory()
+        other_submission = SubmissionFactory()
+        submission.approved = False
+        submission.duplicate_of = other_submission
+        submission.save()
+        rsp = self.client.get(submission.get_absolute_url())
+        self.assertEqual(404, rsp.status_code)
+
+    def test_unmoderated_question_is_viewable(self):
+        """
+        Question page should be accessible if the question has been unmoderated,
+        but with a notice of removal instead of the typical vote flag share buttons.
+        """
+        submission = SubmissionFactory()
+        rsp = self.client.get(submission.get_absolute_url())
+        self.assertNotContains(rsp, "This question has been removed.")
+        self.assertContains(rsp, "Share This Question!")
+        self.assertContains(rsp, "share-fb-%s" % submission.id)
+        self.assertContains(rsp, '<a id="vote-button-%s"' % submission.id)
+        self.assertContains(rsp, "Merge")
+
+        submission.approved = False
+        submission.save()
+        rsp = self.client.get(submission.get_absolute_url())
+        self.assertEqual(200, rsp.status_code)
+
+        self.assertContains(rsp, "This question has been removed.")
+        self.assertNotContains(rsp, "Share This Question!")
+        self.assertNotContains(rsp, "share-fb-%s" % submission.id)
+        self.assertNotContains(rsp, '<a id="vote-button-%s"' % submission.id)
+        self.assertNotContains(rsp, "Merge")
+
     def test_questions_page_redirects(self):
         "Questions view redirects to homepage because it is only meant for form handling."
         questions_url = reverse('questions')
