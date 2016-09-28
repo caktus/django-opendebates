@@ -44,6 +44,13 @@ class SubmissionAdmin(ModelAdmin):
         return render(request, 'opendebates/admin/remove_submissions.html', context)
     remove_submissions.short_description = 'Remove selected submissions'
 
+    def get_actions(self, request):
+        # Remove the default 'Delete selected...' action
+        actions = super(SubmissionAdmin, self).get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
 
 @register(models.Voter)
 class VoterAdmin(ModelAdmin):
