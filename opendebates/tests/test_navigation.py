@@ -19,12 +19,6 @@ class NavigationTest(TestCase):
         SubmissionFactory(headline="Something about ducks", votes=10)
         SubmissionFactory(headline="Another thing about ducks", votes=5)
 
-    def find_first_page_link(self, content):
-        link = re.search('<a\W+href="(.*)"\W+rel="page"\W+class="endless_page_link">2</a>',
-                         content)
-        self.assertNotEqual(None, link)
-        return link.groups()[0]
-
     def test_sort_by_option_is_sticky(self):
         rsp = self.client.get(self.url + '?sort=%2Bvotes')
         # Make sure it's actually sorting properly
