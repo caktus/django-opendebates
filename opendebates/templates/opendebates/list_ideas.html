@@ -9,9 +9,10 @@
 <form action="{% url 'search_ideas' %}" method="GET" id="top-search">
   <input type="submit" value=""/>
   <div class="search-ctn">
-    <input name="q" class="form-control" id="search-full"
+    <input name="q" value="{{ search_term|default:'' }}"
+           class="form-control" id="search-full"
            placeholder="{% if ALLOW_VOTING_AND_SUBMITTING_QUESTIONS %}{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked. (No naming candidates. Both candidates must be able to answer questions.){% endblocktrans %}{% else %}{% blocktrans %}Search questions by keyword{% endblocktrans %}{% endif %}"
-           value="{{ search_term|default:'' }}" onkeyup="javascript:if(arguments[0].keyCode===13)this.form.submit();">
+           onkeyup="javascript:if(arguments[0].keyCode===13)this.form.submit();">
   </div>
   <div class="search-ctn">
     <input name="q" class="form-control" id="search-small"
@@ -54,6 +55,11 @@
   {% cache 30 list_ideas_content sort url_name search_term category.id %}
     <div class="sort-column">
       <form action="{{ url_name }}" method="GET" class="form-inline">
+
+        {% if search_term %}
+        <input type="hidden" name="q" value="{{ search_term }}">
+        {% endif %}
+
         <label for="q">
           {% blocktrans %}Sort questions by{% endblocktrans %}
         </label>
