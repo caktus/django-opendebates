@@ -283,7 +283,7 @@ class Voter(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, null=True, blank=True, related_name="voter")
 
-    source = models.CharField(max_length=255, null=True, blank=True)
+    source = models.CharField(max_length=4096, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     display_name = models.CharField(max_length=255, null=True, blank=True)
