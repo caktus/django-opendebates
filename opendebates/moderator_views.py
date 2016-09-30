@@ -135,8 +135,11 @@ def home(request):
                                             .filter(num_flags__gt=0) \
                                             .order_by('-num_flags')
 
-    # all merge flags which have not yet been reviewed
-    merge_flags = Flag.objects.exclude(duplicate_of=None).exclude(reviewed=True)
+    # all merge flags which have not yet been reviewed and whose targets have not been removed
+    merge_flags = Flag.objects.exclude(duplicate_of=None) \
+                              .exclude(reviewed=True) \
+                              .exclude(duplicate_of__moderated_removal=True) \
+                              .exclude(to_remove__moderated_removal=True)
 
     return {
         'flagged_for_removal': flagged_for_removal,

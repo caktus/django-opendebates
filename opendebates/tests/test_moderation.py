@@ -434,6 +434,22 @@ class ModerationHomeTest(TestCase):
         self.assertNotIn(already_reviewed_flag, qs)
         self.assertEqual(set(merge_flags), set(qs))
 
+        # If either end of the merge flag  has been unmoderated separately,
+        # the merge flag should not appear on the page - we don't allow
+        # removed submissions to be merged or to receive merges
+
+        merge_flags[0].to_remove.approved = False
+        merge_flags[0].to_remove.moderated_removal = True
+        merge_flags[0].to_remove.save()
+        rsp = self.client.get(self.url)
+        self.assertNotIn(merge_flags[0], rsp.context['merge_flags'])
+
+        merge_flags[1].duplicate_of.approved = False
+        merge_flags[1].duplicate_of.moderated_removal = True
+        merge_flags[1].duplicate_of.save()
+        rsp = self.client.get(self.url)
+        self.assertNotIn(merge_flags[1], rsp.context['merge_flags'])
+
 
 class RemovalFlagTest(TestCase):
 
