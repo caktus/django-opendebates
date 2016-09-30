@@ -7,6 +7,7 @@ from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
 from urllib import quote_plus
 from django.utils.http import urlquote
+from django.utils.timezone import make_aware
 from django.utils.translation import ugettext_lazy as _
 from caching.base import CachingManager, CachingMixin
 from localflavor.us.models import PhoneNumberField
@@ -45,6 +46,11 @@ class FlatPageMetadataOverride(models.Model):
 
 
 class SiteMode(CachingMixin, models.Model):
+
+    effective_after = models.DateTimeField(
+        default=make_aware(datetime.datetime.fromtimestamp(0)),
+        unique=True)
+
     show_question_votes = models.BooleanField(default=True, blank=True)
     show_total_votes = models.BooleanField(default=True, blank=True)
     allow_sorting_by_votes = models.BooleanField(default=True, blank=True)

@@ -3,6 +3,7 @@ import random
 
 from django.conf import settings
 from django.core.cache import cache
+from django.utils.timezone import now
 
 from .models import Vote, Voter, NUMBER_OF_VOTES_CACHE_ENTRY, SiteMode
 from .router import readwrite_db
@@ -136,11 +137,14 @@ def sort_list(citations_only, sort, ideas):
 
 
 def get_site_mode():
+    current_time = now()
     try:
-        return SiteMode.objects.get()
-    except SiteMode.DoesNotExist:
+        return SiteMode.objects.filter(
+            effective_after__lt=current_time).order_by("-effective_after")[0]
+    except IndexError:
         with readwrite_db():
-            return SiteMode.objects.get_or_create()[0]
+            return SiteMode.objects.get_or_create(
+                effective_after__lt=current_time)[0]
 
 
 def allow_sorting_by_votes():
