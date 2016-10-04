@@ -30,6 +30,11 @@ def staging01(deployment_tag=env.default_deployment, answer=None):
 
 
 @task
+def prod01(deployment_tag=env.default_deployment, answer=None):
+    _setup_env(deployment_tag, 'prod01')
+
+
+@task
 @roles('db-master')
 def pg_create_unaccent_ext():
     """
