@@ -12,6 +12,13 @@ from opendebates import models
 _random = random.Random()
 
 
+class SiteModeFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.SiteMode
+
+    debate_state = 'NY'
+
+
 class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = get_user_model()
@@ -67,6 +74,7 @@ class SubmissionFactory(factory.DjangoModelFactory):
     created_at = now()
     approved = True
     votes = 1
+    current_votes = 1
 
 
 class VoteFactory(factory.DjangoModelFactory):

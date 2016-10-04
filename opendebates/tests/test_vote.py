@@ -1,8 +1,10 @@
+import datetime
 import json
 import os
 
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import timezone
 
 from opendebates.models import Submission, Vote, Voter, SiteMode, ZipCode
 from .factories import UserFactory, SubmissionFactory, VoterFactory, VoteFactory
@@ -15,6 +17,7 @@ class VoteTest(TestCase):
         self.submission_url = self.submission.get_absolute_url()
         # keep track of vote count before test starts
         self.votes = self.submission.votes
+        self.current_votes = self.submission.current_votes
         password = 'secretPassword'
         self.user = UserFactory(password=password)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
@@ -81,6 +84,7 @@ class VoteTest(TestCase):
         # .. and in the database
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
 
     def test_vote_local_voter(self):
         mode, _ = SiteMode.objects.get_or_create()
@@ -100,6 +104,7 @@ class VoteTest(TestCase):
         self.assertEqual(200, rsp.status_code)
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
         self.assertEqual(1, refetched_sub.local_votes)
 
     def test_vote_nonlocal_voter(self):
@@ -120,6 +125,7 @@ class VoteTest(TestCase):
         self.assertEqual(200, rsp.status_code)
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
         self.assertEqual(0, refetched_sub.local_votes)
 
     def test_vote_no_local_district_configured(self):
@@ -141,6 +147,7 @@ class VoteTest(TestCase):
         self.assertEqual(200, rsp.status_code)
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
         self.assertEqual(0, refetched_sub.local_votes)
 
     def test_vote_anon_new_voter_source(self):
@@ -211,8 +218,9 @@ class VoteTest(TestCase):
         json_rsp = json.loads(rsp.content)
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         # votes is not incremented (in JSON response or in DB)
-        self.assertEqual(self.votes + 0, json_rsp['tally'])
-        self.assertEqual(self.votes + 0, refetched_sub.votes)
+        self.assertEqual(self.votes, json_rsp['tally'])
+        self.assertEqual(self.votes, refetched_sub.votes)
+        self.assertEqual(self.current_votes, refetched_sub.current_votes)
 
     def test_anon_can_use_other_users_account(self):
         "Unauthenticated can use an authenticated user's account."
@@ -228,6 +236,7 @@ class VoteTest(TestCase):
         # votes is incremented
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
 
     def test_vote_user(self):
         "Authenticated user can vote."
@@ -245,6 +254,7 @@ class VoteTest(TestCase):
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         # ... and in DB
         self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
 
     def test_vote_twice_user(self):
         "Authenticated user can only vote once."
@@ -259,10 +269,11 @@ class VoteTest(TestCase):
         self.assertEqual(200, rsp.status_code)
         json_rsp = json.loads(rsp.content)
         # vote is not incremented in JSON response
-        self.assertEqual(self.votes + 0, json_rsp['tally'])
+        self.assertEqual(self.votes, json_rsp['tally'])
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         # ... or in the DB
-        self.assertEqual(self.votes + 0, refetched_sub.votes)
+        self.assertEqual(self.votes, refetched_sub.votes)
+        self.assertEqual(self.current_votes, refetched_sub.current_votes)
 
     def test_vote_user_bad_captcha(self):
         # If captcha doesn't pass, no vote
@@ -277,6 +288,7 @@ class VoteTest(TestCase):
         self.assertEqual(200, rsp.status_code)
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         self.assertEqual(self.votes, refetched_sub.votes)
+        self.assertEqual(self.current_votes, refetched_sub.current_votes)
 
     @override_settings(USE_CAPTCHA=False)
     def test_vote_user_disabled_captcha(self):
@@ -294,6 +306,49 @@ class VoteTest(TestCase):
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
         # ... and in DB
         self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
+
+    def test_vote_after_previous_debate(self):
+        "Votes after the previous debate get tracked separately."
+        mode, _ = SiteMode.objects.get_or_create()
+        mode.previous_debate_time = timezone.now() - datetime.timedelta(days=7)
+        mode.save()
+
+        data = {
+            'email': self.voter.email,
+            'zipcode': self.voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+        json.loads(rsp.content)
+
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        # count of votes since previous debate gets incremented
+        self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
+
+    def test_vote_before_previous_debate(self):
+        "Votes before the previous debate don't get tracked yet."
+        mode, _ = SiteMode.objects.get_or_create()
+        mode.previous_debate_time = timezone.now() + datetime.timedelta(days=1)
+        mode.save()
+
+        data = {
+            'email': self.voter.email,
+            'zipcode': self.voter.zip,
+            'g-recaptcha-response': 'PASSED'
+        }
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, rsp.status_code)
+        json.loads(rsp.content)
+
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        # count of votes since previous debate does not get
+        # incremented, since the previous debate checkpoint is still
+        # in the future.
+        self.assertEqual(self.current_votes, refetched_sub.current_votes)
 
     # non AJAX tests
 
