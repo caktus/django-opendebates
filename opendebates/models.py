@@ -54,6 +54,12 @@ class SiteMode(CachingMixin, models.Model):
         help_text="Enter time that debate starts in timezone %s" % settings.TIME_ZONE,
     )
     debate_state = models.CharField(max_length=5, null=True, blank=True)
+    previous_debate_time = models.DateTimeField(
+        null=True, blank=True,
+        help_text=(
+            "Enter time that the previous debate occurred in timezone %s"
+            " to enable Votes Since Previous Debate sort option" % settings.TIME_ZONE)
+    )
 
     inline_css = models.TextField(blank=True)
 
@@ -149,6 +155,7 @@ class Submission(CachedSiteModeMixin, models.Model):
 
     votes = models.IntegerField(default=0, db_index=True)
     local_votes = models.IntegerField(default=0, db_index=True)
+    current_votes = models.IntegerField(default=0, db_index=True)
     score = models.FloatField(default=0, db_index=True)
     rank = models.FloatField(default=0, db_index=True)
 
@@ -377,6 +384,7 @@ class TopSubmission(models.Model):
     followup = models.TextField(null=False, blank=True)
 
     votes = models.IntegerField()
+    current_votes = models.IntegerField(default=0)
     rank = models.IntegerField()
 
     created_at = models.DateTimeField(auto_now_add=True)
