@@ -352,6 +352,14 @@ def questions(request):
     return redirect(url + "#created=%s" % idea.id)
 
 
+@rendered_with("opendebates/changelog.html")
+def changelog(request):
+    removed = Submission.objects.filter(approved=False).prefetch_related('removal_flags')
+    return {
+        'removed': removed
+    }
+
+
 class OpenDebatesRegistrationView(RegistrationView):
 
     form_class = OpenDebatesRegistrationForm

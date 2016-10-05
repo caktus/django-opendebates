@@ -4,6 +4,7 @@ from django.contrib import admin
 urlpatterns = [
     url('^$', 'opendebates.views.list_ideas', name="list_ideas"),
     url(r'^healthcheck.html$', 'opendebates.views.health_check', name='health_check'),
+    url(r'^changelog/$', 'opendebates.views.changelog', name='changelog'),
     # url(r'^test/$', 'opendebates.views.test', name='test'),
 
     url(r'^recent/$', 'opendebates.views.recent_activity', name='recent_activity'),
