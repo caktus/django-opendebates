@@ -6,6 +6,7 @@ from django.db.models import Count
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
+from django.utils.timezone import now
 
 from opendebates_emails.models import send_email
 from .forms import ModerationForm, TopSubmissionForm
@@ -50,6 +51,7 @@ def merge(request):
     elif request.POST.get("action").lower() == "unmoderate":
         msg = _(u'Duplicate has been removed, and votes have not been merged.')
         to_remove.approved = False
+        to_remove.moderated_at = now()
         to_remove.duplicate_of = duplicate_of
         to_remove.save()
         if request.POST.get("send_email") == "yes":
@@ -83,6 +85,7 @@ def merge(request):
         duplicate_of.save()
         votes_to_merge.update(original_merged_submission=to_remove, submission=duplicate_of)
         to_remove.duplicate_of = duplicate_of
+        to_remove.moderated_at = now()
         to_remove.save()
         msg = _(u'Question has been merged.')
         if request.POST.get("send_email") == "yes":
@@ -117,6 +120,7 @@ def remove(request):
     else:
         msg = _(u'The question has been kept and removed from the moderation list.')
     to_remove.moderated_removal = True
+    to_remove.moderated_at = now()
     to_remove.removal_flags.all().update(reviewed=True)
     to_remove.save()
 
