@@ -9,27 +9,29 @@
   <a class="hidden-xs" href="">{% blocktrans %}Changelog{% endblocktrans %}</a>
 </div>
 <div>
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Question</th>
-        <th>Date &amp; Time</th>
-        <th>Change Made</th>
-        <th>Information</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for removal in removed %}
-      <tr>
-        <td>{{ removal.id }}</td>
-        <td><a href="{{ removal.get_absolute_url }}">{{ removal.headline }}</a></td>
-        <td>{{ removal.moderated_at|default_if_none:"--" }}</td>
-        <td>{% if removal.duplicate_of %}Merged{% else %}Removed{% endif %}</td>
-        <td>{{ removal.flag_notes|join:", " }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Question</th>
+          <th>Date &amp; Time</th>
+          <th>Change Made</th>
+          <th>Information</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for removal in removed %}
+        <tr>
+          <td>{{ removal.id }}</td>
+          <td><a href="{{ removal.get_absolute_url }}">{{ removal.headline }}</a></td>
+          <td>{{ removal.moderated_at|default_if_none:"--" }}</td>
+          <td>{% if removal.duplicate_of %}Merged{% else %}Removed{% endif %}</td>
+          <td>{{ removal.flag_notes|join:", " }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
