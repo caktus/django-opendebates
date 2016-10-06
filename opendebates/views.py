@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import connections
-from django.db.models import F
+from django.db.models import F, Q
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.http import Http404, HttpResponse, HttpResponseServerError, HttpResponseBadRequest
@@ -354,9 +354,11 @@ def questions(request):
 
 @rendered_with("opendebates/changelog.html")
 def changelog(request):
-    removed = Submission.objects.filter(approved=False).prefetch_related('removal_flags')
+    moderated = Submission.objects.filter(
+        Q(approved=False) | Q(duplicate_of__isnull=False)
+    ).prefetch_related('removal_flags').order_by('id')
     return {
-        'removed': removed
+        'moderated': moderated
     }
 
 

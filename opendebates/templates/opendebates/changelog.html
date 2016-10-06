@@ -21,13 +21,13 @@
         </tr>
       </thead>
       <tbody>
-        {% for removal in removed %}
+        {% for idea in moderated %}
         <tr>
-          <td>{{ removal.id }}</td>
-          <td><a href="{{ removal.get_absolute_url }}">{{ removal.headline }}</a></td>
-          <td>{{ removal.moderated_at|default_if_none:"--" }}</td>
-          <td>{% if removal.duplicate_of %}Merged{% else %}Removed{% endif %}</td>
-          <td>{{ removal.flag_notes|join:", " }}</td>
+          <td>{{ idea.id }}</td>
+          <td><a href="{{ idea.get_absolute_url }}">{{ idea.headline }}</a></td>
+          <td>{{ idea.moderated_at|default_if_none:"--" }}</td>
+          <td>{% if idea.duplicate_of %}Merged{% else %}Removed{% endif %}</td>
+          <td>{{ idea.flag_notes|join:", " }}</td>
         </tr>
         {% endfor %}
       </tbody>
