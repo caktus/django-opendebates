@@ -182,13 +182,6 @@ class Submission(CachedSiteModeMixin, models.Model):
             "voter", "category", "voter__user").filter(
             approved=True, duplicate_of=self)
 
-    @property
-    def flag_notes(self):
-        return sorted(
-            set(f.note for f in self.removal_flags.all()
-                if f.note)
-        )
-
     def __unicode__(self):
         return self.idea
 
