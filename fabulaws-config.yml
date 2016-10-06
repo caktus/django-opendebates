@@ -1,6 +1,6 @@
-  # "testing": demopenquestions
-  # "staging": staging
   # "florida" floridaopendebate
+  # "testing": demopenquestions
+  # "staging": staging.presidentialopenquestions
   # "presidential": presidentialopenquestions
   # "staging01": staging.opendebatequestions
   # "prod01": opendebatequestions
@@ -56,7 +56,7 @@
       testing: master
       staging: develop
       florida: master
-      presidential: develop # XXX change to master for final prod deploy 9/14/16
+      presidential: develop
       staging01: develop
       prod01: develop
 
