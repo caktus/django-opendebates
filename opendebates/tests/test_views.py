@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from ..models import SiteMode
-from .factories import SubmissionFactory
+from .factories import SubmissionFactory, UserFactory, VoterFactory
 
 
 class ListIdeasTest(TestCase):
@@ -50,3 +50,56 @@ class ListIdeasTest(TestCase):
 
         response = self.client.get(self.url)
         self.assertNotContains(response, "Most Votes Since Last Debate")
+
+
+class ChangelogTest(TestCase):
+
+    def setUp(self):
+        self.url = reverse('changelog')
+        self.merge_url = reverse('moderation_merge')
+        self.remove_url = reverse('moderation_remove')
+
+        self.password = 'secretpassword'
+        self.user = UserFactory(password=self.password, is_staff=True, is_superuser=True)
+        self.voter = VoterFactory(user=self.user, email=self.user.email)
+        assert self.client.login(username=self.user.username, password=self.password)
+
+    def test_none(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_removals(self):
+        good_submission = SubmissionFactory()
+        bad_submission = SubmissionFactory()
+        data = {
+            'to_remove': bad_submission.id,
+            'duplicate_of': '',
+            'action': 'remove',
+        }
+        response = self.client.post(self.remove_url, data=data)
+
+        response = self.client.get(self.url)
+        self.assertContains(response, bad_submission.headline)
+        self.assertNotContains(response, good_submission.headline)
+
+    def test_merges(self):
+        unmerged = SubmissionFactory()
+        merge_parent = SubmissionFactory()
+        merge_child = SubmissionFactory()
+
+        response = self.client.post(self.merge_url, data={
+            "action": "merge",
+            "to_remove": merge_child.id,
+            "duplicate_of": merge_parent.id,
+        })
+
+        response = self.client.get(self.url)
+        self.assertContains(response, merge_child.headline)
+        self.assertContains(
+            response,
+            'Merged into: <a href="{parenturl}">{parent}</a>'.format(
+                parent=merge_parent.headline,
+                parenturl=merge_parent.get_absolute_url()
+            )
+        )
+        self.assertNotContains(response, unmerged.headline)

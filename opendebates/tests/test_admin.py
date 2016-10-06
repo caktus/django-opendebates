@@ -69,6 +69,9 @@ class RemoveSubmissionsTest(TestCase):
         # and 1 email should have been sent
         self.assertEqual(mock_send_email.call_count, 1)
 
+        submission = Submission.objects.get(id=self.submission.pk)
+        self.assertIsNotNone(submission.moderated_at)
+
     @patch('opendebates.admin.send_email')
     def test_post_multiple(self, mock_send_email):
         "POSTing multiple submissions works as well."
@@ -81,6 +84,9 @@ class RemoveSubmissionsTest(TestCase):
         self.assertRedirects(rsp, self.changelist_url)
         removed_submissions = Submission.objects.filter(approved=False)
         self.assertEqual(removed_submissions.count(), 2)
+        sub1, sub2 = removed_submissions
+        self.assertIsNotNone(sub1.moderated_at)
+        self.assertIsNotNone(sub2.moderated_at)
         untouched_submission = Submission.objects.filter(approved=True)
         self.assertEqual(untouched_submission.count(), 1)
         # and 2 emails have been sent
