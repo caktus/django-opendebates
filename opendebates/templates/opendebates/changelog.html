@@ -26,8 +26,8 @@
           <td>{{ idea.id }}</td>
           <td><a href="{{ idea.get_absolute_url }}">{{ idea.headline }}</a></td>
           <td>{{ idea.moderated_at|default_if_none:"--" }}</td>
-          <td>{% if idea.duplicate_of %}Merged{% else %}Removed{% endif %}</td>
-          <td>{% if idea.duplicate_of %}Merged into: <a href="{{ idea.duplicate_of.get_absolute_url }}">{{ idea.duplicate_of.headline }}</a>{% else %}--{% endif %}</td>
+          <td>{% if idea.duplicate_of and idea.approved %}Merged{% elif idea.duplicate_of %}Marked as duplicate{% else %}Removed{% endif %}</td>
+          <td>{% if idea.duplicate_of %}{% if idea.approved %}Merged into: {% else %}Duplicate of: {% endif %}<a href="{{ idea.duplicate_of.get_absolute_url }}">{{ idea.duplicate_of.headline }}</a>{% else %}--{% endif %}</td>
         </tr>
         {% endfor %}
       </tbody>

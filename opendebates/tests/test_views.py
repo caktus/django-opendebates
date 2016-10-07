@@ -103,3 +103,25 @@ class ChangelogTest(TestCase):
             )
         )
         self.assertNotContains(response, unmerged.headline)
+
+    def test_duplicates(self):
+        unmerged = SubmissionFactory()
+        merge_parent = SubmissionFactory()
+        merge_child = SubmissionFactory()
+
+        response = self.client.post(self.merge_url, data={
+            "action": "unmoderate",
+            "to_remove": merge_child.id,
+            "duplicate_of": merge_parent.id,
+        })
+
+        response = self.client.get(self.url)
+        self.assertContains(response, merge_child.headline)
+        self.assertContains(
+            response,
+            'Duplicate of: <a href="{parenturl}">{parent}</a>'.format(
+                parent=merge_parent.headline,
+                parenturl=merge_parent.get_absolute_url()
+            )
+        )
+        self.assertNotContains(response, unmerged.headline)
