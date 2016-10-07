@@ -356,7 +356,7 @@ def questions(request):
 def changelog(request):
     moderated = Submission.objects.filter(
         Q(approved=False) | Q(duplicate_of__isnull=False)
-    ).select_related('duplicate_of').order_by('id')
+    ).select_related('duplicate_of').order_by('-moderated_at', '-id')
     return {
         'moderated': moderated
     }
