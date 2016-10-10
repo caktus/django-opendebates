@@ -102,5 +102,5 @@ def update_trending_scores():
 def backup_database():
     """ Backup the database using django-dbbackup """
     logger.info("start database_backup")
-    management.call_command('dbbackup')
+    management.call_command('dbbackup', '--compress')
     logger.info("end database_backup")
