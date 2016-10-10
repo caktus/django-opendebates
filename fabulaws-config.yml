@@ -56,7 +56,7 @@
       testing: master
       staging: develop
       florida: master
-      presidential: develop
+      presidential: vote_count_adjustment
       staging01: develop
       prod01: develop
 

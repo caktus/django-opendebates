@@ -48,7 +48,12 @@ def global_vars(request):
         'CAPTCHA_SITE_KEY': settings.NORECAPTCHA_SITE_KEY,
         'DEBUG': settings.DEBUG,
         'VOTE_NEEDS_CAPTCHA': vote_needs_captcha(request),
-        'NUMBER_OF_VOTES': get_number_of_votes() if mode.show_total_votes else 0,  # Just in case
+
+        # FIXME: this is the number after the fraudulent votes have
+        # been subtracted out.  Implement a real solution for
+        # detecting and marking bad votes without deleting them outright.
+        'NUMBER_OF_VOTES': 3676251,
+
         'STATIC_URL': settings.STATIC_URL,
 
         'FACEBOOK_URL': FACEBOOK_URL,
