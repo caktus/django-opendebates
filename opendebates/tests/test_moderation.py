@@ -70,6 +70,7 @@ class ModerationTest(TestCase):
 
         # The merged submission should now be marked as a duplicate
         self.assertEqual(merged.duplicate_of, remaining)
+        self.assertIsNotNone(merged.moderated_at)
 
         # The remaining submission should now be marked as having duplicates
         self.assertEqual(remaining.has_duplicates, True)
@@ -326,6 +327,7 @@ class ModerationTest(TestCase):
         self.assertRedirects(rsp, self.moderation_home_url)
         refetched_sub = Submission.objects.get(pk=self.first_submission.pk)
         self.assertFalse(refetched_sub.approved)
+        self.assertIsNotNone(refetched_sub.moderated_at)
 
     def test_reject_merge(self):
         # pretend a user created a merge flag

@@ -2,6 +2,7 @@ import itertools
 
 from django.contrib.admin import ModelAdmin, register
 from django.shortcuts import render
+from django.utils.timezone import now
 from djangohelpers.export_action import admin_list_export
 
 from . import models
@@ -26,11 +27,13 @@ class SubmissionAdmin(ModelAdmin):
         "Custom action to mark submissions 'unapproved' and to notify users by email."
         if request.POST.get('post'):
             count = 0
+            removal_time = now()
             # only email user if submission changes status, hence the filter
             for submission in queryset.filter(approved=True):
                 count += 1
                 submission.approved = False
                 submission.moderated_removal = True
+                submission.moderated_at = removal_time
                 submission.removal_flags.all().update(reviewed=True)
                 submission.save()
                 send_email("idea_is_removed", {"idea": submission})

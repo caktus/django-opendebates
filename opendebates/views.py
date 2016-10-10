@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import connections
-from django.db.models import F
+from django.db.models import F, Q
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.http import Http404, HttpResponse, HttpResponseServerError, HttpResponseBadRequest
@@ -350,6 +350,16 @@ def questions(request):
 
     url = reverse("vote", kwargs={'id': idea.id})
     return redirect(url + "#created=%s" % idea.id)
+
+
+@rendered_with("opendebates/changelog.html")
+def changelog(request):
+    moderated = Submission.objects.filter(
+        Q(approved=False) | Q(duplicate_of__isnull=False)
+    ).select_related('duplicate_of').order_by('-moderated_at', '-id')
+    return {
+        'moderated': moderated
+    }
 
 
 class OpenDebatesRegistrationView(RegistrationView):

@@ -139,6 +139,7 @@ class Submission(CachedSiteModeMixin, models.Model):
 
     voter = models.ForeignKey("Voter")
     created_at = models.DateTimeField(db_index=True)
+    moderated_at = models.DateTimeField(blank=True, null=True)
 
     ip_address = models.CharField(max_length=255, db_index=True)
 

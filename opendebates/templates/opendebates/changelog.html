@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+<div class="row breadcrumbs">
+  <a href="/">{% blocktrans %}Home{% endblocktrans %}</a>
+  <span class="hidden-xs">&#8594;</span>
+  <a class="hidden-xs" href="">{% blocktrans %}Changelog{% endblocktrans %}</a>
+</div>
+<div>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Question</th>
+          <th>Date &amp; Time</th>
+          <th>Change Made</th>
+          <th>Information</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for idea in moderated %}
+        <tr>
+          <td>{{ idea.id }}</td>
+          <td><a href="{{ idea.get_absolute_url }}">{{ idea.headline }}</a></td>
+          <td>{{ idea.moderated_at|default_if_none:"--" }}</td>
+          <td>{% if idea.duplicate_of and idea.approved %}Merged{% elif idea.duplicate_of %}Marked as duplicate{% else %}Removed{% endif %}</td>
+          <td>{% if idea.duplicate_of %}{% if idea.approved %}Merged into: {% else %}Duplicate of: {% endif %}<a href="{{ idea.duplicate_of.get_absolute_url }}">{{ idea.duplicate_of.headline }}</a>{% else %}--{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
