@@ -94,7 +94,7 @@
           {% endif %}
           {% if LOCAL_VOTES_STATE %}
           <option value="-local_votes" {% if sort == "-local_votes" %}selected{% endif %}>
-            {% blocktrans %}Most Florida Votes{% endblocktrans %}
+            {% blocktrans %}Most {{ LOCAL_VOTES_STATE }} Votes{% endblocktrans %}
           </option>
           {% endif %}
         {% endif %}
