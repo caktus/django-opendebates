@@ -67,7 +67,7 @@
     florida: False
     presidential: False
     staging01: True
-    prod01: True
+    prod01: False
 
 # Local server port for pgbouncer
   pgbouncer_port: 5432
