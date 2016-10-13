@@ -9,6 +9,7 @@ from django.test import TestCase
 from opendebates.models import Submission, Vote, Flag, SiteMode
 from .factories import UserFactory, VoterFactory, SubmissionFactory, RemovalFlagFactory, \
     MergeFlagFactory
+from .utilities import reset_session
 
 
 class ModerationTest(TestCase):
@@ -138,6 +139,8 @@ class ModerationTest(TestCase):
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
             'email': third_voter.email, 'zipcode': third_voter.zip,
             'g-recaptcha-response': 'PASSED'
@@ -197,17 +200,23 @@ class ModerationTest(TestCase):
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': first_local_voter.email, 'zipcode': first_local_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
             'email': first_local_voter.email, 'zipcode': first_local_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        reset_session(self.client)
 
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': second_local_voter.email, 'zipcode': second_local_voter.zip,
@@ -262,6 +271,8 @@ class ModerationTest(TestCase):
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        reset_session(self.client)
 
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
             'email': third_voter.email, 'zipcode': third_voter.zip,

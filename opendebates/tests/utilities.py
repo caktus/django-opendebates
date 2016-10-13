@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.templatetags import cache as cache_tag
 
 from mock import patch
@@ -25,3 +26,8 @@ class FakeNeverExpiringCacheNode(cache_tag.CacheNode):
 
 def patch_cache_templatetag():
     return patch.object(cache_tag, 'CacheNode', FakeNeverExpiringCacheNode)
+
+
+def reset_session(client):
+    del client.cookies[settings.SESSION_COOKIE_NAME]
+    client.session

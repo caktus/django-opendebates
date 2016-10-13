@@ -212,8 +212,27 @@ def vote(request, id):
             'form': form,
             'idea': idea,
             # 'comment_form': CommentForm(idea),
-            }
+        }
     state = state_from_zip(form.cleaned_data['zipcode'])
+
+    if Vote.objects.filter(
+            submission=idea,
+            sessionid=request.session.session_key).exists():
+        # Django creates a session for both signed-in users and anonymous, so
+        # we should be able to rely on this.  If it is duplicated on a given
+        # question, it's because they are scripting votes.  Behave the same
+        # way as if it was a normal email duplicate, i.e. don't increment but
+        # return without error.
+        if request.is_ajax():
+            result = {"status": "200",
+                      "tally": idea.votes if show_question_votes() else '',
+                      "id": idea.id}
+            return HttpResponse(
+                json.dumps(result),
+                content_type="application/json")
+
+        url = reverse("vote", kwargs={'id': id})
+        return redirect(url)
 
     if request.user.is_authenticated():
         if request.user.email != form.cleaned_data['email']:
