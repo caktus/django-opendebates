@@ -239,13 +239,14 @@ def vote(request, id):
         submission=idea,
         voter=voter,
         defaults=dict(
-            ip_address=get_ip_address_from_request(request),
             created_at=timezone.now(),
             source=request.COOKIES.get('opendebates.source'),
+            ip_address=get_ip_address_from_request(request),
+            sessionid=request.session.session_key,
             request_headers=get_headers_from_request(request),
-
         )
     )
+
     previous_debate_time = get_previous_debate_time()
     if created:
         # update the DB with the real tally
@@ -342,8 +343,10 @@ def questions(request):
         voter=voter,
         source=idea.source,
         ip_address=get_ip_address_from_request(request),
+        sessionid=request.session.session_key,
         request_headers=get_headers_from_request(request),
-        created_at=created_at)
+        created_at=created_at
+    )
 
     send_email("submitted_new_idea", {"idea": idea})
     send_email("notify_moderators_submitted_new_idea", {"idea": idea})
