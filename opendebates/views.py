@@ -215,9 +215,8 @@ def vote(request, id):
         }
     state = state_from_zip(form.cleaned_data['zipcode'])
 
-    if Vote.objects.filter(
-            submission=idea,
-            sessionid=request.session.session_key).exists():
+    session_key = request.session.session_key or ''
+    if Vote.objects.filter(submission=idea, sessionid=session_key).exists():
         # Django creates a session for both signed-in users and anonymous, so
         # we should be able to rely on this.  If it is duplicated on a given
         # question, it's because they are scripting votes.  Behave the same
@@ -261,7 +260,7 @@ def vote(request, id):
             created_at=timezone.now(),
             source=request.COOKIES.get('opendebates.source'),
             ip_address=get_ip_address_from_request(request),
-            sessionid=request.session.session_key,
+            sessionid=session_key,
             request_headers=get_headers_from_request(request),
             is_suspicious=False,
             is_invalid=False,
@@ -364,7 +363,7 @@ def questions(request):
         voter=voter,
         source=idea.source,
         ip_address=get_ip_address_from_request(request),
-        sessionid=request.session.session_key,
+        sessionid=request.session.session_key or '',
         request_headers=get_headers_from_request(request),
         created_at=created_at,
         is_suspicious=False,
