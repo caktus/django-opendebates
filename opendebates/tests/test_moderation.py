@@ -121,17 +121,23 @@ class ModerationTest(TestCase):
         second_voter = VoterFactory(user=None)
         third_voter = VoterFactory(user=None)
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': first_voter.email, 'zipcode': first_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': second_voter.email, 'zipcode': second_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        reset_session(self.client)
 
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
             'email': first_voter.email, 'zipcode': first_voter.zip,
@@ -254,17 +260,23 @@ class ModerationTest(TestCase):
         second_voter = VoterFactory(user=None)
         third_voter = VoterFactory(user=None)
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': first_voter.email, 'zipcode': first_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': second_voter.email, 'zipcode': second_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        reset_session(self.client)
 
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
             'email': first_voter.email, 'zipcode': first_voter.zip,

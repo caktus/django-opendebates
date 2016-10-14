@@ -9,20 +9,20 @@ from django.db import connections
 from django.db.models import F, Q
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.http import Http404, HttpResponse, HttpResponseServerError, HttpResponseBadRequest
+from django.http import Http404, HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.cache import cache_page
 from djangohelpers.lib import rendered_with, allow_http
 from registration.backends.simple.views import RegistrationView
 
 from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm, MergeFlagForm
-from .models import Candidate, Category, Flag, Submission, \
-    TopSubmissionCategory, Vote, Voter, ZipCode, RECENT_EVENTS_CACHE_ENTRY
+from .models import (Candidate, Category, Flag, Submission, Vote, Voter,
+                     TopSubmissionCategory, ZipCode, RECENT_EVENTS_CACHE_ENTRY)
 from .router import readonly_db
-from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list, \
-    vote_needs_captcha, registration_needs_captcha, show_question_votes, \
-    allow_voting_and_submitting_questions, get_local_votes_state, get_previous_debate_time
-# from opendebates_comments.forms import CommentForm
+from .utils import (get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list,
+                    vote_needs_captcha, registration_needs_captcha, show_question_votes,
+                    allow_voting_and_submitting_questions, get_local_votes_state,
+                    get_previous_debate_time, get_voter)
 from opendebates_emails.models import send_email
 
 
@@ -190,10 +190,6 @@ def vote(request, id):
             'related2': related2,
             'duplicates': (Submission.objects.filter(approved=True, duplicate_of=idea)
                            if idea.has_duplicates else []),
-            # 'comment_form': CommentForm(idea),
-            # 'comment_list': idea.comments.filter(
-            #     is_public=True, is_removed=False
-            # ).select_related("user", "user__voter"),
         }
 
     if not allow_voting_and_submitting_questions():
@@ -211,9 +207,10 @@ def vote(request, id):
         return {
             'form': form,
             'idea': idea,
-            # 'comment_form': CommentForm(idea),
         }
     state = state_from_zip(form.cleaned_data['zipcode'])
+
+    is_fraudulent = False
 
     session_key = request.session.session_key or ''
     if session_key and Vote.objects.filter(submission=idea,
@@ -223,6 +220,16 @@ def vote(request, id):
         # question, it's because they are scripting votes.  Behave the same
         # way as if it was a normal email duplicate, i.e. don't increment but
         # return without error.
+        is_fraudulent = True
+
+    session_voter = get_voter(request)
+    if session_voter and session_voter['email'] != form.cleaned_data['email']:
+        # This can only happen with an manually-created POST request.
+        is_fraudulent = True
+
+    if is_fraudulent:
+        # Pretend like everything is fine, but don't increment the tally or
+        # create a Vote.  Deny attackers any information about how they are failing.
         if request.is_ajax():
             result = {"status": "200",
                       "tally": idea.votes if show_question_votes() else '',
@@ -233,11 +240,6 @@ def vote(request, id):
 
         url = reverse("vote", kwargs={'id': id})
         return redirect(url)
-
-    if request.user.is_authenticated():
-        if request.user.email != form.cleaned_data['email']:
-            # this can only happen with an manually-created POST request
-            return HttpResponseBadRequest('Incorrect email for user')
 
     voter, created = Voter.objects.get_or_create(
         email=form.cleaned_data['email'],

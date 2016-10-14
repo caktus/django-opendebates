@@ -402,4 +402,8 @@ class VoteTest(TestCase):
             'g-recaptcha-response': 'PASSED'
         }
         rsp = self.client.post(self.submission_url, data=data)
-        self.assertEqual(400, rsp.status_code)
+        self.assertEqual(302, rsp.status_code)
+
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        # count of votes did not get incremented, because this user was up to no good.
+        self.assertEqual(self.current_votes, refetched_sub.current_votes)
