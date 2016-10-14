@@ -263,6 +263,8 @@ def vote(request, id):
             ip_address=get_ip_address_from_request(request),
             sessionid=request.session.session_key,
             request_headers=get_headers_from_request(request),
+            is_suspicious=False,
+            is_invalid=False,
         )
     )
 
@@ -364,7 +366,9 @@ def questions(request):
         ip_address=get_ip_address_from_request(request),
         sessionid=request.session.session_key,
         request_headers=get_headers_from_request(request),
-        created_at=created_at
+        created_at=created_at,
+        is_suspicious=False,
+        is_invalid=False,
     )
 
     send_email("submitted_new_idea", {"idea": idea})
