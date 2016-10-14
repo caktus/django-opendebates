@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from opendebates.models import Submission, Vote, Voter, SiteMode, ZipCode
 from .factories import UserFactory, SubmissionFactory, VoterFactory, VoteFactory
+from .utilities import reset_session
 
 
 class VoteTest(TestCase):
@@ -39,6 +40,47 @@ class VoteTest(TestCase):
         self.assertIn('email', json_rsp['errors'])
         self.assertIn('zipcode', json_rsp['errors'])
         self.assertIn('This field is required.', rsp.content)
+
+    def test_vote_duplicate_session_fraud(self):
+        "Voters scripting a bunch of votes for a question using the same session fail"
+        self.client.logout()
+        reset_session(self.client)
+
+        data = {
+            'email': 'anon@example.com',
+            'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
+        }
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        current_session_key = self.client.session.session_key
+
+        self.assertEqual(200, rsp.status_code)
+        json_rsp = json.loads(rsp.content)
+        # vote is incremented (in the JSON response)
+        self.assertEqual(self.votes + 1, json_rsp['tally'])
+        # .. and in the database
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
+
+        # Now attempt to vote again using the same session cookie
+        data = {
+            'email': 'anon2@example.com',
+            'zipcode': '12345',
+            'g-recaptcha-response': 'PASSED'
+        }
+        rsp = self.client.post(self.submission_url, data=data,
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(self.client.session.session_key, current_session_key)
+        self.assertEqual(200, rsp.status_code)
+        json_rsp = json.loads(rsp.content)
+        # vote is not incremented (in the JSON response)
+        self.assertEqual(self.votes + 1, json_rsp['tally'])
+        # .. and also not in the database either
+        refetched_sub = Submission.objects.get(pk=self.submission.pk)
+        self.assertEqual(self.votes + 1, refetched_sub.votes)
+        self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
 
     def test_submission_must_exist_anon(self):
         "Return 404 if submission is not present."

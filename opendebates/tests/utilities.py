@@ -29,5 +29,7 @@ def patch_cache_templatetag():
 
 
 def reset_session(client):
-    del client.cookies[settings.SESSION_COOKIE_NAME]
+    client.cookies.pop(settings.SESSION_COOKIE_NAME, None)
+
+    # Force the new session to be created
     client.session
