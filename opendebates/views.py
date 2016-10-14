@@ -216,7 +216,8 @@ def vote(request, id):
     state = state_from_zip(form.cleaned_data['zipcode'])
 
     session_key = request.session.session_key or ''
-    if Vote.objects.filter(submission=idea, sessionid=session_key).exists():
+    if session_key and Vote.objects.filter(submission=idea,
+                                           sessionid=session_key).exists():
         # Django creates a session for both signed-in users and anonymous, so
         # we should be able to rely on this.  If it is duplicated on a given
         # question, it's because they are scripting votes.  Behave the same
