@@ -318,11 +318,11 @@ class Vote(models.Model):
     submission = models.ForeignKey(Submission)
     voter = models.ForeignKey(Voter)
 
-    is_suspicious = models.NullBooleanField()
-    is_invalid = models.NullBooleanField()
+    is_suspicious = models.BooleanField(default=False)
+    is_invalid = models.BooleanField(default=False)
 
     ip_address = models.CharField(max_length=255, db_index=True)
-    sessionid = models.CharField(max_length=40, blank=True, null=True)
+    sessionid = models.CharField(max_length=40, blank=True, default='')
     request_headers = models.TextField(null=True, blank=True)
 
     original_merged_submission = models.ForeignKey(Submission, null=True, blank=True,
