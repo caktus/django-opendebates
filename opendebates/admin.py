@@ -99,7 +99,7 @@ class SiteModeAdmin(ModelAdmin):
             'fields': ['show_question_votes', 'show_total_votes',
                        'allow_sorting_by_votes',
                        'allow_voting_and_submitting_questions',
-                       'inline_css']
+                       'subtract_invalid_votes', 'inline_css']
         }),
         ('Debate Details', {
             'fields': [f for f in _fields if 'debate_' in f],
