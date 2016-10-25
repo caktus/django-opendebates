@@ -59,7 +59,8 @@ class SubmissionAdmin(ModelAdmin):
 class VoterAdmin(ModelAdmin):
     list_display = [f.name for f in models.Voter._meta.fields]
     actions = [admin_list_export]
-    raw_id_fields = ['user', ]
+    raw_id_fields = ['user']
+    search_fields = ('email',)
 
 
 @register(models.Vote)
