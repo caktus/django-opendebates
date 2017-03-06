@@ -6,10 +6,12 @@ from django.core.cache import cache
 from django.core import management
 from django.db import connection
 from django.db.models import F
+from django.utils import timezone
 
 from opendebates.models import Vote, Submission, RECENT_EVENTS_CACHE_ENTRY, \
     NUMBER_OF_VOTES_CACHE_ENTRY
 from opendebates.router import set_thread_readonly_db, set_thread_readwrite_db
+from opendebates.utils import get_site_mode
 
 
 sql2 = """
@@ -90,12 +92,16 @@ def update_recent_events():
 @shared_task
 def update_trending_scores():
     logger.debug("update_trending_scores: started")
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute(sql)
-            cursor.execute(sql2)
-    except:
-        logger.exception("Unexpected error in update_trending_scores")
+    site_mode = get_site_mode()
+    if site_mode.debate_time > timezone.now():
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(sql)
+                cursor.execute(sql2)
+        except:
+            logger.exception("Unexpected error in update_trending_scores")
+    else:
+        logger.debug("skipping update_trending_scores since debate_time has passed")
 
 
 @shared_task(ignore_result=True)
