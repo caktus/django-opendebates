@@ -1,7 +1,4 @@
-import datetime
-
 from django.test import TestCase
-from django.utils import timezone
 
 from opendebates.models import Submission
 from opendebates.tasks import update_trending_scores
@@ -23,7 +20,7 @@ class TestScores(TestCase):
 
     def test_update_trending_scores_old_debate(self):
         site_mode = get_site_mode()
-        site_mode.debate_time = timezone.now() - datetime.timedelta(days=1)
+        site_mode.allow_voting_and_submitting_questions = False
         site_mode.save()
         sub1 = SubmissionFactory()
         for i in range(30):

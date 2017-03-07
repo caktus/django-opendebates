@@ -6,7 +6,6 @@ from django.core.cache import cache
 from django.core import management
 from django.db import connection
 from django.db.models import F
-from django.utils import timezone
 
 from opendebates.models import Vote, Submission, RECENT_EVENTS_CACHE_ENTRY, \
     NUMBER_OF_VOTES_CACHE_ENTRY
@@ -93,7 +92,7 @@ def update_recent_events():
 def update_trending_scores():
     logger.debug("update_trending_scores: started")
     site_mode = get_site_mode()
-    if site_mode.debate_time > timezone.now():
+    if site_mode.allow_voting_and_submitting_questions:
         try:
             with connection.cursor() as cursor:
                 cursor.execute(sql)
@@ -101,7 +100,7 @@ def update_trending_scores():
         except:
             logger.exception("Unexpected error in update_trending_scores")
     else:
-        logger.debug("skipping update_trending_scores since debate_time has passed")
+        logger.debug("skipping update_trending_scores since voting and submitting are disabled")
 
 
 @shared_task(ignore_result=True)

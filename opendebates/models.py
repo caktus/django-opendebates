@@ -6,7 +6,6 @@ from django.core.signing import Signer
 from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
 from urllib import quote_plus
-from django.utils import timezone
 from django.utils.http import urlquote
 from django.utils.translation import ugettext_lazy as _
 from caching.base import CachingManager, CachingMixin
@@ -45,17 +44,13 @@ class FlatPageMetadataOverride(models.Model):
     twitter_title = models.TextField(default=site_defaults.FLATPAGE_TWITTER_TITLE)
 
 
-def one_hundred_years():
-    return timezone.now() + datetime.timedelta(days=365*100)
-
-
 class SiteMode(CachingMixin, models.Model):
     show_question_votes = models.BooleanField(default=True, blank=True)
     show_total_votes = models.BooleanField(default=True, blank=True)
     allow_sorting_by_votes = models.BooleanField(default=True, blank=True)
     allow_voting_and_submitting_questions = models.BooleanField(default=True, blank=True)
     debate_time = models.DateTimeField(
-        default=one_hundred_years,
+        default=datetime.datetime(2099, 1, 1),
         help_text="Enter time that debate starts in timezone %s" % settings.TIME_ZONE,
     )
     debate_state = models.CharField(max_length=5, null=True, blank=True)
