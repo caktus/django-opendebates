@@ -35,6 +35,18 @@ def voter(request):
 def global_vars(request):
     mode = request.site_mode
 
+    context = {
+        'CAPTCHA_SITE_KEY': settings.NORECAPTCHA_SITE_KEY,
+        'DEBUG': settings.DEBUG,
+        'STATIC_URL': settings.STATIC_URL,
+        'SUBMISSIONS_PER_PAGE': settings.SUBMISSIONS_PER_PAGE,
+        'MIXPANEL_KEY': settings.MIXPANEL_KEY,
+        'OPTIMIZELY_KEY': settings.OPTIMIZELY_KEY,
+        'SITE_THEME_NAME': settings.SITE_THEME_NAME,
+    }
+    if mode is None:
+        return context
+
     def _get_categories():
         return Category.objects.filter(site_mode=mode)
 
@@ -48,21 +60,15 @@ def global_vars(request):
         "url": quote_plus(site_domain_with_protocol + "?source=fb-site"),
     }
 
-    return {
-        'CAPTCHA_SITE_KEY': settings.NORECAPTCHA_SITE_KEY,
-        'DEBUG': settings.DEBUG,
+    context.update({
         'VOTE_NEEDS_CAPTCHA': vote_needs_captcha(request),
         'NUMBER_OF_VOTES': get_number_of_votes(request) if mode.show_total_votes else 0,
-        'STATIC_URL': settings.STATIC_URL,
 
         'FACEBOOK_URL': FACEBOOK_URL,
         'TWITTER_URL': TWITTER_URL,
 
-        'SUBMISSIONS_PER_PAGE': settings.SUBMISSIONS_PER_PAGE,
         'SITE_DOMAIN': mode.site.domain,
         'SITE_LINK': site_domain_with_protocol,
-        'MIXPANEL_KEY': settings.MIXPANEL_KEY,
-        'OPTIMIZELY_KEY': settings.OPTIMIZELY_KEY,
         'SHOW_QUESTION_VOTES': mode.show_question_votes,
         'SHOW_TOTAL_VOTES': mode.show_total_votes,
         'ALLOW_SORTING_BY_VOTES': mode.allow_sorting_by_votes,
@@ -90,6 +96,6 @@ def global_vars(request):
         'POPUP_AFTER_SUBMISSION_TEXT': json.dumps(mode.popup_after_submission_text),
 
         'SUBMISSION_CATEGORIES': SimpleLazyObject(_get_categories),
-        'SITE_THEME_NAME': settings.SITE_THEME_NAME,
         'SITE_MODE': mode,
-    }
+    })
+    return context
