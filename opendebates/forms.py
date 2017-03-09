@@ -144,29 +144,6 @@ class OpenDebatesAuthenticationForm(AuthenticationForm):
     username = forms.CharField(max_length=254,
                                label="Email")
 
-    def clean(self):
-        """
-        Override super class AuthenticationForm to pass request to
-        authenticate method.
-        """
-        username = self.cleaned_data.get('username')
-        password = self.cleaned_data.get('password')
-
-        if username and password:
-            self.user_cache = authenticate(username=username,
-                                           password=password,
-                                           request=self.request)
-            if self.user_cache is None:
-                raise forms.ValidationError(
-                    self.error_messages['invalid_login'],
-                    code='invalid_login',
-                    params={'username': self.username_field.verbose_name},
-                )
-            else:
-                self.confirm_login_allowed(self.user_cache)
-
-        return self.cleaned_data
-
 
 class MergeFlagForm(forms.ModelForm):
     duplicate_of_url = forms.URLField(label=_("Enter URL here"))

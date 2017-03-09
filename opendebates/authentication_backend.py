@@ -9,13 +9,11 @@ class EmailAuthBackend(object):
     a username/password pair.
     """
 
-    def authenticate(self, username=None, password=None, request=None):
+    def authenticate(self, username=None, password=None):
         """ Authenticate a user based on email address as the user name. """
         User = get_user_model()
         try:
-            # when logging in via email address, only authenticate users
-            # on the current site
-            user = User.objects.get(email=username, voter__site_mode=request.site_mode)
+            user = User.objects.get(email=username)
             if user.check_password(password):
                 return user
         except Exception:
