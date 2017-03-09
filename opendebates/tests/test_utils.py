@@ -1,7 +1,4 @@
-import datetime
-
 from django.test import TestCase, override_settings
-from django.utils import timezone
 from mock import Mock, patch
 
 from opendebates.tests.factories import VoteFactory, SiteModeFactory

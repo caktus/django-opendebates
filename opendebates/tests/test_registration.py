@@ -138,18 +138,6 @@ class LoginLogoutTest(TestCase):
         )
         self.assertRedirects(rsp, self.home_url)
 
-    def test_login_with_email_wrong_site(self):
-        """Logins with an email address don't work on sites with other domains."""
-        self.voter.site_mode = SiteModeFactory(site__domain='otherdomain.com')
-        self.voter.save()
-        rsp = self.client.post(
-            self.login_url,
-            data={'username': self.email, 'password': self.password, 'next': '/'}
-        )
-        self.assertEqual(200, rsp.status_code)
-        form = rsp.context['form']
-        self.assertIn('enter a correct username and password', str(form.errors))
-
     def test_failed_login(self):
         rsp = self.client.post(
             self.login_url,

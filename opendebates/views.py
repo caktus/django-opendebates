@@ -20,7 +20,7 @@ from .models import (Candidate, Category, Flag, Submission, Vote, Voter,
                      TopSubmissionCategory, ZipCode, RECENT_EVENTS_CACHE_ENTRY)
 from .router import readonly_db
 from .utils import (get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list,
-                    vote_needs_captcha, registration_needs_captcha)
+                    vote_needs_captcha, registration_needs_captcha, get_voter)
 from opendebates_emails.models import send_email
 
 
@@ -234,7 +234,7 @@ def vote(request, id):
         # create a Vote.  Deny attackers any information about how they are failing.
         if request.is_ajax():
             result = {"status": "200",
-                      "tally": idea.votes if show_question_votes() else '',
+                      "tally": idea.votes if request.site_mode.show_question_votes else '',
                       "id": idea.id}
             return HttpResponse(
                 json.dumps(result),
@@ -273,7 +273,7 @@ def vote(request, id):
         )
     )
 
-    previous_debate_time = get_previous_debate_time()
+    previous_debate_time = request.site_mode.previous_debate_time
     if created:
         # update the DB with the real tally
         Submission.objects.filter(category__site_mode=request.site_mode, id=id).update(
@@ -346,7 +346,7 @@ def questions(request):
         )
     )
 
-    previous_debate_time = get_previous_debate_time()
+    previous_debate_time = request.site_mode.previous_debate_time
     created_at = timezone.now()
     idea = Submission.objects.create(
         voter=voter,

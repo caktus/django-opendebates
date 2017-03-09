@@ -2,7 +2,7 @@ from urlparse import urlparse
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils.html import mark_safe

@@ -5,7 +5,7 @@ from mock import patch
 
 from opendebates.admin import SubmissionAdmin
 from opendebates.models import Submission
-from opendebates.tests.factories import SubmissionFactory, UserFactory
+from opendebates.tests.factories import SubmissionFactory, UserFactory, SiteModeFactory
 
 
 # mock objects to make the admin think we're superusers.
@@ -15,6 +15,7 @@ from opendebates.tests.factories import SubmissionFactory, UserFactory
 class MockRequest(object):
     POST = {}
     META = {}
+    scheme = 'http'
 
 
 class MockSuperUser(object):
@@ -23,9 +24,6 @@ class MockSuperUser(object):
 
     def is_authenticated(self):
         return True
-
-request = MockRequest()
-request.user = MockSuperUser()
 
 
 class RemoveSubmissionsTest(TestCase):
@@ -45,6 +43,10 @@ class RemoveSubmissionsTest(TestCase):
         GETting the intermediate page should have specified text and the PK of
         the chosen submissions.
         """
+        request = MockRequest()
+        request.user = MockSuperUser()
+        request.site_mode = SiteModeFactory()
+
         rsp = self.admin.remove_submissions(request, self.queryset)
         self.assertEqual(rsp.status_code, 200)
         self.assertContains(rsp, 'remove the selected submissions?')
