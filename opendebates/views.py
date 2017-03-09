@@ -6,22 +6,21 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import connections
-from django.db.models import F
+from django.db.models import F, Q
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.http import Http404, HttpResponse, HttpResponseServerError, HttpResponseBadRequest
+from django.http import Http404, HttpResponse, HttpResponseServerError
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.cache import cache_page
 from djangohelpers.lib import rendered_with, allow_http
 from registration.backends.simple.views import RegistrationView
 
 from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm, MergeFlagForm
-from .models import Submission, Voter, Vote, Category, Candidate, ZipCode, \
-    RECENT_EVENTS_CACHE_ENTRY, Flag
+from .models import (Candidate, Category, Flag, Submission, Vote, Voter,
+                     TopSubmissionCategory, ZipCode, RECENT_EVENTS_CACHE_ENTRY)
 from .router import readonly_db
-from .utils import get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list, \
-    vote_needs_captcha, registration_needs_captcha
-# from opendebates_comments.forms import CommentForm
+from .utils import (get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list,
+                    vote_needs_captcha, registration_needs_captcha)
 from opendebates_emails.models import send_email
 
 
@@ -164,8 +163,15 @@ def vote(request, id):
             )
     except Submission.DoesNotExist:
         raise Http404
+    if request.method == "POST" and not idea.approved:
+        # Don't allow voting on removed submissions, but do allow viewing them
+        raise Http404
 
     if idea.duplicate_of_id:
+        if not idea.approved:
+            # Submissions which have been "unmoderated as duplicates"
+            # should remain completely inaccessible, and should not redirect
+            raise Http404
         url = reverse("show_idea", kwargs={"id": idea.duplicate_of_id})
         url = url + "#i"+str(idea.id)
         return redirect(url)
@@ -186,10 +192,6 @@ def vote(request, id):
                                 category__site_mode=request.site_mode,
                                 approved=True, duplicate_of=idea)
                            if idea.has_duplicates else []),
-            # 'comment_form': CommentForm(idea),
-            # 'comment_list': idea.comments.filter(
-            #     is_public=True, is_removed=False
-            # ).select_related("user", "user__voter"),
         }
 
     if not request.site_mode.allow_voting_and_submitting_questions:
@@ -207,14 +209,39 @@ def vote(request, id):
         return {
             'form': form,
             'idea': idea,
-            # 'comment_form': CommentForm(idea),
-            }
+        }
     state = state_from_zip(form.cleaned_data['zipcode'])
 
-    if request.user.is_authenticated():
-        if request.user.email != form.cleaned_data['email']:
-            # this can only happen with an manually-created POST request
-            return HttpResponseBadRequest('Incorrect email for user')
+    is_fraudulent = False
+
+    session_key = request.session.session_key or ''
+    if session_key and Vote.objects.filter(submission=idea,
+                                           sessionid=session_key).exists():
+        # Django creates a session for both signed-in users and anonymous, so
+        # we should be able to rely on this.  If it is duplicated on a given
+        # question, it's because they are scripting votes.  Behave the same
+        # way as if it was a normal email duplicate, i.e. don't increment but
+        # return without error.
+        is_fraudulent = True
+
+    session_voter = get_voter(request)
+    if session_voter and session_voter['email'] != form.cleaned_data['email']:
+        # This can only happen with an manually-created POST request.
+        is_fraudulent = True
+
+    if is_fraudulent:
+        # Pretend like everything is fine, but don't increment the tally or
+        # create a Vote.  Deny attackers any information about how they are failing.
+        if request.is_ajax():
+            result = {"status": "200",
+                      "tally": idea.votes if show_question_votes() else '',
+                      "id": idea.id}
+            return HttpResponse(
+                json.dumps(result),
+                content_type="application/json")
+
+        url = reverse("vote", kwargs={'id': id})
+        return redirect(url)
 
     voter, created = Voter.objects.get_or_create(
         site_mode=request.site_mode,
@@ -236,17 +263,25 @@ def vote(request, id):
         submission=idea,
         voter=voter,
         defaults=dict(
-            ip_address=get_ip_address_from_request(request),
             created_at=timezone.now(),
             source=request.COOKIES.get('opendebates.source'),
+            ip_address=get_ip_address_from_request(request),
+            sessionid=session_key,
             request_headers=get_headers_from_request(request),
-
+            is_suspicious=False,
+            is_invalid=False,
         )
     )
+
+    previous_debate_time = get_previous_debate_time()
     if created:
         # update the DB with the real tally
         Submission.objects.filter(category__site_mode=request.site_mode, id=id).update(
             votes=F('votes')+1,
+            current_votes=F('current_votes')+(
+                1 if previous_debate_time is None or vote.created_at > previous_debate_time
+                else 0
+            ),
             local_votes=F('local_votes')+(
                 1 if voter.state and voter.state == request.site_mode.debate_state
                 else 0)
@@ -311,6 +346,8 @@ def questions(request):
         )
     )
 
+    previous_debate_time = get_previous_debate_time()
+    created_at = timezone.now()
     idea = Submission.objects.create(
         voter=voter,
         category_id=category,
@@ -318,11 +355,13 @@ def questions(request):
         followup=form_data['question'],
         idea=(u'%s %s' % (form_data['headline'], form_data['question'])).strip(),
         citation=form_data['citation'],
-        created_at=timezone.now(),
+        created_at=created_at,
         ip_address=get_ip_address_from_request(request),
         approved=True,
         votes=1,
         local_votes=1 if voter.state and voter.state == request.site_mode.debate_state else 0,
+        current_votes=(1 if previous_debate_time is None or created_at > previous_debate_time
+                       else 0),
         source=request.COOKIES.get('opendebates.source'),
     )
 
@@ -331,14 +370,28 @@ def questions(request):
         voter=voter,
         source=idea.source,
         ip_address=get_ip_address_from_request(request),
+        sessionid=request.session.session_key or '',
         request_headers=get_headers_from_request(request),
-        created_at=timezone.now())
+        created_at=created_at,
+        is_suspicious=False,
+        is_invalid=False,
+    )
 
     send_email("submitted_new_idea", {"idea": idea})
     send_email("notify_moderators_submitted_new_idea", {"idea": idea})
 
     url = reverse("vote", kwargs={'id': idea.id})
     return redirect(url + "#created=%s" % idea.id)
+
+
+@rendered_with("opendebates/changelog.html")
+def changelog(request):
+    moderated = Submission.objects.filter(
+        Q(approved=False) | Q(duplicate_of__isnull=False)
+    ).select_related('duplicate_of').order_by('-moderated_at', '-id')
+    return {
+        'moderated': moderated
+    }
 
 
 class OpenDebatesRegistrationView(RegistrationView):
@@ -456,4 +509,17 @@ def merge(request, id):
     return {
         'idea': idea,
         'form': form,
+    }
+
+
+@rendered_with("opendebates/top_archive.html")
+@allow_http("GET")
+def top_archive(request, slug):
+    category = get_object_or_404(TopSubmissionCategory, slug=slug)
+    submissions = category.submissions.select_related(
+        "submission", "submission__voter", "submission__voter__user",
+        "submission__category").order_by("rank", "created_at").all()
+    return {
+        'category': category,
+        'submissions': submissions,
     }

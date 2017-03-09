@@ -753,32 +753,34 @@ hr.before-idea-list {
   });
 }
 
-@media (min-width: @responsive-shim-min) {
-  .big-idea.already-voted:hover,
-  #modal-thanks .social-links-container {
-    .social-links {
-      .fb-button {
-        background: #3b5998;
-        a {
-          color: white;
-        }
+.big-idea.already-voted:hover,
+#modal-thanks .social-links-container {
+  .social-links {
+    .fb-button {
+      background: #3b5998;
+      a {
+        color: white;
       }
-      .tweet-button {
-        background: #50abf1;
-        a {
-          color: white;
-        }
+    }
+    .tweet-button {
+      background: #50abf1;
+      a {
+        color: white;
       }
-      .reddit-button {
-        background: #FF4808;
-        a {
-          color: white;
-        }
+    }
+    .reddit-button {
+      background: #FF4808;
+      a {
+        color: white;
       }
-      .email-button {
-        background: @brand-primary;
-        a {
-          color: white;
+    }
+    .email-button {
+      background: @brand-primary;
+      a {
+        color: white;
+
+        i.fa-envelope {
+          margin-right: 4px;
         }
       }
     }
@@ -795,28 +797,8 @@ hr.before-idea-list {
           margin: 0 auto;
         }
       }
-      .fb-button {
-        background: #3b5998;
-        a {
-          color: white;
-        }
-      }
-      .tweet-button {
-        background: #50abf1;
-        a {
-          color: white;
-        }
-      }
-      .reddit-button {
-        background: #FF4808;
-        a {
-          color: white;
-        }
-      }
       .email-button {
-        background: @brand-primary;
         a {
-          color: white;
           span {
             margin-left: 5px;
           }
@@ -848,7 +830,6 @@ hr.before-idea-list {
       }
     }
   }, {
-    height: 300px;
     position: relative;
   });
 
@@ -1056,6 +1037,7 @@ hr.before-idea-list {
         flex-wrap: nowrap;
       }
     });
+
     (.big-idea).already-voted & {
       display: none;
     }
@@ -1077,6 +1059,7 @@ hr.before-idea-list {
         vertical-align: top;
         font-size: 13px;
         font-weight: bold;
+        white-space: nowrap;
 
         .fa {
           font-size: 20px;
@@ -1739,6 +1722,31 @@ img.mic_icon {
         color: white !important;
       }
     }
+
+    @media (max-width: 440px) {
+      /***
+       * On "iPhone 6 Plus portrait" width and lower, horizontally aligned
+       * buttons look pretty rough. This one-time breakpoint rule
+       * puts them in a vertical stack.
+       */
+
+      flex-direction: column;
+
+      > span {
+        flex-basis: auto;
+        height: auto;
+        display: block;
+        margin: 5px 10px;
+
+        &:first-child {
+          margin-top: 0;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
   }
 }
 
@@ -1905,4 +1913,42 @@ nav ul.pagination:after {
   margin-top: 10px;
   display: inline-block;
   content: "of many more pages";
+}
+
+.winners {
+  .big-idea .vote-bottom {
+    background-color: white;
+    &:hover {
+      background-color: white;
+    }
+    display: flex;
+    height: auto;
+  }
+  @media (max-width: 799px) {
+    .big-idea .vote-bottom {
+      height: 65px;
+    }
+  }
+}
+
+.no-naming-candidates {
+  display: block;
+  max-width: 80%;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 12px;
+
+  .emphasis {
+    color: @brand-tertiary;
+  }
+}
+
+.removal-notice {
+  color: @brand-tertiary;
+}
+.removal-notice-text {
+  font-style: italic;
+  a {
+    border-bottom: 1px dotted @brand-primary;
+  }
 }

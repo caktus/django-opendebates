@@ -29,6 +29,7 @@ class SiteModeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SiteMode
 
+    debate_state = 'NY'
     site = factory.SubFactory(SiteFactory)
 
 
@@ -90,6 +91,7 @@ class SubmissionFactory(factory.DjangoModelFactory):
     created_at = now()
     approved = True
     votes = 1
+    current_votes = 1
 
 
 class VoteFactory(factory.DjangoModelFactory):
@@ -111,3 +113,12 @@ class RemovalFlagFactory(factory.DjangoModelFactory):
 
 class MergeFlagFactory(RemovalFlagFactory):
     duplicate_of = factory.SubFactory(SubmissionFactory)
+
+
+class TopSubmissionCategoryFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.TopSubmissionCategory
+
+    slug = factory.fuzzy.FuzzyText()
+    title = factory.fuzzy.FuzzyText()
+    caption = factory.fuzzy.FuzzyText()

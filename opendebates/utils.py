@@ -42,7 +42,6 @@ def get_number_of_votes(request):
 
 def get_voter(request):
     if request.user.is_authenticated():
-
         try:
             voter = request.user.voter
         except Voter.DoesNotExist:
@@ -59,6 +58,8 @@ def get_voter(request):
         return voter
     elif 'voter' in request.session:
         return request.session['voter']
+    # If we fall through make sure we have something that won't cause an error
+    return {}
 
 
 def get_headers_from_request(request):
@@ -136,6 +137,8 @@ def sort_list(citations_only, sort, ideas):
         ideas = ideas.order_by("votes")
     elif sort == "-local_votes":
         ideas = ideas.order_by("-local_votes")
+    elif sort == "-current_votes":
+        ideas = ideas.order_by("-current_votes")
 
     return ideas
 

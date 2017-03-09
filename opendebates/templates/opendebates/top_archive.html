@@ -1,0 +1,53 @@
+{% extends "opendebates/base.html" %}
+{% block content %}
+
+{% load i18n l10n %}
+
+<div class="row">
+  <div class="col-sm-8 col-sm-offset-2">
+    {{ category.title|safe }}
+    <div class="row idea-list">
+      <div class="winners">
+        {% for idea in submissions %}
+        <div id="i{{ idea.submission.id }}"
+             data-idea-id="{{ idea.submission.id }}"
+             class="big-idea clearfix">
+          <div class="votes col-md-3">
+            <div class="vote-tally text-center">
+              <span
+                 class="vote-tally-number">{{ idea.votes|localize }}</span>
+            </div>
+            <div class="vote-bottom center-block center-text">
+              <br>
+              {% blocktrans %}TOTAL VOTES{% endblocktrans %}
+              <br><br>
+              {% blocktrans with rank=idea.rank caption=category.caption %}
+              #{{ rank }} {{ caption }}
+              {% endblocktrans %}
+            </div>
+          </div>
+          <div class="question">
+            <p>
+              <strong class="headline">
+                {{ idea.headline }}
+              </strong>
+            </p>
+            <p class="idea">
+              {{ idea.followup }}
+            </p>
+          </div>
+          {% if idea.submission %}
+          <div class="idea-info">
+            {% blocktrans with user_display_name=idea.submission.user_display_name %}Submitted by: <strong>{{ user_display_name }}</strong>{% endblocktrans %}<br />
+            {{ idea.submission.created_at }}<br />
+            {% trans "Issue area" %}: <strong>{{ idea.submission.category.name }}</strong>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>      
+  </div>
+</div>
+
+{% endblock %}

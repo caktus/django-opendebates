@@ -1,4 +1,4 @@
-from httplib import NOT_FOUND, OK
+from httplib import FORBIDDEN, NOT_FOUND, OK
 import json
 import os
 
@@ -9,6 +9,7 @@ from django.test import TestCase
 from opendebates.models import Submission, Vote, Flag, SiteMode
 from .factories import UserFactory, VoterFactory, SubmissionFactory, RemovalFlagFactory, \
     MergeFlagFactory
+from .utilities import reset_session
 
 
 class ModerationTest(TestCase):
@@ -36,11 +37,11 @@ class ModerationTest(TestCase):
         rsp = self.client.get(self.preview_url)
         self.assertRedirects(rsp, login_url)
 
-    def test_nonsuperuser_404(self):
+    def test_nonsuperuser_403(self):
         self.user.is_superuser = False
         self.user.save()
         rsp = self.client.get(self.preview_url)
-        self.assertEqual(NOT_FOUND, rsp.status_code)
+        self.assertEqual(FORBIDDEN, rsp.status_code)
 
     def test_get(self):
         rsp = self.client.get(self.preview_url)
@@ -70,6 +71,7 @@ class ModerationTest(TestCase):
 
         # The merged submission should now be marked as a duplicate
         self.assertEqual(merged.duplicate_of, remaining)
+        self.assertIsNotNone(merged.moderated_at)
 
         # The remaining submission should now be marked as having duplicates
         self.assertEqual(remaining.has_duplicates, True)
@@ -119,11 +121,15 @@ class ModerationTest(TestCase):
         second_voter = VoterFactory(user=None)
         third_voter = VoterFactory(user=None)
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': first_voter.email, 'zipcode': first_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        reset_session(self.client)
 
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': second_voter.email, 'zipcode': second_voter.zip,
@@ -131,11 +137,15 @@ class ModerationTest(TestCase):
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
             'email': first_voter.email, 'zipcode': first_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        reset_session(self.client)
 
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
             'email': third_voter.email, 'zipcode': third_voter.zip,
@@ -196,17 +206,23 @@ class ModerationTest(TestCase):
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': first_local_voter.email, 'zipcode': first_local_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
             'email': first_local_voter.email, 'zipcode': first_local_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        reset_session(self.client)
 
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': second_local_voter.email, 'zipcode': second_local_voter.zip,
@@ -244,11 +260,15 @@ class ModerationTest(TestCase):
         second_voter = VoterFactory(user=None)
         third_voter = VoterFactory(user=None)
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': first_voter.email, 'zipcode': first_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        reset_session(self.client)
 
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': second_voter.email, 'zipcode': second_voter.zip,
@@ -256,11 +276,15 @@ class ModerationTest(TestCase):
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
 
+        reset_session(self.client)
+
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
             'email': first_voter.email, 'zipcode': first_voter.zip,
             'g-recaptcha-response': 'PASSED'
         }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual("200", json.loads(rsp.content)['status'])
+
+        reset_session(self.client)
 
         rsp = self.client.post(self.second_submission.get_absolute_url(), data={
             'email': third_voter.email, 'zipcode': third_voter.zip,
@@ -326,6 +350,7 @@ class ModerationTest(TestCase):
         self.assertRedirects(rsp, self.moderation_home_url)
         refetched_sub = Submission.objects.get(pk=self.first_submission.pk)
         self.assertFalse(refetched_sub.approved)
+        self.assertIsNotNone(refetched_sub.moderated_at)
 
     def test_reject_merge(self):
         # pretend a user created a merge flag
@@ -392,11 +417,11 @@ class ModerationHomeTest(TestCase):
         rsp = self.client.get(self.url)
         self.assertRedirects(rsp, login_url)
 
-    def test_nonsuperuser_404(self):
+    def test_nonsuperuser_403(self):
         self.user.is_superuser = False
         self.user.save()
         rsp = self.client.get(self.url)
-        self.assertEqual(NOT_FOUND, rsp.status_code)
+        self.assertEqual(FORBIDDEN, rsp.status_code)
 
     def test_removal_flags_queryset(self):
         # these submissions should not be on our page

@@ -1,7 +1,9 @@
-  # "testing": demopenquestions
-  # "staging": staging
   # "florida" floridaopendebate
+  # "testing": demopenquestions
+  # "staging": staging.presidentialopenquestions
   # "presidential": presidentialopenquestions
+  # "staging01": staging.opendebatequestions
+  # "prod01": opendebatequestions
 
   instance_settings:
     # http://uec-images.ubuntu.com/releases/trusty/release/
@@ -54,15 +56,18 @@
       testing: master
       staging: develop
       florida: master
-      presidential: develop # XXX change to master for final prod deploy 9/14/16
+      presidential: develop
+      staging01: develop
+      prod01: develop
 
 ## SERVER SETTINGS ##
   use_basic_auth:
     testing: True
     staging: True
     florida: False
-    # "presidential" is the upcoming production site, hide it until ready to unveil
-    presidential: True
+    presidential: False
+    staging01: True
+    prod01: False
 
 # Local server port for pgbouncer
   pgbouncer_port: 5432
@@ -75,6 +80,8 @@
     staging: 8001
     florida: 8002
     presidential: 8003
+    staging01: 8004
+    prod01: 8005
 
 
 # Whether we're hosting static files on our webservers ('local')
@@ -108,6 +115,11 @@
     presidential:
     - presidentialopenquestions.com
     - www.presidentialopenquestions.com
+    staging01:
+    - staging.opendebatequestions.com
+    prod01:
+    - opendebatequestions.com
+    - www.opendebatequestions.com
 
 ## ENVIRONMENT / ROLE SETTINGS ##
 
@@ -119,9 +131,12 @@
   - staging
   - florida
   - presidential
+  - staging01
+  - prod01
   production_environments:
   - florida
   - presidenetial
+  - prod01
   valid_roles:
   - cache
   - db-master
@@ -169,6 +184,12 @@
       db-slave: t2.small
       web: t2.micro
       worker: t2.micro
+    staging01:
+      cache: t2.micro
+      db-master: t2.small
+      db-slave: t2.small
+      web: t2.micro
+      worker: t2.micro
     florida:
       cache: c4.large
       db-master: m4.2xlarge
@@ -177,9 +198,15 @@
       worker: m4.large
     presidential:
       cache: c4.2xlarge # for 1000Mbps network
-      db-master: m4.2xlarge
-      db-slave: m4.2xlarge
-      web: c3.xlarge # for faster AMI creation (no swap file)
+      db-master: m4.4xlarge
+      db-slave: m4.4xlarge
+      web: c3.2xlarge # for faster AMI creation (no swap file)
+      worker: m4.xlarge
+    prod01:
+      cache: c4.large
+      db-master: m4.xlarge
+      db-slave: m4.xlarge
+      web: c3.large # for faster AMI creation (no swap file)
       worker: m4.large
 
 # Mapping of Fabric environment names to AWS load balancer names.  Load
@@ -194,6 +221,10 @@
       - opendebates-florida-lb
       presidential:
       - opendebates-presidential-lb
+      staging01:
+      - opendebates-staging01-lb
+      prod01:
+      - opendebates-prod01-lb
 
 # Mapping of Fabric environment names to AWS auto scaling group names. Auto
 # scaling groups can be configured in the AWS Management Console.
@@ -203,6 +234,8 @@
       staging: opendebates-staging-ag
       florida: opendebates-florida-ag
       presidential: opendebates-presidential-ag
+      staging01: opendebates-staging01-ag
+      prod01: opendebates-prod01-ag
 
 # Mapping of Fabric environment and role to Elastic Block Device sizes (in GB).
 # If you have any 'm4' or 'c4' instances, make sure these are large enough to
@@ -220,6 +253,12 @@
       db-slave: 100
       web: 10
       worker: 50
+    staging01:
+      cache: 10
+      db-master: 100
+      db-slave: 100
+      web: 10
+      worker: 50
     florida:
       cache: 25 # 10 GB data + 15 GB swap
       db-master: 282 # 250 GB data + 32 GB swap
@@ -227,6 +266,12 @@
       web: 10 # 10 GB data (no swap)
       worker: 66 # 50 GB data + 16 GB swap
     presidential:
+      cache: 25 # 10 GB data + 15 GB swap
+      db-master: 282 # 250 GB data + 32 GB swap
+      db-slave: 282 # 250 GB data + 32 GB swap
+      web: 10 # 10 GB data (no swap)
+      worker: 66 # 50 GB data + 16 GB swap
+    prod01:
       cache: 25 # 10 GB data + 15 GB swap
       db-master: 282 # 250 GB data + 32 GB swap
       db-slave: 282 # 250 GB data + 32 GB swap

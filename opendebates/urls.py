@@ -4,6 +4,7 @@ from django.contrib import admin
 urlpatterns = [
     url('^$', 'opendebates.views.list_ideas', name="list_ideas"),
     url(r'^healthcheck.html$', 'opendebates.views.health_check', name='health_check'),
+    url(r'^changelog/$', 'opendebates.views.changelog', name='changelog'),
     # url(r'^test/$', 'opendebates.views.test', name='test'),
 
     url(r'^recent/$', 'opendebates.views.recent_activity', name='recent_activity'),
@@ -13,6 +14,9 @@ urlpatterns = [
     url('^questions/(?P<id>\d+)/$', 'opendebates.views.vote', name="show_idea"),
     url('^questions/(?P<id>\d+)/report/$', 'opendebates.views.report', name='report'),
     url('^questions/(?P<id>\d+)/merge/$', 'opendebates.views.merge', name='merge'),
+
+    url('^top/(?P<slug>[-\w]+)/$', 'opendebates.views.top_archive',
+        name='top_archive'),
 
     url('^category/(?P<cat_id>\d+)/$', 'opendebates.views.list_category', name="list_category"),
     url('^category/(?P<cat_id>\d+)/search/$', 'opendebates.views.category_search',
@@ -28,6 +32,8 @@ urlpatterns = [
     url('^moderation/$', 'opendebates.moderator_views.home', name='moderation_home'),
     url('^moderation/preview/$', 'opendebates.moderator_views.preview',
         name="moderation_preview"),
+    url('^moderation/top/$', 'opendebates.moderator_views.add_to_top_archive',
+        name="moderation_add_to_top_archive"),
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^registration/', include('opendebates.registration_urls')),

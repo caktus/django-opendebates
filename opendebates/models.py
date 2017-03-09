@@ -33,6 +33,19 @@ class Category(CachingMixin, models.Model):
         verbose_name_plural = _("categories")
 
 
+class FlatPageMetadataOverride(models.Model):
+
+    page = models.OneToOneField('flatpages.FlatPage', related_name='metadata')
+
+    facebook_image = models.URLField(default=site_defaults.FLATPAGE_FACEBOOK_IMAGE)
+    facebook_description = models.TextField(default=site_defaults.FLATPAGE_FACEBOOK_DESCRIPTION)
+    facebook_title = models.TextField(default=site_defaults.FLATPAGE_FACEBOOK_TITLE)
+
+    twitter_image = models.URLField(default=site_defaults.FLATPAGE_TWITTER_IMAGE)
+    twitter_description = models.TextField(default=site_defaults.FLATPAGE_TWITTER_DESCRIPTION)
+    twitter_title = models.TextField(default=site_defaults.FLATPAGE_TWITTER_TITLE)
+
+
 class SiteMode(CachingMixin, models.Model):
     THEME_CHOICES = [(theme, theme) for theme in settings.SITE_THEMES]
 
@@ -48,6 +61,12 @@ class SiteMode(CachingMixin, models.Model):
         help_text="Enter time that debate starts in timezone %s" % settings.TIME_ZONE,
     )
     debate_state = models.CharField(max_length=5, null=True, blank=True)
+    previous_debate_time = models.DateTimeField(
+        null=True, blank=True,
+        help_text=(
+            "Enter time that the previous debate occurred in timezone %s"
+            " to enable Votes Since Previous Debate sort option" % settings.TIME_ZONE)
+    )
 
     inline_css = models.TextField(blank=True)
 
@@ -106,11 +125,13 @@ class Submission(models.Model):
     followup = models.TextField(null=True, blank=True)
 
     citation = models.URLField(null=True, blank=True, db_index=True,
+                               max_length=1024,
                                verbose_name=_("Optional link to full proposal or reference"))
     citation_verified = models.BooleanField(default=False, db_index=True)
 
     voter = models.ForeignKey("Voter")
     created_at = models.DateTimeField(db_index=True)
+    moderated_at = models.DateTimeField(blank=True, null=True)
 
     ip_address = models.CharField(max_length=255, db_index=True)
 
@@ -127,6 +148,7 @@ class Submission(models.Model):
 
     votes = models.IntegerField(default=0, db_index=True)
     local_votes = models.IntegerField(default=0, db_index=True)
+    current_votes = models.IntegerField(default=0, db_index=True)
     score = models.FloatField(default=0, db_index=True)
     rank = models.FloatField(default=0, db_index=True)
 
@@ -299,7 +321,11 @@ class Vote(models.Model):
     submission = models.ForeignKey(Submission)
     voter = models.ForeignKey(Voter)
 
+    is_suspicious = models.BooleanField(default=False)
+    is_invalid = models.BooleanField(default=False)
+
     ip_address = models.CharField(max_length=255, db_index=True)
+    sessionid = models.CharField(max_length=40, blank=True, default='')
     request_headers = models.TextField(null=True, blank=True)
 
     original_merged_submission = models.ForeignKey(Submission, null=True, blank=True,
@@ -347,4 +373,33 @@ class Flag(models.Model):
     class Meta:
         unique_together = [
             ('to_remove', 'voter'),
+        ]
+
+
+class TopSubmissionCategory(models.Model):
+    slug = models.SlugField(unique=True)
+    title = models.TextField()
+    caption = models.CharField(max_length=255, blank=True)
+
+    def __unicode__(self):
+        return self.slug
+
+
+class TopSubmission(models.Model):
+    category = models.ForeignKey(TopSubmissionCategory, related_name='submissions')
+    submission = models.ForeignKey(Submission, null=True, blank=False,
+                                   on_delete=models.SET_NULL)
+
+    headline = models.TextField(null=False, blank=False)
+    followup = models.TextField(null=False, blank=True)
+
+    votes = models.IntegerField()
+    current_votes = models.IntegerField(default=0)
+    rank = models.IntegerField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [
+            ('category', 'submission'),
         ]

@@ -1,13 +1,15 @@
 from djangohelpers.lib import rendered_with, allow_http
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count
-from django.http import HttpResponseNotFound, HttpResponseBadRequest
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
+from django.utils.timezone import now
 
 from opendebates_emails.models import send_email
-from .forms import ModerationForm
+from .forms import ModerationForm, TopSubmissionForm
 from .models import Submission, Vote, Flag
 
 
@@ -16,7 +18,7 @@ from .models import Submission, Vote, Flag
 @login_required
 def preview(request):
     if not request.user.is_superuser:
-        return HttpResponseNotFound()
+        raise PermissionDenied
 
     form = ModerationForm(data=request.POST or None, initial=request.GET or None)
     if request.method == 'POST':
@@ -38,7 +40,7 @@ def preview(request):
 @login_required
 def merge(request):
     if not request.user.is_superuser:
-        return HttpResponseNotFound()
+        raise PermissionDenied
 
     to_remove = get_object_or_404(
         Submission,
@@ -58,6 +60,7 @@ def merge(request):
     elif request.POST.get("action").lower() == "unmoderate":
         msg = _(u'Duplicate has been removed, and votes have not been merged.')
         to_remove.approved = False
+        to_remove.moderated_at = now()
         to_remove.duplicate_of = duplicate_of
         to_remove.save()
         if request.POST.get("send_email") == "yes":
@@ -67,6 +70,13 @@ def merge(request):
             submission=duplicate_of).values_list("voter_id", flat=True))
         votes_to_merge = Vote.objects.filter(submission=to_remove).exclude(
             voter__in=votes_already_cast)
+
+        previous_debate_time = request.site_mode.previous_debate_time
+        if previous_debate_time:
+            current_votes_to_merge = votes_to_merge.filter(
+                created_at__gt=previous_debate_time).count()
+        else:
+            current_votes_to_merge = votes_to_merge.count()
 
         local_state = request.site_mode.debate_state
         if local_state:
@@ -79,10 +89,12 @@ def merge(request):
             + " " + (to_remove.keywords or '')
         duplicate_of.has_duplicates = True
         duplicate_of.votes += votes_to_merge.count()
+        duplicate_of.current_votes += current_votes_to_merge
         duplicate_of.local_votes += local_votes_to_merge
         duplicate_of.save()
         votes_to_merge.update(original_merged_submission=to_remove, submission=duplicate_of)
         to_remove.duplicate_of = duplicate_of
+        to_remove.moderated_at = now()
         to_remove.save()
         msg = _(u'Question has been merged.')
         if request.POST.get("send_email") == "yes":
@@ -106,7 +118,7 @@ def merge(request):
 @login_required
 def remove(request):
     if not request.user.is_superuser:
-        return HttpResponseNotFound()
+        raise PermissionDenied
 
     to_remove = get_object_or_404(
         Submission,
@@ -122,6 +134,7 @@ def remove(request):
     else:
         msg = _(u'The question has been kept and removed from the moderation list.')
     to_remove.moderated_removal = True
+    to_remove.moderated_at = now()
     to_remove.removal_flags.all().update(reviewed=True)
     to_remove.save()
 
@@ -136,7 +149,7 @@ def remove(request):
 @login_required
 def home(request):
     if not request.user.is_superuser:
-        return HttpResponseNotFound()
+        raise PermissionDenied
 
     # submissions:
     #   - which have removal flags without duplicate_of (so not merges)
@@ -157,3 +170,17 @@ def home(request):
         'flagged_for_removal': flagged_for_removal,
         'merge_flags': merge_flags,
     }
+
+
+@rendered_with("opendebates/moderation/top_archive.html")
+def add_to_top_archive(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
+    form = TopSubmissionForm(data=request.POST or None, initial=request.GET or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            entry = form.save()
+            return redirect("top_archive", slug=entry.category.slug)
+
+    return {"form": form}
