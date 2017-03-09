@@ -160,9 +160,7 @@ def vote(request, id):
     try:
         with readonly_db():
             idea = Submission.objects.get(
-                category__site_mode=request.site_mode,
-                id=id,
-                approved=True,
+                id=id, category__site_mode=request.site_mode,
             )
     except Submission.DoesNotExist:
         raise Http404
