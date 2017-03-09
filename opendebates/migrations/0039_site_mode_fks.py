@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('sites', '0001_initial'),
-        ('opendebates', '0027_sitemode_inline_css'),
+        ('opendebates', '0038_remove_fraud_fields_nullability3'),
     ]
 
     operations = [
