@@ -17,6 +17,7 @@ class VoteTest(TestCase):
 
     def setUp(self):
         self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
 
         self.submission = SubmissionFactory()
         self.submission_url = self.submission.get_absolute_url()
@@ -104,7 +105,7 @@ class VoteTest(TestCase):
     def test_submission_must_be_approved_anon(self):
         "Return 404 if submission is not approved."
         self.submission.approved = False
-        self.submission.save()
+        self.submission.category.save()
         self.client.logout()
         data = {
             'email': 'anon@example.com',
@@ -136,6 +137,8 @@ class VoteTest(TestCase):
 
     def test_vote_local_voter(self):
         mode = SiteModeFactory(debate_state='NY')
+        self.submission.category.site_mode = mode
+        self.submission.category.save()
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -145,7 +148,7 @@ class VoteTest(TestCase):
             'zipcode': '11111',
             'g-recaptcha-response': 'PASSED'
         }
-        rsp = self.client.post(self.submission_url, data=data,
+        rsp = self.client.post(self.submission.get_absolute_url(), data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
@@ -155,6 +158,8 @@ class VoteTest(TestCase):
 
     def test_vote_nonlocal_voter(self):
         mode = SiteModeFactory(debate_state='FL')
+        self.submission.category.site_mode = mode
+        self.submission.category.save()
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -164,7 +169,7 @@ class VoteTest(TestCase):
             'zipcode': '11111',
             'g-recaptcha-response': 'PASSED'
         }
-        rsp = self.client.post(self.submission_url, data=data,
+        rsp = self.client.post(self.submission.get_absolute_url(), data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
@@ -175,6 +180,8 @@ class VoteTest(TestCase):
     def test_vote_no_local_district_configured(self):
         "Unauthenticated user successful vote."
         mode = SiteModeFactory(debate_state=None)
+        self.submission.category.site_mode = mode
+        self.submission.category.save()
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -184,7 +191,7 @@ class VoteTest(TestCase):
             'zipcode': '11111',
             'g-recaptcha-response': 'PASSED'
         }
-        rsp = self.client.post(self.submission_url, data=data,
+        rsp = self.client.post(self.submission.get_absolute_url(), data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
@@ -353,13 +360,15 @@ class VoteTest(TestCase):
     def test_vote_after_previous_debate(self):
         "Votes after the previous debate get tracked separately."
         mode = SiteModeFactory(previous_debate_time=timezone.now() - datetime.timedelta(days=7))
+        self.submission.category.site_mode = mode
+        self.submission.category.save()
 
         data = {
             'email': self.voter.email,
             'zipcode': self.voter.zip,
             'g-recaptcha-response': 'PASSED'
         }
-        rsp = self.client.post(self.submission_url, data=data,
+        rsp = self.client.post(self.submission.get_absolute_url(), data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         json.loads(rsp.content)
@@ -371,13 +380,15 @@ class VoteTest(TestCase):
     def test_vote_before_previous_debate(self):
         "Votes before the previous debate don't get tracked yet."
         mode = SiteModeFactory(previous_debate_time=timezone.now() + datetime.timedelta(days=1))
+        self.submission.category.site_mode = mode
+        self.submission.category.save()
 
         data = {
             'email': self.voter.email,
             'zipcode': self.voter.zip,
             'g-recaptcha-response': 'PASSED'
         }
-        rsp = self.client.post(self.submission_url, data=data,
+        rsp = self.client.post(self.submission.get_absolute_url(), data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         json.loads(rsp.content)
