@@ -1,4 +1,5 @@
 from httplib import FORBIDDEN
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.formats import date_format
@@ -6,21 +7,25 @@ from django.utils.timezone import localtime
 
 from opendebates.forms import TopSubmissionForm
 from opendebates.models import TopSubmission
-from .factories import (SubmissionFactory,
-                        TopSubmissionCategoryFactory,
-                        UserFactory,
-                        )
+from .factories import (SubmissionFactory, TopSubmissionCategoryFactory, UserFactory,
+                        SiteFactory, SiteModeFactory)
 
 
 class TopArchiveTest(TestCase):
-
     def setUp(self):
-        self.url = lambda slug: reverse('top_archive', args=[slug])
-        self.mod_url = reverse('moderation_add_to_top_archive')
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+        self.url = lambda slug: reverse('top_archive', args=[self.mode.prefix, slug])
+        self.mod_url = reverse('moderation_add_to_top_archive',
+                               kwargs={'prefix': self.mode.prefix})
 
         self.categories = [TopSubmissionCategoryFactory()
                            for i in range(3)]
         self.ideas = [SubmissionFactory() for i in range(10)]
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_form_copies_submission(self):
         idea = self.ideas[0]

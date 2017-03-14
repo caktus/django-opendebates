@@ -1,15 +1,22 @@
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 import mock
 
-from opendebates.models import Submission
-from opendebates.tests.factories import SubmissionFactory, UserFactory, VoterFactory
+from ..models import Submission
+from .factories import SubmissionFactory, UserFactory, VoterFactory, SiteFactory, SiteModeFactory
 
 
 class HeadlineTestTest(TestCase):
     def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
         self.submission = SubmissionFactory()
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_headline_in_recent_events(self):
         mock_cache = mock.MagicMock()
@@ -23,7 +30,9 @@ class HeadlineTestTest(TestCase):
         self.assertIn(self.submission.headline, html)
 
     def test_headline_contributes_to_search(self):
-        rsp = self.client.get(reverse('search_ideas') + '?q=%s' % self.submission.headline)
+        rsp = self.client.get(
+            reverse('search_ideas', kwargs={'prefix': self.mode.prefix})
+            + '?q=%s' % self.submission.headline)
         html = rsp.content.decode('UTF-8')
         self.assertIn(self.submission.get_absolute_url(), html)
 
@@ -36,7 +45,7 @@ class HeadlineTestTest(TestCase):
         assert self.client.login(username=user.username,
                                  password='secretpassword')
 
-        merge_url = reverse('moderation_merge')
+        merge_url = reverse('moderation_merge', kwargs={'prefix': self.mode.prefix})
         self.client.post(merge_url, data={
             "action": "merge",
             "to_remove": self.submission.id,

@@ -7,8 +7,8 @@ from django.utils.functional import SimpleLazyObject
 from django.utils.html import mark_safe
 from django.utils.timezone import now
 
-from .models import Category, Vote
-from .utils import get_voter, get_number_of_votes, vote_needs_captcha
+from .models import Category, Vote, SiteMode
+from .utils import get_voter, get_number_of_votes, vote_needs_captcha, get_site_mode
 
 
 def voter(request):

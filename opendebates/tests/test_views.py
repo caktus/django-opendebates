@@ -1,20 +1,26 @@
 import datetime
 
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils import timezone
 
-from ..models import SiteMode
-from .factories import SubmissionFactory, UserFactory, VoterFactory
+from .factories import (SubmissionFactory, UserFactory, VoterFactory,
+                        SiteModeFactory, SiteFactory)
 
 
 class ListIdeasTest(TestCase):
 
     def setUp(self):
-        self.url = reverse('list_ideas')
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+        self.url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
 
         for i in range(10):
             SubmissionFactory()
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_list_ideas_uses_site_mode_from_context(self):
         """
@@ -26,41 +32,41 @@ class ListIdeasTest(TestCase):
             self.client.get(self.url)
 
     def test_most_since_last_debate_not_visible_if_no_previous_debate(self):
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.previous_debate_time = None
-        mode.save()
+        mode = SiteModeFactory(previous_debate_time=None)
 
-        response = self.client.get(self.url)
+        response = self.client.get(reverse('list_ideas', kwargs={'prefix': mode.prefix}))
         self.assertNotContains(response, "Most Votes Since Last Debate")
 
     def test_most_since_last_debate_visible_if_previous_debate(self):
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.previous_debate_time = timezone.now() - datetime.timedelta(days=7)
-        mode.save()
+        mode = SiteModeFactory(previous_debate_time=timezone.now() - datetime.timedelta(days=7))
 
-        response = self.client.get(self.url)
+        response = self.client.get(reverse('list_ideas', kwargs={'prefix': mode.prefix}))
         self.assertContains(response, "Most Votes Since Last Debate")
 
     def test_most_since_last_debate_visible_if_previous_debate_in_future(self):
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.previous_debate_time = timezone.now() + datetime.timedelta(days=7)
-        mode.save()
+        mode = SiteModeFactory(previous_debate_time=timezone.now() + datetime.timedelta(days=7))
 
-        response = self.client.get(self.url)
+        response = self.client.get(reverse('list_ideas', kwargs={'prefix': mode.prefix}))
         self.assertNotContains(response, "Most Votes Since Last Debate")
 
 
 class ChangelogTest(TestCase):
 
     def setUp(self):
-        self.url = reverse('changelog')
-        self.merge_url = reverse('moderation_merge')
-        self.remove_url = reverse('moderation_remove')
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+        self.url = reverse('changelog', kwargs={'prefix': self.mode.prefix})
+        self.merge_url = reverse('moderation_merge', kwargs={'prefix': self.mode.prefix})
+        self.remove_url = reverse('moderation_remove', kwargs={'prefix': self.mode.prefix})
 
         self.password = 'secretpassword'
         self.user = UserFactory(password=self.password, is_staff=True, is_superuser=True)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
         assert self.client.login(username=self.user.username, password=self.password)
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_none(self):
         response = self.client.get(self.url)

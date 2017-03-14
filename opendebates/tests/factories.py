@@ -13,24 +13,28 @@ from opendebates import models
 _random = random.Random()
 
 
-def _testserver_site_mode(obj):
-    site = Site.objects.get_or_create(domain='testserver')[0]
-    return models.SiteMode.objects.get_or_create(site=site)[0]
+def _testserver_site_mode(obj=None):
+    site = SiteFactory(domain='testserver')
+    if site.site_modes.all():
+        return site.site_modes.all()[0]
+    return SiteModeFactory(site=site)
 
 
 class SiteFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Site
+        django_get_or_create = ('domain',)
 
-    domain = factory.Sequence(lambda n: 'site-{0}.example.com'.format(n))
+    domain = 'testserver'
 
 
 class SiteModeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SiteMode
 
-    debate_state = 'NY'
     site = factory.SubFactory(SiteFactory)
+    prefix = factory.fuzzy.FuzzyText()
+    debate_state = 'NY'
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -69,6 +73,7 @@ class FuzzyEmail(factory.fuzzy.FuzzyText):
 class VoterFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.Voter
+        django_get_or_create = ('email',)
 
     site_mode = factory.LazyAttribute(_testserver_site_mode)
     user = factory.SubFactory(UserFactory)

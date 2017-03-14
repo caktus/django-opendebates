@@ -1,23 +1,28 @@
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 
 import re
 
-from .factories import SubmissionFactory
+from .factories import SubmissionFactory, SiteFactory, SiteModeFactory
 
 
 @override_settings(SUBMISSIONS_PER_PAGE=2)
 class NavigationTest(TestCase):
-
     def setUp(self):
-        self.url = reverse('list_ideas')
-        self.search_url = reverse('search_ideas')
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+        self.url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
+        self.search_url = reverse('search_ideas', kwargs={'prefix': self.mode.prefix})
 
         SubmissionFactory(votes=1)
         SubmissionFactory(votes=2)
         SubmissionFactory(headline="Something about ducks", votes=10)
         SubmissionFactory(headline="Another thing about ducks", votes=5)
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_sort_by_option_is_sticky(self):
         rsp = self.client.get(self.url + '?sort=%2Bvotes')

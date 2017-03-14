@@ -1,20 +1,28 @@
+from django.contrib.sites.models import Site
 from django.test import TestCase
 import urlparse
 
-from .factories import UserFactory, VoterFactory, SubmissionFactory
+from .factories import UserFactory, VoterFactory, SubmissionFactory, SiteFactory, SiteModeFactory
 
 
 class SubmissionReallyAbsoluteUrlTest(TestCase):
-
     def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
         self.submission = SubmissionFactory()
-        self.submission.category.site_mode.site.domain = 'example.net'
-        self.submission.category.site_mode.site.save()
+        self.site.domain = 'example.net'
+        self.site.save()
         self.id = self.submission.id
 
+    def tearDown(self):
+        Site.objects.clear_cache()
+
     def test_default(self):
-        self.assertEqual('https://example.net/questions/%s/vote/' % self.id,
-                         self.submission.really_absolute_url())
+        self.assertEqual(
+            'https://example.net/%s/questions/%s/vote/' % (
+                self.mode.prefix, self.id),
+            self.submission.really_absolute_url())
 
     def test_source(self):
         url = self.submission.really_absolute_url("fb")
@@ -33,6 +41,12 @@ class SubmissionReallyAbsoluteUrlTest(TestCase):
 
 
 class VoterUserDisplayNameTest(TestCase):
+    def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_anonymous(self):
         voter = VoterFactory(user=None)

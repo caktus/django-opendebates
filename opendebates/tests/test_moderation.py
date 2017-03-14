@@ -3,25 +3,29 @@ import json
 import os
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from opendebates.models import Submission, Vote, Flag, SiteMode
-from .factories import UserFactory, VoterFactory, SubmissionFactory, RemovalFlagFactory, \
-    MergeFlagFactory
+from opendebates.models import Submission, Vote, Flag
+from .factories import (UserFactory, VoterFactory, SubmissionFactory, RemovalFlagFactory,
+                        MergeFlagFactory, SiteFactory, SiteModeFactory)
 from .utilities import reset_session
 
 
 class ModerationTest(TestCase):
-
     def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
         self.first_submission = SubmissionFactory()
         self.second_submission = SubmissionFactory()
         self.third_submission = SubmissionFactory()
-        self.preview_url = reverse('moderation_preview')
-        self.merge_url = reverse('moderation_merge')
-        self.remove_url = reverse('moderation_remove')
-        self.moderation_home_url = reverse('moderation_home')
+
+        self.preview_url = reverse('moderation_preview', kwargs={'prefix': self.mode.prefix})
+        self.merge_url = reverse('moderation_merge', kwargs={'prefix': self.mode.prefix})
+        self.remove_url = reverse('moderation_remove', kwargs={'prefix': self.mode.prefix})
+        self.moderation_home_url = reverse('moderation_home', kwargs={'prefix': self.mode.prefix})
         self.password = 'secretpassword'
         self.user = UserFactory(password=self.password, is_staff=True, is_superuser=True)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
@@ -29,6 +33,7 @@ class ModerationTest(TestCase):
         os.environ['NORECAPTCHA_TESTING'] = 'True'
 
     def tearDown(self):
+        Site.objects.clear_cache()
         del os.environ['NORECAPTCHA_TESTING']
 
     def test_redirects_to_login(self):
@@ -82,9 +87,11 @@ class ModerationTest(TestCase):
         # Viewing the merged submission now lands visitors on the remaining submission
         # with a fragment referring to the merged submission's place on the page
         rsp = self.client.get(merged.get_absolute_url())
-        self.assertRedirects(rsp,
-                             reverse('show_idea', args=[remaining.id]) + (
-                                 "#i%s" % merged.id))
+        self.assertRedirects(
+            rsp,
+            reverse('show_idea', args=[self.mode.prefix, remaining.id]) + (
+                "#i%s" % merged.id)
+        )
 
     def test_nested_merge_submission(self):
         self.client.post(self.merge_url, data={
@@ -190,10 +197,7 @@ class ModerationTest(TestCase):
     def test_local_votes_tally_updates_after_merge(self):
         "During a merge, only unique votes get moved over to the remaining submission"
 
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.debate_state = "FL"
-        mode.save()
-
+        mode = SiteModeFactory(debate_state='FL')
         self.client.logout()
 
         nonlocal_voter = VoterFactory(user=None, state="NY")
@@ -330,7 +334,7 @@ class ModerationTest(TestCase):
         self.assertEqual(NOT_FOUND, rsp.status_code)
 
     def test_merge_link_hidden_after_merge(self):
-        merge_url = reverse('merge', args=[self.first_submission.pk])
+        merge_url = reverse('merge', args=[self.mode.prefix, self.first_submission.pk])
         rsp = self.client.get(self.first_submission.get_absolute_url())
         self.assertContains(rsp, merge_url)
         self.first_submission.duplicate_of = self.second_submission
@@ -403,13 +407,18 @@ class ModerationTest(TestCase):
 
 
 class ModerationHomeTest(TestCase):
-
     def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
         self.password = 'secretpassword'
         self.user = UserFactory(password=self.password, is_staff=True, is_superuser=True)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
         assert self.client.login(username=self.user.username, password=self.password)
-        self.url = reverse('moderation_home')
+        self.url = reverse('moderation_home', kwargs={'prefix': self.mode.prefix})
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_redirects_to_login(self):
         login_url = settings.LOGIN_URL + '?next=' + self.url
@@ -461,15 +470,20 @@ class ModerationHomeTest(TestCase):
 
 
 class RemovalFlagTest(TestCase):
-
     def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
         self.submission = SubmissionFactory()
-        self.url = reverse('report', args=[self.submission.pk])
+        self.url = reverse('report', args=[self.mode.prefix, self.submission.pk])
         self.login_url = settings.LOGIN_URL + '?next=' + self.url
         password = 'secretPassword'
         self.user = UserFactory(password=password)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
         assert self.client.login(username=self.user.username, password=password)
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_login_required(self):
         self.client.logout()
@@ -502,15 +516,20 @@ class RemovalFlagTest(TestCase):
 
 
 class MergeFlagTest(TestCase):
-
     def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
         self.submission = SubmissionFactory()
-        self.url = reverse('merge', args=[self.submission.pk])
-        self.login_url = settings.LOGIN_URL + '?next=' + self.url
+        self.url = reverse('merge', args=[self.mode.prefix, self.submission.pk])
+        self.login_url = reverse('auth_login', args=[self.mode.prefix]) + '?next=' + self.url
         password = 'secretPassword'
         self.user = UserFactory(password=password)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
         assert self.client.login(username=self.user.username, password=password)
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_login_required(self):
         self.client.logout()
@@ -540,7 +559,7 @@ class MergeFlagTest(TestCase):
 
     def test_merge_is_successful_with_show_idea_url(self):
         duplicate_of = SubmissionFactory()
-        show_idea_url = reverse('show_idea', args=[duplicate_of.pk])
+        show_idea_url = reverse('show_idea', args=[self.mode.prefix, duplicate_of.pk])
         data = {
             'duplicate_of_url': 'https://example.com' + show_idea_url
         }

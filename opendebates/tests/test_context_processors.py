@@ -1,13 +1,21 @@
 import urlparse
 
+from django.contrib.sites.models import Site
 from django.test import TestCase
 from mock import patch, Mock
 
 from opendebates.context_processors import global_vars
-from opendebates.tests.factories import SubmissionFactory, SiteModeFactory
+from opendebates.tests.factories import SubmissionFactory, SiteFactory, SiteModeFactory
 
 
 class NumberOfVotesTest(TestCase):
+    def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+    def tearDown(self):
+        Site.objects.clear_cache()
+
     def test_number_of_votes(self):
         mock_request = Mock()
         mock_request.site_mode = SiteModeFactory()
@@ -18,9 +26,14 @@ class NumberOfVotesTest(TestCase):
 
 
 class ThemeTests(TestCase):
-
     def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
         self.idea = SubmissionFactory()
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_email_url(self):
         mode = self.idea.category.site_mode

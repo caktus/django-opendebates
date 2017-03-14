@@ -1,12 +1,17 @@
+from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.utils.html import escape
 
-from opendebates.tests.factories import SubmissionFactory, _testserver_site_mode
+from opendebates.tests.factories import SubmissionFactory, SiteFactory, SiteModeFactory
 
 
 class FacebookTest(TestCase):
     def setUp(self):
-        self.mode = _testserver_site_mode(None)
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_facebook_site(self):
         rsp = self.client.get('/')
@@ -77,7 +82,11 @@ class FacebookTest(TestCase):
 
 class TwitterTest(TestCase):
     def setUp(self):
-        self.mode = _testserver_site_mode(None)
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_twitter_site_card(self):
         rsp = self.client.get('/')

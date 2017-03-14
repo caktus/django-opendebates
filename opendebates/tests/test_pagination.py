@@ -5,7 +5,8 @@ from django.test.utils import override_settings
 import re
 import urlparse
 
-from .factories import SubmissionFactory
+from ..models import SiteMode
+from .factories import SubmissionFactory, SiteFactory, SiteModeFactory
 from .utilities import patch_cache_templatetag
 
 
@@ -13,10 +14,13 @@ from .utilities import patch_cache_templatetag
 class PaginationTest(TestCase):
 
     def setUp(self):
-        self.url = reverse('list_ideas')
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
 
         for i in range(2):
             SubmissionFactory()
+
+        self.url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
 
     def find_first_page_link(self, content):
         link = re.search('<a\W+href="(.*)"\W+rel="page"\W+class="endless_page_link">2</a>',

@@ -144,10 +144,9 @@ def sort_list(citations_only, sort, ideas):
 
 
 def get_site_mode(request):
-    domain = request.get_host().lower().strip('.')
+    site = request.site
+    path = request.path.split('/')[1:]
     try:
-        return SiteMode.objects.select_related('site').get(site__domain__exact=domain)
-    except SiteMode.DoesNotExist:
-        with readwrite_db():
-            site = Site.objects.get_or_create(domain=domain)[0]
-            return SiteMode.objects.select_related('site').get_or_create(site=site)[0]
+        return site.site_modes.get(prefix=path[0])
+    except (SiteMode.DoesNotExist, IndexError):
+        return

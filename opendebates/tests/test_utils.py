@@ -1,17 +1,23 @@
+from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from mock import Mock, patch
 
-from opendebates.tests.factories import VoteFactory, SiteModeFactory
+from opendebates.tests.factories import VoteFactory, SiteModeFactory, SiteFactory
 from opendebates.utils import registration_needs_captcha, vote_needs_captcha
 
 
 @override_settings(USE_CAPTCHA=True)
 class TestCaptchaUtils(TestCase):
     def setUp(self):
+        self.site = SiteFactory()
+
         self.mock_request = Mock(spec=object)
         self.mock_request.user = Mock()
         self.mock_request.user.is_authenticated = lambda: False
         self.mock_request.site_mode = SiteModeFactory()
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_registration_captcha(self):
         self.assertTrue(registration_needs_captcha(self.mock_request))

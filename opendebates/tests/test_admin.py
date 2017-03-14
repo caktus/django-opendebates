@@ -1,4 +1,5 @@
 from django.contrib.admin.sites import AdminSite
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from mock import patch
@@ -27,7 +28,6 @@ class MockSuperUser(object):
 
 
 class RemoveSubmissionsTest(TestCase):
-
     def setUp(self):
         self.site = AdminSite()
         self.admin = SubmissionAdmin(Submission, self.site)
@@ -37,6 +37,9 @@ class RemoveSubmissionsTest(TestCase):
         self.submission = SubmissionFactory()
         self.queryset = Submission.objects.all()
         self.changelist_url = reverse('admin:opendebates_submission_changelist')
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_get(self):
         """

@@ -1,17 +1,25 @@
 from httplib import OK
 
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 import mock
 
-from opendebates.models import RECENT_EVENTS_CACHE_ENTRY, NUMBER_OF_VOTES_CACHE_ENTRY, Vote
-from opendebates.tasks import update_recent_events
-from opendebates.tests.factories import VoteFactory
+from ..models import RECENT_EVENTS_CACHE_ENTRY, NUMBER_OF_VOTES_CACHE_ENTRY, Vote
+from ..tasks import update_recent_events
+from .factories import VoteFactory, SiteFactory, SiteModeFactory
 
 
 class RecentEventsTest(TestCase):
     def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
         self.vote = VoteFactory()
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_computing_recent_events(self):
         mock_cache = mock.MagicMock()
@@ -28,6 +36,7 @@ class RecentEventsTest(TestCase):
     def test_view_returns_events(self):
         mock_cache = mock.MagicMock()
         vote2 = VoteFactory()
+        mode = vote2.submission.category.site_mode
         mock_cache.get.return_value = [
             vote2,
             vote2.submission,
@@ -35,7 +44,7 @@ class RecentEventsTest(TestCase):
             self.vote.submission
         ]
         with mock.patch('opendebates.views.cache', new=mock_cache):
-            rsp = self.client.get('/recent/')
+            rsp = self.client.get(reverse('recent_activity', kwargs={'prefix': mode.prefix}))
         mock_cache.get.assert_called_with(RECENT_EVENTS_CACHE_ENTRY, default=[])
         self.assertEqual(OK, rsp.status_code)
         html = rsp.content.decode('UTF-8')

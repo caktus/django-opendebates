@@ -27,7 +27,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sitemode',
             name='site',
-            field=models.OneToOneField(related_name='site_mode', default=1, to='sites.Site'),
+            field=models.ForeignKey(related_name='site_modes', default=1, to='sites.Site'),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='sitemode',
+            name='prefix',
+            field=models.SlugField(default=''),
             preserve_default=False,
         ),
         migrations.AddField(

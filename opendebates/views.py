@@ -59,7 +59,7 @@ def state_from_zip(zip):
 
 @allow_http("GET")
 @rendered_with("opendebates/test.html")
-def test(request):
+def test(request, prefix):
     copy = _("This is my inappropriately PCCC-specific site copy!")
     return {
         "copy": copy
@@ -69,7 +69,7 @@ def test(request):
 @cache_page(5)  # Cache for 5 seconds after rendering
 @allow_http("GET")
 @rendered_with("opendebates/snippets/recent_activity.html")
-def recent_activity(request):
+def recent_activity(request, prefix):
     entries = cache.get(RECENT_EVENTS_CACHE_ENTRY, default=[])
     return {
         "recent_activity": entries
@@ -77,7 +77,7 @@ def recent_activity(request):
 
 
 @rendered_with("opendebates/list_ideas.html")
-def list_ideas(request):
+def list_ideas(request, prefix):
     ideas = Submission.objects.filter(category__site_mode=request.site_mode)
     citations_only = request.GET.get("citations_only")
     sort = choose_sort(request, request.GET.get('sort'))
@@ -87,14 +87,14 @@ def list_ideas(request):
     return {
         'ideas': ideas,
         'sort': sort,
-        'url_name': reverse('list_ideas'),
+        'url_name': reverse('list_ideas', kwargs={'prefix': request.site_mode.prefix}),
         'stashed_submission': request.session.pop(
             "opendebates.stashed_submission", None) if request.user.is_authenticated() else None,
     }
 
 
 @rendered_with("opendebates/list_ideas.html")
-def list_category(request, cat_id):
+def list_category(request, prefix, cat_id):
     category = get_object_or_404(Category, id=cat_id, site_mode=request.site_mode)
     ideas = Submission.objects.filter(category__site_mode=request.site_mode, category=cat_id)
     citations_only = request.GET.get("citations_only")
@@ -105,14 +105,15 @@ def list_category(request, cat_id):
     return {
         'ideas': ideas,
         'sort': sort,
-        'url_name': reverse("list_category", kwargs={'cat_id': cat_id}),
+        'url_name': reverse("list_category", kwargs={'prefix': request.site_mode.prefix,
+                                                     'cat_id': cat_id}),
         'category': category
     }
 
 
 @rendered_with("opendebates/list_ideas.html")
 @allow_http("GET")
-def search_ideas(request):
+def search_ideas(request, prefix):
     try:
         search_term = [q for q in request.GET.getlist("q") if q][0]
     except IndexError:
@@ -129,12 +130,12 @@ def search_ideas(request):
         'ideas': ideas,
         'search_term': search_term,
         'sort': sort,
-        'url_name': reverse('search_ideas'),
+        'url_name': reverse('search_ideas', kwargs={'prefix': request.site_mode.prefix}),
     }
 
 
 @rendered_with("opendebates/list_ideas.html")
-def category_search(request, cat_id):
+def category_search(request, prefix, cat_id):
     ideas = Submission.objects.filter(category__site_mode=request.site_mode, category=cat_id)
     citations_only = request.GET.get("citations_only")
     search_term = request.GET['q']
@@ -148,13 +149,14 @@ def category_search(request, cat_id):
         'ideas': ideas,
         'search_term': search_term,
         'sort': sort,
-        'url_name': reverse("list_category", kwargs={'cat_id': cat_id})
+        'url_name': reverse("list_category", kwargs={'prefix': request.site_mode.prefix,
+                                                     'cat_id': cat_id})
     }
 
 
 @rendered_with("opendebates/vote.html")
 @allow_http("GET", "POST")
-def vote(request, id):
+def vote(request, prefix, id):
     """Despite the name, this is both the page for voting AND the detail page for submissions"""
     try:
         with readonly_db():
@@ -172,7 +174,8 @@ def vote(request, id):
             # Submissions which have been "unmoderated as duplicates"
             # should remain completely inaccessible, and should not redirect
             raise Http404
-        url = reverse("show_idea", kwargs={"id": idea.duplicate_of_id})
+        url = reverse("show_idea", kwargs={'prefix': request.site_mode.prefix,
+                                           'id': idea.duplicate_of_id})
         url = url + "#i"+str(idea.id)
         return redirect(url)
 
@@ -240,7 +243,7 @@ def vote(request, id):
                 json.dumps(result),
                 content_type="application/json")
 
-        url = reverse("vote", kwargs={'id': id})
+        url = reverse("vote", kwargs={'prefix': request.site_mode.prefix, 'id': id})
         return redirect(url)
 
     voter, created = Voter.objects.get_or_create(
@@ -300,13 +303,13 @@ def vote(request, id):
             json.dumps(result),
             content_type="application/json")
 
-    url = reverse("vote", kwargs={'id': id})
+    url = reverse("vote", kwargs={'prefix': request.site_mode.prefix, 'id': id})
     return redirect(url)
 
 
 @rendered_with("opendebates/list_ideas.html")
 @allow_http("GET", "POST")
-def questions(request):
+def questions(request, prefix):
 
     if request.method == 'GET':
         return redirect("/")
@@ -333,7 +336,7 @@ def questions(request):
             "question": request.POST['question'],
             "citation": request.POST.get("citation"),
         }
-        return redirect("registration_register")
+        return redirect('registration_register', prefix=request.site_mode.prefix)
 
     category = request.POST.get('category')
     form_data = form.cleaned_data
@@ -380,12 +383,12 @@ def questions(request):
     send_email("submitted_new_idea", {"idea": idea})
     send_email("notify_moderators_submitted_new_idea", {"idea": idea})
 
-    url = reverse("vote", kwargs={'id': idea.id})
+    url = reverse("vote", kwargs={'prefix': request.site_mode.prefix, 'id': idea.id})
     return redirect(url + "#created=%s" % idea.id)
 
 
 @rendered_with("opendebates/changelog.html")
-def changelog(request):
+def changelog(request, prefix):
     moderated = Submission.objects.filter(
         Q(approved=False) | Q(duplicate_of__isnull=False)
     ).select_related('duplicate_of').order_by('-moderated_at', '-id')
@@ -398,6 +401,7 @@ class OpenDebatesRegistrationView(RegistrationView):
 
     form_class = OpenDebatesRegistrationForm
     next = None
+    prefix = None
 
     def get(self, request):
         self.next = request.GET.get('next', None)
@@ -447,14 +451,14 @@ class OpenDebatesRegistrationView(RegistrationView):
             return super(OpenDebatesRegistrationView, self).get_success_url(request, user)
 
 
-def registration_complete(request):
+def registration_complete(request, prefix):
     request.session['events.account_created'] = True
-    return redirect("/")
+    return redirect(reverse('list_ideas', kwargs={'prefix': request.site_mode.prefix}))
 
 
 @rendered_with("opendebates/list_candidates.html")
 @allow_http("GET")
-def list_candidates(request):
+def list_candidates(request, prefix):
     candidates = Candidate.objects.filter(
         site_mode=request.site_mode,
     ).order_by('last_name', 'first_name')
@@ -466,7 +470,7 @@ def list_candidates(request):
 @rendered_with("opendebates/flag_report.html")
 @allow_http("GET", "POST")
 @login_required
-def report(request, id):
+def report(request, prefix, id):
     if not request.site_mode.allow_voting_and_submitting_questions and not request.user.is_staff:
         raise Http404
 
@@ -490,7 +494,7 @@ def report(request, id):
 @rendered_with("opendebates/flag_merge.html")
 @allow_http("GET", "POST")
 @login_required
-def merge(request, id):
+def merge(request, prefix, id):
     if not request.site_mode.allow_voting_and_submitting_questions and not request.user.is_staff:
         raise Http404
 
@@ -514,7 +518,7 @@ def merge(request, id):
 
 @rendered_with("opendebates/top_archive.html")
 @allow_http("GET")
-def top_archive(request, slug):
+def top_archive(request, prefix, slug):
     category = get_object_or_404(TopSubmissionCategory, slug=slug)
     submissions = category.submissions.select_related(
         "submission", "submission__voter", "submission__voter__user",

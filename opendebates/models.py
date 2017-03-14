@@ -49,7 +49,8 @@ class FlatPageMetadataOverride(models.Model):
 class SiteMode(CachingMixin, models.Model):
     THEME_CHOICES = [(theme, theme) for theme in settings.SITE_THEMES]
 
-    site = models.OneToOneField(Site, related_name='site_mode')
+    site = models.ForeignKey(Site, related_name='site_modes')
+    prefix = models.SlugField()
     theme = models.CharField(max_length=255, choices=THEME_CHOICES)
 
     show_question_votes = models.BooleanField(default=True, blank=True)
@@ -188,7 +189,7 @@ class Submission(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return "vote", [self.id]
+        return "vote", [self.site_mode.prefix, self.id]
 
     def tweet_text(self):
         if self.voter.twitter_handle:

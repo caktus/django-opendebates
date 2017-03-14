@@ -16,7 +16,7 @@ from .models import Submission, Vote, Flag
 @rendered_with("opendebates/moderation/preview.html")
 @allow_http("GET", "POST")
 @login_required
-def preview(request):
+def preview(request, prefix):
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -38,7 +38,7 @@ def preview(request):
 
 @allow_http("POST")
 @login_required
-def merge(request):
+def merge(request, prefix):
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -111,12 +111,12 @@ def merge(request):
     ).update(reviewed=True)
 
     messages.info(request, msg)
-    return redirect('moderation_home')
+    return redirect('moderation_home', prefix=request.site_mode.prefix)
 
 
 @allow_http("POST")
 @login_required
-def remove(request):
+def remove(request, prefix):
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -141,13 +141,13 @@ def remove(request):
     if remove and request.POST.get("send_email") == "yes":
         send_email("idea_is_removed", {"idea": to_remove})
     messages.info(request, msg)
-    return redirect('moderation_home')
+    return redirect('moderation_home', prefix=request.site_mode.prefix)
 
 
 @rendered_with("opendebates/moderation/home.html")
 @allow_http("GET")
 @login_required
-def home(request):
+def home(request, prefix):
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -173,7 +173,7 @@ def home(request):
 
 
 @rendered_with("opendebates/moderation/top_archive.html")
-def add_to_top_archive(request):
+def add_to_top_archive(request, prefix):
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -181,6 +181,6 @@ def add_to_top_archive(request):
     if request.method == 'POST':
         if form.is_valid():
             entry = form.save()
-            return redirect("top_archive", slug=entry.category.slug)
+            return redirect("top_archive", prefix=request.site_mode.prefix, slug=entry.category.slug)
 
     return {"form": form}

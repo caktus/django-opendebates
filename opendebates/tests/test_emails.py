@@ -1,3 +1,4 @@
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -5,13 +6,16 @@ from django.test.utils import override_settings
 from django.core import mail
 from opendebates_emails.models import EmailTemplate
 
-from .factories import CategoryFactory, UserFactory, VoterFactory
+from .factories import CategoryFactory, UserFactory, VoterFactory, SiteFactory, SiteModeFactory
 
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class EmailTest(TestCase):
     def setUp(self):
-        self.url = reverse('questions')
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+        self.url = reverse('questions', kwargs={'prefix': self.mode.prefix})
         password = 'secretpassword'
         self.user = UserFactory(password=password)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
@@ -23,6 +27,9 @@ class EmailTest(TestCase):
             'headline': 'Headline of my question',
             'citation': 'https://www.google.com',
         }
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_submission_sends_email(self):
         "After submitting a question, an email is sent from a template with `idea` context"

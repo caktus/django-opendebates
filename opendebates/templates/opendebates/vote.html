@@ -24,7 +24,7 @@
 <div class="row breadcrumbs">
   <a href="/">{% blocktrans %}Home{% endblocktrans %}</a>
   <span>&#8594;</span>
-  <a href="{% url 'list_category' idea.category.id %}">{{ idea.category }}</a>
+  <a href="{% url 'list_category' SITE_MODE.prefix idea.category.id %}">{{ idea.category }}</a>
   <span class="hidden-xs">&#8594;</span>
   <a class="hidden-xs" href="">{{ idea.idea }}</a>
 </div>

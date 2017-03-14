@@ -1,20 +1,24 @@
 import datetime
 from urlparse import urlparse
 
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils import timezone
 
-from opendebates.models import Submission, Vote, SiteMode, ZipCode
+from opendebates.models import Submission, Vote, ZipCode
 from opendebates_emails.models import EmailTemplate
-from .factories import CategoryFactory, UserFactory, VoterFactory, SubmissionFactory
+from .factories import (CategoryFactory, UserFactory, VoterFactory, SubmissionFactory,
+                        SiteFactory, SiteModeFactory)
 from .utilities import patch_cache_templatetag
 
 
 class SubmissionTest(TestCase):
-
     def setUp(self):
-        self.url = reverse('questions')
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+        self.url = reverse('questions', kwargs={'prefix': self.mode.prefix})
         password = 'secretpassword'
         self.user = UserFactory(password=password)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
@@ -34,7 +38,8 @@ class SubmissionTest(TestCase):
                       from_email="{{ idea.voter.email }}",
                       to_email="{{ idea.voter.email }}").save()
 
-    # failures
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_missing_headline(self):
         data = self.data.copy()
@@ -105,9 +110,7 @@ class SubmissionTest(TestCase):
         self.assertEqual(1, len(votes))
 
     def test_post_submission_after_previous_debate(self):
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.previous_debate_time = timezone.now() - datetime.timedelta(days=7)
-        mode.save()
+        mode = SiteModeFactory(previous_debate_time=timezone.now() - datetime.timedelta(days=7))
 
         self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
@@ -119,9 +122,7 @@ class SubmissionTest(TestCase):
         self.assertEqual(1, len(votes))
 
     def test_post_submission_before_previous_debate(self):
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.previous_debate_time = timezone.now() + datetime.timedelta(days=1)
-        mode.save()
+        mode = SiteModeFactory(previous_debate_time=timezone.now() + datetime.timedelta(days=1))
 
         self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
@@ -134,9 +135,7 @@ class SubmissionTest(TestCase):
         self.assertEqual(1, len(votes))
 
     def test_post_submission_from_local_user(self):
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.debate_state = "NY"
-        mode.save()
+        mode = SiteModeFactory(debate_state='NY')
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -156,9 +155,7 @@ class SubmissionTest(TestCase):
         self.assertEqual(submission.local_votes, 1)
 
     def test_post_submission_from_nonlocal_user(self):
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.debate_state = "FL"
-        mode.save()
+        mode = SiteModeFactory(debate_state='FL')
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -178,9 +175,7 @@ class SubmissionTest(TestCase):
         self.assertEqual(submission.local_votes, 0)
 
     def test_post_submission_when_no_local_district_configured(self):
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.debate_state = None
-        mode.save()
+        mode = SiteModeFactory(debate_state=None)
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -202,7 +197,7 @@ class SubmissionTest(TestCase):
     def test_post_submission_anon(self):
         "Anon user can post submissions, but needs to login/register first."
         self.client.logout()
-        register_url = reverse('registration_register')
+        register_url = reverse('registration_register', kwargs={'prefix': self.mode.prefix})
         rsp = self.client.post(self.url, data=self.data)
         # anon user gets redirected to register/login
         self.assertRedirects(rsp, register_url)
@@ -254,7 +249,7 @@ class SubmissionTest(TestCase):
 
     def test_questions_page_redirects(self):
         "Questions view redirects to homepage because it is only meant for form handling."
-        questions_url = reverse('questions')
+        questions_url = reverse('questions', kwargs={'prefix': self.mode.prefix})
         rsp = self.client.get(questions_url)
         self.assertEqual(302, rsp.status_code)
         self.assertEqual("/", urlparse(rsp['Location']).path)
@@ -291,9 +286,12 @@ class SubmissionTest(TestCase):
 
 
 class SubmissionCacheTest(TestCase):
-
     def setUp(self):
+        self.site = SiteFactory()
         self.submission = SubmissionFactory(has_duplicates=True)
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     @patch_cache_templatetag()
     def test_caching_list_first(self):
