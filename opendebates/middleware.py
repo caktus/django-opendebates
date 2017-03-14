@@ -8,3 +8,9 @@ class SiteModeMiddleware(object):
 
     def process_request(self, request):
         request.site_mode = get_site_mode(request)
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        if 'prefix' in view_kwargs:
+            prefix = view_kwargs.pop('prefix')
+            if not getattr(request, 'site_mode', None):
+                request.site_mode = get_site_mode(request)

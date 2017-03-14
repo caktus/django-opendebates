@@ -16,7 +16,7 @@ from .models import Submission, Vote, Flag
 @rendered_with("opendebates/moderation/preview.html")
 @allow_http("GET", "POST")
 @login_required
-def preview(request, prefix):
+def preview(request):
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -38,7 +38,7 @@ def preview(request, prefix):
 
 @allow_http("POST")
 @login_required
-def merge(request, prefix):
+def merge(request):
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -116,7 +116,7 @@ def merge(request, prefix):
 
 @allow_http("POST")
 @login_required
-def remove(request, prefix):
+def remove(request):
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -147,7 +147,7 @@ def remove(request, prefix):
 @rendered_with("opendebates/moderation/home.html")
 @allow_http("GET")
 @login_required
-def home(request, prefix):
+def home(request):
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -173,7 +173,7 @@ def home(request, prefix):
 
 
 @rendered_with("opendebates/moderation/top_archive.html")
-def add_to_top_archive(request, prefix):
+def add_to_top_archive(request):
     if not request.user.is_superuser:
         raise PermissionDenied
 
