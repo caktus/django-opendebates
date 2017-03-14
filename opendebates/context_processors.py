@@ -21,7 +21,6 @@ def voter(request):
             return '{}'
         votes = Vote.objects.filter(
             voter__email=voter['email'],
-            voter__site_mode=request.site_mode,
         )
         votes = [i.submission_id for i in votes]
         return mark_safe(json.dumps({"submissions": votes}))

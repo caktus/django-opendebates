@@ -286,8 +286,6 @@ class Voter(models.Model):
             name = _(u"%(name)s from %(state)s" % {"name": name, "state": voter.state})
         return name
 
-    site_mode = models.ForeignKey('SiteMode', related_name='voters')
-
     email = models.EmailField(unique=True)
     zip = models.CharField(max_length=10, db_index=True)
     state = models.CharField(max_length=255, null=True, blank=True)

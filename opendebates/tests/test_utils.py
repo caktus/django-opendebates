@@ -53,7 +53,7 @@ class TestCaptchaUtils(TestCase):
     def test_vote_captcha_second_vote(self):
         # second vote does not require captcha
         email = 'hasvoted@example.com'
-        VoteFactory(voter__email=email, voter__site_mode=self.mock_request.site_mode)
+        VoteFactory(voter__email=email)
         with patch('opendebates.utils.get_voter') as mock_get_voter:
             mock_get_voter.return_value = {'email': email}
             self.assertFalse(vote_needs_captcha(self.mock_request))

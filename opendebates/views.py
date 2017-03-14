@@ -247,7 +247,6 @@ def vote(request, id):
         return redirect(url)
 
     voter, created = Voter.objects.get_or_create(
-        site_mode=request.site_mode,
         email=form.cleaned_data['email'],
         defaults=dict(
             source=request.COOKIES.get('opendebates.source'),
@@ -342,7 +341,6 @@ def questions(request):
     form_data = form.cleaned_data
 
     voter, created = Voter.objects.get_or_create(
-        site_mode=request.site_mode,
         email=request.user.email,
         defaults=dict(
             source=request.COOKIES.get('opendebates.source')
@@ -417,7 +415,6 @@ class OpenDebatesRegistrationView(RegistrationView):
         new_user = super(OpenDebatesRegistrationView, self).register(request, form)
 
         voter, created = Voter.objects.update_or_create(
-            site_mode=request.site_mode,
             email=form.cleaned_data['email'],
             defaults=dict(
                 source=request.COOKIES.get('opendebates.source'),
@@ -475,7 +472,7 @@ def report(request, id):
         raise Http404
 
     idea = get_object_or_404(Submission, pk=id, category__site_mode=request.site_mode)
-    voter = Voter.objects.get(site_mode=request.site_mode, user=request.user)
+    voter = Voter.objects.get(user=request.user)
 
     if request.method == 'POST':
         flag, created = Flag.objects.get_or_create(
@@ -499,7 +496,7 @@ def merge(request, id):
         raise Http404
 
     idea = get_object_or_404(Submission, pk=id, category__site_mode=request.site_mode)
-    voter = Voter.objects.get(site_mode=request.site_mode, user=request.user)
+    voter = Voter.objects.get(user=request.user)
 
     if Flag.objects.filter(to_remove=idea, voter=voter).exists():
         messages.info(request, _(u'You have already flagged this question.'))

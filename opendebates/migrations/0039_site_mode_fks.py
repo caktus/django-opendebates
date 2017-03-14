@@ -42,10 +42,4 @@ class Migration(migrations.Migration):
             field=models.CharField(default='testing', max_length=255, choices=[(b'testing', b'testing'), (b'florida', b'florida')]),
             preserve_default=False,
         ),
-        migrations.AddField(
-            model_name='voter',
-            name='site_mode',
-            field=models.ForeignKey(related_name='voters', default=1, to='opendebates.SiteMode'),
-            preserve_default=False,
-        ),
     ]

@@ -197,7 +197,6 @@ class ModerationTest(TestCase):
     def test_local_votes_tally_updates_after_merge(self):
         "During a merge, only unique votes get moved over to the remaining submission"
 
-        mode = SiteModeFactory(debate_state='FL')
         self.client.logout()
 
         nonlocal_voter = VoterFactory(user=None, state="NY")

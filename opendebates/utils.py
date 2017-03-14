@@ -21,7 +21,6 @@ def vote_needs_captcha(request):
             if voter:
                 # A user's first vote requires a captcha
                 need = not Vote.objects.filter(
-                    voter__site_mode=request.site_mode,
                     voter__email=voter['email'],
                 ).exists()
             else:

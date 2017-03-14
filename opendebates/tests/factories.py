@@ -5,7 +5,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.utils.timezone import now
 import factory
-import factory.fuzzy
 
 from opendebates import models
 
@@ -33,7 +32,7 @@ class SiteModeFactory(factory.django.DjangoModelFactory):
         model = models.SiteMode
 
     site = factory.SubFactory(SiteFactory)
-    prefix = factory.fuzzy.FuzzyText()
+    prefix = factory.Faker('slug')
     debate_state = 'NY'
 
 
@@ -64,21 +63,14 @@ class CategoryFactory(factory.DjangoModelFactory):
     site_mode = factory.LazyAttribute(_testserver_site_mode)
 
 
-class FuzzyEmail(factory.fuzzy.FuzzyText):
-    def fuzz(self):
-        chars = [_random.choice(self.chars) for _i in range(self.length)]
-        return "%s@example.com" % ''.join(chars)
-
-
 class VoterFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.Voter
         django_get_or_create = ('email',)
 
-    site_mode = factory.LazyAttribute(_testserver_site_mode)
     user = factory.SubFactory(UserFactory)
-    email = FuzzyEmail()
-    zip = factory.fuzzy.FuzzyText(length=5, chars=string.digits)
+    email = factory.Faker('safe_email')
+    zip = factory.Faker('zipcode')
 
 
 class SubmissionFactory(factory.DjangoModelFactory):
@@ -87,8 +79,8 @@ class SubmissionFactory(factory.DjangoModelFactory):
 
     category = factory.SubFactory(CategoryFactory)
 
-    headline = factory.fuzzy.FuzzyText()
-    followup = factory.fuzzy.FuzzyText()
+    headline = factory.Faker('sentence')
+    followup = factory.Faker('paragraph')
 
     idea = factory.LazyAttribute(lambda obj: (u'%s %s' % (obj.headline, obj.followup)).strip())
 
@@ -124,6 +116,6 @@ class TopSubmissionCategoryFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.TopSubmissionCategory
 
-    slug = factory.fuzzy.FuzzyText()
-    title = factory.fuzzy.FuzzyText()
-    caption = factory.fuzzy.FuzzyText()
+    slug = factory.Faker('slug')
+    title = factory.Faker('catch_phrase')
+    caption = factory.Faker('bs')

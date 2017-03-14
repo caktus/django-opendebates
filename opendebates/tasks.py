@@ -61,9 +61,9 @@ def update_recent_events():
             votes = Vote.objects.select_related(
                 "voter",
                 "voter__user",
-                "submission",
+                "submission__category",
             ).filter(
-                voter__site_mode=site_mode,
+                submission__category__site_mode_id=site_mode.id,
                 submission__approved=True,
                 submission__duplicate_of__isnull=True,
             ).exclude(
@@ -72,10 +72,11 @@ def update_recent_events():
             submissions = Submission.objects.select_related(
                 "voter",
                 "voter__user",
+                "category",
             ).filter(
                 approved=True,
                 duplicate_of__isnull=True,
-                category__site_mode=site_mode,
+                category__site_mode_id=site_mode.id,
             ).order_by("-id")[:10]
 
             entries = list(votes) + list(submissions)
@@ -83,12 +84,13 @@ def update_recent_events():
 
             cache.set(RECENT_EVENTS_CACHE_ENTRY, entries, 24*3600)
 
-            number_of_votes = Vote.objects.filter(voter__site_mode=site_mode).count()
+            number_of_votes = Vote.objects.filter(
+                submission__category__site_mode_id=site_mode.id).count()
             cache.set(NUMBER_OF_VOTES_CACHE_ENTRY, number_of_votes, 24*3600)
 
             logger.debug("There are %d entries" % len(entries))
             logger.debug("There are %d votes" % number_of_votes)
-        except:
+        except Exception:
             # This task runs too frequently to report a recurring problem every time
             # it happens.
             global exception_logged
