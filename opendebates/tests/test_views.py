@@ -28,7 +28,7 @@ class ListIdeasTest(TestCase):
         at all during list_ideas if we've successfully provided the SITE_MODE
         in the template context to the model.
         """
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(5):
             self.client.get(self.url)
 
     def test_most_since_last_debate_not_visible_if_no_previous_debate(self):

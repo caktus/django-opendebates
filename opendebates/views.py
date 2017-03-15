@@ -445,7 +445,8 @@ class OpenDebatesRegistrationView(RegistrationView):
         if request.GET.get('next'):
             return request.GET.get('next')
         else:
-            return super(OpenDebatesRegistrationView, self).get_success_url(request, user)
+            return reverse('registration_complete',
+                           kwargs={'prefix': request.site_mode.prefix})
 
 
 def registration_complete(request):
