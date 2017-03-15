@@ -1,3 +1,4 @@
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -12,7 +13,6 @@ from .utilities import patch_cache_templatetag
 
 @override_settings(SUBMISSIONS_PER_PAGE=1)
 class PaginationTest(TestCase):
-
     def setUp(self):
         self.site = SiteFactory()
         self.mode = SiteModeFactory(site=self.site)
@@ -21,6 +21,9 @@ class PaginationTest(TestCase):
             SubmissionFactory()
 
         self.url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def find_first_page_link(self, content):
         link = re.search('<a\W+href="(.*)"\W+rel="page"\W+class="endless_page_link">2</a>',

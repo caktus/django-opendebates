@@ -24,7 +24,7 @@ class HeadlineTestTest(TestCase):
             self.submission
         ]
         with mock.patch('opendebates.views.cache', new=mock_cache):
-            rsp = self.client.get('/recent/')
+            rsp = self.client.get(reverse('recent_activity', kwargs={'prefix': self.mode.prefix}))
 
         html = rsp.content.decode('UTF-8')
         self.assertIn(self.submission.headline, html)
