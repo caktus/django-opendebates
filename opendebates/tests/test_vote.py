@@ -105,7 +105,7 @@ class VoteTest(TestCase):
     def test_submission_must_be_approved_anon(self):
         "Return 404 if submission is not approved."
         self.submission.approved = False
-        self.submission.category.save()
+        self.submission.save()
         self.client.logout()
         data = {
             'email': 'anon@example.com',
@@ -139,6 +139,7 @@ class VoteTest(TestCase):
         mode = SiteModeFactory(debate_state='NY')
         self.submission.category.site_mode = mode
         self.submission.category.save()
+        del self.submission._cached_site_mode
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -160,6 +161,7 @@ class VoteTest(TestCase):
         mode = SiteModeFactory(debate_state='FL')
         self.submission.category.site_mode = mode
         self.submission.category.save()
+        del self.submission._cached_site_mode
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -182,6 +184,7 @@ class VoteTest(TestCase):
         mode = SiteModeFactory(debate_state=None)
         self.submission.category.site_mode = mode
         self.submission.category.save()
+        del self.submission._cached_site_mode
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -362,6 +365,7 @@ class VoteTest(TestCase):
         mode = SiteModeFactory(previous_debate_time=timezone.now() - datetime.timedelta(days=7))
         self.submission.category.site_mode = mode
         self.submission.category.save()
+        del self.submission._cached_site_mode
 
         data = {
             'email': self.voter.email,
@@ -382,6 +386,7 @@ class VoteTest(TestCase):
         mode = SiteModeFactory(previous_debate_time=timezone.now() + datetime.timedelta(days=1))
         self.submission.category.site_mode = mode
         self.submission.category.save()
+        del self.submission._cached_site_mode
 
         data = {
             'email': self.voter.email,
