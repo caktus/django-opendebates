@@ -8,7 +8,7 @@ from ..models import Submission
 from .factories import SubmissionFactory, UserFactory, VoterFactory, SiteFactory, SiteModeFactory
 
 
-class HeadlineTestTest(TestCase):
+class HeadlineTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
         self.mode = SiteModeFactory(site=self.site)

@@ -1,7 +1,6 @@
 import json
 import logging
 
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
@@ -15,6 +14,7 @@ from django.views.decorators.cache import cache_page
 from djangohelpers.lib import rendered_with, allow_http
 from registration.backends.simple.views import RegistrationView
 
+from .decorators import od_login_required
 from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm, MergeFlagForm
 from .models import (Candidate, Category, Flag, Submission, Vote, Voter,
                      TopSubmissionCategory, ZipCode, RECENT_EVENTS_CACHE_ENTRY)
@@ -467,7 +467,7 @@ def list_candidates(request):
 
 @rendered_with("opendebates/flag_report.html")
 @allow_http("GET", "POST")
-@login_required
+@od_login_required
 def report(request, id):
     if not request.site_mode.allow_voting_and_submitting_questions and not request.user.is_staff:
         raise Http404
@@ -491,7 +491,7 @@ def report(request, id):
 
 @rendered_with("opendebates/flag_merge.html")
 @allow_http("GET", "POST")
-@login_required
+@od_login_required
 def merge(request, id):
     if not request.site_mode.allow_voting_and_submitting_questions and not request.user.is_staff:
         raise Http404

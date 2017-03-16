@@ -35,7 +35,7 @@ class PaginationTest(TestCase):
         rsp = self.client.get(self.url)
         self.assertIn('endless_page_link', rsp.content)
         link = self.find_first_page_link(rsp.content)
-        self.assertEqual('/?page=2', link)
+        self.assertEqual('/{}/?page=2'.format(self.mode.prefix), link)
 
     def test_pagination_preserves_querystring(self):
         rsp = self.client.get(self.url + '?source=foo&utm_medium=email')
