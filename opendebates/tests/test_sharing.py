@@ -1,4 +1,5 @@
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.html import escape
 
@@ -14,7 +15,7 @@ class FacebookTest(TestCase):
         Site.objects.clear_cache()
 
     def test_facebook_site(self):
-        rsp = self.client.get('/')
+        rsp = self.client.get(reverse('list_ideas', kwargs={'prefix': self.mode.prefix}))
         self.assertContains(
             rsp,
             '<meta property="og:url" content="http://%s"/>' % self.mode.site.domain
@@ -89,7 +90,7 @@ class TwitterTest(TestCase):
         Site.objects.clear_cache()
 
     def test_twitter_site_card(self):
-        rsp = self.client.get('/')
+        rsp = self.client.get(reverse('list_ideas', kwargs={'prefix': self.mode.prefix}))
         self.assertContains(rsp, '<meta name="twitter:card" content="summary_large_image">')
         self.assertContains(rsp,
                             '<meta name="twitter:title" content="%s">'
