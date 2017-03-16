@@ -181,6 +181,7 @@ def add_to_top_archive(request):
     if request.method == 'POST':
         if form.is_valid():
             entry = form.save()
-            return redirect("top_archive", prefix=request.site_mode.prefix, slug=entry.category.slug)
+            return redirect("top_archive",
+                            prefix=request.site_mode.prefix, slug=entry.category.slug)
 
     return {"form": form}

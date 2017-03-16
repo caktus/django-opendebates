@@ -2,7 +2,6 @@ from httplib import FORBIDDEN, NOT_FOUND, OK
 import json
 import os
 
-from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -40,7 +39,8 @@ class ModerationTest(TestCase):
         del os.environ['NORECAPTCHA_TESTING']
 
     def test_redirects_to_login(self):
-        login_url = reverse('auth_login', kwargs={'prefix': self.mode.prefix}) + '?next=' + self.preview_url
+        login_url = reverse('auth_login',
+                            kwargs={'prefix': self.mode.prefix}) + '?next=' + self.preview_url
         self.client.logout()
         rsp = self.client.get(self.preview_url)
         self.assertRedirects(rsp, login_url)
@@ -479,7 +479,8 @@ class RemovalFlagTest(TestCase):
 
         self.submission = SubmissionFactory()
         self.url = reverse('report', args=[self.mode.prefix, self.submission.pk])
-        self.login_url = reverse('auth_login', kwargs={'prefix': self.mode.prefix}) + '?next=' + self.url
+        self.login_url = reverse(
+            'auth_login', kwargs={'prefix': self.mode.prefix}) + '?next=' + self.url
         password = 'secretPassword'
         self.user = UserFactory(password=password)
         self.voter = VoterFactory(user=self.user, email=self.user.email)

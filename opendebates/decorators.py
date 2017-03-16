@@ -4,7 +4,6 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.urlresolvers import reverse
 
 
-
 def od_login_required(f):
     @wraps(f)
     def wrapper(request, *args, **kwargs):

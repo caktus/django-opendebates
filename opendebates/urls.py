@@ -25,11 +25,12 @@ urlpatterns = [
 
     url(r'^(?P<prefix>[-\w]+)/category/(?P<cat_id>\d+)/$', 'opendebates.views.list_category',
         name="list_category"),
-    url(r'^(?P<prefix>[-\w]+)/category/(?P<cat_id>\d+)/search/$', 'opendebates.views.category_search',
-        name="category_search"),
+    url(r'^(?P<prefix>[-\w]+)/category/(?P<cat_id>\d+)/search/$',
+        'opendebates.views.category_search', name="category_search"),
     url(r'^(?P<prefix>[-\w]+)/search/$', 'opendebates.views.search_ideas', name="search_ideas"),
     url(r'^(?P<prefix>[-\w]+)/questions/$', 'opendebates.views.questions', name="questions"),
-    # url(r'^(?P<prefix>[-\w]+)/candidates/$', 'opendebates.views.list_candidates', name="candidates"),
+    # url(r'^(?P<prefix>[-\w]+)/candidates/$',
+    #     'opendebates.views.list_candidates', name="candidates"),
 
     url(r'^(?P<prefix>[-\w]+)/moderation/remove/$', 'opendebates.moderator_views.remove',
         name="moderation_remove"),

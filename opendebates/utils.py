@@ -3,10 +3,8 @@ import random
 
 from django.conf import settings
 from django.core.cache import cache
-from django.contrib.sites.models import Site
 
 from .models import Vote, Voter, NUMBER_OF_VOTES_CACHE_ENTRY, SiteMode
-from .router import readwrite_db
 
 
 def vote_needs_captcha(request):

@@ -31,8 +31,8 @@ class HeadlineTest(TestCase):
 
     def test_headline_contributes_to_search(self):
         rsp = self.client.get(
-            reverse('search_ideas', kwargs={'prefix': self.mode.prefix})
-            + '?q=%s' % self.submission.headline)
+            reverse('search_ideas', kwargs={'prefix': self.mode.prefix}) +
+            '?q=%s' % self.submission.headline)
         html = rsp.content.decode('UTF-8')
         self.assertIn(self.submission.get_absolute_url(), html)
 

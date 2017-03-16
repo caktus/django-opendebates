@@ -6,7 +6,6 @@ from django.test.utils import override_settings
 import re
 import urlparse
 
-from ..models import SiteMode
 from .factories import SubmissionFactory, SiteFactory, SiteModeFactory
 from .utilities import patch_cache_templatetag
 
