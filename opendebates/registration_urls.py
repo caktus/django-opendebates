@@ -23,7 +23,7 @@ from django.conf.urls import url
 from django.contrib.auth import views as auth_views
 
 from .forms import OpenDebatesAuthenticationForm
-from .views import OpenDebatesRegistrationView
+from .views import OpenDebatesRegistrationView, od_logout
 
 urlpatterns = patterns('',
                        url(r'^register/$',
@@ -65,7 +65,7 @@ urlpatterns = patterns('',
                            auth_views.password_reset_confirm,
                            name='password_reset_confirm'),
                        url(r'^logout/$',
-                           auth_views.logout,
+                           od_logout,
                            {'template_name': 'registration/logout.html',
                             'next_page': "list_ideas"}),
 

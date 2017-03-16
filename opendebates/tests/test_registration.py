@@ -130,6 +130,9 @@ class LoginLogoutTest(TestCase):
         self.login_url = reverse('auth_login', kwargs={'prefix': self.mode.prefix})
         self.home_url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
 
+    def tearDown(self):
+        Site.objects.clear_cache()
+
     def test_login_with_username(self):
         rsp = self.client.post(
             self.login_url,

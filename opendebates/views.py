@@ -2,6 +2,8 @@ import json
 import logging
 
 from django.contrib import messages
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.views import logout
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import connections
@@ -525,3 +527,13 @@ def top_archive(request, slug):
         'category': category,
         'submissions': submissions,
     }
+
+
+def od_logout(request, next_page=None,
+              template_name='registration/logged_out.html',
+              redirect_field_name=REDIRECT_FIELD_NAME,
+              current_app=None, extra_context=None):
+    if next_page is not None:
+        next_page = reverse(next_page, kwargs={'prefix': request.site_mode.prefix})
+    return logout(request, next_page, template_name, redirect_field_name,
+                  current_app, extra_context)
