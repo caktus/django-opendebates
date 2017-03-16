@@ -20,7 +20,7 @@ class SubmissionReallyAbsoluteUrlTest(TestCase):
 
     def test_default(self):
         self.assertEqual(
-            'https://example.net/%s/questions/%s/vote/' % (
+            'https://testserver/%s/questions/%s/vote/' % (
                 self.mode.prefix, self.id),
             self.submission.really_absolute_url())
 

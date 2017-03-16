@@ -7,7 +7,7 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from opendebates.models import Submission, Vote, Flag
+from opendebates.models import Submission, Vote, Flag, ZipCode
 from .factories import (UserFactory, VoterFactory, SubmissionFactory, RemovalFlagFactory,
                         MergeFlagFactory, SiteFactory, SiteModeFactory)
 from .utilities import reset_session
@@ -17,6 +17,9 @@ class ModerationTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
         self.mode = SiteModeFactory(site=self.site)
+
+        self.zc_ny = ZipCode.objects.create(zip='11111', city="Examplepolis", state="NY")
+        self.zc_fl = ZipCode.objects.create(zip='22222', city="Examplepolis", state="FL")
 
         self.first_submission = SubmissionFactory()
         self.second_submission = SubmissionFactory()
@@ -196,12 +199,13 @@ class ModerationTest(TestCase):
 
     def test_local_votes_tally_updates_after_merge(self):
         "During a merge, only unique votes get moved over to the remaining submission"
-
+        self.mode.debate_state = 'FL'
+        self.mode.save()
         self.client.logout()
 
-        nonlocal_voter = VoterFactory(user=None, state="NY")
-        first_local_voter = VoterFactory(user=None, state="FL")
-        second_local_voter = VoterFactory(user=None, state="FL")
+        nonlocal_voter = VoterFactory(user=None, state="NY", zip=self.zc_ny.zip)
+        first_local_voter = VoterFactory(user=None, state="FL", zip=self.zc_fl.zip)
+        second_local_voter = VoterFactory(user=None, state="FL", zip=self.zc_fl.zip)
 
         rsp = self.client.post(self.third_submission.get_absolute_url(), data={
             'email': nonlocal_voter.email, 'zipcode': nonlocal_voter.zip,
