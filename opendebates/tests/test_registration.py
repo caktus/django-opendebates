@@ -136,21 +136,24 @@ class LoginLogoutTest(TestCase):
     def test_login_with_username(self):
         rsp = self.client.post(
             self.login_url,
-            data={'username': self.username, 'password': self.password, 'next': '/'}
+            data={'username': self.username, 'password': self.password,
+                  'next': '/{}/'.format(self.mode.prefix)}
         )
         self.assertRedirects(rsp, self.home_url)
 
     def test_login_with_email(self):
         rsp = self.client.post(
             self.login_url,
-            data={'username': self.email, 'password': self.password, 'next': '/'}
+            data={'username': self.email, 'password': self.password,
+                  'next': '/{}/'.format(self.mode.prefix)}
         )
         self.assertRedirects(rsp, self.home_url)
 
     def test_failed_login(self):
         rsp = self.client.post(
             self.login_url,
-            data={'username': self.username, 'password': self.password + 'bad', 'next': '/'}
+            data={'username': self.username, 'password': self.password + 'bad',
+                  'next': '/{}/'.format(self.mode.prefix)}
         )
         self.assertEqual(200, rsp.status_code)
         form = rsp.context['form']
