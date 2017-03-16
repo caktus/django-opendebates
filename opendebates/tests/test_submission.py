@@ -110,7 +110,8 @@ class SubmissionTest(TestCase):
         self.assertEqual(1, len(votes))
 
     def test_post_submission_after_previous_debate(self):
-        mode = SiteModeFactory(previous_debate_time=timezone.now() - datetime.timedelta(days=7))
+        self.mode.previous_debate_time = timezone.now() - datetime.timedelta(days=7)
+        self.mode.save()
 
         self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
@@ -122,7 +123,8 @@ class SubmissionTest(TestCase):
         self.assertEqual(1, len(votes))
 
     def test_post_submission_before_previous_debate(self):
-        mode = SiteModeFactory(previous_debate_time=timezone.now() + datetime.timedelta(days=1))
+        self.mode.previous_debate_time = timezone.now() + datetime.timedelta(days=1)
+        self.mode.save()
 
         self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
@@ -135,7 +137,8 @@ class SubmissionTest(TestCase):
         self.assertEqual(1, len(votes))
 
     def test_post_submission_from_local_user(self):
-        mode = SiteModeFactory(debate_state='NY')
+        self.mode.debate_state = 'NY'
+        self.mode.save()
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -155,7 +158,8 @@ class SubmissionTest(TestCase):
         self.assertEqual(submission.local_votes, 1)
 
     def test_post_submission_from_nonlocal_user(self):
-        mode = SiteModeFactory(debate_state='FL')
+        self.mode.debate_state = 'FL'
+        self.mode.save()
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -175,7 +179,8 @@ class SubmissionTest(TestCase):
         self.assertEqual(submission.local_votes, 0)
 
     def test_post_submission_when_no_local_district_configured(self):
-        mode = SiteModeFactory(debate_state=None)
+        self.mode.debate_state = None
+        self.mode.save()
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
