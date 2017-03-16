@@ -14,12 +14,14 @@ class FlatPageTest(TestCase):
         self.mode = SiteModeFactory(site=self.site)
 
         self.page1_content = 'About the site'
-        self.page1 = FlatPage(url='/about/', title='About',
+        self.page1 = FlatPage(url='/{}/about/'.format(self.mode.prefix),
+                              title='About',
                               content=self.page1_content)
         self.page1.save()
         self.page1.sites.add(self.site)
         self.page2_content = '[An embedded video]'
-        self.page2 = FlatPage(url='/watch/', title='Watch Now!',
+        self.page2 = FlatPage(url='/{}/watch/'.format(self.mode.prefix),
+                              title='Watch Now!',
                               content=self.page2_content)
         self.page2.save()
         self.page2.sites.add(self.site)
