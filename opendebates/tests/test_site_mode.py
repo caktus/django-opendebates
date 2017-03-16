@@ -66,7 +66,7 @@ class AnnouncementTest(TestCase):
         link = "http://example.com/the-special-page"
         self.mode.announcement_headline = headline
         self.mode.announcement_link = link
-        self.mode.announcement_page_regex = "/registration/"
+        self.mode.announcement_page_regex = "/{}/registration/".format(self.mode.prefix)
         self.mode.save()
 
         rsp = self.client.get(reverse('registration_register', kwargs={'prefix': self.mode.prefix}))
@@ -77,7 +77,8 @@ class AnnouncementTest(TestCase):
         self.assertNotIn('<div class="site-announcement warning">', rsp.content)
         self.assertNotIn('<a href="%s">' % link, rsp.content)
 
-        self.mode.announcement_page_regex = "^(?!/registration/register/).*$"
+        self.mode.announcement_page_regex = "^(?!/{}/registration/register/).*$".format(
+            self.mode.prefix)
         self.mode.save()
 
         rsp = self.client.get(reverse('registration_register', kwargs={'prefix': self.mode.prefix}))
