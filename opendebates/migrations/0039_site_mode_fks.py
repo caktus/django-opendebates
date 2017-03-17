@@ -25,6 +25,12 @@ class Migration(migrations.Migration):
             preserve_default=False,
         ),
         migrations.AddField(
+            model_name='topsubmissioncategory',
+            name='site_mode',
+            field=models.ForeignKey(related_name='top_categories', default=1, to='opendebates.SiteMode'),
+            preserve_default=False,
+        ),
+        migrations.AddField(
             model_name='sitemode',
             name='site',
             field=models.ForeignKey(related_name='site_modes', default=1, to='sites.Site'),

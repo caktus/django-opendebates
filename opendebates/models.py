@@ -376,6 +376,8 @@ class Flag(models.Model):
 
 
 class TopSubmissionCategory(models.Model):
+    site_mode = models.ForeignKey('SiteMode', related_name='top_categories')
+
     slug = models.SlugField(unique=True)
     title = models.TextField()
     caption = models.CharField(max_length=255, blank=True)

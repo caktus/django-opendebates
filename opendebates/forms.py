@@ -11,7 +11,7 @@ from localflavor.us.forms import USPhoneNumberField, USZipCodeField
 from nocaptcha_recaptcha.fields import NoReCaptchaField
 from registration.forms import RegistrationForm
 
-from .models import Category, Flag, Submission, TopSubmission
+from .models import Category, Flag, Submission, TopSubmissionCategory, TopSubmission
 
 VALID_SUBMISSION_DETAIL_URL_NAMES = ['vote', 'show_idea']
 
@@ -238,8 +238,22 @@ class TopSubmissionForm(forms.ModelForm):
         fields = ('category', 'submission', 'rank')
 
     def __init__(self, *args, **kwargs):
+        mode = kwargs.pop('mode')
         super(TopSubmissionForm, self).__init__(*args, **kwargs)
         self.fields['submission'].widget = forms.NumberInput()
+        self.fields['category'].queryset = TopSubmissionCategory.objects.filter(
+            site_mode=mode)
+
+    def clean(self):
+        cleaned_data = super(TopSubmissionForm, self).clean()
+        category = cleaned_data.get('category')
+        submission = cleaned_data.get('submission')
+        if submission.site_mode != category.site_mode:
+            self.add_error(
+                'submission',
+                forms.ValidationError("This submission does not exist or is not in this debate.")
+            )
+        return cleaned_data
 
     def save(self, commit=True):
         top = super(TopSubmissionForm, self).save(commit=False)

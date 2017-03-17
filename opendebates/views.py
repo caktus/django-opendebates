@@ -519,7 +519,8 @@ def merge(request, id):
 @rendered_with("opendebates/top_archive.html")
 @allow_http("GET")
 def top_archive(request, slug):
-    category = get_object_or_404(TopSubmissionCategory, slug=slug)
+    category = get_object_or_404(TopSubmissionCategory,
+                                 site_mode=request.site_mode, slug=slug)
     submissions = category.submissions.select_related(
         "submission", "submission__voter", "submission__voter__user",
         "submission__category").order_by("rank", "created_at").all()

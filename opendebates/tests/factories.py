@@ -115,6 +115,8 @@ class TopSubmissionCategoryFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.TopSubmissionCategory
 
+    site_mode = factory.LazyAttribute(_testserver_site_mode)
+
     slug = factory.Faker('slug')
     title = factory.Faker('catch_phrase')
     caption = factory.Faker('bs')

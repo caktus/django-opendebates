@@ -177,7 +177,8 @@ def add_to_top_archive(request):
     if not request.user.is_superuser:
         raise PermissionDenied
 
-    form = TopSubmissionForm(data=request.POST or None, initial=request.GET or None)
+    form = TopSubmissionForm(data=request.POST or None, initial=request.GET or None,
+                             mode=request.site_mode)
     if request.method == 'POST':
         if form.is_valid():
             entry = form.save()

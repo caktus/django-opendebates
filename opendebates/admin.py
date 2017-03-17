@@ -85,7 +85,7 @@ class FlagAdmin(ModelAdmin):
 
 @register(models.TopSubmissionCategory)
 class TopSubmissionCategoryAdmin(ModelAdmin):
-    list_display = ['slug', 'title']
+    list_display = ['site_mode', 'slug', 'title']
 
 
 @register(models.SiteMode)
