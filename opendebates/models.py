@@ -14,8 +14,8 @@ from localflavor.us.models import PhoneNumberField
 
 from opendebates import site_defaults
 
-NUMBER_OF_VOTES_CACHE_ENTRY = 'number_of_votes'
-RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry'
+NUMBER_OF_VOTES_CACHE_ENTRY = 'number_of_votes-{}'
+RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry-{}'
 
 
 class Category(CachingMixin, models.Model):

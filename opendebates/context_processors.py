@@ -3,12 +3,13 @@ import re
 from urllib import quote_plus
 
 from django.conf import settings
+from django.core.cache import cache
 from django.utils.functional import SimpleLazyObject
 from django.utils.html import mark_safe
 from django.utils.timezone import now
 
-from .models import Category, Vote
-from .utils import get_voter, get_number_of_votes, vote_needs_captcha
+from .models import Category, Vote, NUMBER_OF_VOTES_CACHE_ENTRY
+from .utils import get_voter, vote_needs_captcha
 
 
 def voter(request):
@@ -59,9 +60,11 @@ def global_vars(request):
         "url": quote_plus(site_domain_with_protocol + "?source=fb-site"),
     }
 
+    votes_key = NUMBER_OF_VOTES_CACHE_ENTRY.format(mode.id)
+
     context.update({
         'VOTE_NEEDS_CAPTCHA': vote_needs_captcha(request),
-        'NUMBER_OF_VOTES': get_number_of_votes(request) if mode.show_total_votes else 0,
+        'NUMBER_OF_VOTES': (cache.get(votes_key) or 0) if mode.show_total_votes else 0,
 
         'FACEBOOK_URL': FACEBOOK_URL,
         'TWITTER_URL': TWITTER_URL,

@@ -2,9 +2,8 @@ import json
 import random
 
 from django.conf import settings
-from django.core.cache import cache
 
-from .models import Vote, Voter, NUMBER_OF_VOTES_CACHE_ENTRY, SiteMode
+from .models import Vote, Voter, SiteMode
 
 
 def vote_needs_captcha(request):
@@ -29,12 +28,6 @@ def vote_needs_captcha(request):
 
 def registration_needs_captcha(request):
     return settings.USE_CAPTCHA
-
-
-def get_number_of_votes(request):
-    cache_key = '%s-%d' % (NUMBER_OF_VOTES_CACHE_ENTRY, request.site_mode.pk)
-    number = cache.get(cache_key)
-    return number or 0
 
 
 def get_voter(request):

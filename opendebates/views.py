@@ -72,7 +72,7 @@ def test(request):
 @allow_http("GET")
 @rendered_with("opendebates/snippets/recent_activity.html")
 def recent_activity(request):
-    entries = cache.get(RECENT_EVENTS_CACHE_ENTRY, default=[])
+    entries = cache.get(RECENT_EVENTS_CACHE_ENTRY.format(request.site_mode.id), default=[])
     return {
         "recent_activity": entries
     }

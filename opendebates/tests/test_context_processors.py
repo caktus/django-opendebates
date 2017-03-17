@@ -18,8 +18,8 @@ class NumberOfVotesTest(TestCase):
 
     def test_number_of_votes(self):
         mock_request = Mock()
-        mock_request.site_mode = SiteModeFactory()
-        with patch('opendebates.utils.cache') as mock_cache:
+        mock_request.site_mode = SiteModeFactory(site=self.site)
+        with patch('opendebates.context_processors.cache') as mock_cache:
             mock_cache.get.return_value = 2
             context = global_vars(mock_request)
             self.assertEqual(2, int(context['NUMBER_OF_VOTES']))
