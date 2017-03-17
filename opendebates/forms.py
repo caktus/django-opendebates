@@ -174,8 +174,9 @@ class MergeFlagForm(forms.ModelForm):
                                         'submission appears to be a duplicate of, not the '
                                         'URL of this submission.')
 
-        self.duplicate_of = Submission.objects.filter(pk=duplicate_of_pk, approved=True) \
-                                              .first()
+        self.duplicate_of = Submission.objects.filter(
+            pk=duplicate_of_pk, approved=True, category__site_mode=self.idea.site_mode
+        ).first()
         if not self.duplicate_of:
             raise forms.ValidationError('Invalid Question URL.')
         return self.cleaned_data['duplicate_of_url']
@@ -218,8 +219,16 @@ class ModerationForm(forms.Form):
     def clean(self):
         to_remove_pk = self.cleaned_data.get('to_remove')
         duplicate_of_pk = self.cleaned_data.get('duplicate_of')
-        if to_remove_pk and duplicate_of_pk and to_remove_pk == duplicate_of_pk:
-            raise forms.ValidationError('Cannot merge a submission into itself.')
+        if to_remove_pk and duplicate_of_pk:
+            if to_remove_pk == duplicate_of_pk:
+                raise forms.ValidationError('Cannot merge a submission into itself.')
+            remove_obj = self.cleaned_data['to_remove_obj']
+            duplicate_obj = self.cleaned_data['duplicate_of_obj']
+            if remove_obj.site_mode != duplicate_obj.site_mode:
+                self.add_error(
+                    'duplicate_of',
+                    forms.ValidationError('That submission does not exist or is not approved.')
+                )
         return self.cleaned_data
 
 

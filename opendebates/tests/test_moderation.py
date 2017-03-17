@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from opendebates.models import Submission, Vote, Flag, ZipCode
 from .factories import (UserFactory, VoterFactory, SubmissionFactory, RemovalFlagFactory,
-                        MergeFlagFactory, SiteFactory, SiteModeFactory)
+                        MergeFlagFactory, SiteFactory, SiteModeFactory, CategoryFactory)
 from .utilities import reset_session
 
 
@@ -347,6 +347,38 @@ class ModerationTest(TestCase):
         rsp = self.client.get(self.first_submission.get_absolute_url(), follow=True)
         self.assertNotContains(rsp, merge_url)
 
+    def test_merge_across_debates_does_not_merge(self):
+        mode = SiteModeFactory(site=self.site)
+        category = CategoryFactory(site_mode=mode)
+        self.second_submission.category = category
+        self.second_submission.save()
+        self.assertNotEqual(self.second_submission.site_mode,
+                            self.third_submission.site_mode)
+
+        self.assertEqual(self.second_submission.has_duplicates, False)
+        self.assertEqual(self.second_submission.duplicate_of, None)
+        self.assertEqual(self.second_submission.keywords, None)
+        self.assertEqual(self.third_submission.has_duplicates, False)
+        self.assertEqual(self.third_submission.duplicate_of, None)
+        self.assertEqual(self.third_submission.keywords, None)
+
+        rsp = self.client.post(self.merge_url, data={
+            "action": "merge",
+            "to_remove": self.third_submission.id,
+            "duplicate_of": self.second_submission.id,
+        })
+        self.assertEqual(NOT_FOUND, rsp.status_code)
+
+        merged = Submission.objects.get(id=self.third_submission.id)
+        remaining = Submission.objects.get(id=self.second_submission.id)
+
+        # The attempted merged submission should not be marked as a duplicate
+        self.assertIsNone(merged.duplicate_of)
+        self.assertIsNone(merged.moderated_at)
+
+        # The remaining submission should not be marked as having duplicates
+        self.assertFalse(remaining.has_duplicates)
+
     def test_remove_submission(self):
         data = {
             'to_remove': self.first_submission.pk,
@@ -630,6 +662,20 @@ class MergeFlagTest(TestCase):
 
     def test_cant_merge_into_unapproved_submission(self):
         duplicate_of = SubmissionFactory(approved=False)
+        data = {
+            'duplicate_of_url': 'https://example.com' + duplicate_of.get_absolute_url()
+        }
+        rsp = self.client.post(self.url, data=data)
+        self.assertEqual(OK, rsp.status_code)
+        form = rsp.context['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('Invalid Question URL', str(form.errors))
+        self.assertFalse(Flag.objects.exists())
+
+    def test_cant_merge_submissions_across_sites(self):
+        mode = SiteModeFactory(site=self.site)
+        category = CategoryFactory(site_mode=mode)
+        duplicate_of = SubmissionFactory(category=category)
         data = {
             'duplicate_of_url': 'https://example.com' + duplicate_of.get_absolute_url()
         }
