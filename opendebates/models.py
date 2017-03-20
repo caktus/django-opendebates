@@ -113,6 +113,9 @@ class SiteMode(CachingMixin, models.Model):
 
     objects = CachingManager()
 
+    def __unicode__(self):
+        return u'/'.join([self.site.domain, self.prefix])
+
 
 class Submission(models.Model):
 

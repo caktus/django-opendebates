@@ -90,13 +90,13 @@ class TopSubmissionCategoryAdmin(ModelAdmin):
 
 @register(models.SiteMode)
 class SiteModeAdmin(ModelAdmin):
-    list_display = ['debate_time', 'previous_debate_time', 'show_question_votes',
+    list_display = ['site', 'debate_time', 'previous_debate_time', 'show_question_votes',
                     'show_total_votes', 'allow_sorting_by_votes']
     actions = ['reset_current_votes']
     _fields = [f.name for f in models.SiteMode._meta.get_fields() if f.name != 'id']
     fieldsets = [
         ('General Settings', {
-            'fields': ['site', 'theme', 'show_question_votes', 'show_total_votes',
+            'fields': ['site', 'prefix', 'theme', 'show_question_votes', 'show_total_votes',
                        'allow_sorting_by_votes',
                        'allow_voting_and_submitting_questions',
                        'inline_css']
