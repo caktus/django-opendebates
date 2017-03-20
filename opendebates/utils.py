@@ -134,9 +134,8 @@ def sort_list(citations_only, sort, ideas):
 
 
 def get_site_mode(request):
-    site = request.site
     path = request.path.split('/')[1:]
     try:
-        return site.site_modes.get(prefix=path[0])
+        return SiteMode.objects.get(prefix=path[0])
     except (SiteMode.DoesNotExist, IndexError):
         return
