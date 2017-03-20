@@ -149,6 +149,7 @@
   ODebates.paths.merge = "{% url 'merge' SITE_MODE.prefix 0 %}";
   ODebates.paths.login = "{% url 'auth_login' SITE_MODE.prefix %}";
   ODebates.paths.register = "{% url 'registration_register' SITE_MODE.prefix %}";
+  ODebates.paths.recent = "{% url 'recent_activity' SITE_MODE.prefix %}";
 
   ODebates.strings = ODebates.strings || {};
   ODebates.strings.afterQuestionSubmittedText = {{ POPUP_AFTER_SUBMISSION_TEXT|safe }};
