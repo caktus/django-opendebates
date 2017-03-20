@@ -197,17 +197,17 @@
       web: c3.xlarge # for faster AMI creation (no swap file)
       worker: m4.large
     presidential:
-      cache: c4.2xlarge # for 1000Mbps network
-      db-master: m4.4xlarge
-      db-slave: m4.4xlarge
-      web: c3.2xlarge # for faster AMI creation (no swap file)
-      worker: m4.xlarge
+      cache: t2.micro
+      db-master: t2.small
+      db-slave: t2.small
+      web: t2.micro
+      worker: t2.micro
     prod01:
-      cache: c4.large
-      db-master: m4.xlarge
-      db-slave: m4.xlarge
-      web: c3.large # for faster AMI creation (no swap file)
-      worker: m4.large
+      cache: t2.micro
+      db-master: t2.small
+      db-slave: t2.small
+      web: t2.micro
+      worker: t2.micro
 
 # Mapping of Fabric environment names to AWS load balancer names.  Load
 # balancers can be configured in the AWS Management Console.
