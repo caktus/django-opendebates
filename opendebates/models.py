@@ -47,6 +47,13 @@ class FlatPageMetadataOverride(models.Model):
 class SiteMode(CachingMixin, models.Model):
     show_question_votes = models.BooleanField(default=True, blank=True)
     show_total_votes = models.BooleanField(default=True, blank=True)
+    subtract_invalid_votes = models.PositiveIntegerField(
+        default=0,
+        help_text=(
+            "Enter in the number of known invalid votes (that have not been explicitly"
+            " marked as such directly) to remove them from the site-wide total."
+        )
+    )
     allow_sorting_by_votes = models.BooleanField(default=True, blank=True)
     allow_voting_and_submitting_questions = models.BooleanField(default=True, blank=True)
     debate_time = models.DateTimeField(

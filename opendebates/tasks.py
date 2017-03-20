@@ -10,6 +10,7 @@ from django.db.models import F
 from opendebates.models import Vote, Submission, RECENT_EVENTS_CACHE_ENTRY, \
     NUMBER_OF_VOTES_CACHE_ENTRY
 from opendebates.router import set_thread_readonly_db, set_thread_readwrite_db
+from opendebates.utils import get_site_mode
 
 
 sql2 = """
@@ -70,8 +71,10 @@ def update_recent_events():
 
         cache.set(RECENT_EVENTS_CACHE_ENTRY, entries, 24*3600)
 
+        sitemode = get_site_mode()
         number_of_votes = Vote.objects.count()
-        cache.set(NUMBER_OF_VOTES_CACHE_ENTRY, number_of_votes, 24*3600)
+        invalid = sitemode.subtract_invalid_votes
+        cache.set(NUMBER_OF_VOTES_CACHE_ENTRY, number_of_votes - invalid, 24*3600)
 
         logger.debug("There are %d entries" % len(entries))
         logger.debug("There are %d votes" % number_of_votes)
