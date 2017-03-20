@@ -3,6 +3,7 @@ import datetime
 from django.db import models
 from django.conf import settings
 from django.core.signing import Signer
+from django.contrib.sites.models import Site
 from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
 from urllib import quote_plus
@@ -13,12 +14,13 @@ from localflavor.us.models import PhoneNumberField
 
 from opendebates import site_defaults
 
-NUMBER_OF_VOTES_CACHE_ENTRY = 'number_of_votes'
-RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry'
+NUMBER_OF_VOTES_CACHE_ENTRY = 'number_of_votes-{}'
+RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry-{}'
 
 
 class Category(CachingMixin, models.Model):
 
+    site_mode = models.ForeignKey('SiteMode', related_name='categories')
     name = models.CharField(max_length=255)
 
     objects = CachingManager()
@@ -45,6 +47,12 @@ class FlatPageMetadataOverride(models.Model):
 
 
 class SiteMode(CachingMixin, models.Model):
+    THEME_CHOICES = [(theme, theme) for theme in settings.SITE_THEMES]
+
+    site = models.ForeignKey(Site, related_name='site_modes')
+    prefix = models.SlugField()
+    theme = models.CharField(max_length=255, choices=THEME_CHOICES)
+
     show_question_votes = models.BooleanField(default=True, blank=True)
     show_total_votes = models.BooleanField(default=True, blank=True)
     allow_sorting_by_votes = models.BooleanField(default=True, blank=True)
@@ -105,23 +113,11 @@ class SiteMode(CachingMixin, models.Model):
 
     objects = CachingManager()
 
-
-class CachedSiteModeMixin(object):
-
-    def _get_site_mode(self):
-        # extracted in its own method for testing purposes
-        from opendebates.utils import get_site_mode
-        return get_site_mode()
-
-    @property
-    def site_mode(self):
-        # avoid lots of unneeded round trips to memcached in production
-        if not hasattr(self, '_cached_site_mode'):
-            self._cached_site_mode = self._get_site_mode()
-        return self._cached_site_mode
+    def __unicode__(self):
+        return u'/'.join([self.site.domain, self.prefix])
 
 
-class Submission(CachedSiteModeMixin, models.Model):
+class Submission(models.Model):
 
     def user_display_name(self):
         return self.voter.user_display_name()
@@ -171,6 +167,15 @@ class Submission(CachedSiteModeMixin, models.Model):
 
     source = models.CharField(max_length=255, null=True, blank=True)
 
+    @property
+    def site_mode(self):
+        # avoid lots of unneeded round trips to memcached in production by
+        # allowing this cached attribute to be set via the {% provide_site_to %}
+        # template tag
+        if not hasattr(self, '_cached_site_mode'):
+            self._cached_site_mode = self.category.site_mode
+        return self._cached_site_mode
+
     def get_recent_votes(self):
         timespan = datetime.datetime.now() - datetime.timedelta(1)
         return Vote.objects.filter(submission=self, created_at__gte=timespan).count()
@@ -187,7 +192,7 @@ class Submission(CachedSiteModeMixin, models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return "vote", [self.id]
+        return "vote", [self.site_mode.prefix, self.id]
 
     def tweet_text(self):
         if self.voter.twitter_handle:
@@ -227,7 +232,7 @@ class Submission(CachedSiteModeMixin, models.Model):
         return u"sms:;?body=%s" % (quote_plus(body),)
 
     def really_absolute_url(self, source=None):
-        url = settings.SITE_DOMAIN_WITH_PROTOCOL + self.get_absolute_url()
+        url = 'https://' + self.site_mode.site.domain + self.get_absolute_url()
         if source is not None:
             url += '?source=share-%s-%s' % (source, self.id)
         return url
@@ -336,6 +341,8 @@ class Vote(models.Model):
 
 
 class Candidate(models.Model):
+    site_mode = models.ForeignKey('SiteMode', related_name='candidates')
+
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
     current_title = models.CharField(max_length=255, null=True, blank=True)
@@ -372,6 +379,8 @@ class Flag(models.Model):
 
 
 class TopSubmissionCategory(models.Model):
+    site_mode = models.ForeignKey('SiteMode', related_name='top_categories')
+
     slug = models.SlugField(unique=True)
     title = models.TextField()
     caption = models.CharField(max_length=255, blank=True)

@@ -1,17 +1,20 @@
 import os
 
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from .factories import UserFactory
+from .factories import UserFactory, VoterFactory, SiteFactory, SiteModeFactory
 
 
 class RegisterTest(TestCase):
-
     def setUp(self):
-        self.url = reverse('registration_register')
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+        self.url = reverse('registration_register', kwargs={'prefix': self.mode.prefix})
         self.data = {
             'username': 'gwash',
             'password1': 'secretpassword',
@@ -25,6 +28,7 @@ class RegisterTest(TestCase):
         os.environ['NORECAPTCHA_TESTING'] = 'True'
 
     def tearDown(self):
+        Site.objects.clear_cache()
         os.environ.pop('NORECAPTCHA_TESTING', '')
 
     def test_registration_get(self):
@@ -53,7 +57,7 @@ class RegisterTest(TestCase):
 
     def test_post_success(self):
         "POST the form with all required values."
-        home_url = reverse('list_ideas')
+        home_url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
         rsp = self.client.post(self.url, data=self.data, follow=True)
         self.assertRedirects(rsp, home_url)
         new_user = get_user_model().objects.first()
@@ -101,7 +105,7 @@ class RegisterTest(TestCase):
     def test_disabling_captcha(self):
         del self.data['g-recaptcha-response']
         del os.environ['NORECAPTCHA_TESTING']
-        home_url = reverse('list_ideas')
+        home_url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
         rsp = self.client.post(self.url, data=self.data, follow=True)
         self.assertRedirects(rsp, home_url)
         new_user = get_user_model().objects.first()
@@ -109,35 +113,47 @@ class RegisterTest(TestCase):
 
 
 class LoginLogoutTest(TestCase):
-
     def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
         self.username = 'gwash'
         self.email = 'gwash@example.com'
         self.password = 'secretpassword'
-        UserFactory(username=self.username,
-                    email=self.email,
-                    password=self.password)
-        self.login_url = reverse('auth_login')
-        self.home_url = reverse('list_ideas')
+        # use VoterFactory so we have a SiteMode to authenticate against in
+        # our custom auth backend when logging in via email
+        self.voter = VoterFactory(
+            user__username=self.username,
+            user__email=self.email,
+            user__password=self.password,
+        )
+        self.login_url = reverse('auth_login', kwargs={'prefix': self.mode.prefix})
+        self.home_url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_login_with_username(self):
         rsp = self.client.post(
             self.login_url,
-            data={'username': self.username, 'password': self.password, 'next': '/'}
+            data={'username': self.username, 'password': self.password,
+                  'next': '/{}/'.format(self.mode.prefix)}
         )
         self.assertRedirects(rsp, self.home_url)
 
     def test_login_with_email(self):
         rsp = self.client.post(
             self.login_url,
-            data={'username': self.email, 'password': self.password, 'next': '/'}
+            data={'username': self.email, 'password': self.password,
+                  'next': '/{}/'.format(self.mode.prefix)}
         )
         self.assertRedirects(rsp, self.home_url)
 
     def test_failed_login(self):
         rsp = self.client.post(
             self.login_url,
-            data={'username': self.username, 'password': self.password + 'bad', 'next': '/'}
+            data={'username': self.username, 'password': self.password + 'bad',
+                  'next': '/{}/'.format(self.mode.prefix)}
         )
         self.assertEqual(200, rsp.status_code)
         form = rsp.context['form']
@@ -145,7 +161,7 @@ class LoginLogoutTest(TestCase):
 
     def test_logout(self):
         self.assertTrue(self.client.login(username=self.username, password=self.password))
-        logout_url = reverse('auth_logout')
+        logout_url = reverse('auth_logout', kwargs={'prefix': self.mode.prefix})
         rsp = self.client.get(logout_url)
         self.assertRedirects(rsp, self.home_url)
         rsp = self.client.get(self.home_url)

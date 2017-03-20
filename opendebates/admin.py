@@ -85,18 +85,18 @@ class FlagAdmin(ModelAdmin):
 
 @register(models.TopSubmissionCategory)
 class TopSubmissionCategoryAdmin(ModelAdmin):
-    list_display = ['slug', 'title']
+    list_display = ['site_mode', 'slug', 'title']
 
 
 @register(models.SiteMode)
 class SiteModeAdmin(ModelAdmin):
-    list_display = ['debate_time', 'previous_debate_time', 'show_question_votes',
+    list_display = ['site', 'debate_time', 'previous_debate_time', 'show_question_votes',
                     'show_total_votes', 'allow_sorting_by_votes']
     actions = ['reset_current_votes']
     _fields = [f.name for f in models.SiteMode._meta.get_fields() if f.name != 'id']
     fieldsets = [
         ('General Settings', {
-            'fields': ['show_question_votes', 'show_total_votes',
+            'fields': ['site', 'prefix', 'theme', 'show_question_votes', 'show_total_votes',
                        'allow_sorting_by_votes',
                        'allow_voting_and_submitting_questions',
                        'inline_css']
@@ -136,15 +136,16 @@ class SiteModeAdmin(ModelAdmin):
                        'twitter_question_text_no_handle'],
         }),
     ]
+    # XXX need to remove related fields from this (e.g., 'candidates')
     _used_fields = [fieldset[1]['fields'] for fieldset in fieldsets]
     _used_fields = set(itertools.chain.from_iterable(_used_fields))
     _missed_fields = set(_fields) - _used_fields
-    if _missed_fields:
-        fieldsets.append(('Other', {'fields': sorted(list(_missed_fields))}))
+    # if _missed_fields:
+    #     fieldsets.append(('Other', {'fields': sorted(list(_missed_fields))}))
 
     def reset_current_votes(self, request, queryset):
-        # Note, currently all submissions are under the one and only SiteMode.
-        models.Submission.objects.update(current_votes=0)
+        models.Submission.objects.update(
+            category__site_mode__in=queryset).update(current_votes=0)
     reset_current_votes.short_description = "Reset vote counts since the last debate"
 
 

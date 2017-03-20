@@ -331,7 +331,7 @@
 
     if ($("#recent-activity").length === 1) {
       var fetch = function(delay) {
-        $.get("/recent/")
+        $.get(ODebates.paths.recent)
             .done(function (data) {
               /* If successful, update page */
               $("#recent-activity").html(data);

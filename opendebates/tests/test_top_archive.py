@@ -1,4 +1,5 @@
 from httplib import FORBIDDEN
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.formats import date_format
@@ -6,21 +7,25 @@ from django.utils.timezone import localtime
 
 from opendebates.forms import TopSubmissionForm
 from opendebates.models import TopSubmission
-from .factories import (SubmissionFactory,
-                        TopSubmissionCategoryFactory,
-                        UserFactory,
-                        )
+from .factories import (SubmissionFactory, TopSubmissionCategoryFactory, UserFactory,
+                        SiteFactory, SiteModeFactory)
 
 
 class TopArchiveTest(TestCase):
-
     def setUp(self):
-        self.url = lambda slug: reverse('top_archive', args=[slug])
-        self.mod_url = reverse('moderation_add_to_top_archive')
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+        self.url = lambda slug: reverse('top_archive', args=[self.mode.prefix, slug])
+        self.mod_url = reverse('moderation_add_to_top_archive',
+                               kwargs={'prefix': self.mode.prefix})
 
         self.categories = [TopSubmissionCategoryFactory()
                            for i in range(3)]
         self.ideas = [SubmissionFactory() for i in range(10)]
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_form_copies_submission(self):
         idea = self.ideas[0]
@@ -28,7 +33,8 @@ class TopArchiveTest(TestCase):
 
         form = TopSubmissionForm(data={'category': self.categories[0].id,
                                        'submission': idea.id,
-                                       'rank': 1})
+                                       'rank': 1},
+                                 mode=self.mode)
         archive = form.save()
         id = archive.id
 
@@ -66,19 +72,22 @@ class TopArchiveTest(TestCase):
         self.ideas[0].save()
         TopSubmissionForm(data={'category': self.categories[0].id,
                                 'submission': self.ideas[0].id,
-                                'rank': 1}).save()
+                                'rank': 1},
+                          mode=self.mode).save()
 
         self.ideas[3].votes = 4000
         self.ideas[3].save()
         TopSubmissionForm(data={'category': self.categories[0].id,
                                 'submission': self.ideas[3].id,
-                                'rank': 2}).save()
+                                'rank': 2},
+                          mode=self.mode).save()
 
         self.ideas[2].votes = 5000
         self.ideas[2].save()
         TopSubmissionForm(data={'category': self.categories[0].id,
                                 'submission': self.ideas[2].id,
-                                'rank': 2}).save()
+                                'rank': 2},
+                          mode=self.mode).save()
 
         # The "Top Questions" view will contain archived submissions
         rsp = self.client.get(self.url(self.categories[0].slug))
@@ -98,7 +107,8 @@ class TopArchiveTest(TestCase):
         """The archive view does not link to its individual entries"""
         TopSubmissionForm(data={'category': self.categories[0].id,
                                 'submission': self.ideas[2].id,
-                                'rank': 2}).save()
+                                'rank': 2},
+                          mode=self.mode).save()
         rsp = self.client.get(self.url(self.categories[0].slug))
         self.assertNotContains(rsp, self.ideas[2].get_absolute_url())
 
@@ -115,7 +125,8 @@ class TopArchiveTest(TestCase):
 
         TopSubmissionForm(data={'category': self.categories[0].id,
                                 'submission': self.ideas[2].id,
-                                'rank': 2}).save()
+                                'rank': 2},
+                          mode=self.mode).save()
         rsp = self.client.get(self.url(self.categories[0].slug))
         self.assertContains(rsp, self.ideas[2].voter.user_display_name())
         self.assertContains(rsp, self.ideas[2].category.name)
@@ -132,10 +143,12 @@ class TopArchiveTest(TestCase):
         # An idea can appear in multiple archive categories
         TopSubmissionForm(data={'category': self.categories[0].id,
                                 'submission': self.ideas[2].id,
-                                'rank': 1}).save()
+                                'rank': 1},
+                          mode=self.mode).save()
         TopSubmissionForm(data={'category': self.categories[1].id,
                                 'submission': self.ideas[2].id,
-                                'rank': 2}).save()
+                                'rank': 2},
+                          mode=self.mode).save()
 
         rsp0 = self.client.get(self.url(self.categories[0].slug))
         rsp1 = self.client.get(self.url(self.categories[1].slug))
@@ -146,11 +159,13 @@ class TopArchiveTest(TestCase):
         # Each archive category has an entirely independent list
         TopSubmissionForm(data={'category': self.categories[0].id,
                                 'submission': self.ideas[3].id,
-                                'rank': 2}).save()
+                                'rank': 2},
+                          mode=self.mode).save()
 
         TopSubmissionForm(data={'category': self.categories[1].id,
                                 'submission': self.ideas[4].id,
-                                'rank': 1}).save()
+                                'rank': 1},
+                          mode=self.mode).save()
 
         rsp0 = self.client.get(self.url(self.categories[0].slug))
         rsp1 = self.client.get(self.url(self.categories[1].slug))
@@ -164,15 +179,31 @@ class TopArchiveTest(TestCase):
     def test_idea_once_per_category(self):
         TopSubmissionForm(data={'category': self.categories[0].id,
                                 'submission': self.ideas[0].id,
-                                'rank': 1}).save()
+                                'rank': 1},
+                          mode=self.mode).save()
 
         form = TopSubmissionForm(data={'category': self.categories[0].id,
                                        'submission': self.ideas[0].id,
-                                       'rank': 2})
+                                       'rank': 2},
+                                 mode=self.mode)
         self.assertFalse(form.is_valid())
         self.assertEquals(
             form.non_field_errors(),
             [u'Top submission with this Category and Submission already exists.'])
+
+    def test_idea_from_different_debate(self):
+        mode = SiteModeFactory(site=self.site)
+        self.ideas[0].category.site_mode = mode
+        self.ideas[0].category.save()
+
+        form = TopSubmissionForm(data={'category': self.categories[0].id,
+                                       'submission': self.ideas[0].id,
+                                       'rank': 1},
+                                 mode=self.mode)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors.get('submission'),
+            [u'This submission does not exist or is not in this debate.'])
 
     def test_moderator_view_only_accessible_to_superusers(self):
         self.client.logout()

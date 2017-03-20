@@ -11,7 +11,7 @@ from localflavor.us.forms import USPhoneNumberField, USZipCodeField
 from nocaptcha_recaptcha.fields import NoReCaptchaField
 from registration.forms import RegistrationForm
 
-from .models import Category, Flag, Submission, TopSubmission
+from .models import Category, Flag, Submission, TopSubmissionCategory, TopSubmission
 
 VALID_SUBMISSION_DETAIL_URL_NAMES = ['vote', 'show_idea']
 
@@ -32,14 +32,16 @@ class VoterForm(forms.Form):
 
 
 class QuestionForm(forms.Form):
-    category = forms.ModelMultipleChoiceField(queryset=Category.objects.all())
+    category = forms.ModelMultipleChoiceField(queryset=Category.objects.none())
     headline = forms.CharField(required=True)
     question = forms.CharField(required=False)
     citation = forms.URLField(required=False, max_length=255)
 
     def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request')
         super(QuestionForm, self).__init__(*args, **kwargs)
         self.fields['category'].error_messages['invalid_pk_value'] = _("You must select a category")
+        self.fields['category'].queryset = Category.objects.filter(site_mode=request.site_mode)
 
 display_name_help_text = _("How your name will be displayed on the site. If you "
                            "are an expert in a particular field or have a professional "
@@ -87,6 +89,7 @@ class OpenDebatesRegistrationForm(RegistrationForm):
     ]
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request')
         super(OpenDebatesRegistrationForm, self).__init__(*args, **kwargs)
         if settings.ENABLE_USER_PHONE_NUMBER:
             self.fields['phone_number'] = USPhoneNumberField(
@@ -139,7 +142,7 @@ class OpenDebatesRegistrationForm(RegistrationForm):
 
 class OpenDebatesAuthenticationForm(AuthenticationForm):
     username = forms.CharField(max_length=254,
-                               label="Username or Email")
+                               label="Email")
 
 
 class MergeFlagForm(forms.ModelForm):
@@ -171,8 +174,9 @@ class MergeFlagForm(forms.ModelForm):
                                         'submission appears to be a duplicate of, not the '
                                         'URL of this submission.')
 
-        self.duplicate_of = Submission.objects.filter(pk=duplicate_of_pk, approved=True) \
-                                              .first()
+        self.duplicate_of = Submission.objects.filter(
+            pk=duplicate_of_pk, approved=True, category__site_mode=self.idea.site_mode
+        ).first()
         if not self.duplicate_of:
             raise forms.ValidationError('Invalid Question URL.')
         return self.cleaned_data['duplicate_of_url']
@@ -215,8 +219,16 @@ class ModerationForm(forms.Form):
     def clean(self):
         to_remove_pk = self.cleaned_data.get('to_remove')
         duplicate_of_pk = self.cleaned_data.get('duplicate_of')
-        if to_remove_pk and duplicate_of_pk and to_remove_pk == duplicate_of_pk:
-            raise forms.ValidationError('Cannot merge a submission into itself.')
+        if to_remove_pk and duplicate_of_pk:
+            if to_remove_pk == duplicate_of_pk:
+                raise forms.ValidationError('Cannot merge a submission into itself.')
+            remove_obj = self.cleaned_data['to_remove_obj']
+            duplicate_obj = self.cleaned_data['duplicate_of_obj']
+            if remove_obj.site_mode != duplicate_obj.site_mode:
+                self.add_error(
+                    'duplicate_of',
+                    forms.ValidationError('That submission does not exist or is not approved.')
+                )
         return self.cleaned_data
 
 
@@ -226,8 +238,22 @@ class TopSubmissionForm(forms.ModelForm):
         fields = ('category', 'submission', 'rank')
 
     def __init__(self, *args, **kwargs):
+        mode = kwargs.pop('mode')
         super(TopSubmissionForm, self).__init__(*args, **kwargs)
         self.fields['submission'].widget = forms.NumberInput()
+        self.fields['category'].queryset = TopSubmissionCategory.objects.filter(
+            site_mode=mode)
+
+    def clean(self):
+        cleaned_data = super(TopSubmissionForm, self).clean()
+        category = cleaned_data.get('category')
+        submission = cleaned_data.get('submission')
+        if submission.site_mode != category.site_mode:
+            self.add_error(
+                'submission',
+                forms.ValidationError("This submission does not exist or is not in this debate.")
+            )
+        return cleaned_data
 
     def save(self, commit=True):
         top = super(TopSubmissionForm, self).save(commit=False)

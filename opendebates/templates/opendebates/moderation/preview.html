@@ -25,7 +25,7 @@
           </div>
         {% endif %}
 
-        <form method="POST" action="{% url post_url %}">
+        <form method="POST" action="{% url post_url SITE_MODE.prefix %}">
           {% csrf_token %}
           <input type="hidden" name="to_remove" value="{{ to_remove.id }}">
           <div style="clear: left; font-size: 16px">
@@ -60,7 +60,7 @@
 
   <div class="row">
     <div class="col-md-12">
-      <form action="{% url 'moderation_preview' %}" method="POST">
+      <form action="{% url 'moderation_preview' SITE_MODE.prefix %}" method="POST">
         {% csrf_token %}
         {{ form|bootstrap }}
         <input class="btn btn-default" type="submit" value="{% if to_remove %}Update{% else %}Show{% endif %} Preview" />

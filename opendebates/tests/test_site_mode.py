@@ -1,13 +1,19 @@
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from opendebates.models import SiteMode
+from opendebates.tests.factories import SiteFactory, SiteModeFactory
 
 
 class AnnouncementTest(TestCase):
-
     def setUp(self):
-        self.mode, _ = SiteMode.objects.get_or_create()
-        self.url = '/'
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+        self.url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_default_no_announcement(self):
         rsp = self.client.get(self.url)
@@ -60,38 +66,43 @@ class AnnouncementTest(TestCase):
         link = "http://example.com/the-special-page"
         self.mode.announcement_headline = headline
         self.mode.announcement_link = link
-        self.mode.announcement_page_regex = "/registration/"
+        self.mode.announcement_page_regex = "/{}/registration/".format(self.mode.prefix)
         self.mode.save()
 
-        rsp = self.client.get('/registration/register/')
+        rsp = self.client.get(reverse('registration_register', kwargs={'prefix': self.mode.prefix}))
         self.assertIn('<div class="site-announcement warning">', rsp.content)
         self.assertIn('<a href="%s">' % link, rsp.content)
 
-        rsp = self.client.get('/')
+        rsp = self.client.get(reverse('list_ideas', kwargs={'prefix': self.mode.prefix}))
         self.assertNotIn('<div class="site-announcement warning">', rsp.content)
         self.assertNotIn('<a href="%s">' % link, rsp.content)
 
-        self.mode.announcement_page_regex = "^(?!/registration/register/).*$"
+        self.mode.announcement_page_regex = "^(?!/{}/registration/register/).*$".format(
+            self.mode.prefix)
         self.mode.save()
 
-        rsp = self.client.get('/registration/register/')
+        rsp = self.client.get(reverse('registration_register', kwargs={'prefix': self.mode.prefix}))
         self.assertNotIn('<div class="site-announcement warning">', rsp.content)
         self.assertNotIn('<a href="%s">' % link, rsp.content)
 
-        rsp = self.client.get('/registration/login/')
+        rsp = self.client.get(reverse('auth_login', kwargs={'prefix': self.mode.prefix}))
         self.assertIn('<div class="site-announcement warning">', rsp.content)
         self.assertIn('<a href="%s">' % link, rsp.content)
 
-        rsp = self.client.get('/')
+        rsp = self.client.get(reverse('list_ideas', kwargs={'prefix': self.mode.prefix}))
         self.assertIn('<div class="site-announcement warning">', rsp.content)
         self.assertIn('<a href="%s">' % link, rsp.content)
 
 
 class InlineCSSTest(TestCase):
-
     def setUp(self):
-        self.mode, _ = SiteMode.objects.get_or_create()
-        self.url = '/'
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
+        self.url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def test_default_no_inline_css(self):
         rsp = self.client.get(self.url)
@@ -108,7 +119,7 @@ class InlineCSSTest(TestCase):
                       rsp.content)
         self.assertIn(css, rsp.content)
 
-        rsp = self.client.get('/registration/login/')
+        rsp = self.client.get(reverse('auth_login', kwargs={'prefix': self.mode.prefix}))
         self.assertIn(css, rsp.content)
 
     def test_admins_can_be_pretty_malicious_with_inline_css(self):

@@ -2,10 +2,8 @@ import json
 import random
 
 from django.conf import settings
-from django.core.cache import cache
 
-from .models import Vote, Voter, NUMBER_OF_VOTES_CACHE_ENTRY, SiteMode
-from .router import readwrite_db
+from .models import Vote, Voter, SiteMode
 
 
 def vote_needs_captcha(request):
@@ -19,7 +17,9 @@ def vote_needs_captcha(request):
             voter = get_voter(request)
             if voter:
                 # A user's first vote requires a captcha
-                need = not Vote.objects.filter(voter__email=voter['email']).exists()
+                need = not Vote.objects.filter(
+                    voter__email=voter['email'],
+                ).exists()
             else:
                 need = True
         request.vote_needs_captcha = need
@@ -28,11 +28,6 @@ def vote_needs_captcha(request):
 
 def registration_needs_captcha(request):
     return settings.USE_CAPTCHA
-
-
-def get_number_of_votes():
-    number = cache.get(NUMBER_OF_VOTES_CACHE_ENTRY)
-    return number or 0
 
 
 def get_voter(request):
@@ -100,9 +95,9 @@ def get_ip_address_from_request(request):
     return ip_address
 
 
-def choose_sort(sort):
+def choose_sort(request, sort):
     sort = sort or random.choice(["trending", "trending", "random"])
-    if sort.endswith('votes') and not allow_sorting_by_votes():
+    if sort.endswith('votes') and not request.site_mode.allow_sorting_by_votes:
         sort = 'trending'
     return sort
 
@@ -138,29 +133,10 @@ def sort_list(citations_only, sort, ideas):
     return ideas
 
 
-def get_site_mode():
+def get_site_mode(request):
+    site = request.site
+    path = request.path.split('/')[1:]
     try:
-        return SiteMode.objects.get()
-    except SiteMode.DoesNotExist:
-        with readwrite_db():
-            return SiteMode.objects.get_or_create()[0]
-
-
-def allow_sorting_by_votes():
-    return get_site_mode().allow_sorting_by_votes
-
-
-def show_question_votes():
-    return get_site_mode().show_question_votes
-
-
-def allow_voting_and_submitting_questions():
-    return get_site_mode().allow_voting_and_submitting_questions
-
-
-def get_local_votes_state():
-    return get_site_mode().debate_state
-
-
-def get_previous_debate_time():
-    return get_site_mode().previous_debate_time
+        return site.site_modes.get(prefix=path[0])
+    except (SiteMode.DoesNotExist, IndexError):
+        return

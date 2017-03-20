@@ -1,6 +1,5 @@
 from djangohelpers.lib import rendered_with, allow_http
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.http import HttpResponseBadRequest
@@ -9,14 +8,14 @@ from django.utils.translation import ugettext as _
 from django.utils.timezone import now
 
 from opendebates_emails.models import send_email
+from .decorators import od_login_required
 from .forms import ModerationForm, TopSubmissionForm
 from .models import Submission, Vote, Flag
-from .utils import get_local_votes_state, get_previous_debate_time
 
 
 @rendered_with("opendebates/moderation/preview.html")
 @allow_http("GET", "POST")
-@login_required
+@od_login_required
 def preview(request):
     if not request.user.is_superuser:
         raise PermissionDenied
@@ -38,13 +37,23 @@ def preview(request):
 
 
 @allow_http("POST")
-@login_required
+@od_login_required
 def merge(request):
     if not request.user.is_superuser:
         raise PermissionDenied
 
-    to_remove = get_object_or_404(Submission, pk=request.POST['to_remove'], approved=True)
-    duplicate_of = get_object_or_404(Submission, pk=request.POST['duplicate_of'], approved=True)
+    to_remove = get_object_or_404(
+        Submission,
+        pk=request.POST['to_remove'],
+        approved=True,
+        category__site_mode=request.site_mode,
+    )
+    duplicate_of = get_object_or_404(
+        Submission,
+        pk=request.POST['duplicate_of'],
+        approved=True,
+        category__site_mode=request.site_mode,
+    )
 
     if request.POST.get("action").lower() == "reject":
         msg = _(u'No changes made and flag has been removed.')
@@ -62,14 +71,14 @@ def merge(request):
         votes_to_merge = Vote.objects.filter(submission=to_remove).exclude(
             voter__in=votes_already_cast)
 
-        previous_debate_time = get_previous_debate_time()
+        previous_debate_time = request.site_mode.previous_debate_time
         if previous_debate_time:
             current_votes_to_merge = votes_to_merge.filter(
                 created_at__gt=previous_debate_time).count()
         else:
             current_votes_to_merge = votes_to_merge.count()
 
-        local_state = get_local_votes_state()
+        local_state = request.site_mode.debate_state
         if local_state:
             local_votes_to_merge = votes_to_merge.filter(voter__state=local_state).count()
         else:
@@ -102,16 +111,21 @@ def merge(request):
     ).update(reviewed=True)
 
     messages.info(request, msg)
-    return redirect('moderation_home')
+    return redirect('moderation_home', prefix=request.site_mode.prefix)
 
 
 @allow_http("POST")
-@login_required
+@od_login_required
 def remove(request):
     if not request.user.is_superuser:
         raise PermissionDenied
 
-    to_remove = get_object_or_404(Submission, pk=request.POST.get('to_remove'), approved=True)
+    to_remove = get_object_or_404(
+        Submission,
+        pk=request.POST.get('to_remove'),
+        approved=True,
+        category__site_mode=request.site_mode,
+    )
 
     remove = request.POST.get('action').lower() == 'remove'
     if remove:
@@ -127,12 +141,12 @@ def remove(request):
     if remove and request.POST.get("send_email") == "yes":
         send_email("idea_is_removed", {"idea": to_remove})
     messages.info(request, msg)
-    return redirect('moderation_home')
+    return redirect('moderation_home', prefix=request.site_mode.prefix)
 
 
 @rendered_with("opendebates/moderation/home.html")
 @allow_http("GET")
-@login_required
+@od_login_required
 def home(request):
     if not request.user.is_superuser:
         raise PermissionDenied
@@ -141,7 +155,9 @@ def home(request):
     #   - which have removal flags without duplicate_of (so not merges)
     #   - which have not already been moderated
     #   - ordered by flag count
-    flagged_for_removal = Submission.objects.filter(removal_flags__duplicate_of=None) \
+    flagged_for_removal = Submission.objects.filter(
+                                                removal_flags__duplicate_of=None,
+                                                category__site_mode=request.site_mode) \
                                             .exclude(moderated_removal=True) \
                                             .annotate(num_flags=Count('removal_flags')) \
                                             .filter(num_flags__gt=0) \
@@ -161,10 +177,12 @@ def add_to_top_archive(request):
     if not request.user.is_superuser:
         raise PermissionDenied
 
-    form = TopSubmissionForm(data=request.POST or None, initial=request.GET or None)
+    form = TopSubmissionForm(data=request.POST or None, initial=request.GET or None,
+                             mode=request.site_mode)
     if request.method == 'POST':
         if form.is_valid():
             entry = form.save()
-            return redirect("top_archive", slug=entry.category.slug)
+            return redirect("top_archive",
+                            prefix=request.site_mode.prefix, slug=entry.category.slug)
 
     return {"form": form}

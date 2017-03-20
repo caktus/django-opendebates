@@ -1,11 +1,12 @@
 from django.contrib.admin.sites import AdminSite
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from mock import patch
 
 from opendebates.admin import SubmissionAdmin
 from opendebates.models import Submission
-from opendebates.tests.factories import SubmissionFactory, UserFactory
+from opendebates.tests.factories import SubmissionFactory, UserFactory, SiteModeFactory
 
 
 # mock objects to make the admin think we're superusers.
@@ -15,6 +16,7 @@ from opendebates.tests.factories import SubmissionFactory, UserFactory
 class MockRequest(object):
     POST = {}
     META = {}
+    scheme = 'http'
 
 
 class MockSuperUser(object):
@@ -24,12 +26,8 @@ class MockSuperUser(object):
     def is_authenticated(self):
         return True
 
-request = MockRequest()
-request.user = MockSuperUser()
-
 
 class RemoveSubmissionsTest(TestCase):
-
     def setUp(self):
         self.site = AdminSite()
         self.admin = SubmissionAdmin(Submission, self.site)
@@ -40,11 +38,18 @@ class RemoveSubmissionsTest(TestCase):
         self.queryset = Submission.objects.all()
         self.changelist_url = reverse('admin:opendebates_submission_changelist')
 
+    def tearDown(self):
+        Site.objects.clear_cache()
+
     def test_get(self):
         """
         GETting the intermediate page should have specified text and the PK of
         the chosen submissions.
         """
+        request = MockRequest()
+        request.user = MockSuperUser()
+        request.site_mode = SiteModeFactory()
+
         rsp = self.admin.remove_submissions(request, self.queryset)
         self.assertEqual(rsp.status_code, 200)
         self.assertContains(rsp, 'remove the selected submissions?')

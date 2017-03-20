@@ -7,7 +7,7 @@ from django.core import management
 from django.db import connection
 from django.db.models import F
 
-from opendebates.models import Vote, Submission, RECENT_EVENTS_CACHE_ENTRY, \
+from opendebates.models import Vote, Submission, SiteMode, RECENT_EVENTS_CACHE_ENTRY, \
     NUMBER_OF_VOTES_CACHE_ENTRY
 from opendebates.router import set_thread_readonly_db, set_thread_readwrite_db
 
@@ -49,42 +49,59 @@ def update_recent_events():
     """
     Compute recent events and other statistics and cache them.
     """
-    logger.debug("update_recent_events: started")
+    for site_mode in SiteMode.objects.all():
+        logger.debug("update_recent_events: started for %s" % site_mode)
 
-    try:
-        # No middleware on tasks, so this won't get set otherwise.
-        # Tell the DB router this thread only needs to read the DB, not write.
-        # We run this task frequently, so it's worthwhile.
-        set_thread_readonly_db()
+        try:
+            # No middleware on tasks, so this won't get set otherwise.
+            # Tell the DB router this thread only needs to read the DB, not write.
+            # We run this task frequently, so it's worthwhile.
+            set_thread_readonly_db()
 
-        votes = Vote.objects.select_related(
-            "voter", "voter__user", "submission").filter(
-            submission__approved=True, submission__duplicate_of__isnull=True).exclude(
-            voter=F('submission__voter')).order_by("-id")[:10]
-        submissions = Submission.objects.select_related(
-            "voter", "voter__user").filter(
-            approved=True, duplicate_of__isnull=True).order_by("-id")[:10]
+            votes = Vote.objects.select_related(
+                "voter",
+                "voter__user",
+                "submission__category",
+            ).filter(
+                submission__category__site_mode_id=site_mode.id,
+                submission__approved=True,
+                submission__duplicate_of__isnull=True,
+            ).exclude(
+                voter=F('submission__voter'),
+            ).order_by("-id")[:10]
+            submissions = Submission.objects.select_related(
+                "voter",
+                "voter__user",
+                "category",
+            ).filter(
+                approved=True,
+                duplicate_of__isnull=True,
+                category__site_mode_id=site_mode.id,
+            ).order_by("-id")[:10]
 
-        entries = list(votes) + list(submissions)
-        entries = sorted(entries, key=lambda x: x.created_at, reverse=True)[:10]
+            entries = list(votes) + list(submissions)
+            entries = sorted(entries, key=lambda x: x.created_at, reverse=True)[:10]
 
-        cache.set(RECENT_EVENTS_CACHE_ENTRY, entries, 24*3600)
+            cache.set(RECENT_EVENTS_CACHE_ENTRY.format(site_mode.id),
+                      entries, 24*3600)
 
-        number_of_votes = Vote.objects.count()
-        cache.set(NUMBER_OF_VOTES_CACHE_ENTRY, number_of_votes, 24*3600)
+            number_of_votes = Vote.objects.filter(
+                submission__category__site_mode_id=site_mode.id).count()
+            cache.set(NUMBER_OF_VOTES_CACHE_ENTRY.format(site_mode.id),
+                      number_of_votes, 24*3600)
 
-        logger.debug("There are %d entries" % len(entries))
-        logger.debug("There are %d votes" % number_of_votes)
-    except:
-        # This task runs too frequently to report a recurring problem every time
-        # it happens.
-        global exception_logged
-        if not exception_logged:
-            logger.exception("Unexpected exception in update_recent_events")
-            exception_logged = True
-    finally:
-        # Be a good citizen and reset the worker's thread to the default state
-        set_thread_readwrite_db()
+            logger.debug("There are %d entries" % len(entries))
+            logger.debug("There are %d votes" % number_of_votes)
+        except Exception:
+            # This task runs too frequently to report a recurring problem every time
+            # it happens.
+            global exception_logged
+            if not exception_logged:
+                logger.exception("Unexpected exception in update_recent_events for %s" % site_mode)
+                exception_logged = True
+        finally:
+            # Be a good citizen and reset the worker's thread to the default state
+            set_thread_readwrite_db()
 
 
 @shared_task

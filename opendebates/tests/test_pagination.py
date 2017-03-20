@@ -1,3 +1,4 @@
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -5,18 +6,23 @@ from django.test.utils import override_settings
 import re
 import urlparse
 
-from .factories import SubmissionFactory
+from .factories import SubmissionFactory, SiteFactory, SiteModeFactory
 from .utilities import patch_cache_templatetag
 
 
 @override_settings(SUBMISSIONS_PER_PAGE=1)
 class PaginationTest(TestCase):
-
     def setUp(self):
-        self.url = reverse('list_ideas')
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
 
         for i in range(2):
             SubmissionFactory()
+
+        self.url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
+
+    def tearDown(self):
+        Site.objects.clear_cache()
 
     def find_first_page_link(self, content):
         link = re.search('<a\W+href="(.*)"\W+rel="page"\W+class="endless_page_link">2</a>',
@@ -28,7 +34,7 @@ class PaginationTest(TestCase):
         rsp = self.client.get(self.url)
         self.assertIn('endless_page_link', rsp.content)
         link = self.find_first_page_link(rsp.content)
-        self.assertEqual('/?page=2', link)
+        self.assertEqual('/{}/?page=2'.format(self.mode.prefix), link)
 
     def test_pagination_preserves_querystring(self):
         rsp = self.client.get(self.url + '?source=foo&utm_medium=email')

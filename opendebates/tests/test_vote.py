@@ -3,17 +3,22 @@ import json
 import os
 
 from django.test import TestCase
+from django.contrib.sites.models import Site
 from django.test.utils import override_settings
 from django.utils import timezone
 
-from opendebates.models import Submission, Vote, Voter, SiteMode, ZipCode
-from .factories import UserFactory, SubmissionFactory, VoterFactory, VoteFactory
+from opendebates.models import Submission, Vote, Voter, ZipCode
+from .factories import (UserFactory, SubmissionFactory, VoterFactory, VoteFactory,
+                        SiteModeFactory, SiteFactory)
 from .utilities import reset_session
 
 
 class VoteTest(TestCase):
 
     def setUp(self):
+        self.site = SiteFactory()
+        self.mode = SiteModeFactory(site=self.site)
+
         self.submission = SubmissionFactory()
         self.submission_url = self.submission.get_absolute_url()
         # keep track of vote count before test starts
@@ -26,6 +31,8 @@ class VoteTest(TestCase):
         os.environ['NORECAPTCHA_TESTING'] = 'True'
 
     def tearDown(self):
+        Site.objects.clear_cache()
+
         del os.environ['NORECAPTCHA_TESTING']
 
     # tests are all done as AJAX, like the actual site
@@ -129,9 +136,10 @@ class VoteTest(TestCase):
         self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
 
     def test_vote_local_voter(self):
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.debate_state = "NY"
-        mode.save()
+        mode = SiteModeFactory(debate_state='NY')
+        self.submission.category.site_mode = mode
+        self.submission.category.save()
+        del self.submission._cached_site_mode
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -141,7 +149,7 @@ class VoteTest(TestCase):
             'zipcode': '11111',
             'g-recaptcha-response': 'PASSED'
         }
-        rsp = self.client.post(self.submission_url, data=data,
+        rsp = self.client.post(self.submission.get_absolute_url(), data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
@@ -150,9 +158,10 @@ class VoteTest(TestCase):
         self.assertEqual(1, refetched_sub.local_votes)
 
     def test_vote_nonlocal_voter(self):
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.debate_state = "FL"
-        mode.save()
+        mode = SiteModeFactory(debate_state='FL')
+        self.submission.category.site_mode = mode
+        self.submission.category.save()
+        del self.submission._cached_site_mode
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -162,7 +171,7 @@ class VoteTest(TestCase):
             'zipcode': '11111',
             'g-recaptcha-response': 'PASSED'
         }
-        rsp = self.client.post(self.submission_url, data=data,
+        rsp = self.client.post(self.submission.get_absolute_url(), data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
@@ -172,9 +181,10 @@ class VoteTest(TestCase):
 
     def test_vote_no_local_district_configured(self):
         "Unauthenticated user successful vote."
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.debate_state = None
-        mode.save()
+        mode = SiteModeFactory(debate_state=None)
+        self.submission.category.site_mode = mode
+        self.submission.category.save()
+        del self.submission._cached_site_mode
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -184,7 +194,7 @@ class VoteTest(TestCase):
             'zipcode': '11111',
             'g-recaptcha-response': 'PASSED'
         }
-        rsp = self.client.post(self.submission_url, data=data,
+        rsp = self.client.post(self.submission.get_absolute_url(), data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         refetched_sub = Submission.objects.get(pk=self.submission.pk)
@@ -352,16 +362,17 @@ class VoteTest(TestCase):
 
     def test_vote_after_previous_debate(self):
         "Votes after the previous debate get tracked separately."
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.previous_debate_time = timezone.now() - datetime.timedelta(days=7)
-        mode.save()
+        mode = SiteModeFactory(previous_debate_time=timezone.now() - datetime.timedelta(days=7))
+        self.submission.category.site_mode = mode
+        self.submission.category.save()
+        del self.submission._cached_site_mode
 
         data = {
             'email': self.voter.email,
             'zipcode': self.voter.zip,
             'g-recaptcha-response': 'PASSED'
         }
-        rsp = self.client.post(self.submission_url, data=data,
+        rsp = self.client.post(self.submission.get_absolute_url(), data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         json.loads(rsp.content)
@@ -372,16 +383,17 @@ class VoteTest(TestCase):
 
     def test_vote_before_previous_debate(self):
         "Votes before the previous debate don't get tracked yet."
-        mode, _ = SiteMode.objects.get_or_create()
-        mode.previous_debate_time = timezone.now() + datetime.timedelta(days=1)
-        mode.save()
+        mode = SiteModeFactory(previous_debate_time=timezone.now() + datetime.timedelta(days=1))
+        self.submission.category.site_mode = mode
+        self.submission.category.save()
+        del self.submission._cached_site_mode
 
         data = {
             'email': self.voter.email,
             'zipcode': self.voter.zip,
             'g-recaptcha-response': 'PASSED'
         }
-        rsp = self.client.post(self.submission_url, data=data,
+        rsp = self.client.post(self.submission.get_absolute_url(), data=data,
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, rsp.status_code)
         json.loads(rsp.content)

@@ -3,12 +3,13 @@ import re
 from urllib import quote_plus
 
 from django.conf import settings
+from django.core.cache import cache
 from django.utils.functional import SimpleLazyObject
 from django.utils.html import mark_safe
 from django.utils.timezone import now
 
-from .models import Category, Vote
-from .utils import get_voter, get_number_of_votes, vote_needs_captcha, get_site_mode
+from .models import Category, Vote, NUMBER_OF_VOTES_CACHE_ENTRY
+from .utils import get_voter, vote_needs_captcha
 
 
 def voter(request):
@@ -19,7 +20,9 @@ def voter(request):
         voter = get_voter(request)
         if not voter:
             return '{}'
-        votes = Vote.objects.filter(voter__email=voter['email'])
+        votes = Vote.objects.filter(
+            voter__email=voter['email'],
+        )
         votes = [i.submission_id for i in votes]
         return mark_safe(json.dumps({"submissions": votes}))
 
@@ -30,35 +33,44 @@ def voter(request):
 
 
 def global_vars(request):
+    mode = request.site_mode
+
+    context = {
+        'CAPTCHA_SITE_KEY': settings.NORECAPTCHA_SITE_KEY,
+        'DEBUG': settings.DEBUG,
+        'STATIC_URL': settings.STATIC_URL,
+        'SUBMISSIONS_PER_PAGE': settings.SUBMISSIONS_PER_PAGE,
+        'MIXPANEL_KEY': settings.MIXPANEL_KEY,
+        'OPTIMIZELY_KEY': settings.OPTIMIZELY_KEY,
+        'SITE_THEME_NAME': settings.SITE_THEME_NAME,
+    }
+    if mode is None:
+        return context
+
     def _get_categories():
-        return Category.objects.all()
+        return Category.objects.filter(site_mode=mode)
 
-    mode = get_site_mode()
-
+    site_domain_with_protocol = "%s://%s" % (request.scheme, mode.site.domain)
     url_tmpl = u"https://twitter.com/intent/tweet?url=%(SITE_DOMAIN)s&text=%(tweet_text)s"
     TWITTER_URL = url_tmpl % {
-        "SITE_DOMAIN": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=tw-site"),
+        "SITE_DOMAIN": quote_plus(site_domain_with_protocol + "?source=tw-site"),
         "tweet_text": quote_plus(mode.twitter_site_text),
     }
     FACEBOOK_URL = u"https://www.facebook.com/sharer/sharer.php?&u=%(url)s" % {
-        "url": quote_plus(settings.SITE_DOMAIN_WITH_PROTOCOL + "?source=fb-site"),
+        "url": quote_plus(site_domain_with_protocol + "?source=fb-site"),
     }
 
-    return {
-        'CAPTCHA_SITE_KEY': settings.NORECAPTCHA_SITE_KEY,
-        'DEBUG': settings.DEBUG,
+    votes_key = NUMBER_OF_VOTES_CACHE_ENTRY.format(mode.id)
+
+    context.update({
         'VOTE_NEEDS_CAPTCHA': vote_needs_captcha(request),
-        'NUMBER_OF_VOTES': get_number_of_votes() if mode.show_total_votes else 0,  # Just in case
-        'STATIC_URL': settings.STATIC_URL,
+        'NUMBER_OF_VOTES': (cache.get(votes_key) or 0) if mode.show_total_votes else 0,
 
         'FACEBOOK_URL': FACEBOOK_URL,
         'TWITTER_URL': TWITTER_URL,
 
-        'SUBMISSIONS_PER_PAGE': settings.SUBMISSIONS_PER_PAGE,
-        'SITE_DOMAIN': settings.SITE_DOMAIN,
-        'SITE_LINK': settings.SITE_DOMAIN_WITH_PROTOCOL,
-        'MIXPANEL_KEY': settings.MIXPANEL_KEY,
-        'OPTIMIZELY_KEY': settings.OPTIMIZELY_KEY,
+        'SITE_DOMAIN': mode.site.domain,
+        'SITE_LINK': site_domain_with_protocol,
         'SHOW_QUESTION_VOTES': mode.show_question_votes,
         'SHOW_TOTAL_VOTES': mode.show_total_votes,
         'ALLOW_SORTING_BY_VOTES': mode.allow_sorting_by_votes,
@@ -86,6 +98,6 @@ def global_vars(request):
         'POPUP_AFTER_SUBMISSION_TEXT': json.dumps(mode.popup_after_submission_text),
 
         'SUBMISSION_CATEGORIES': SimpleLazyObject(_get_categories),
-        'SITE_THEME_NAME': settings.SITE_THEME_NAME,
         'SITE_MODE': mode,
-    }
+    })
+    return context

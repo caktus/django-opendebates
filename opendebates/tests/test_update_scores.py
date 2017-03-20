@@ -1,11 +1,18 @@
+from django.contrib.sites.models import Site
 from django.test import TestCase
 
 from opendebates.models import Submission
 from opendebates.tasks import update_trending_scores
-from opendebates.tests.factories import SubmissionFactory, VoteFactory
+from opendebates.tests.factories import SubmissionFactory, VoteFactory, SiteFactory
 
 
 class TestScores(TestCase):
+    def setUp(self):
+        self.site = SiteFactory()
+
+    def tearDown(self):
+        Site.objects.clear_cache()
+
     def test_update_trending_scores(self):
         sub1 = SubmissionFactory()
         for i in range(30):

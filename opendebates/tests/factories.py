@@ -1,10 +1,9 @@
 import random
-import string
 
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.utils.timezone import now
 import factory
-import factory.fuzzy
 
 from opendebates import models
 
@@ -12,10 +11,27 @@ from opendebates import models
 _random = random.Random()
 
 
-class SiteModeFactory(factory.DjangoModelFactory):
+def _testserver_site_mode(obj=None):
+    site = SiteFactory(domain='testserver')
+    if site.site_modes.all():
+        return site.site_modes.all()[0]
+    return SiteModeFactory(site=site)
+
+
+class SiteFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Site
+        django_get_or_create = ('domain',)
+
+    domain = 'testserver'
+
+
+class SiteModeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SiteMode
 
+    site = factory.SubFactory(SiteFactory)
+    prefix = factory.Faker('slug')
     debate_state = 'NY'
 
 
@@ -43,20 +59,17 @@ class CategoryFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.Category
 
-
-class FuzzyEmail(factory.fuzzy.FuzzyText):
-    def fuzz(self):
-        chars = [_random.choice(self.chars) for _i in range(self.length)]
-        return "%s@example.com" % ''.join(chars)
+    site_mode = factory.LazyAttribute(_testserver_site_mode)
 
 
 class VoterFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.Voter
+        django_get_or_create = ('email',)
 
     user = factory.SubFactory(UserFactory)
-    email = FuzzyEmail()
-    zip = factory.fuzzy.FuzzyText(length=5, chars=string.digits)
+    email = factory.Faker('safe_email')
+    zip = factory.Faker('zipcode')
 
 
 class SubmissionFactory(factory.DjangoModelFactory):
@@ -65,8 +78,8 @@ class SubmissionFactory(factory.DjangoModelFactory):
 
     category = factory.SubFactory(CategoryFactory)
 
-    headline = factory.fuzzy.FuzzyText()
-    followup = factory.fuzzy.FuzzyText()
+    headline = factory.Faker('sentence')
+    followup = factory.Faker('paragraph')
 
     idea = factory.LazyAttribute(lambda obj: (u'%s %s' % (obj.headline, obj.followup)).strip())
 
@@ -102,6 +115,8 @@ class TopSubmissionCategoryFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.TopSubmissionCategory
 
-    slug = factory.fuzzy.FuzzyText()
-    title = factory.fuzzy.FuzzyText()
-    caption = factory.fuzzy.FuzzyText()
+    site_mode = factory.LazyAttribute(_testserver_site_mode)
+
+    slug = factory.Faker('slug')
+    title = factory.Faker('catch_phrase')
+    caption = factory.Faker('bs')
