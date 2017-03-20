@@ -137,6 +137,6 @@ def get_site_mode(request):
     domain = request.get_host().lower().strip('.')
     path = request.path.split('/')[1:]
     try:
-        return SiteMode.objects.get(prefix=path[0], site__domain=domain)
+        return SiteMode.objects.select_related('site').get(prefix=path[0], site__domain=domain)
     except (SiteMode.DoesNotExist, IndexError):
         return
