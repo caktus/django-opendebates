@@ -1,11 +1,19 @@
+from functools import partial
+import re
+
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 
-import re
-
 from .factories import SubmissionFactory, SiteFactory, SiteModeFactory
+
+
+# Force the reverse() used here in the tests to always use the full
+# urlconf, despite whatever machinations have taken place due to the
+# SiteModeMiddleware.
+old_reverse = reverse
+reverse = partial(old_reverse, urlconf='opendebates.urls')
 
 
 @override_settings(SUBMISSIONS_PER_PAGE=2)

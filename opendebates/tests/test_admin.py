@@ -1,3 +1,5 @@
+from functools import partial
+
 from django.contrib.admin.sites import AdminSite
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
@@ -7,6 +9,13 @@ from mock import patch
 from opendebates.admin import SubmissionAdmin
 from opendebates.models import Submission
 from opendebates.tests.factories import SubmissionFactory, UserFactory, SiteModeFactory
+
+
+# Force the reverse() used here in the tests to always use the full
+# urlconf, despite whatever machinations have taken place due to the
+# SiteModeMiddleware.
+old_reverse = reverse
+reverse = partial(old_reverse, urlconf='opendebates.urls')
 
 
 # mock objects to make the admin think we're superusers.

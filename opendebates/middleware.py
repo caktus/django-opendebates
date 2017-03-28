@@ -11,7 +11,8 @@ class SiteModeMiddleware(object):
 
     def process_request(self, request):
         request.site_mode = get_site_mode(request)
-        request.urlconf = PrefixedUrlconf(request.site_mode.prefix)
+        if request.site_mode:
+            request.urlconf = PrefixedUrlconf(request.site_mode.prefix)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         if 'prefix' in view_kwargs:

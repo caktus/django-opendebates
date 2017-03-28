@@ -1,9 +1,18 @@
+from functools import partial
+
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.html import escape
 
 from opendebates.tests.factories import SubmissionFactory, SiteFactory, SiteModeFactory
+
+
+# Force the reverse() used here in the tests to always use the full
+# urlconf, despite whatever machinations have taken place due to the
+# SiteModeMiddleware.
+old_reverse = reverse
+reverse = partial(old_reverse, urlconf='opendebates.urls')
 
 
 class FacebookTest(TestCase):

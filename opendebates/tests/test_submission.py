@@ -1,4 +1,5 @@
 import datetime
+from functools import partial
 from urlparse import urlparse
 
 from django.contrib.sites.models import Site
@@ -11,6 +12,13 @@ from opendebates_emails.models import EmailTemplate
 from .factories import (CategoryFactory, UserFactory, VoterFactory, SubmissionFactory,
                         SiteFactory, SiteModeFactory)
 from .utilities import patch_cache_templatetag
+
+
+# Force the reverse() used here in the tests to always use the full
+# urlconf, despite whatever machinations have taken place due to the
+# SiteModeMiddleware.
+old_reverse = reverse
+reverse = partial(old_reverse, urlconf='opendebates.urls')
 
 
 class SubmissionTest(TestCase):

@@ -1,3 +1,4 @@
+from functools import partial
 from httplib import OK
 
 from django.contrib.sites.models import Site
@@ -9,6 +10,13 @@ import mock
 from ..models import RECENT_EVENTS_CACHE_ENTRY, NUMBER_OF_VOTES_CACHE_ENTRY
 from ..tasks import update_recent_events
 from .factories import CategoryFactory, SubmissionFactory, VoteFactory, SiteFactory, SiteModeFactory
+
+
+# Force the reverse() used here in the tests to always use the full
+# urlconf, despite whatever machinations have taken place due to the
+# SiteModeMiddleware.
+old_reverse = reverse
+reverse = partial(old_reverse, urlconf='opendebates.urls')
 
 
 class RecentEventsTest(TestCase):
