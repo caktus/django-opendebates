@@ -1,7 +1,6 @@
 from importlib import import_module
 
 from django.conf.urls import url, include
-from django.core.urlresolvers import RegexURLResolver
 
 
 class PrefixedUrlconf(object):
