@@ -80,11 +80,9 @@ class RegisterTest(TestCase):
     def test_email_must_be_unique(self):
         # case insensitive
         UserFactory(email=self.data['email'].upper())
-        rsp = self.client.post(self.url, data=self.data, follow=True)
-        form = rsp.context['form']
-        self.assertEqual(200, rsp.status_code)
-        self.assertIn('email', form.errors)
-        self.assertIn('already in use', str(form.errors))
+        rsp = self.client.post(self.url, data=self.data)
+        self.assertRedirects(rsp, reverse('registration_duplicate',
+                                          kwargs={'prefix': self.mode.prefix}))
 
     def test_twitter_handle_gets_cleaned(self):
         "Various forms of twitter_handle entries are cleaned to canonical form."

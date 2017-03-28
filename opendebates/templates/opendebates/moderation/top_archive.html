@@ -6,7 +6,7 @@
 
   <div class="row">
     <div class="col-md-12">
-      <form action="{% url 'moderation_add_to_top_archive' SITE_MODE.prefix %}" method="POST">
+      <form action="{% url 'moderation_add_to_top_archive' %}" method="POST">
         {% csrf_token %}
         {{ form|bootstrap }}
         <input class="btn btn-default" type="submit" value="Submit" />

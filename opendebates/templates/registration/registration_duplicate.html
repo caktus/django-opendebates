@@ -1,0 +1,10 @@
+{% extends "registration/registration_base.html" %}
+{% load i18n bootstrap %}
+{% block title %}{% trans "Account already exists" %}{% endblock %}
+{% block content %}
+  <div class="row flatpage registration-page">
+    <div class="col-sm-8 col-sm-offset-2 text-center">
+      <p>You have participated in an Open Debate previously.  Click <a href="{% url 'password_reset' %}">here</a> to reset your password.</p>
+    </div>
+  </div>
+{% endblock content %}

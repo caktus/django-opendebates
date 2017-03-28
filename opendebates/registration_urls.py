@@ -34,6 +34,8 @@ urlpatterns = patterns('',
                        #     name='registration_disallowed'),
                        url(r'^register/complete/$',
                            'opendebates.views.registration_complete', name="registration_complete"),
+                       url(r'^register/duplicate/$',
+                           'opendebates.views.registration_duplicate', name="registration_duplicate"),
                        url(r'^login/$',
                            'django.contrib.auth.views.login',
                            {

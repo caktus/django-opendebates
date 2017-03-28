@@ -116,18 +116,6 @@ class OpenDebatesRegistrationForm(RegistrationForm):
             return self.cleaned_data['twitter_handle'][12:]
         return self.cleaned_data.get("twitter_handle", "").strip() or None
 
-    def clean_email(self):
-        """
-        Validate that the supplied email address is unique for the
-        site.
-
-        """
-        User = get_user_model()
-        if User.objects.filter(email__iexact=self.cleaned_data['email']):
-            raise forms.ValidationError("This email address is already in use. Please supply "
-                                        "a different email address.")
-        return self.cleaned_data['email']
-
     def save(self, commit=True):
         user = super(OpenDebatesRegistrationForm, self).save(commit=False)
         user.first_name = self.cleaned_data['first_name']

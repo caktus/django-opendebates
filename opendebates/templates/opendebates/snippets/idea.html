@@ -8,7 +8,7 @@
 <div id="i{{ idea.id }}" data-idea-id="{{ idea.id }}" class="big-idea clearfix">
     <div class="votes col-md-3">
       {% if is_duplicate %}
-      <small class="duplicate-merged-link"><a href="{% url 'show_idea' SITE_MODE.prefix idea.duplicate_of_id %}">&#8679; Merged</a></small>
+      <small class="duplicate-merged-link"><a href="{% url 'show_idea' idea.duplicate_of_id %}">&#8679; Merged</a></small>
       {% else %}
       <div class="vote-tally text-center">
         <span class="vote-tally-number">{% if SHOW_QUESTION_VOTES %}{{ idea.votes|localize }}{% endif %}</span>
@@ -19,7 +19,7 @@
              data-target="#modal-vote"
              role="button"
              class="vote-button"
-             data-vote-url="{% url 'vote' SITE_MODE.prefix idea.id %}"
+             data-vote-url="{% url 'vote' idea.id %}"
              data-toggle="modal">{% blocktrans %}Vote!{% endblocktrans %}</a>
           <a class="already-voted-button">{% blocktrans %}Voted{% endblocktrans %}</a>
         </div>
@@ -70,7 +70,7 @@
     <div class="idea-info">
       {% blocktrans with user_display_name=idea.user_display_name %}Submitted by: <strong>{{ user_display_name }}</strong>{% endblocktrans %}<br />
       {{ idea.created_at }}<br />
-      {% trans "Issue area" %}: <a href="{% url 'list_category' SITE_MODE.prefix idea.category.id %}"><strong>{{ idea.category.name }}</strong></a>
+      {% trans "Issue area" %}: <a href="{% url 'list_category' idea.category.id %}"><strong>{{ idea.category.name }}</strong></a>
     </div>
     {% if idea.approved %}
     {% include "opendebates/snippets/social-links.html" %}
@@ -78,11 +78,11 @@
       {% if ALLOW_VOTING_AND_SUBMITTING_QUESTIONS %}
         {% if not idea.duplicate_of %}
         <span class="merge-button">
-          <a href="{% url 'merge' SITE_MODE.prefix idea.pk %}">{% trans "Merge" %}</a>
+          <a href="{% url 'merge' idea.pk %}">{% trans "Merge" %}</a>
         </span>
         {% endif %}
         <span class="report-button">
-          <a href="{% url 'report' SITE_MODE.prefix idea.pk %}">{% trans "Report" %}</a>
+          <a href="{% url 'report' idea.pk %}">{% trans "Report" %}</a>
         </span>
       {% endif %}
     </div>

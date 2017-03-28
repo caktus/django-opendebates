@@ -5,7 +5,7 @@
 
 <div>
   <div id="sidebar_question_btn" {% if form.errors %}class="hidden"{% endif %}>
-    <a href="{% url 'questions' SITE_MODE.prefix %}" class="btn btn-block btn-primary active" type="button">
+    <a href="{% url 'questions' %}" class="btn btn-block btn-primary active" type="button">
       {% blocktrans %}Submit a Question{% endblocktrans %}
     </a>
   </div>
@@ -13,7 +13,7 @@
     <img src="{% static "images/add-question-header.png" %}" />
     <h2>{% blocktrans %}Submit a Question{% endblocktrans %}</h2>
 
-    <form action="{% url 'questions' SITE_MODE.prefix %}" method="POST" class="form-inline">
+    <form action="{% url 'questions' %}" method="POST" class="form-inline">
       {% csrf_token %}
       {{ form.non_field_errors }}
       <fieldset>
@@ -82,7 +82,7 @@
                id="submitquestionbutton"
                name="submitquestionbutton"
                class=" btn btn-primary submitquestionbutton"
-               data-add-question-url="{% url 'questions' SITE_MODE.prefix %}">
+               data-add-question-url="{% url 'questions' %}">
               {% blocktrans %}Add Your Question{% endblocktrans %}</button>
           </div>
         </div>
