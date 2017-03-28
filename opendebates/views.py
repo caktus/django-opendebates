@@ -118,12 +118,12 @@ def search_ideas(request):
     try:
         search_term = [q for q in request.GET.getlist("q") if q][0]
     except IndexError:
-        return redirect("/")
+        return redirect(reverse('list_ideas'))
 
     ideas = Submission.objects.filter(category__site_mode=request.site_mode)
     citations_only = request.GET.get("citations_only")
 
-    sort = choose_sort(request.site_mode, request.GET.get('sort'))
+    sort = choose_sort(request, request.GET.get('sort'))
     ideas = sort_list(citations_only, sort, ideas)
     ideas = ideas.search(search_term.replace("%", ""))
 
