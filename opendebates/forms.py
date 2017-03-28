@@ -149,7 +149,10 @@ class MergeFlagForm(forms.ModelForm):
         # parse the URL and use Django's resolver to find the urlconf entry
         path = urlparse(self.cleaned_data['duplicate_of_url']).path
         try:
-            url_match = resolve(path)
+            # Override and use the full urlconf, so that we can handle
+            # non-existent questions differently from questions on a
+            # different sub-site.
+            url_match = resolve(path, urlconf=settings.ROOT_URLCONF)
         except Resolver404:
             url_match = None
 
