@@ -27,7 +27,8 @@ class FacebookTest(TestCase):
         rsp = self.client.get(reverse('list_ideas', kwargs={'prefix': self.mode.prefix}))
         self.assertContains(
             rsp,
-            '<meta property="og:url" content="http://%s"/>' % self.mode.site.domain
+            '<meta property="og:url" content="http://%s/%s"/>' % (
+                self.mode.site.domain, self.mode.prefix)
         )
         self.assertContains(
             rsp,
