@@ -86,15 +86,6 @@ def list_ideas(request):
 
     ideas = sort_list(citations_only, sort, ideas)
 
-    try:
-        reverse('list_ideas')
-    except Exception:
-        from django.core.urlresolvers import get_urlconf, get_resolver
-        from pprint import pprint
-        urlconf = get_urlconf()
-        resolver = get_resolver(urlconf)
-        pprint(vars(resolver))
-
     return {
         'ideas': ideas,
         'sort': sort,
