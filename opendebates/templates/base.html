@@ -76,7 +76,7 @@
       {% endif %}
     </div>
     <div class="header-title">
-      <h1><a href="/">{{ BANNER_HEADER_TITLE|safe }}</a></h1>
+      <h1><a href="{% url 'list_ideas' %}">{{ BANNER_HEADER_TITLE|safe }}</a></h1>
       <div class="header-copy">{{ BANNER_HEADER_COPY|safe }}</div>
       <div class="header-small-logos">
         <img class="partner-logo partner-logo-1"
