@@ -3,7 +3,7 @@ from django.contrib import admin
 
 
 urlpatterns = [
-    url(r'$', 'opendebates.views.list_ideas', name="list_ideas"),
+    url(r'^$', 'opendebates.views.list_ideas', name="list_ideas"),
     url(r'^changelog/$', 'opendebates.views.changelog', name='changelog'),
     # url(r'^test/$', 'opendebates.views.test', name='test'),
 

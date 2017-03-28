@@ -194,7 +194,7 @@ class Submission(models.Model):
     def get_absolute_url(self):
         # We are overriding the urlconf here so that the site-specific urlconf
         # is not used, and we can fully specify the site prefix.
-        return reverse('vote', args=(self.site_mode.prefix, self.id),
+        return reverse('vote', kwargs={'prefix': self.site_mode.prefix, 'id': self.id},
                        urlconf=settings.ROOT_URLCONF)
 
     def tweet_text(self):
