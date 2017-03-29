@@ -3,6 +3,7 @@ import datetime
 from django.db import models
 from django.conf import settings
 from django.core.signing import Signer
+from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from djorm_pgfulltext.models import SearchManager
 from djorm_pgfulltext.fields import VectorField
@@ -190,9 +191,11 @@ class Submission(models.Model):
     def __unicode__(self):
         return self.idea
 
-    @models.permalink
     def get_absolute_url(self):
-        return "vote", [self.site_mode.prefix, self.id]
+        # We are overriding the urlconf here so that the site-specific urlconf
+        # is not used, and we can fully specify the site prefix.
+        return reverse('vote', kwargs={'prefix': self.site_mode.prefix, 'id': self.id},
+                       urlconf=settings.ROOT_URLCONF)
 
     def tweet_text(self):
         if self.voter.twitter_handle:

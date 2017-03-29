@@ -1,3 +1,4 @@
+from functools import partial
 import os
 
 from django.contrib.auth import get_user_model
@@ -7,6 +8,13 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from .factories import UserFactory, VoterFactory, SiteFactory, SiteModeFactory
+
+
+# Force the reverse() used here in the tests to always use the full
+# urlconf, despite whatever machinations have taken place due to the
+# SiteModeMiddleware.
+old_reverse = reverse
+reverse = partial(old_reverse, urlconf='opendebates.urls')
 
 
 class RegisterTest(TestCase):
@@ -80,11 +88,9 @@ class RegisterTest(TestCase):
     def test_email_must_be_unique(self):
         # case insensitive
         UserFactory(email=self.data['email'].upper())
-        rsp = self.client.post(self.url, data=self.data, follow=True)
-        form = rsp.context['form']
-        self.assertEqual(200, rsp.status_code)
-        self.assertIn('email', form.errors)
-        self.assertIn('already in use', str(form.errors))
+        rsp = self.client.post(self.url, data=self.data)
+        self.assertRedirects(rsp, reverse('registration_duplicate',
+                                          kwargs={'prefix': self.mode.prefix}))
 
     def test_twitter_handle_gets_cleaned(self):
         "Various forms of twitter_handle entries are cleaned to canonical form."

@@ -1,5 +1,6 @@
 from djangohelpers.lib import rendered_with, allow_http
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.http import HttpResponseBadRequest
@@ -8,14 +9,13 @@ from django.utils.translation import ugettext as _
 from django.utils.timezone import now
 
 from opendebates_emails.models import send_email
-from .decorators import od_login_required
 from .forms import ModerationForm, TopSubmissionForm
 from .models import Submission, Vote, Flag
 
 
 @rendered_with("opendebates/moderation/preview.html")
 @allow_http("GET", "POST")
-@od_login_required
+@login_required
 def preview(request):
     if not request.user.is_superuser:
         raise PermissionDenied
@@ -37,7 +37,7 @@ def preview(request):
 
 
 @allow_http("POST")
-@od_login_required
+@login_required
 def merge(request):
     if not request.user.is_superuser:
         raise PermissionDenied
@@ -111,11 +111,11 @@ def merge(request):
     ).update(reviewed=True)
 
     messages.info(request, msg)
-    return redirect('moderation_home', prefix=request.site_mode.prefix)
+    return redirect('moderation_home')
 
 
 @allow_http("POST")
-@od_login_required
+@login_required
 def remove(request):
     if not request.user.is_superuser:
         raise PermissionDenied
@@ -141,12 +141,12 @@ def remove(request):
     if remove and request.POST.get("send_email") == "yes":
         send_email("idea_is_removed", {"idea": to_remove})
     messages.info(request, msg)
-    return redirect('moderation_home', prefix=request.site_mode.prefix)
+    return redirect('moderation_home')
 
 
 @rendered_with("opendebates/moderation/home.html")
 @allow_http("GET")
-@od_login_required
+@login_required
 def home(request):
     if not request.user.is_superuser:
         raise PermissionDenied
@@ -182,7 +182,6 @@ def add_to_top_archive(request):
     if request.method == 'POST':
         if form.is_valid():
             entry = form.save()
-            return redirect("top_archive",
-                            prefix=request.site_mode.prefix, slug=entry.category.slug)
+            return redirect("top_archive", slug=entry.category.slug)
 
     return {"form": form}

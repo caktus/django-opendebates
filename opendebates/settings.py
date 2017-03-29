@@ -83,7 +83,7 @@ AUTHENTICATION_BACKENDS = [
 
 ROOT_URLCONF = 'opendebates.urls'
 
-LOGIN_URL = LOGIN_ERROR_URL = "/registration/login/"
+LOGIN_URL = LOGIN_ERROR_URL = 'auth_login'
 
 
 TEMPLATES = [

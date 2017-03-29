@@ -1,3 +1,4 @@
+from functools import partial
 from httplib import FORBIDDEN, NOT_FOUND, OK
 import json
 import os
@@ -10,6 +11,13 @@ from opendebates.models import Submission, Vote, Flag, ZipCode
 from .factories import (UserFactory, VoterFactory, SubmissionFactory, RemovalFlagFactory,
                         MergeFlagFactory, SiteFactory, SiteModeFactory, CategoryFactory)
 from .utilities import reset_session
+
+
+# Force the reverse() used here in the tests to always use the full
+# urlconf, despite whatever machinations have taken place due to the
+# SiteModeMiddleware.
+old_reverse = reverse
+reverse = partial(old_reverse, urlconf='opendebates.urls')
 
 
 class ModerationTest(TestCase):

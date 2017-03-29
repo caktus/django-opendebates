@@ -1,3 +1,5 @@
+from functools import partial
+
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -7,6 +9,13 @@ from django.core import mail
 from opendebates_emails.models import EmailTemplate
 
 from .factories import CategoryFactory, UserFactory, VoterFactory, SiteFactory, SiteModeFactory
+
+
+# Force the reverse() used here in the tests to always use the full
+# urlconf, despite whatever machinations have taken place due to the
+# SiteModeMiddleware.
+old_reverse = reverse
+reverse = partial(old_reverse, urlconf='opendebates.urls')
 
 
 @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')

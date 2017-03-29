@@ -2,20 +2,20 @@
 {% load i18n %}
 {% block title %}{% trans "Login" %}{% endblock %}
 {% block content %}
-{% url 'registration_register' SITE_MODE.prefix as register_url %}
+{% url 'registration_register' as register_url %}
 
   <div class="flatpage row registration-page">
     <div class="col-sm-8 col-sm-offset-2 text-center">
 
       <h1>{% blocktrans %}Log In{% endblocktrans %}</h1>
       {% load bootstrap %}
-      <form method="post" action="{% url 'auth_login' SITE_MODE.prefix %}">{% csrf_token %}
+      <form method="post" action="{% url 'auth_login' %}">{% csrf_token %}
         {{ form|bootstrap }}
         <input class="btn btn-primary" type="submit" value="{% blocktrans %}Log in{% endblocktrans %}" />
         <input type="hidden" name="next" value="{{ next }}" />
         <br><br>
         <div class="small">
-          <b><a href="{% url 'password_reset' SITE_MODE.prefix %}">{% trans "I forgot my password" %}</a></b>
+          <b><a href="{% url 'password_reset' %}">{% trans "I forgot my password" %}</a></b>
         </div>
       </form>
 

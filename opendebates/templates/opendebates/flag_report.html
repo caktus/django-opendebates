@@ -22,7 +22,7 @@
                   placeholder="{% blocktrans %}Reason for reporting (optional){% endblocktrans %}"></textarea>
       </div>
       <a class="btn btn-default"
-         href="{% url 'vote' SITE_MODE.prefix idea.pk %}">{% trans "Cancel" %}</a>
+         href="{% url 'vote' idea.pk %}">{% trans "Cancel" %}</a>
       <input class="btn btn-primary"
              type="submit" value="{% trans 'Flag for Removal' %}" />
     </form>

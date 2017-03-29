@@ -2,7 +2,8 @@ import json
 import logging
 
 from django.contrib import messages
-from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
@@ -16,7 +17,6 @@ from django.views.decorators.cache import cache_page
 from djangohelpers.lib import rendered_with, allow_http
 from registration.backends.simple.views import RegistrationView
 
-from .decorators import od_login_required
 from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm, MergeFlagForm
 from .models import (Candidate, Category, Flag, Submission, Vote, Voter,
                      TopSubmissionCategory, ZipCode, RECENT_EVENTS_CACHE_ENTRY)
@@ -89,7 +89,7 @@ def list_ideas(request):
     return {
         'ideas': ideas,
         'sort': sort,
-        'url_name': reverse('list_ideas', kwargs={'prefix': request.site_mode.prefix}),
+        'url_name': reverse('list_ideas'),
         'stashed_submission': request.session.pop(
             "opendebates.stashed_submission", None) if request.user.is_authenticated() else None,
     }
@@ -107,8 +107,7 @@ def list_category(request, cat_id):
     return {
         'ideas': ideas,
         'sort': sort,
-        'url_name': reverse("list_category", kwargs={'prefix': request.site_mode.prefix,
-                                                     'cat_id': cat_id}),
+        'url_name': reverse("list_category", kwargs={'cat_id': cat_id}),
         'category': category
     }
 
@@ -119,12 +118,12 @@ def search_ideas(request):
     try:
         search_term = [q for q in request.GET.getlist("q") if q][0]
     except IndexError:
-        return redirect("/")
+        return redirect(reverse('list_ideas'))
 
     ideas = Submission.objects.filter(category__site_mode=request.site_mode)
     citations_only = request.GET.get("citations_only")
 
-    sort = choose_sort(request.site_mode, request.GET.get('sort'))
+    sort = choose_sort(request, request.GET.get('sort'))
     ideas = sort_list(citations_only, sort, ideas)
     ideas = ideas.search(search_term.replace("%", ""))
 
@@ -132,7 +131,7 @@ def search_ideas(request):
         'ideas': ideas,
         'search_term': search_term,
         'sort': sort,
-        'url_name': reverse('search_ideas', kwargs={'prefix': request.site_mode.prefix}),
+        'url_name': reverse('search_ideas'),
     }
 
 
@@ -151,8 +150,7 @@ def category_search(request, cat_id):
         'ideas': ideas,
         'search_term': search_term,
         'sort': sort,
-        'url_name': reverse("list_category", kwargs={'prefix': request.site_mode.prefix,
-                                                     'cat_id': cat_id})
+        'url_name': reverse("list_category", kwargs={'cat_id': cat_id})
     }
 
 
@@ -176,8 +174,7 @@ def vote(request, id):
             # Submissions which have been "unmoderated as duplicates"
             # should remain completely inaccessible, and should not redirect
             raise Http404
-        url = reverse("show_idea", kwargs={'prefix': request.site_mode.prefix,
-                                           'id': idea.duplicate_of_id})
+        url = reverse("show_idea", kwargs={'id': idea.duplicate_of_id})
         url = url + "#i"+str(idea.id)
         return redirect(url)
 
@@ -245,7 +242,7 @@ def vote(request, id):
                 json.dumps(result),
                 content_type="application/json")
 
-        url = reverse("vote", kwargs={'prefix': request.site_mode.prefix, 'id': id})
+        url = reverse("vote", kwargs={'id': id})
         return redirect(url)
 
     voter, created = Voter.objects.get_or_create(
@@ -304,7 +301,7 @@ def vote(request, id):
             json.dumps(result),
             content_type="application/json")
 
-    url = reverse("vote", kwargs={'prefix': request.site_mode.prefix, 'id': id})
+    url = reverse("vote", kwargs={'id': id})
     return redirect(url)
 
 
@@ -337,7 +334,7 @@ def questions(request):
             "question": request.POST['question'],
             "citation": request.POST.get("citation"),
         }
-        return redirect('registration_register', prefix=request.site_mode.prefix)
+        return redirect('registration_register')
 
     category = request.POST.get('category')
     form_data = form.cleaned_data
@@ -383,7 +380,7 @@ def questions(request):
     send_email("submitted_new_idea", {"idea": idea})
     send_email("notify_moderators_submitted_new_idea", {"idea": idea})
 
-    url = reverse("vote", kwargs={'prefix': request.site_mode.prefix, 'id': idea.id})
+    url = reverse("vote", kwargs={'id': idea.id})
     return redirect(url + "#created=%s" % idea.id)
 
 
@@ -412,6 +409,12 @@ class OpenDebatesRegistrationView(RegistrationView):
         if self.next:
             data['next'] = self.next
         return data
+
+    def form_valid(self, request, form):
+        User = get_user_model()
+        if User.objects.filter(email__iexact=form.cleaned_data['email']).exists():
+            return redirect(reverse('registration_duplicate'))
+        return super(OpenDebatesRegistrationView, self).form_valid(request, form)
 
     def register(self, request, form):
         new_user = super(OpenDebatesRegistrationView, self).register(request, form)
@@ -447,13 +450,17 @@ class OpenDebatesRegistrationView(RegistrationView):
         if request.GET.get('next'):
             return request.GET.get('next')
         else:
-            return reverse('registration_complete',
-                           kwargs={'prefix': request.site_mode.prefix})
+            return reverse('registration_complete')
 
 
 def registration_complete(request):
     request.session['events.account_created'] = True
-    return redirect(reverse('list_ideas', kwargs={'prefix': request.site_mode.prefix}))
+    return redirect(reverse('list_ideas'))
+
+
+@rendered_with("registration/registration_duplicate.html")
+def registration_duplicate(request):
+    return {}
 
 
 @rendered_with("opendebates/list_candidates.html")
@@ -469,7 +476,7 @@ def list_candidates(request):
 
 @rendered_with("opendebates/flag_report.html")
 @allow_http("GET", "POST")
-@od_login_required
+@login_required
 def report(request, id):
     if not request.site_mode.allow_voting_and_submitting_questions and not request.user.is_staff:
         raise Http404
@@ -493,7 +500,7 @@ def report(request, id):
 
 @rendered_with("opendebates/flag_merge.html")
 @allow_http("GET", "POST")
-@od_login_required
+@login_required
 def merge(request, id):
     if not request.site_mode.allow_voting_and_submitting_questions and not request.user.is_staff:
         raise Http404
@@ -535,6 +542,6 @@ def od_logout(request, next_page=None,
               redirect_field_name=REDIRECT_FIELD_NAME,
               current_app=None, extra_context=None):
     if next_page is not None:
-        next_page = reverse(next_page, kwargs={'prefix': request.site_mode.prefix})
+        next_page = reverse(next_page)
     return logout(request, next_page, template_name, redirect_field_name,
                   current_app, extra_context)

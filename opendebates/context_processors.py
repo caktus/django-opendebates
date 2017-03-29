@@ -50,7 +50,7 @@ def global_vars(request):
     def _get_categories():
         return Category.objects.filter(site_mode=mode)
 
-    site_domain_with_protocol = "%s://%s" % (request.scheme, mode.site.domain)
+    site_domain_with_protocol = "%s://%s/%s" % (request.scheme, mode.site.domain, mode.prefix)
     url_tmpl = u"https://twitter.com/intent/tweet?url=%(SITE_DOMAIN)s&text=%(tweet_text)s"
     TWITTER_URL = url_tmpl % {
         "SITE_DOMAIN": quote_plus(site_domain_with_protocol + "?source=tw-site"),

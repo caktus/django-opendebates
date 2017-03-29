@@ -2,7 +2,6 @@ from urlparse import urlparse
 
 from django import forms
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils.html import mark_safe
@@ -116,18 +115,6 @@ class OpenDebatesRegistrationForm(RegistrationForm):
             return self.cleaned_data['twitter_handle'][12:]
         return self.cleaned_data.get("twitter_handle", "").strip() or None
 
-    def clean_email(self):
-        """
-        Validate that the supplied email address is unique for the
-        site.
-
-        """
-        User = get_user_model()
-        if User.objects.filter(email__iexact=self.cleaned_data['email']):
-            raise forms.ValidationError("This email address is already in use. Please supply "
-                                        "a different email address.")
-        return self.cleaned_data['email']
-
     def save(self, commit=True):
         user = super(OpenDebatesRegistrationForm, self).save(commit=False)
         user.first_name = self.cleaned_data['first_name']
@@ -161,7 +148,10 @@ class MergeFlagForm(forms.ModelForm):
         # parse the URL and use Django's resolver to find the urlconf entry
         path = urlparse(self.cleaned_data['duplicate_of_url']).path
         try:
-            url_match = resolve(path)
+            # Override and use the full urlconf, so that we can handle
+            # non-existent questions differently from questions on a
+            # different sub-site.
+            url_match = resolve(path, urlconf=settings.ROOT_URLCONF)
         except Resolver404:
             url_match = None
 

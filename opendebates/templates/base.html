@@ -55,7 +55,7 @@
 
   <header>
     <div class="header-logos">
-      <a href="{% url 'list_ideas' SITE_MODE.prefix %}">
+      <a href="{% url 'list_ideas' %}">
         <img src="{% static "images/badge-democratic-open-forum.png" %}">
         <img class="partner-logo partner-logo-1"
              src="{% static "images/logo-header-partner-1.png" %}">
@@ -65,18 +65,18 @@
     </div>
     <div class="login-container{% if request.user.is_authenticated %} login-container-authenticated{% endif %}">
       {% if request.user.is_authenticated %}
-        <a href="{# url 'user_profile' SITE_MODE.prefix #}">
+        <a href="{# url 'user_profile' #}">
           {% blocktrans with username=request.user.first_name %}Welcome, {{ username }}!{% endblocktrans %}
         </a>
         <span>/</span>
-        <a href="{% url 'auth_logout' SITE_MODE.prefix %}">{% blocktrans %}Log out{% endblocktrans %}</a>
+        <a href="{% url 'auth_logout' %}">{% blocktrans %}Log out{% endblocktrans %}</a>
         {% else %}
-        <a href="{% url 'auth_login' SITE_MODE.prefix %}">{% blocktrans %}Log in{% endblocktrans %}</a> <span> / </span>
-        <a href="{% url 'registration_register' SITE_MODE.prefix %}">{% blocktrans %}Register{% endblocktrans %}</a>
+        <a href="{% url 'auth_login' %}">{% blocktrans %}Log in{% endblocktrans %}</a> <span> / </span>
+        <a href="{% url 'registration_register' %}">{% blocktrans %}Register{% endblocktrans %}</a>
       {% endif %}
     </div>
     <div class="header-title">
-      <h1><a href="/">{{ BANNER_HEADER_TITLE|safe }}</a></h1>
+      <h1><a href="{% url 'list_ideas' %}">{{ BANNER_HEADER_TITLE|safe }}</a></h1>
       <div class="header-copy">{{ BANNER_HEADER_COPY|safe }}</div>
       <div class="header-small-logos">
         <img class="partner-logo partner-logo-1"
@@ -145,11 +145,11 @@
 
   ODebates.paths.static = "{{ STATIC_URL }}";
   ODebates.debate_time_utc = new Date("{{ DEBATE_TIME|utc|date:'c' }}");
-  ODebates.paths.report = "{% url 'report' SITE_MODE.prefix 0 %}";
-  ODebates.paths.merge = "{% url 'merge' SITE_MODE.prefix 0 %}";
-  ODebates.paths.login = "{% url 'auth_login' SITE_MODE.prefix %}";
-  ODebates.paths.register = "{% url 'registration_register' SITE_MODE.prefix %}";
-  ODebates.paths.recent = "{% url 'recent_activity' SITE_MODE.prefix %}";
+  ODebates.paths.report = "{% url 'report' 0 %}";
+  ODebates.paths.merge = "{% url 'merge' 0 %}";
+  ODebates.paths.login = "{% url 'auth_login' %}";
+  ODebates.paths.register = "{% url 'registration_register' %}";
+  ODebates.paths.recent = "{% url 'recent_activity' %}";
 
   ODebates.strings = ODebates.strings || {};
   ODebates.strings.afterQuestionSubmittedText = {{ POPUP_AFTER_SUBMISSION_TEXT|safe }};

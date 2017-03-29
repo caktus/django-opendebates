@@ -1,5 +1,6 @@
 from django.http import Http404
 
+from opendebates.resolvers import PrefixedUrlconf
 from opendebates.utils import get_site_mode
 
 
@@ -10,6 +11,8 @@ class SiteModeMiddleware(object):
 
     def process_request(self, request):
         request.site_mode = get_site_mode(request)
+        if request.site_mode:
+            request.urlconf = PrefixedUrlconf(request.site_mode.prefix)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         if 'prefix' in view_kwargs:

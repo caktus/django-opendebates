@@ -4,7 +4,7 @@
 {% block content %}
   <h2>Admin - Moderation Panel</h2>
 
-  <a href="{% url 'moderation_preview' SITE_MODE.prefix %}">Manually moderate submissions</a>
+  <a href="{% url 'moderation_preview' %}">Manually moderate submissions</a>
 
   <h3>Flagged for removal</h3>
 
@@ -24,7 +24,7 @@
         </thead>
         {% for idea in flagged_for_removal %}
           <tr>
-            <td><a href="{% url 'vote' SITE_MODE.prefix idea.pk %}">{{ idea.pk }}</a></td>
+            <td><a href="{% url 'vote' idea.pk %}">{{ idea.pk }}</a></td>
             <td>
               {{ idea.headline }}<br />
               {{ idea.idea }}
@@ -32,7 +32,7 @@
             <td>{{ idea.votes }}</td>
             <td>{{ idea.removal_flags.count }}</td>
             <td>
-              <form action="{% url 'moderation_preview' SITE_MODE.prefix %}" method="POST">
+              <form action="{% url 'moderation_preview' %}" method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="to_remove" value="{{ idea.pk }}">
                 <input class="btn btn-default" type="submit" name="action" value="Preview Removal">
@@ -67,18 +67,18 @@
         </thead>
         {% for flag in merge_flags %}
           <tr>
-            <td><a href="{% url 'vote' SITE_MODE.prefix flag.to_remove.pk %}">{{ flag.to_remove.pk }}</a></td>
+            <td><a href="{% url 'vote' flag.to_remove.pk %}">{{ flag.to_remove.pk }}</a></td>
             <td>
               {{ flag.to_remove.headline }}<br />
               {{ flag.to_remove.idea }}
             </td>
-            <td><a href="{% url 'vote' SITE_MODE.prefix flag.duplicate_of.pk %}">{{ flag.duplicate_of.pk }}</a></td>
+            <td><a href="{% url 'vote' flag.duplicate_of.pk %}">{{ flag.duplicate_of.pk }}</a></td>
             <td>
               {{ flag.duplicate_of.headline }}<br />
               {{ flag.duplicate_of }}
             </td>
             <td>
-              <form action="{% url 'moderation_preview' SITE_MODE.prefix %}" method="POST">
+              <form action="{% url 'moderation_preview' %}" method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="to_remove" value="{{ flag.to_remove.pk }}" />
                 <input type="hidden" name="duplicate_of" value="{{ flag.duplicate_of.pk }}" />
