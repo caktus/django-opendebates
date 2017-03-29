@@ -4,7 +4,17 @@
 {% block content %}
   <div class="row flatpage registration-page">
     <div class="col-sm-8 col-sm-offset-2 text-center">
-      <p>You have participated in an Open Debate previously.  Click <a href="{% url 'password_reset' %}">here</a> to reset your password.</p>
+      <p>You have participated in an Open Debate previously using this
+      email address.  Please choose an option below to use this
+      account.</p>
+
+      <p>
+        <a class="btn btn-primary" href="{% url 'password_reset' %}">Reset your password</a>
+      </p>
+
+      <p>
+        <a class="btn btn-primary" href="{% url 'auth_login' %}">Log in</a>
+      </p>
     </div>
   </div>
 {% endblock content %}
