@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.test.utils import override_settings
 
 from ..models import Category
-from .factories import CategoryFactory, SiteFactory, SiteModeFactory
+from .factories import CategoryFactory, SiteFactory, DebateFactory
 
 
 @override_settings(STATICFILES_STORAGE='pipeline.storage.NonPackagingPipelineStorage',
@@ -11,7 +11,7 @@ from .factories import CategoryFactory, SiteFactory, SiteModeFactory
 class ViewTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
         CategoryFactory(name="category one")
 

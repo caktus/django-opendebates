@@ -7,12 +7,12 @@ from django.test import TestCase
 from django.utils import timezone
 
 from .factories import (SubmissionFactory, UserFactory, VoterFactory,
-                        SiteModeFactory, SiteFactory)
+                        DebateFactory, SiteFactory)
 
 
 # Force the reverse() used here in the tests to always use the full
 # urlconf, despite whatever machinations have taken place due to the
-# SiteModeMiddleware.
+# DebateMiddleware.
 old_reverse = reverse
 reverse = partial(old_reverse, urlconf='opendebates.urls')
 
@@ -21,8 +21,8 @@ class ListIdeasTest(TestCase):
 
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
-        self.url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
+        self.debate = DebateFactory(site=self.site)
+        self.url = reverse('list_ideas', kwargs={'prefix': self.debate.prefix})
 
         for i in range(10):
             SubmissionFactory()
@@ -30,31 +30,31 @@ class ListIdeasTest(TestCase):
     def tearDown(self):
         Site.objects.clear_cache()
 
-    def test_list_ideas_uses_site_mode_from_context(self):
+    def test_list_ideas_uses_debate_from_context(self):
         """
-        The category.site_mode in the Submission model shouldn't be accessed
-        at all during list_ideas if we've successfully provided the SITE_MODE
+        The category.debate in the Submission model shouldn't be accessed
+        at all during list_ideas if we've successfully provided the DEBATE
         in the template context to the model.
         """
         with self.assertNumQueries(4):
             self.client.get(self.url)
 
     def test_most_since_last_debate_not_visible_if_no_previous_debate(self):
-        mode = SiteModeFactory(previous_debate_time=None)
+        debate = DebateFactory(previous_debate_time=None)
 
-        response = self.client.get(reverse('list_ideas', kwargs={'prefix': mode.prefix}))
+        response = self.client.get(reverse('list_ideas', kwargs={'prefix': debate.prefix}))
         self.assertNotContains(response, "Most Votes Since Last Debate")
 
     def test_most_since_last_debate_visible_if_previous_debate(self):
-        mode = SiteModeFactory(previous_debate_time=timezone.now() - datetime.timedelta(days=7))
+        debate = DebateFactory(previous_debate_time=timezone.now() - datetime.timedelta(days=7))
 
-        response = self.client.get(reverse('list_ideas', kwargs={'prefix': mode.prefix}))
+        response = self.client.get(reverse('list_ideas', kwargs={'prefix': debate.prefix}))
         self.assertContains(response, "Most Votes Since Last Debate")
 
     def test_most_since_last_debate_visible_if_previous_debate_in_future(self):
-        mode = SiteModeFactory(previous_debate_time=timezone.now() + datetime.timedelta(days=7))
+        debate = DebateFactory(previous_debate_time=timezone.now() + datetime.timedelta(days=7))
 
-        response = self.client.get(reverse('list_ideas', kwargs={'prefix': mode.prefix}))
+        response = self.client.get(reverse('list_ideas', kwargs={'prefix': debate.prefix}))
         self.assertNotContains(response, "Most Votes Since Last Debate")
 
 
@@ -62,11 +62,11 @@ class ChangelogTest(TestCase):
 
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
-        self.url = reverse('changelog', kwargs={'prefix': self.mode.prefix})
-        self.merge_url = reverse('moderation_merge', kwargs={'prefix': self.mode.prefix})
-        self.remove_url = reverse('moderation_remove', kwargs={'prefix': self.mode.prefix})
+        self.url = reverse('changelog', kwargs={'prefix': self.debate.prefix})
+        self.merge_url = reverse('moderation_merge', kwargs={'prefix': self.debate.prefix})
+        self.remove_url = reverse('moderation_remove', kwargs={'prefix': self.debate.prefix})
 
         self.password = 'secretpassword'
         self.user = UserFactory(password=self.password, is_staff=True, is_superuser=True)

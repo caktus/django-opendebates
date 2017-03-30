@@ -8,12 +8,12 @@ from django.test.utils import override_settings
 from django.core import mail
 from opendebates_emails.models import EmailTemplate
 
-from .factories import CategoryFactory, UserFactory, VoterFactory, SiteFactory, SiteModeFactory
+from .factories import CategoryFactory, UserFactory, VoterFactory, SiteFactory, DebateFactory
 
 
 # Force the reverse() used here in the tests to always use the full
 # urlconf, despite whatever machinations have taken place due to the
-# SiteModeMiddleware.
+# DebateMiddleware.
 old_reverse = reverse
 reverse = partial(old_reverse, urlconf='opendebates.urls')
 
@@ -22,9 +22,9 @@ reverse = partial(old_reverse, urlconf='opendebates.urls')
 class EmailTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
-        self.url = reverse('questions', kwargs={'prefix': self.mode.prefix})
+        self.url = reverse('questions', kwargs={'prefix': self.debate.prefix})
         password = 'secretpassword'
         self.user = UserFactory(password=password)
         self.voter = VoterFactory(user=self.user, email=self.user.email)

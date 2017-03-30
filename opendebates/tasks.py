@@ -7,7 +7,7 @@ from django.core import management
 from django.db import connection
 from django.db.models import F
 
-from opendebates.models import Vote, Submission, SiteMode, RECENT_EVENTS_CACHE_ENTRY, \
+from opendebates.models import Vote, Submission, Debate, RECENT_EVENTS_CACHE_ENTRY, \
     NUMBER_OF_VOTES_CACHE_ENTRY
 from opendebates.router import set_thread_readonly_db, set_thread_readwrite_db
 
@@ -49,8 +49,8 @@ def update_recent_events():
     """
     Compute recent events and other statistics and cache them.
     """
-    for site_mode in SiteMode.objects.all():
-        logger.debug("update_recent_events: started for %s" % site_mode)
+    for debate in Debate.objects.all():
+        logger.debug("update_recent_events: started for %s" % debate)
 
         try:
             # No middleware on tasks, so this won't get set otherwise.
@@ -63,7 +63,7 @@ def update_recent_events():
                 "voter__user",
                 "submission__category",
             ).filter(
-                submission__category__site_mode_id=site_mode.id,
+                submission__category__debate=debate,
                 submission__approved=True,
                 submission__duplicate_of__isnull=True,
             ).exclude(
@@ -76,18 +76,18 @@ def update_recent_events():
             ).filter(
                 approved=True,
                 duplicate_of__isnull=True,
-                category__site_mode_id=site_mode.id,
+                category__debate=debate,
             ).order_by("-id")[:10]
 
             entries = list(votes) + list(submissions)
             entries = sorted(entries, key=lambda x: x.created_at, reverse=True)[:10]
 
-            cache.set(RECENT_EVENTS_CACHE_ENTRY.format(site_mode.id),
+            cache.set(RECENT_EVENTS_CACHE_ENTRY.format(debate.id),
                       entries, 24*3600)
 
             number_of_votes = Vote.objects.filter(
-                submission__category__site_mode_id=site_mode.id).count()
-            cache.set(NUMBER_OF_VOTES_CACHE_ENTRY.format(site_mode.id),
+                submission__category__debate=debate).count()
+            cache.set(NUMBER_OF_VOTES_CACHE_ENTRY.format(debate.id),
                       number_of_votes, 24*3600)
 
             logger.debug("There are %d entries" % len(entries))
@@ -97,7 +97,7 @@ def update_recent_events():
             # it happens.
             global exception_logged
             if not exception_logged:
-                logger.exception("Unexpected exception in update_recent_events for %s" % site_mode)
+                logger.exception("Unexpected exception in update_recent_events for %s" % debate)
                 exception_logged = True
         finally:
             # Be a good citizen and reset the worker's thread to the default state

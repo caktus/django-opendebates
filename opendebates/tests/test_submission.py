@@ -10,13 +10,13 @@ from django.utils import timezone
 from opendebates.models import Submission, Vote, ZipCode
 from opendebates_emails.models import EmailTemplate
 from .factories import (CategoryFactory, UserFactory, VoterFactory, SubmissionFactory,
-                        SiteFactory, SiteModeFactory)
+                        SiteFactory, DebateFactory)
 from .utilities import patch_cache_templatetag
 
 
 # Force the reverse() used here in the tests to always use the full
 # urlconf, despite whatever machinations have taken place due to the
-# SiteModeMiddleware.
+# DebateMiddleware.
 old_reverse = reverse
 reverse = partial(old_reverse, urlconf='opendebates.urls')
 
@@ -24,9 +24,9 @@ reverse = partial(old_reverse, urlconf='opendebates.urls')
 class SubmissionTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
-        self.url = reverse('questions', kwargs={'prefix': self.mode.prefix})
+        self.url = reverse('questions', kwargs={'prefix': self.debate.prefix})
         password = 'secretpassword'
         self.user = UserFactory(password=password)
         self.voter = VoterFactory(user=self.user, email=self.user.email)
@@ -118,8 +118,8 @@ class SubmissionTest(TestCase):
         self.assertEqual(1, len(votes))
 
     def test_post_submission_after_previous_debate(self):
-        self.mode.previous_debate_time = timezone.now() - datetime.timedelta(days=7)
-        self.mode.save()
+        self.debate.previous_debate_time = timezone.now() - datetime.timedelta(days=7)
+        self.debate.save()
 
         self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
@@ -131,8 +131,8 @@ class SubmissionTest(TestCase):
         self.assertEqual(1, len(votes))
 
     def test_post_submission_before_previous_debate(self):
-        self.mode.previous_debate_time = timezone.now() + datetime.timedelta(days=1)
-        self.mode.save()
+        self.debate.previous_debate_time = timezone.now() + datetime.timedelta(days=1)
+        self.debate.save()
 
         self.client.post(self.url, data=self.data)
         submission = Submission.objects.first()
@@ -145,8 +145,8 @@ class SubmissionTest(TestCase):
         self.assertEqual(1, len(votes))
 
     def test_post_submission_from_local_user(self):
-        self.mode.debate_state = 'NY'
-        self.mode.save()
+        self.debate.debate_state = 'NY'
+        self.debate.save()
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -166,8 +166,8 @@ class SubmissionTest(TestCase):
         self.assertEqual(submission.local_votes, 1)
 
     def test_post_submission_from_nonlocal_user(self):
-        self.mode.debate_state = 'FL'
-        self.mode.save()
+        self.debate.debate_state = 'FL'
+        self.debate.save()
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -187,8 +187,8 @@ class SubmissionTest(TestCase):
         self.assertEqual(submission.local_votes, 0)
 
     def test_post_submission_when_no_local_district_configured(self):
-        self.mode.debate_state = None
-        self.mode.save()
+        self.debate.debate_state = None
+        self.debate.save()
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -210,7 +210,7 @@ class SubmissionTest(TestCase):
     def test_post_submission_anon(self):
         "Anon user can post submissions, but needs to login/register first."
         self.client.logout()
-        register_url = reverse('registration_register', kwargs={'prefix': self.mode.prefix})
+        register_url = reverse('registration_register', kwargs={'prefix': self.debate.prefix})
         rsp = self.client.post(self.url, data=self.data)
         # anon user gets redirected to register/login
         self.assertRedirects(rsp, register_url)
@@ -262,7 +262,7 @@ class SubmissionTest(TestCase):
 
     def test_questions_page_redirects(self):
         "Questions view redirects to homepage because it is only meant for form handling."
-        questions_url = reverse('questions', kwargs={'prefix': self.mode.prefix})
+        questions_url = reverse('questions', kwargs={'prefix': self.debate.prefix})
         rsp = self.client.get(questions_url)
         self.assertEqual(302, rsp.status_code)
         self.assertEqual("/", urlparse(rsp['Location']).path)

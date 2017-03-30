@@ -4,7 +4,7 @@
 {% load opendebates_tags %}
 
 {% cache 30 question idea.id show_duplicates %}
-{% provide_site_mode_to idea %}
+{% provide_debate_to idea %}
 <div id="i{{ idea.id }}" data-idea-id="{{ idea.id }}" class="big-idea clearfix">
     <div class="votes col-md-3">
       {% if is_duplicate %}

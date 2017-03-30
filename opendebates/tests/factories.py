@@ -11,11 +11,11 @@ from opendebates import models
 _random = random.Random()
 
 
-def _testserver_site_mode(obj=None):
+def _testserver_debate(obj=None):
     site = SiteFactory(domain='testserver')
-    if site.site_modes.all():
-        return site.site_modes.all()[0]
-    return SiteModeFactory(site=site)
+    if site.debates.all():
+        return site.debates.all()[0]
+    return DebateFactory(site=site)
 
 
 class SiteFactory(factory.django.DjangoModelFactory):
@@ -26,9 +26,9 @@ class SiteFactory(factory.django.DjangoModelFactory):
     domain = 'testserver'
 
 
-class SiteModeFactory(factory.django.DjangoModelFactory):
+class DebateFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.SiteMode
+        model = models.Debate
 
     site = factory.SubFactory(SiteFactory)
     prefix = factory.Faker('slug')
@@ -59,7 +59,7 @@ class CategoryFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.Category
 
-    site_mode = factory.LazyAttribute(_testserver_site_mode)
+    debate = factory.LazyAttribute(_testserver_debate)
 
 
 class VoterFactory(factory.DjangoModelFactory):
@@ -115,7 +115,7 @@ class TopSubmissionCategoryFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.TopSubmissionCategory
 
-    site_mode = factory.LazyAttribute(_testserver_site_mode)
+    debate = factory.LazyAttribute(_testserver_debate)
 
     slug = factory.Faker('slug')
     title = factory.Faker('catch_phrase')

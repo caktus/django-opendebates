@@ -8,12 +8,12 @@ from mock import patch
 
 from opendebates.admin import SubmissionAdmin
 from opendebates.models import Submission
-from opendebates.tests.factories import SubmissionFactory, UserFactory, SiteModeFactory
+from opendebates.tests.factories import SubmissionFactory, UserFactory, DebateFactory
 
 
 # Force the reverse() used here in the tests to always use the full
 # urlconf, despite whatever machinations have taken place due to the
-# SiteModeMiddleware.
+# DebateMiddleware.
 old_reverse = reverse
 reverse = partial(old_reverse, urlconf='opendebates.urls')
 
@@ -57,7 +57,7 @@ class RemoveSubmissionsTest(TestCase):
         """
         request = MockRequest()
         request.user = MockSuperUser()
-        request.site_mode = SiteModeFactory()
+        request.debate = DebateFactory()
 
         rsp = self.admin.remove_submissions(request, self.queryset)
         self.assertEqual(rsp.status_code, 200)

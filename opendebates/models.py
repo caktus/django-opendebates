@@ -21,7 +21,7 @@ RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry-{}'
 
 class Category(CachingMixin, models.Model):
 
-    site_mode = models.ForeignKey('SiteMode', related_name='categories')
+    debate = models.ForeignKey('Debate', related_name='categories')
     name = models.CharField(max_length=255)
 
     objects = CachingManager()
@@ -47,10 +47,10 @@ class FlatPageMetadataOverride(models.Model):
     twitter_title = models.TextField(default=site_defaults.FLATPAGE_TWITTER_TITLE)
 
 
-class SiteMode(CachingMixin, models.Model):
+class Debate(CachingMixin, models.Model):
     THEME_CHOICES = [(theme, theme) for theme in settings.SITE_THEMES]
 
-    site = models.ForeignKey(Site, related_name='site_modes')
+    site = models.ForeignKey(Site, related_name='debates')
     prefix = models.SlugField()
     theme = models.CharField(max_length=255, choices=THEME_CHOICES)
 
@@ -169,13 +169,13 @@ class Submission(models.Model):
     source = models.CharField(max_length=255, null=True, blank=True)
 
     @property
-    def site_mode(self):
+    def debate(self):
         # avoid lots of unneeded round trips to memcached in production by
         # allowing this cached attribute to be set via the {% provide_site_to %}
         # template tag
-        if not hasattr(self, '_cached_site_mode'):
-            self._cached_site_mode = self.category.site_mode
-        return self._cached_site_mode
+        if not hasattr(self, '_cached_debate'):
+            self._cached_debate = self.category.debate
+        return self._cached_debate
 
     def get_recent_votes(self):
         timespan = datetime.datetime.now() - datetime.timedelta(1)
@@ -194,16 +194,16 @@ class Submission(models.Model):
     def get_absolute_url(self):
         # We are overriding the urlconf here so that the site-specific urlconf
         # is not used, and we can fully specify the site prefix.
-        return reverse('vote', kwargs={'prefix': self.site_mode.prefix, 'id': self.id},
+        return reverse('vote', kwargs={'prefix': self.debate.prefix, 'id': self.id},
                        urlconf=settings.ROOT_URLCONF)
 
     def tweet_text(self):
         if self.voter.twitter_handle:
-            text = self.site_mode.twitter_question_text_with_handle.format(
+            text = self.debate.twitter_question_text_with_handle.format(
                 handle=self.voter.twitter_handle,
             )
         else:
-            text = self.site_mode.twitter_question_text_no_handle
+            text = self.debate.twitter_question_text_no_handle
         return text
 
     def facebook_text(self):
@@ -220,8 +220,8 @@ class Submission(models.Model):
         return u"//www.reddit.com/submit?url=%s" % (quote_plus(self.really_absolute_url('reddit')),)
 
     def email_url(self):
-        subject = self.site_mode.email_subject
-        body = self.site_mode.email_body % {
+        subject = self.debate.email_subject
+        body = self.debate.email_body % {
             "url": self.really_absolute_url('email'),
         }
         return u"mailto:?subject=%s&body=%s" % (urlquote(subject), urlquote(body))
@@ -229,13 +229,13 @@ class Submission(models.Model):
     def sms_url(self):
         params = {
             "url": self.really_absolute_url('sms'),
-            "hashtag": self.site_mode.hashtag,
+            "hashtag": self.debate.hashtag,
         }
         body = _(u"Vote for my progressive idea for @OpenDebaters #%(hashtag)s. %(url)s" % params)
         return u"sms:;?body=%s" % (quote_plus(body),)
 
     def really_absolute_url(self, source=None):
-        url = 'https://' + self.site_mode.site.domain + self.get_absolute_url()
+        url = 'https://' + self.debate.site.domain + self.get_absolute_url()
         if source is not None:
             url += '?source=share-%s-%s' % (source, self.id)
         return url
@@ -250,18 +250,18 @@ class Submission(models.Model):
 
     def twitter_title(self):
         # Vote on this question for the FL-Sen #OpenDebate!
-        return self.site_mode.twitter_question_title.format(idea=self.idea)
+        return self.debate.twitter_question_title.format(idea=self.idea)
 
     def twitter_description(self):
         # "{idea}" At 8pm EDT on 4/25, Jolly & Grayson answer top vote-getting questions at
         # bottom-up #OpenDebate hosted by [TBD], Open Debate Coalition, Progressive Change Institute
-        return self.site_mode.twitter_question_description.format(idea=self.idea)
+        return self.debate.twitter_question_description.format(idea=self.idea)
 
     def facebook_title(self):
-        return self.site_mode.facebook_question_title.format(idea=self.idea)
+        return self.debate.facebook_question_title.format(idea=self.idea)
 
     def facebook_description(self):
-        return self.site_mode.facebook_question_description.format(idea=self.idea)
+        return self.debate.facebook_question_description.format(idea=self.idea)
 
 
 class ZipCode(CachingMixin, models.Model):
@@ -344,7 +344,7 @@ class Vote(models.Model):
 
 
 class Candidate(models.Model):
-    site_mode = models.ForeignKey('SiteMode', related_name='candidates')
+    debate = models.ForeignKey('Debate', related_name='candidates')
 
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
@@ -382,11 +382,14 @@ class Flag(models.Model):
 
 
 class TopSubmissionCategory(models.Model):
-    site_mode = models.ForeignKey('SiteMode', related_name='top_categories')
+    debate = models.ForeignKey('Debate', related_name='top_categories')
 
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField()
     title = models.TextField()
     caption = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        unique_together = [('debate', 'slug')]
 
     def __unicode__(self):
         return self.slug

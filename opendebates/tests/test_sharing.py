@@ -5,12 +5,12 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.html import escape
 
-from opendebates.tests.factories import SubmissionFactory, SiteFactory, SiteModeFactory
+from opendebates.tests.factories import SubmissionFactory, SiteFactory, DebateFactory
 
 
 # Force the reverse() used here in the tests to always use the full
 # urlconf, despite whatever machinations have taken place due to the
-# SiteModeMiddleware.
+# DebateMiddleware.
 old_reverse = reverse
 reverse = partial(old_reverse, urlconf='opendebates.urls')
 
@@ -18,17 +18,17 @@ reverse = partial(old_reverse, urlconf='opendebates.urls')
 class FacebookTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
     def tearDown(self):
         Site.objects.clear_cache()
 
     def test_facebook_site(self):
-        rsp = self.client.get(reverse('list_ideas', kwargs={'prefix': self.mode.prefix}))
+        rsp = self.client.get(reverse('list_ideas', kwargs={'prefix': self.debate.prefix}))
         self.assertContains(
             rsp,
             '<meta property="og:url" content="http://%s/%s"/>' % (
-                self.mode.site.domain, self.mode.prefix)
+                self.debate.site.domain, self.debate.prefix)
         )
         self.assertContains(
             rsp,
@@ -37,16 +37,16 @@ class FacebookTest(TestCase):
         self.assertContains(
             rsp,
             '<meta property="og:title" content="%s"/>'
-            % escape(self.mode.facebook_site_title)
+            % escape(self.debate.facebook_site_title)
         )
         self.assertContains(
             rsp,
             '<meta property="og:description" content="%s"/>'
-            % escape(self.mode.facebook_site_description)
+            % escape(self.debate.facebook_site_description)
         )
         self.assertContains(
             rsp,
-            '<meta property="og:image" content="%s"/>' % self.mode.facebook_image
+            '<meta property="og:image" content="%s"/>' % self.debate.facebook_image
         )
 
     def test_facebook_question(self):
@@ -63,30 +63,30 @@ class FacebookTest(TestCase):
         self.assertContains(
             rsp,
             '<meta property="og:title" content="%s"/>'
-            % escape(self.mode.facebook_question_title)
+            % escape(self.debate.facebook_question_title)
         )
         self.assertContains(
             rsp,
             '<meta property="og:description" content="%s"/>'
-            % escape(self.mode.facebook_question_description
+            % escape(self.debate.facebook_question_description
                      .format(idea=question.idea))
         )
         self.assertContains(
             rsp,
-            '<meta property="og:image" content="%s"/>' % self.mode.facebook_image
+            '<meta property="og:image" content="%s"/>' % self.debate.facebook_image
         )
 
     def test_facebook_title(self):
         question = SubmissionFactory(idea="Bogus & Broken")
         self.assertEqual(
-            self.mode.facebook_question_title.format(idea=question.idea),
+            self.debate.facebook_question_title.format(idea=question.idea),
             question.facebook_title()
         )
 
     def test_facebook_description(self):
         question = SubmissionFactory(idea="Bogus & Broken")
         self.assertEqual(
-            self.mode.facebook_question_description.format(idea=question.idea),
+            self.debate.facebook_question_description.format(idea=question.idea),
             question.facebook_description()
         )
 
@@ -94,23 +94,23 @@ class FacebookTest(TestCase):
 class TwitterTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
     def tearDown(self):
         Site.objects.clear_cache()
 
     def test_twitter_site_card(self):
-        rsp = self.client.get(reverse('list_ideas', kwargs={'prefix': self.mode.prefix}))
+        rsp = self.client.get(reverse('list_ideas', kwargs={'prefix': self.debate.prefix}))
         self.assertContains(rsp, '<meta name="twitter:card" content="summary_large_image">')
         self.assertContains(rsp,
                             '<meta name="twitter:title" content="%s">'
-                            % escape(self.mode.twitter_site_title))
+                            % escape(self.debate.twitter_site_title))
         self.assertContains(rsp,
                             '<meta name="twitter:description" content="%s">'
-                            % escape(self.mode.twitter_site_description))
+                            % escape(self.debate.twitter_site_description))
         self.assertContains(
             rsp,
-            '<meta name="twitter:image" content="%s">' % self.mode.twitter_image
+            '<meta name="twitter:image" content="%s">' % self.debate.twitter_image
         )
 
     def test_twitter_question_card(self):
@@ -125,19 +125,19 @@ class TwitterTest(TestCase):
                             % escape(question.twitter_description()))
         self.assertContains(
             rsp,
-            '<meta name="twitter:image" content="%s">' % self.mode.twitter_image
+            '<meta name="twitter:image" content="%s">' % self.debate.twitter_image
         )
 
     def test_twitter_title(self):
         question = SubmissionFactory(idea="Bogus & Broken")
         self.assertEqual(
-            self.mode.twitter_question_title.format(idea=question.idea),
+            self.debate.twitter_question_title.format(idea=question.idea),
             question.twitter_title()
         )
 
     def test_twitter_description(self):
         question = SubmissionFactory(idea="Bogus & Broken")
         self.assertEqual(
-            self.mode.twitter_question_description.format(idea=question.idea),
+            self.debate.twitter_question_description.format(idea=question.idea),
             question.twitter_description()
         )

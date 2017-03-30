@@ -9,12 +9,12 @@ import mock
 
 from ..models import RECENT_EVENTS_CACHE_ENTRY, NUMBER_OF_VOTES_CACHE_ENTRY
 from ..tasks import update_recent_events
-from .factories import CategoryFactory, SubmissionFactory, VoteFactory, SiteFactory, SiteModeFactory
+from .factories import CategoryFactory, SubmissionFactory, VoteFactory, SiteFactory, DebateFactory
 
 
 # Force the reverse() used here in the tests to always use the full
 # urlconf, despite whatever machinations have taken place due to the
-# SiteModeMiddleware.
+# DebateMiddleware.
 old_reverse = reverse
 reverse = partial(old_reverse, urlconf='opendebates.urls')
 
@@ -22,11 +22,11 @@ reverse = partial(old_reverse, urlconf='opendebates.urls')
 class RecentEventsTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode1 = SiteModeFactory(site=self.site)
-        self.mode2 = SiteModeFactory(site=self.site)
+        self.mode1 = DebateFactory(site=self.site)
+        self.mode2 = DebateFactory(site=self.site)
 
-        cat1 = CategoryFactory(site_mode=self.mode1)
-        cat2 = CategoryFactory(site_mode=self.mode2)
+        cat1 = CategoryFactory(debate=self.mode1)
+        cat2 = CategoryFactory(debate=self.mode2)
         sub1 = SubmissionFactory(category=cat1)
         sub2 = SubmissionFactory(category=cat2)
 
