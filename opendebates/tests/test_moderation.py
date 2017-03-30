@@ -464,7 +464,8 @@ class ModerationHomeTest(TestCase):
         Site.objects.clear_cache()
 
     def test_redirects_to_login(self):
-        login_url = reverse('auth_login', kwargs={'prefix': self.debate.prefix}) + '?next=' + self.url
+        login_url = reverse(
+            'auth_login', kwargs={'prefix': self.debate.prefix}) + '?next=' + self.url
         self.client.logout()
         rsp = self.client.get(self.url)
         self.assertRedirects(rsp, login_url)

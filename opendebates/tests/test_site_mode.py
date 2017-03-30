@@ -78,7 +78,8 @@ class AnnouncementTest(TestCase):
         self.debate.announcement_page_regex = "/{}/registration/".format(self.debate.prefix)
         self.debate.save()
 
-        rsp = self.client.get(reverse('registration_register', kwargs={'prefix': self.debate.prefix}))
+        rsp = self.client.get(
+            reverse('registration_register', kwargs={'prefix': self.debate.prefix}))
         self.assertIn('<div class="site-announcement warning">', rsp.content)
         self.assertIn('<a href="%s">' % link, rsp.content)
 
@@ -90,7 +91,8 @@ class AnnouncementTest(TestCase):
             self.debate.prefix)
         self.debate.save()
 
-        rsp = self.client.get(reverse('registration_register', kwargs={'prefix': self.debate.prefix}))
+        rsp = self.client.get(
+            reverse('registration_register', kwargs={'prefix': self.debate.prefix}))
         self.assertNotIn('<div class="site-announcement warning">', rsp.content)
         self.assertNotIn('<a href="%s">' % link, rsp.content)
 
