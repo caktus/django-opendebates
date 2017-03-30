@@ -12,8 +12,11 @@ class PrefixedUrlconf(object):
         url_module = import_module('opendebates.urls')
 
         return [
-            url_resolver
-            if url_resolver.urlconf_name.__name__ != 'opendebates.prefixed_urls' else
+            pattern
+            if (
+                not hasattr(pattern, 'urlconf_name') or
+                getattr(pattern.urlconf_name, '__name__', None) != 'opendebates.prefixed_urls'
+            ) else
             url(r'^{}/'.format(self.prefix), include('opendebates.prefixed_urls'))
-            for url_resolver in url_module.urlpatterns
+            for pattern in url_module.urlpatterns
         ]
