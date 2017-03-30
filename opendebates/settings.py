@@ -85,6 +85,8 @@ ROOT_URLCONF = 'opendebates.urls'
 
 LOGIN_URL = LOGIN_ERROR_URL = 'auth_login'
 
+LOGIN_REDIRECT_URL = 'list_ideas'
+
 
 TEMPLATES = [
     {
@@ -293,5 +295,3 @@ OPTIMIZELY_KEY = None
 
 # Turn this off to never use CAPTCHA
 USE_CAPTCHA = True
-
-LOGIN_REDIRECT_URL = '/'
