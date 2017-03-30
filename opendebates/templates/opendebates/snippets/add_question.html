@@ -30,7 +30,7 @@
           <div class="controls">
             <select name="category" class="selectpicker">
               <option>--</option>
-              {% cache 331 add_question_iter_category category %}
+              {% cache 331 add_question_iter_category DEBATE.id category.id %}
                 {% for iter_category in SUBMISSION_CATEGORIES %}
                 <option {% if iter_category.id|slugify == form.data.category or iter_category.id == category.id %}selected{% endif %}
                         value="{{ iter_category.id }}">{{ iter_category.name }}</option>
