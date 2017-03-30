@@ -156,15 +156,18 @@ def home(request):
     #   - which have not already been moderated
     #   - ordered by flag count
     flagged_for_removal = Submission.objects.filter(
-                                                removal_flags__duplicate_of=None,
-                                                category__debate=request.debate) \
-                                            .exclude(moderated_removal=True) \
-                                            .annotate(num_flags=Count('removal_flags')) \
-                                            .filter(num_flags__gt=0) \
-                                            .order_by('-num_flags')
+        removal_flags__duplicate_of=None,
+        category__debate=request.debate
+    ).exclude(
+        moderated_removal=True
+    ).annotate(
+        num_flags=Count('removal_flags')
+    ).filter(num_flags__gt=0).order_by('-num_flags')
 
     # all merge flags which have not yet been reviewed
-    merge_flags = Flag.objects.exclude(duplicate_of=None).exclude(reviewed=True)
+    merge_flags = Flag.objects.filter(
+        to_remove__category__debate=request.debate
+    ).exclude(duplicate_of=None).exclude(reviewed=True)
 
     return {
         'flagged_for_removal': flagged_for_removal,
