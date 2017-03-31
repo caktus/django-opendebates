@@ -389,6 +389,7 @@ class TopSubmissionCategory(models.Model):
     caption = models.CharField(max_length=255, blank=True)
 
     class Meta:
+        verbose_name_plural = _("top submission categories")
         unique_together = [('debate', 'slug')]
 
     def __unicode__(self):
