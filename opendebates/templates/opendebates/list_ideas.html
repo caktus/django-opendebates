@@ -23,9 +23,9 @@
 
 <div class="row white category-only hidden-xs text-center">
   <div class="vcenter {% if not category %}active-category-nav{% endif %}">
-    <a href="/">{% blocktrans %}All Issue Areas{% endblocktrans %}</a>
+    <a href="{% url 'list_ideas' %}">{% blocktrans %}All Issue Areas{% endblocktrans %}</a>
   </div>
-  {% cache 279 option_categories category.id %}
+  {% cache 279 option_categories DEBATE.id category.id %}
     {% for option in SUBMISSION_CATEGORIES %}
       {% if option.name != "Hidden" and option.name != "Uncategorized" and option.name != "Other" %}
         <div class="vcenter {% if category and category.id == option.id %}active-category-nav{% endif %}">
@@ -38,8 +38,8 @@
 <label id="category-select-picker-ctn" for="category-select-picker">
   {% trans "Issue areas" %}<br/>
   <select id="category-select-picker" class="selectpicker" onchange="javascript:window.location=$(this).val() + window.location.search;">
-    <option value="/">All</option>
-    {% cache 299 cat_options category.id %}
+    <option value="{% url 'list_ideas' %}">All</option>
+    {% cache 299 cat_options DEBATE.id category.id %}
       {% for option in SUBMISSION_CATEGORIES %}
         {% if option.name != "Hidden" and option.name != "Uncategorized" and option.name != "Other" %}
           <option {% if category and category.id == option.id %}selected{% endif %} value="{% url 'list_category' option.id %}">{{ option.name }}</option>
@@ -52,7 +52,7 @@
 {% endblock %}
 
 {% block primary_content %}
-  {% cache 30 list_ideas_content sort url_name search_term category.id %}
+  {% cache 30 list_ideas_content sort url_name search_term DEBATE.id category.id %}
     <div class="sort-column">
       <form action="{{ url_name }}" method="GET" class="form-inline">
 
@@ -101,14 +101,14 @@
         </select>
         <div class="display-count">
 
-            Displaying <strong>{% cache 57 idea_count search_term category.id %}{{ ideas.count }}{% endcache %} Questions</strong>
+            Displaying <strong>{% cache 57 idea_count search_term DEBATE.id category.id %}{{ ideas.count }}{% endcache %} Questions</strong>
         </div>
       </form>
     </div>
     {% endcache %}
     
   {% show_current_number as page_number %}
-  {% cache 30 idea_list search_term category.id sort page_number request.GET.source %}
+  {% cache 30 idea_list search_term DEBATE.id category.id sort page_number request.GET.source %}
 
   <hr class="before-idea-list visible-xs" />
   <div class="row idea-list">
