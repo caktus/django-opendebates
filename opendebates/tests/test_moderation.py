@@ -512,6 +512,20 @@ class ModerationHomeTest(TestCase):
         self.assertNotIn(already_reviewed_flag, qs)
         self.assertEqual(set(merge_flags), set(qs))
 
+    def test_debate_specific_merge_flags(self):
+        debate2 = DebateFactory(site=self.site)
+        cat = CategoryFactory(debate=self.debate)
+        cat2 = CategoryFactory(debate=debate2)
+
+        merge = MergeFlagFactory(to_remove__category=cat, duplicate_of__category=cat)
+        merge2 = MergeFlagFactory(to_remove__category=cat2, duplicate_of__category=cat2)
+
+        rsp = self.client.get(self.url)
+        self.assertEqual(OK, rsp.status_code)
+        qs = rsp.context['merge_flags']
+        self.assertIn(merge, qs)
+        self.assertNotIn(merge2, qs)
+
 
 class RemovalFlagTest(TestCase):
     def setUp(self):
