@@ -90,8 +90,8 @@ class TopSubmissionCategoryAdmin(ModelAdmin):
 
 @register(models.Debate)
 class DebateAdmin(ModelAdmin):
-    list_display = ['site', 'debate_time', 'previous_debate_time', 'show_question_votes',
-                    'show_total_votes', 'allow_sorting_by_votes']
+    list_display = ['prefix', 'site', 'debate_time', 'previous_debate_time',
+                    'show_question_votes', 'show_total_votes', 'allow_sorting_by_votes']
     actions = ['reset_current_votes']
     _fields = [f.name for f in models.Debate._meta.get_fields() if f.name != 'id']
     fieldsets = [
