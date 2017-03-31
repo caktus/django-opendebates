@@ -7,13 +7,13 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from .factories import SubmissionFactory, SiteFactory, SiteModeFactory
+from .factories import SubmissionFactory, SiteFactory, DebateFactory
 from .utilities import patch_cache_templatetag
 
 
 # Force the reverse() used here in the tests to always use the full
 # urlconf, despite whatever machinations have taken place due to the
-# SiteModeMiddleware.
+# DebateMiddleware.
 old_reverse = reverse
 reverse = partial(old_reverse, urlconf='opendebates.urls')
 
@@ -22,12 +22,12 @@ reverse = partial(old_reverse, urlconf='opendebates.urls')
 class PaginationTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
         for i in range(2):
             SubmissionFactory()
 
-        self.url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
+        self.url = reverse('list_ideas', kwargs={'prefix': self.debate.prefix})
 
     def tearDown(self):
         Site.objects.clear_cache()
@@ -42,7 +42,7 @@ class PaginationTest(TestCase):
         rsp = self.client.get(self.url)
         self.assertIn('endless_page_link', rsp.content)
         link = self.find_first_page_link(rsp.content)
-        self.assertEqual('/{}/?page=2'.format(self.mode.prefix), link)
+        self.assertEqual('/{}/?page=2'.format(self.debate.prefix), link)
 
     def test_pagination_preserves_querystring(self):
         rsp = self.client.get(self.url + '?source=foo&utm_medium=email')

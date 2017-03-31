@@ -7,12 +7,12 @@ from django.test import TestCase
 import mock
 
 from ..models import Submission
-from .factories import SubmissionFactory, UserFactory, VoterFactory, SiteFactory, SiteModeFactory
+from .factories import SubmissionFactory, UserFactory, VoterFactory, SiteFactory, DebateFactory
 
 
 # Force the reverse() used here in the tests to always use the full
 # urlconf, despite whatever machinations have taken place due to the
-# SiteModeMiddleware.
+# DebateMiddleware.
 old_reverse = reverse
 reverse = partial(old_reverse, urlconf='opendebates.urls')
 
@@ -20,7 +20,7 @@ reverse = partial(old_reverse, urlconf='opendebates.urls')
 class HeadlineTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
         self.submission = SubmissionFactory()
 
@@ -33,14 +33,14 @@ class HeadlineTest(TestCase):
             self.submission
         ]
         with mock.patch('opendebates.views.cache', new=mock_cache):
-            rsp = self.client.get(reverse('recent_activity', kwargs={'prefix': self.mode.prefix}))
+            rsp = self.client.get(reverse('recent_activity', kwargs={'prefix': self.debate.prefix}))
 
         html = rsp.content.decode('UTF-8')
         self.assertIn(self.submission.headline, html)
 
     def test_headline_contributes_to_search(self):
         rsp = self.client.get(
-            reverse('search_ideas', kwargs={'prefix': self.mode.prefix}) +
+            reverse('search_ideas', kwargs={'prefix': self.debate.prefix}) +
             '?q=%s' % self.submission.headline)
         html = rsp.content.decode('UTF-8')
         self.assertIn(self.submission.get_absolute_url(), html)
@@ -54,7 +54,7 @@ class HeadlineTest(TestCase):
         assert self.client.login(username=user.username,
                                  password='secretpassword')
 
-        merge_url = reverse('moderation_merge', kwargs={'prefix': self.mode.prefix})
+        merge_url = reverse('moderation_merge', kwargs={'prefix': self.debate.prefix})
         self.client.post(merge_url, data={
             "action": "merge",
             "to_remove": self.submission.id,

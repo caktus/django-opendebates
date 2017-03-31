@@ -72,7 +72,7 @@ def test(request):
 @allow_http("GET")
 @rendered_with("opendebates/snippets/recent_activity.html")
 def recent_activity(request):
-    entries = cache.get(RECENT_EVENTS_CACHE_ENTRY.format(request.site_mode.id), default=[])
+    entries = cache.get(RECENT_EVENTS_CACHE_ENTRY.format(request.debate.id), default=[])
     return {
         "recent_activity": entries
     }
@@ -80,7 +80,7 @@ def recent_activity(request):
 
 @rendered_with("opendebates/list_ideas.html")
 def list_ideas(request):
-    ideas = Submission.objects.filter(category__site_mode=request.site_mode)
+    ideas = Submission.objects.filter(category__debate=request.debate)
     citations_only = request.GET.get("citations_only")
     sort = choose_sort(request, request.GET.get('sort'))
 
@@ -97,8 +97,8 @@ def list_ideas(request):
 
 @rendered_with("opendebates/list_ideas.html")
 def list_category(request, cat_id):
-    category = get_object_or_404(Category, id=cat_id, site_mode=request.site_mode)
-    ideas = Submission.objects.filter(category__site_mode=request.site_mode, category=cat_id)
+    category = get_object_or_404(Category, id=cat_id, debate=request.debate)
+    ideas = Submission.objects.filter(category__debate=request.debate, category=cat_id)
     citations_only = request.GET.get("citations_only")
     sort = choose_sort(request, request.GET.get('sort'))
 
@@ -120,7 +120,7 @@ def search_ideas(request):
     except IndexError:
         return redirect(reverse('list_ideas'))
 
-    ideas = Submission.objects.filter(category__site_mode=request.site_mode)
+    ideas = Submission.objects.filter(category__debate=request.debate)
     citations_only = request.GET.get("citations_only")
 
     sort = choose_sort(request, request.GET.get('sort'))
@@ -137,7 +137,7 @@ def search_ideas(request):
 
 @rendered_with("opendebates/list_ideas.html")
 def category_search(request, cat_id):
-    ideas = Submission.objects.filter(category__site_mode=request.site_mode, category=cat_id)
+    ideas = Submission.objects.filter(category__debate=request.debate, category=cat_id)
     citations_only = request.GET.get("citations_only")
     search_term = request.GET['q']
 
@@ -161,7 +161,7 @@ def vote(request, id):
     try:
         with readonly_db():
             idea = Submission.objects.get(
-                id=id, category__site_mode=request.site_mode,
+                id=id, category__debate=request.debate,
             )
     except Submission.DoesNotExist:
         raise Http404
@@ -191,12 +191,12 @@ def vote(request, id):
             'related1': related1,
             'related2': related2,
             'duplicates': (Submission.objects.filter(
-                                category__site_mode=request.site_mode,
+                                category__debate=request.debate,
                                 approved=True, duplicate_of=idea)
                            if idea.has_duplicates else []),
         }
 
-    if not request.site_mode.allow_voting_and_submitting_questions:
+    if not request.debate.allow_voting_and_submitting_questions:
         raise Http404
 
     form = VoterForm(request.POST)
@@ -236,7 +236,7 @@ def vote(request, id):
         # create a Vote.  Deny attackers any information about how they are failing.
         if request.is_ajax():
             result = {"status": "200",
-                      "tally": idea.votes if request.site_mode.show_question_votes else '',
+                      "tally": idea.votes if request.debate.show_question_votes else '',
                       "id": idea.id}
             return HttpResponse(
                 json.dumps(result),
@@ -274,17 +274,17 @@ def vote(request, id):
         )
     )
 
-    previous_debate_time = request.site_mode.previous_debate_time
+    previous_debate_time = request.debate.previous_debate_time
     if created:
         # update the DB with the real tally
-        Submission.objects.filter(category__site_mode=request.site_mode, id=id).update(
+        Submission.objects.filter(category__debate=request.debate, id=id).update(
             votes=F('votes')+1,
             current_votes=F('current_votes')+(
                 1 if previous_debate_time is None or vote.created_at > previous_debate_time
                 else 0
             ),
             local_votes=F('local_votes')+(
-                1 if voter.state and voter.state == request.site_mode.debate_state
+                1 if voter.state and voter.state == request.debate.debate_state
                 else 0)
         )
         # also calculate a simple increment tally for the client
@@ -295,7 +295,7 @@ def vote(request, id):
 
     if request.is_ajax():
         result = {"status": "200",
-                  "tally": idea.votes if request.site_mode.show_question_votes else '',
+                  "tally": idea.votes if request.debate.show_question_votes else '',
                   "id": idea.id}
         return HttpResponse(
             json.dumps(result),
@@ -312,7 +312,7 @@ def questions(request):
     if request.method == 'GET':
         return redirect("/")
 
-    if not request.site_mode.allow_voting_and_submitting_questions:
+    if not request.debate.allow_voting_and_submitting_questions:
         raise Http404
 
     form = QuestionForm(request.POST, request=request)
@@ -323,7 +323,7 @@ def questions(request):
 
         return {
             'form': form,
-            'categories': Category.objects.filter(site_mode=request.site_mode),
+            'categories': Category.objects.filter(debate=request.debate),
             'ideas': [],
         }
 
@@ -346,7 +346,7 @@ def questions(request):
         )
     )
 
-    previous_debate_time = request.site_mode.previous_debate_time
+    previous_debate_time = request.debate.previous_debate_time
     created_at = timezone.now()
     idea = Submission.objects.create(
         voter=voter,
@@ -359,7 +359,7 @@ def questions(request):
         ip_address=get_ip_address_from_request(request),
         approved=True,
         votes=1,
-        local_votes=1 if voter.state and voter.state == request.site_mode.debate_state else 0,
+        local_votes=1 if voter.state and voter.state == request.debate.debate_state else 0,
         current_votes=(1 if previous_debate_time is None or created_at > previous_debate_time
                        else 0),
         source=request.COOKIES.get('opendebates.source'),
@@ -467,7 +467,7 @@ def registration_duplicate(request):
 @allow_http("GET")
 def list_candidates(request):
     candidates = Candidate.objects.filter(
-        site_mode=request.site_mode,
+        debate=request.debate,
     ).order_by('last_name', 'first_name')
     return {
         'candidates': candidates,
@@ -478,10 +478,10 @@ def list_candidates(request):
 @allow_http("GET", "POST")
 @login_required
 def report(request, id):
-    if not request.site_mode.allow_voting_and_submitting_questions and not request.user.is_staff:
+    if not request.debate.allow_voting_and_submitting_questions and not request.user.is_staff:
         raise Http404
 
-    idea = get_object_or_404(Submission, pk=id, category__site_mode=request.site_mode)
+    idea = get_object_or_404(Submission, pk=id, category__debate=request.debate)
     voter = Voter.objects.get(user=request.user)
 
     if request.method == 'POST':
@@ -502,10 +502,10 @@ def report(request, id):
 @allow_http("GET", "POST")
 @login_required
 def merge(request, id):
-    if not request.site_mode.allow_voting_and_submitting_questions and not request.user.is_staff:
+    if not request.debate.allow_voting_and_submitting_questions and not request.user.is_staff:
         raise Http404
 
-    idea = get_object_or_404(Submission, pk=id, category__site_mode=request.site_mode)
+    idea = get_object_or_404(Submission, pk=id, category__debate=request.debate)
     voter = Voter.objects.get(user=request.user)
 
     if Flag.objects.filter(to_remove=idea, voter=voter).exists():
@@ -527,7 +527,7 @@ def merge(request, id):
 @allow_http("GET")
 def top_archive(request, slug):
     category = get_object_or_404(TopSubmissionCategory,
-                                 site_mode=request.site_mode, slug=slug)
+                                 debate=request.debate, slug=slug)
     submissions = category.submissions.select_related(
         "submission", "submission__voter", "submission__voter__user",
         "submission__category").order_by("rank", "created_at").all()

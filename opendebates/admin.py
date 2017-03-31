@@ -85,15 +85,15 @@ class FlagAdmin(ModelAdmin):
 
 @register(models.TopSubmissionCategory)
 class TopSubmissionCategoryAdmin(ModelAdmin):
-    list_display = ['site_mode', 'slug', 'title']
+    list_display = ['debate', 'slug', 'title']
 
 
-@register(models.SiteMode)
-class SiteModeAdmin(ModelAdmin):
+@register(models.Debate)
+class DebateAdmin(ModelAdmin):
     list_display = ['site', 'debate_time', 'previous_debate_time', 'show_question_votes',
                     'show_total_votes', 'allow_sorting_by_votes']
     actions = ['reset_current_votes']
-    _fields = [f.name for f in models.SiteMode._meta.get_fields() if f.name != 'id']
+    _fields = [f.name for f in models.Debate._meta.get_fields() if f.name != 'id']
     fieldsets = [
         ('General Settings', {
             'fields': ['site', 'prefix', 'theme', 'show_question_votes', 'show_total_votes',
@@ -145,7 +145,7 @@ class SiteModeAdmin(ModelAdmin):
 
     def reset_current_votes(self, request, queryset):
         models.Submission.objects.update(
-            category__site_mode__in=queryset).update(current_votes=0)
+            category__debate__in=queryset).update(current_votes=0)
     reset_current_votes.short_description = "Reset vote counts since the last debate"
 
 

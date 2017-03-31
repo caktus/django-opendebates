@@ -10,15 +10,15 @@
     <meta name="twitter:card" content="summary_large_image">
     {# <meta name="twitter:site" content="@Opendebaters"> #}
     {# <meta name="twitter:creator" content="@Opendebaters"> #}
-    <meta name="twitter:title" content="{{ SITE_MODE.twitter_site_title }}">
-    <meta name="twitter:description" content="{{ SITE_MODE.twitter_site_description }}">
-    <meta name="twitter:image" content="{{ SITE_MODE.twitter_image }}">
+    <meta name="twitter:title" content="{{ DEBATE.twitter_site_title }}">
+    <meta name="twitter:description" content="{{ DEBATE.twitter_site_description }}">
+    <meta name="twitter:image" content="{{ DEBATE.twitter_image }}">
 
     <meta property="og:url" content="{{ SITE_LINK }}"/>
     <meta property="og:type" content="website"/>
-    <meta property="og:title" content="{{ SITE_MODE.facebook_site_title }}"/>
-    <meta property="og:description" content="{{ SITE_MODE.facebook_site_description }}"/>
-    <meta property="og:image" content="{{ SITE_MODE.facebook_image }}"/>
+    <meta property="og:title" content="{{ DEBATE.facebook_site_title }}"/>
+    <meta property="og:description" content="{{ DEBATE.facebook_site_description }}"/>
+    <meta property="og:image" content="{{ DEBATE.facebook_image }}"/>
   {% endblock metadata %}
   {% load pipeline %}
   {% stylesheet 'base' %}
@@ -33,9 +33,9 @@
   <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,300,600,400|Open+Sans+Condensed:700"
         rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-  {% if SITE_MODE.inline_css %}
-  <style type="text/css" id="site-mode-inline-css">
-    {{ SITE_MODE.inline_css|safe }}
+  {% if DEBATE.inline_css %}
+  <style type="text/css" id="debate-inline-css">
+    {{ DEBATE.inline_css|safe }}
   </style>
   {% endif %}
 </head>
@@ -122,12 +122,12 @@
   <footer>
     <hr />
     <nav>
-      <a href="/{{ SITE_MODE.prefix }}/about/">About</a>
-      <a href="/{{ SITE_MODE.prefix }}/participation/">Participation Guidelines</a>
-      <a href="/{{ SITE_MODE.prefix }}/press/">Press</a>
-      <a href="/{{ SITE_MODE.prefix }}/partners/">Partners</a>
-      <a href="/{{ SITE_MODE.prefix }}/privacy/">Privacy Policy</a>
-      <a href="/{{ SITE_MODE.prefix }}/contact/">Contact</a>
+      <a href="/{{ DEBATE.prefix }}/about/">About</a>
+      <a href="/{{ DEBATE.prefix }}/participation/">Participation Guidelines</a>
+      <a href="/{{ DEBATE.prefix }}/press/">Press</a>
+      <a href="/{{ DEBATE.prefix }}/partners/">Partners</a>
+      <a href="/{{ DEBATE.prefix }}/privacy/">Privacy Policy</a>
+      <a href="/{{ DEBATE.prefix }}/contact/">Contact</a>
     </nav>
     <div class="ft-social">
       <a target="_blank" id="ft-facebook" href="{{ FACEBOOK_URL }}">Facebook</a>

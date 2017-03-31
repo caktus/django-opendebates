@@ -2,13 +2,13 @@ from django.contrib.sites.models import Site
 from django.test import TestCase
 import urlparse
 
-from .factories import UserFactory, VoterFactory, SubmissionFactory, SiteFactory, SiteModeFactory
+from .factories import UserFactory, VoterFactory, SubmissionFactory, SiteFactory, DebateFactory
 
 
 class SubmissionReallyAbsoluteUrlTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
         self.submission = SubmissionFactory()
         self.site.domain = 'example.net'
@@ -21,7 +21,7 @@ class SubmissionReallyAbsoluteUrlTest(TestCase):
     def test_default(self):
         self.assertEqual(
             'https://testserver/%s/questions/%s/vote/' % (
-                self.mode.prefix, self.id),
+                self.debate.prefix, self.id),
             self.submission.really_absolute_url())
 
     def test_source(self):
@@ -43,7 +43,7 @@ class SubmissionReallyAbsoluteUrlTest(TestCase):
 class VoterUserDisplayNameTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
     def tearDown(self):
         Site.objects.clear_cache()

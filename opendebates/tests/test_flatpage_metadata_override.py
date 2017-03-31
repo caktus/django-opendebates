@@ -5,22 +5,22 @@ from django.utils.html import escape
 
 from opendebates.models import FlatPageMetadataOverride
 from opendebates import site_defaults
-from .factories import SiteFactory, SiteModeFactory
+from .factories import SiteFactory, DebateFactory
 
 
 class FlatPageTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
         self.page1_content = 'About the site'
-        self.page1 = FlatPage(url='/{}/about/'.format(self.mode.prefix),
+        self.page1 = FlatPage(url='/{}/about/'.format(self.debate.prefix),
                               title='About',
                               content=self.page1_content)
         self.page1.save()
         self.page1.sites.add(self.site)
         self.page2_content = '[An embedded video]'
-        self.page2 = FlatPage(url='/{}/watch/'.format(self.mode.prefix),
+        self.page2 = FlatPage(url='/{}/watch/'.format(self.debate.prefix),
                               title='Watch Now!',
                               content=self.page2_content)
         self.page2.save()

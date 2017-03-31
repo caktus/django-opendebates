@@ -6,12 +6,12 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from .factories import SubmissionFactory, SiteFactory, SiteModeFactory
+from .factories import SubmissionFactory, SiteFactory, DebateFactory
 
 
 # Force the reverse() used here in the tests to always use the full
 # urlconf, despite whatever machinations have taken place due to the
-# SiteModeMiddleware.
+# DebateMiddleware.
 old_reverse = reverse
 reverse = partial(old_reverse, urlconf='opendebates.urls')
 
@@ -20,9 +20,9 @@ reverse = partial(old_reverse, urlconf='opendebates.urls')
 class NavigationTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
-        self.url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
-        self.search_url = reverse('search_ideas', kwargs={'prefix': self.mode.prefix})
+        self.debate = DebateFactory(site=self.site)
+        self.url = reverse('list_ideas', kwargs={'prefix': self.debate.prefix})
+        self.search_url = reverse('search_ideas', kwargs={'prefix': self.debate.prefix})
 
         SubmissionFactory(votes=1)
         SubmissionFactory(votes=2)

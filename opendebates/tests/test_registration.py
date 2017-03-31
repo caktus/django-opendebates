@@ -7,12 +7,12 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from .factories import UserFactory, VoterFactory, SiteFactory, SiteModeFactory
+from .factories import UserFactory, VoterFactory, SiteFactory, DebateFactory
 
 
 # Force the reverse() used here in the tests to always use the full
 # urlconf, despite whatever machinations have taken place due to the
-# SiteModeMiddleware.
+# DebateMiddleware.
 old_reverse = reverse
 reverse = partial(old_reverse, urlconf='opendebates.urls')
 
@@ -20,9 +20,9 @@ reverse = partial(old_reverse, urlconf='opendebates.urls')
 class RegisterTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
-        self.url = reverse('registration_register', kwargs={'prefix': self.mode.prefix})
+        self.url = reverse('registration_register', kwargs={'prefix': self.debate.prefix})
         self.data = {
             'username': 'gwash',
             'password1': 'secretpassword',
@@ -65,7 +65,7 @@ class RegisterTest(TestCase):
 
     def test_post_success(self):
         "POST the form with all required values."
-        home_url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
+        home_url = reverse('list_ideas', kwargs={'prefix': self.debate.prefix})
         rsp = self.client.post(self.url, data=self.data, follow=True)
         self.assertRedirects(rsp, home_url)
         new_user = get_user_model().objects.first()
@@ -90,7 +90,7 @@ class RegisterTest(TestCase):
         UserFactory(email=self.data['email'].upper())
         rsp = self.client.post(self.url, data=self.data)
         self.assertRedirects(rsp, reverse('registration_duplicate',
-                                          kwargs={'prefix': self.mode.prefix}))
+                                          kwargs={'prefix': self.debate.prefix}))
 
     def test_twitter_handle_gets_cleaned(self):
         "Various forms of twitter_handle entries are cleaned to canonical form."
@@ -111,7 +111,7 @@ class RegisterTest(TestCase):
     def test_disabling_captcha(self):
         del self.data['g-recaptcha-response']
         del os.environ['NORECAPTCHA_TESTING']
-        home_url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
+        home_url = reverse('list_ideas', kwargs={'prefix': self.debate.prefix})
         rsp = self.client.post(self.url, data=self.data, follow=True)
         self.assertRedirects(rsp, home_url)
         new_user = get_user_model().objects.first()
@@ -121,20 +121,20 @@ class RegisterTest(TestCase):
 class LoginLogoutTest(TestCase):
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
         self.username = 'gwash'
         self.email = 'gwash@example.com'
         self.password = 'secretpassword'
-        # use VoterFactory so we have a SiteMode to authenticate against in
+        # use VoterFactory so we have a Debate to authenticate against in
         # our custom auth backend when logging in via email
         self.voter = VoterFactory(
             user__username=self.username,
             user__email=self.email,
             user__password=self.password,
         )
-        self.login_url = reverse('auth_login', kwargs={'prefix': self.mode.prefix})
-        self.home_url = reverse('list_ideas', kwargs={'prefix': self.mode.prefix})
+        self.login_url = reverse('auth_login', kwargs={'prefix': self.debate.prefix})
+        self.home_url = reverse('list_ideas', kwargs={'prefix': self.debate.prefix})
 
     def tearDown(self):
         Site.objects.clear_cache()
@@ -143,7 +143,7 @@ class LoginLogoutTest(TestCase):
         rsp = self.client.post(
             self.login_url,
             data={'username': self.username, 'password': self.password,
-                  'next': '/{}/'.format(self.mode.prefix)}
+                  'next': '/{}/'.format(self.debate.prefix)}
         )
         self.assertRedirects(rsp, self.home_url)
 
@@ -151,7 +151,7 @@ class LoginLogoutTest(TestCase):
         rsp = self.client.post(
             self.login_url,
             data={'username': self.email, 'password': self.password,
-                  'next': '/{}/'.format(self.mode.prefix)}
+                  'next': '/{}/'.format(self.debate.prefix)}
         )
         self.assertRedirects(rsp, self.home_url)
 
@@ -159,7 +159,7 @@ class LoginLogoutTest(TestCase):
         rsp = self.client.post(
             self.login_url,
             data={'username': self.username, 'password': self.password + 'bad',
-                  'next': '/{}/'.format(self.mode.prefix)}
+                  'next': '/{}/'.format(self.debate.prefix)}
         )
         self.assertEqual(200, rsp.status_code)
         form = rsp.context['form']
@@ -167,7 +167,7 @@ class LoginLogoutTest(TestCase):
 
     def test_logout(self):
         self.assertTrue(self.client.login(username=self.username, password=self.password))
-        logout_url = reverse('auth_logout', kwargs={'prefix': self.mode.prefix})
+        logout_url = reverse('auth_logout', kwargs={'prefix': self.debate.prefix})
         rsp = self.client.get(logout_url)
         self.assertRedirects(rsp, self.home_url)
         rsp = self.client.get(self.home_url)

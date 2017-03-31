@@ -46,13 +46,13 @@ def merge(request):
         Submission,
         pk=request.POST['to_remove'],
         approved=True,
-        category__site_mode=request.site_mode,
+        category__debate=request.debate,
     )
     duplicate_of = get_object_or_404(
         Submission,
         pk=request.POST['duplicate_of'],
         approved=True,
-        category__site_mode=request.site_mode,
+        category__debate=request.debate,
     )
 
     if request.POST.get("action").lower() == "reject":
@@ -71,14 +71,14 @@ def merge(request):
         votes_to_merge = Vote.objects.filter(submission=to_remove).exclude(
             voter__in=votes_already_cast)
 
-        previous_debate_time = request.site_mode.previous_debate_time
+        previous_debate_time = request.debate.previous_debate_time
         if previous_debate_time:
             current_votes_to_merge = votes_to_merge.filter(
                 created_at__gt=previous_debate_time).count()
         else:
             current_votes_to_merge = votes_to_merge.count()
 
-        local_state = request.site_mode.debate_state
+        local_state = request.debate.debate_state
         if local_state:
             local_votes_to_merge = votes_to_merge.filter(voter__state=local_state).count()
         else:
@@ -124,7 +124,7 @@ def remove(request):
         Submission,
         pk=request.POST.get('to_remove'),
         approved=True,
-        category__site_mode=request.site_mode,
+        category__debate=request.debate,
     )
 
     remove = request.POST.get('action').lower() == 'remove'
@@ -157,7 +157,7 @@ def home(request):
     #   - ordered by flag count
     flagged_for_removal = Submission.objects.filter(
                                                 removal_flags__duplicate_of=None,
-                                                category__site_mode=request.site_mode) \
+                                                category__debate=request.debate) \
                                             .exclude(moderated_removal=True) \
                                             .annotate(num_flags=Count('removal_flags')) \
                                             .filter(num_flags__gt=0) \
@@ -178,7 +178,7 @@ def add_to_top_archive(request):
         raise PermissionDenied
 
     form = TopSubmissionForm(data=request.POST or None, initial=request.GET or None,
-                             mode=request.site_mode)
+                             debate=request.debate)
     if request.method == 'POST':
         if form.is_valid():
             entry = form.save()

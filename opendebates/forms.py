@@ -40,7 +40,7 @@ class QuestionForm(forms.Form):
         request = kwargs.pop('request')
         super(QuestionForm, self).__init__(*args, **kwargs)
         self.fields['category'].error_messages['invalid_pk_value'] = _("You must select a category")
-        self.fields['category'].queryset = Category.objects.filter(site_mode=request.site_mode)
+        self.fields['category'].queryset = Category.objects.filter(debate=request.debate)
 
 display_name_help_text = _("How your name will be displayed on the site. If you "
                            "are an expert in a particular field or have a professional "
@@ -165,7 +165,7 @@ class MergeFlagForm(forms.ModelForm):
                                         'URL of this submission.')
 
         self.duplicate_of = Submission.objects.filter(
-            pk=duplicate_of_pk, approved=True, category__site_mode=self.idea.site_mode
+            pk=duplicate_of_pk, approved=True, category__debate=self.idea.debate
         ).first()
         if not self.duplicate_of:
             raise forms.ValidationError('Invalid Question URL.')
@@ -214,7 +214,7 @@ class ModerationForm(forms.Form):
                 raise forms.ValidationError('Cannot merge a submission into itself.')
             remove_obj = self.cleaned_data['to_remove_obj']
             duplicate_obj = self.cleaned_data['duplicate_of_obj']
-            if remove_obj.site_mode != duplicate_obj.site_mode:
+            if remove_obj.debate != duplicate_obj.debate:
                 self.add_error(
                     'duplicate_of',
                     forms.ValidationError('That submission does not exist or is not approved.')
@@ -228,17 +228,17 @@ class TopSubmissionForm(forms.ModelForm):
         fields = ('category', 'submission', 'rank')
 
     def __init__(self, *args, **kwargs):
-        mode = kwargs.pop('mode')
+        debate = kwargs.pop('debate')
         super(TopSubmissionForm, self).__init__(*args, **kwargs)
         self.fields['submission'].widget = forms.NumberInput()
         self.fields['category'].queryset = TopSubmissionCategory.objects.filter(
-            site_mode=mode)
+            debate=debate)
 
     def clean(self):
         cleaned_data = super(TopSubmissionForm, self).clean()
         category = cleaned_data.get('category')
         submission = cleaned_data.get('submission')
-        if submission.site_mode != category.site_mode:
+        if submission.debate != category.debate:
             self.add_error(
                 'submission',
                 forms.ValidationError("This submission does not exist or is not in this debate.")

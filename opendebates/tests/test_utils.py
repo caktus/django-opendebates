@@ -2,7 +2,7 @@ from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from mock import Mock, patch
 
-from opendebates.tests.factories import VoteFactory, SiteModeFactory, SiteFactory
+from opendebates.tests.factories import VoteFactory, DebateFactory, SiteFactory
 from opendebates.utils import registration_needs_captcha, vote_needs_captcha
 
 
@@ -14,7 +14,7 @@ class TestCaptchaUtils(TestCase):
         self.mock_request = Mock(spec=object)
         self.mock_request.user = Mock()
         self.mock_request.user.is_authenticated = lambda: False
-        self.mock_request.site_mode = SiteModeFactory()
+        self.mock_request.debate = DebateFactory()
 
     def tearDown(self):
         Site.objects.clear_cache()

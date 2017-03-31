@@ -3,7 +3,7 @@ import random
 
 from django.conf import settings
 
-from .models import Vote, Voter, SiteMode
+from .models import Vote, Voter, Debate
 
 
 def vote_needs_captcha(request):
@@ -97,7 +97,7 @@ def get_ip_address_from_request(request):
 
 def choose_sort(request, sort):
     sort = sort or random.choice(["trending", "trending", "random"])
-    if sort.endswith('votes') and not request.site_mode.allow_sorting_by_votes:
+    if sort.endswith('votes') and not request.debate.allow_sorting_by_votes:
         sort = 'trending'
     return sort
 
@@ -133,10 +133,10 @@ def sort_list(citations_only, sort, ideas):
     return ideas
 
 
-def get_site_mode(request):
+def get_debate(request):
     domain = request.get_host().lower().strip('.')
     path = request.path.split('/')[1:]
     try:
-        return SiteMode.objects.select_related('site').get(prefix=path[0], site__domain=domain)
-    except (SiteMode.DoesNotExist, IndexError):
+        return Debate.objects.select_related('site').get(prefix=path[0], site__domain=domain)
+    except (Debate.DoesNotExist, IndexError):
         return

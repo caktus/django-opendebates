@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from opendebates.models import Submission, Vote, Voter, ZipCode
 from .factories import (UserFactory, SubmissionFactory, VoterFactory, VoteFactory,
-                        SiteModeFactory, SiteFactory)
+                        DebateFactory, SiteFactory)
 from .utilities import reset_session
 
 
@@ -17,7 +17,7 @@ class VoteTest(TestCase):
 
     def setUp(self):
         self.site = SiteFactory()
-        self.mode = SiteModeFactory(site=self.site)
+        self.debate = DebateFactory(site=self.site)
 
         self.submission = SubmissionFactory()
         self.submission_url = self.submission.get_absolute_url()
@@ -136,10 +136,10 @@ class VoteTest(TestCase):
         self.assertEqual(self.current_votes + 1, refetched_sub.current_votes)
 
     def test_vote_local_voter(self):
-        mode = SiteModeFactory(debate_state='NY')
-        self.submission.category.site_mode = mode
+        debate = DebateFactory(debate_state='NY')
+        self.submission.category.debate = debate
         self.submission.category.save()
-        del self.submission._cached_site_mode
+        del self.submission._cached_debate
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -158,10 +158,10 @@ class VoteTest(TestCase):
         self.assertEqual(1, refetched_sub.local_votes)
 
     def test_vote_nonlocal_voter(self):
-        mode = SiteModeFactory(debate_state='FL')
-        self.submission.category.site_mode = mode
+        debate = DebateFactory(debate_state='FL')
+        self.submission.category.debate = debate
         self.submission.category.save()
-        del self.submission._cached_site_mode
+        del self.submission._cached_debate
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -181,10 +181,10 @@ class VoteTest(TestCase):
 
     def test_vote_no_local_district_configured(self):
         "Unauthenticated user successful vote."
-        mode = SiteModeFactory(debate_state=None)
-        self.submission.category.site_mode = mode
+        debate = DebateFactory(debate_state=None)
+        self.submission.category.debate = debate
         self.submission.category.save()
-        del self.submission._cached_site_mode
+        del self.submission._cached_debate
 
         ZipCode.objects.create(zip="11111", city="Examplepolis", state="NY")
 
@@ -362,10 +362,10 @@ class VoteTest(TestCase):
 
     def test_vote_after_previous_debate(self):
         "Votes after the previous debate get tracked separately."
-        mode = SiteModeFactory(previous_debate_time=timezone.now() - datetime.timedelta(days=7))
-        self.submission.category.site_mode = mode
+        debate = DebateFactory(previous_debate_time=timezone.now() - datetime.timedelta(days=7))
+        self.submission.category.debate = debate
         self.submission.category.save()
-        del self.submission._cached_site_mode
+        del self.submission._cached_debate
 
         data = {
             'email': self.voter.email,
@@ -383,10 +383,10 @@ class VoteTest(TestCase):
 
     def test_vote_before_previous_debate(self):
         "Votes before the previous debate don't get tracked yet."
-        mode = SiteModeFactory(previous_debate_time=timezone.now() + datetime.timedelta(days=1))
-        self.submission.category.site_mode = mode
+        debate = DebateFactory(previous_debate_time=timezone.now() + datetime.timedelta(days=1))
+        self.submission.category.debate = debate
         self.submission.category.save()
-        del self.submission._cached_site_mode
+        del self.submission._cached_debate
 
         data = {
             'email': self.voter.email,

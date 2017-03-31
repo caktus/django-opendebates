@@ -1,25 +1,25 @@
 from django.http import Http404
 
 from opendebates.resolvers import PrefixedUrlconf
-from opendebates.utils import get_site_mode
+from opendebates.utils import get_debate
 
 
-class SiteModeMiddleware(object):
+class DebateMiddleware(object):
     """
-    Gets or creates a SiteMode for the request, based on the hostname.
+    Gets a Debate for the request, based on the hostname.
     """
 
     def process_request(self, request):
-        request.site_mode = get_site_mode(request)
-        if request.site_mode:
-            request.urlconf = PrefixedUrlconf(request.site_mode.prefix)
+        request.debate = get_debate(request)
+        if request.debate:
+            request.urlconf = PrefixedUrlconf(request.debate.prefix)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         if 'prefix' in view_kwargs:
             view_kwargs.pop('prefix')
-            if not getattr(request, 'site_mode', None):
-                request.site_mode = get_site_mode(request)
-                if request.site_mode is None:
+            if not getattr(request, 'debate', None):
+                request.debate = get_debate(request)
+                if request.debate is None:
                     # Make sure to fall back in this case, so that the
                     # flatpage middleware will get its shot.
                     raise Http404
