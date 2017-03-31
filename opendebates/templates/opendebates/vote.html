@@ -22,7 +22,7 @@
 
 {% block content %}
 <div class="row breadcrumbs">
-  <a href="/">{% blocktrans %}Home{% endblocktrans %}</a>
+  <a href="{% url 'list_ideas' %}">{% blocktrans %}Home{% endblocktrans %}</a>
   <span>&#8594;</span>
   <a href="{% url 'list_category' idea.category.id %}">{{ idea.category }}</a>
   <span class="hidden-xs">&#8594;</span>
@@ -43,9 +43,9 @@
     </h3>
     <p class="small removal-notice-text">
       Our team of moderators has determined that this question violates our
-      <a href="/participation/">participation guidelines</a>.  If you have any
+      <a href="/{{ DEBATE.prefix }}/participation/">participation guidelines</a>.  If you have any
       questions or concerns, or believe we should reconsider the moderators'
-      review, please <a href="/contact/">contact us</a>.
+      review, please <a href="/{{ DEBATE.prefix }}/contact/">contact us</a>.
     </p>
     {% endif %}
   </div>

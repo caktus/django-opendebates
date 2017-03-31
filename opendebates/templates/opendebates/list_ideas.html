@@ -23,7 +23,7 @@
 
 <div class="row white category-only hidden-xs text-center">
   <div class="vcenter {% if not category %}active-category-nav{% endif %}">
-    <a href="/">{% blocktrans %}All Issue Areas{% endblocktrans %}</a>
+    <a href="{% url 'list_ideas' %}">{% blocktrans %}All Issue Areas{% endblocktrans %}</a>
   </div>
   {% cache 279 option_categories DEBATE.id category.id %}
     {% for option in SUBMISSION_CATEGORIES %}
@@ -38,7 +38,7 @@
 <label id="category-select-picker-ctn" for="category-select-picker">
   {% trans "Issue areas" %}<br/>
   <select id="category-select-picker" class="selectpicker" onchange="javascript:window.location=$(this).val() + window.location.search;">
-    <option value="/">All</option>
+    <option value="{% url 'list_ideas' %}">All</option>
     {% cache 299 cat_options DEBATE.id category.id %}
       {% for option in SUBMISSION_CATEGORIES %}
         {% if option.name != "Hidden" and option.name != "Uncategorized" and option.name != "Other" %}
