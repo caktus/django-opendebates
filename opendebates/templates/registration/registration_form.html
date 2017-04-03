@@ -14,7 +14,9 @@
                type="submit" value="Create Account">
       </form>
 
-      <p class="small">{% blocktrans %}Already have an account?{% endblocktrans %}</p>
+      <p>
+        <a class="btn btn-default" href="{% url 'password_reset' %}">Reset your password</a>
+      </p>
       <p>
         <a class="btn btn-default" href="{% url 'auth_login' %}{% if next %}?next={{ next }}{% endif %}">{% blocktrans %}Log In{% endblocktrans %}</a>
       </p>
