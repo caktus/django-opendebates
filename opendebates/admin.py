@@ -109,7 +109,12 @@ class FlagAdmin(ModelAdmin):
 
 @register(models.TopSubmissionCategory)
 class TopSubmissionCategoryAdmin(ModelAdmin):
-    list_display = ['debate', 'slug', 'title']
+    list_display = ('slug', 'prefix', 'title')
+    list_filter = ('debate__prefix',)
+
+    def prefix(self, obj):
+        return debate_link(obj.debate)
+    prefix.short_description = "Debate prefix"
 
 
 @register(models.Debate)
