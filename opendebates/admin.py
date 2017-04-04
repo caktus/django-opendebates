@@ -11,6 +11,14 @@ from . import models
 from opendebates_emails.models import send_email
 
 
+def debate_link(debate):
+    return format_html(
+        '<a href="{}">{}</a>'.format(
+            reverse('admin:opendebates_debate_change', args=(debate.pk,)),
+            debate.prefix)
+    )
+
+
 @register(models.Category)
 class CategoryAdmin(ModelAdmin):
     list_display = ('name', 'prefix', 'site')
@@ -18,11 +26,7 @@ class CategoryAdmin(ModelAdmin):
     actions = (admin_list_export,)
 
     def prefix(self, obj):
-        return format_html(
-            '<a href="{}">{}</a>'.format(
-                reverse('admin:opendebates_debate_change', args=(obj.debate.pk,)),
-                obj.debate.prefix)
-        )
+        return debate_link(obj.debate)
     prefix.short_description = "Debate prefix"
 
     def site(self, obj):
@@ -33,8 +37,8 @@ class CategoryAdmin(ModelAdmin):
 @register(models.Submission)
 class SubmissionAdmin(ModelAdmin):
     list_display = [f.name for f in models.Submission._meta.fields]
-    list_filter = ('approved', )
-    search_fields = ('idea', )
+    list_filter = ('approved', 'category__debate__prefix')
+    search_fields = ('idea',)
     actions = [admin_list_export, 'remove_submissions']
     raw_id_fields = ['voter', 'duplicate_of']
 
@@ -99,12 +103,7 @@ class FlagAdmin(ModelAdmin):
     raw_id_fields = ['to_remove', 'duplicate_of', 'voter']
 
     def prefix(self, obj):
-        return format_html(
-            '<a href="{}">{}</a>'.format(
-                reverse('admin:opendebates_debate_change',
-                        args=(obj.to_remove.category.debate.pk,)),
-                obj.to_remove.category.debate.prefix)
-        )
+        return debate_link(obj.to_remove.category.debate)
     prefix.short_description = "Debate prefix"
 
 
