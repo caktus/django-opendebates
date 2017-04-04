@@ -93,9 +93,19 @@ class CandidateAdmin(ModelAdmin):
 
 @register(models.Flag)
 class FlagAdmin(ModelAdmin):
-    list_display = [f.name for f in models.Flag._meta.fields]
+    list_display = ('id', 'prefix', 'to_remove', 'duplicate_of', 'voter', 'reviewed', 'note')
+    list_filter = ('to_remove__category__debate__prefix',)
     actions = [admin_list_export]
     raw_id_fields = ['to_remove', 'duplicate_of', 'voter']
+
+    def prefix(self, obj):
+        return format_html(
+            '<a href="{}">{}</a>'.format(
+                reverse('admin:opendebates_debate_change',
+                        args=(obj.to_remove.category.debate.pk,)),
+                obj.to_remove.category.debate.prefix)
+        )
+    prefix.short_description = "Debate prefix"
 
 
 @register(models.TopSubmissionCategory)
