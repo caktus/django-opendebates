@@ -1,7 +1,9 @@
 import itertools
 
 from django.contrib.admin import ModelAdmin, register
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
+from django.utils.html import format_html
 from django.utils.timezone import now
 from djangohelpers.export_action import admin_list_export
 
@@ -11,8 +13,21 @@ from opendebates_emails.models import send_email
 
 @register(models.Category)
 class CategoryAdmin(ModelAdmin):
-    list_display = [f.name for f in models.Category._meta.fields]
-    actions = [admin_list_export]
+    list_display = ('name', 'prefix', 'site')
+    list_filter = ('debate__prefix',)
+    actions = (admin_list_export,)
+
+    def prefix(self, obj):
+        return format_html(
+            '<a href="{}">{}</a>'.format(
+                reverse('admin:opendebates_debate_change', args=(obj.debate.pk,)),
+                obj.debate.prefix)
+        )
+    prefix.short_description = "Debate prefix"
+
+    def site(self, obj):
+        return obj.debate.site
+    site.short_description = "Debate site"
 
 
 @register(models.Submission)
