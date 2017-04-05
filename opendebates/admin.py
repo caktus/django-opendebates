@@ -89,9 +89,17 @@ class VoterAdmin(ModelAdmin):
 
 @register(models.Vote)
 class VoteAdmin(ModelAdmin):
-    list_display = [f.name for f in models.Vote._meta.fields]
+    list_display = ['id', 'prefix'] + [f.name for f in models.Vote._meta.fields
+                                       if f.name != 'id']
+    list_filter = ('submission__category__debate__prefix',)
+    list_select_related = ('submission__category__debate',)
+
     actions = [admin_list_export]
     raw_id_fields = ['submission', 'voter', 'original_merged_submission']
+
+    def prefix(self, obj):
+        return debate_link(obj.submission.category.debate)
+    prefix.short_description = "Debate prefix"
 
 
 @register(models.Candidate)
