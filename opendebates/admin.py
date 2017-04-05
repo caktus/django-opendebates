@@ -21,17 +21,15 @@ def debate_link(debate):
 
 @register(models.Category)
 class CategoryAdmin(ModelAdmin):
-    list_display = ('name', 'prefix', 'site')
+    list_display = ('name', 'prefix')
     list_filter = ('debate__prefix',)
+    list_select_related = ('debate',)
+
     actions = (admin_list_export,)
 
     def prefix(self, obj):
         return debate_link(obj.debate)
     prefix.short_description = "Debate prefix"
-
-    def site(self, obj):
-        return obj.debate.site
-    site.short_description = "Debate site"
 
 
 @register(models.Submission)
@@ -39,6 +37,8 @@ class SubmissionAdmin(ModelAdmin):
     list_display = ['id', 'prefix'] + [f.name for f in models.Submission._meta.fields
                                        if f.name != 'id']
     list_filter = ('approved', 'category__debate__prefix')
+    list_select_related = ('category__debate',)
+
     search_fields = ('idea',)
     actions = [admin_list_export, 'remove_submissions']
     raw_id_fields = ['voter', 'duplicate_of']
@@ -104,6 +104,8 @@ class CandidateAdmin(ModelAdmin):
 class FlagAdmin(ModelAdmin):
     list_display = ('id', 'prefix', 'to_remove', 'duplicate_of', 'voter', 'reviewed', 'note')
     list_filter = ('to_remove__category__debate__prefix',)
+    list_select_related = ('to_remove__category__debate',)
+
     actions = [admin_list_export]
     raw_id_fields = ['to_remove', 'duplicate_of', 'voter']
 
@@ -116,6 +118,7 @@ class FlagAdmin(ModelAdmin):
 class TopSubmissionCategoryAdmin(ModelAdmin):
     list_display = ('slug', 'prefix', 'title')
     list_filter = ('debate__prefix',)
+    list_select_related = ('debate',)
 
     def prefix(self, obj):
         return debate_link(obj.debate)
