@@ -1,7 +1,9 @@
 import itertools
 
 from django.contrib.admin import ModelAdmin, register
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
+from django.utils.html import format_html
 from django.utils.timezone import now
 from djangohelpers.export_action import admin_list_export
 
@@ -9,19 +11,41 @@ from . import models
 from opendebates_emails.models import send_email
 
 
+def debate_link(debate):
+    return format_html(
+        '<a href="{}">{}</a>'.format(
+            reverse('admin:opendebates_debate_change', args=(debate.pk,)),
+            debate.prefix)
+    )
+
+
 @register(models.Category)
 class CategoryAdmin(ModelAdmin):
-    list_display = [f.name for f in models.Category._meta.fields]
-    actions = [admin_list_export]
+    list_display = ('name', 'prefix')
+    list_filter = ('debate__prefix',)
+    list_select_related = ('debate',)
+
+    actions = (admin_list_export,)
+
+    def prefix(self, obj):
+        return debate_link(obj.debate)
+    prefix.short_description = "Debate prefix"
 
 
 @register(models.Submission)
 class SubmissionAdmin(ModelAdmin):
-    list_display = [f.name for f in models.Submission._meta.fields]
-    list_filter = ('approved', )
-    search_fields = ('idea', )
+    list_display = ['id', 'prefix'] + [f.name for f in models.Submission._meta.fields
+                                       if f.name != 'id']
+    list_filter = ('approved', 'category__debate__prefix')
+    list_select_related = ('category__debate',)
+
+    search_fields = ('idea',)
     actions = [admin_list_export, 'remove_submissions']
     raw_id_fields = ['voter', 'duplicate_of']
+
+    def prefix(self, obj):
+        return debate_link(obj.category.debate)
+    prefix.short_description = "Debate prefix"
 
     def remove_submissions(self, request, queryset):
         "Custom action to mark submissions 'unapproved' and to notify users by email."
@@ -65,9 +89,17 @@ class VoterAdmin(ModelAdmin):
 
 @register(models.Vote)
 class VoteAdmin(ModelAdmin):
-    list_display = [f.name for f in models.Vote._meta.fields]
+    list_display = ['id', 'prefix'] + [f.name for f in models.Vote._meta.fields
+                                       if f.name != 'id']
+    list_filter = ('submission__category__debate__prefix',)
+    list_select_related = ('submission__category__debate',)
+
     actions = [admin_list_export]
     raw_id_fields = ['submission', 'voter', 'original_merged_submission']
+
+    def prefix(self, obj):
+        return debate_link(obj.submission.category.debate)
+    prefix.short_description = "Debate prefix"
 
 
 @register(models.Candidate)
@@ -78,20 +110,33 @@ class CandidateAdmin(ModelAdmin):
 
 @register(models.Flag)
 class FlagAdmin(ModelAdmin):
-    list_display = [f.name for f in models.Flag._meta.fields]
+    list_display = ('id', 'prefix', 'to_remove', 'duplicate_of', 'voter', 'reviewed', 'note')
+    list_filter = ('to_remove__category__debate__prefix',)
+    list_select_related = ('to_remove__category__debate',)
+
     actions = [admin_list_export]
     raw_id_fields = ['to_remove', 'duplicate_of', 'voter']
+
+    def prefix(self, obj):
+        return debate_link(obj.to_remove.category.debate)
+    prefix.short_description = "Debate prefix"
 
 
 @register(models.TopSubmissionCategory)
 class TopSubmissionCategoryAdmin(ModelAdmin):
-    list_display = ['debate', 'slug', 'title']
+    list_display = ('slug', 'prefix', 'title')
+    list_filter = ('debate__prefix',)
+    list_select_related = ('debate',)
+
+    def prefix(self, obj):
+        return debate_link(obj.debate)
+    prefix.short_description = "Debate prefix"
 
 
 @register(models.Debate)
 class DebateAdmin(ModelAdmin):
-    list_display = ['site', 'debate_time', 'previous_debate_time', 'show_question_votes',
-                    'show_total_votes', 'allow_sorting_by_votes']
+    list_display = ['prefix', 'site', 'debate_time', 'previous_debate_time',
+                    'show_question_votes', 'show_total_votes', 'allow_sorting_by_votes']
     actions = ['reset_current_votes']
     _fields = [f.name for f in models.Debate._meta.get_fields() if f.name != 'id']
     fieldsets = [
