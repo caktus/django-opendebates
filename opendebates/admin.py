@@ -36,11 +36,16 @@ class CategoryAdmin(ModelAdmin):
 
 @register(models.Submission)
 class SubmissionAdmin(ModelAdmin):
-    list_display = [f.name for f in models.Submission._meta.fields]
+    list_display = ['id', 'prefix'] + [f.name for f in models.Submission._meta.fields
+                                       if f.name != 'id']
     list_filter = ('approved', 'category__debate__prefix')
     search_fields = ('idea',)
     actions = [admin_list_export, 'remove_submissions']
     raw_id_fields = ['voter', 'duplicate_of']
+
+    def prefix(self, obj):
+        return debate_link(obj.category.debate)
+    prefix.short_description = "Debate prefix"
 
     def remove_submissions(self, request, queryset):
         "Custom action to mark submissions 'unapproved' and to notify users by email."
