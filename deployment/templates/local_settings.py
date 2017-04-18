@@ -66,6 +66,10 @@ DATABASE_ROUTERS = [
     'opendebates.router.DBRouter',
 ]
 
+DATABASE_ROUTERS = [
+    'balancer.routers.RoundRobinMasterSlaveRouter',
+]
+
 # media roots
 MEDIA_ROOT = "{{ media_root }}"
 STATIC_ROOT = "{{ static_root }}"
