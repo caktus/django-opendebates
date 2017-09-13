@@ -58,7 +58,7 @@
       florida: master
       presidential: develop
       staging01: develop
-      prod01: develop
+      prod01: fall-2017-nyc
 
 ## SERVER SETTINGS ##
   use_basic_auth:
