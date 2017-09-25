@@ -11,7 +11,7 @@
   <div class="search-ctn">
     <input name="q" value="{{ search_term|default:'' }}"
            class="form-control" id="search-full"
-           placeholder="{% if ALLOW_VOTING_AND_SUBMITTING_QUESTIONS %}{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked. (No naming candidates. Both candidates must be able to answer questions.){% endblocktrans %}{% else %}{% blocktrans %}Search questions by keyword{% endblocktrans %}{% endif %}"
+           placeholder="{% if ALLOW_VOTING_AND_SUBMITTING_QUESTIONS %}{% blocktrans %}Before submitting your own question, search keywords to see if it was already asked. (No naming candidates. All candidates must be able to answer questions.){% endblocktrans %}{% else %}{% blocktrans %}Search questions by keyword{% endblocktrans %}{% endif %}"
            onkeyup="javascript:if(arguments[0].keyCode===13)this.form.submit();">
   </div>
   <div class="search-ctn">
