@@ -204,3 +204,9 @@ class FlatPageMetadataOverrideAdmin(ModelAdmin):
     def get_queryset(self, request):
         return super(FlatPageMetadataOverrideAdmin, self).get_queryset(
             request).select_related("page")
+
+
+@register(models.ZipCode)
+class ZipCodeAdmin(ModelAdmin):
+    list_display = ['zip', 'city', 'state']
+    list_filter = ['state']

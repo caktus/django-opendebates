@@ -59,7 +59,7 @@
           {% endif %}
           <div class="controls">
             <textarea id="question" name="question" type="text" rows="4" class="input-large" maxlength="200"
-                      placeholder="{% blocktrans %}Enter your supporting text here"{% endblocktrans %}>{{ form.data.question }}</textarea>
+                      placeholder="{% blocktrans %}Enter a personal story or additional details related to your question here"{% endblocktrans %}>{{ form.data.question }}</textarea>
             <div class="text-limit-counter" data-total="200"><span class="count">200</span> / 200</div>
           </div>
         </div>
@@ -90,6 +90,6 @@
       </fieldset>
     </form>
   </div>
-  <small class="no-naming-candidates"><span class="emphasis">No naming candidates.</span> Both candidates must be able to answer.</small>
+  <small class="no-naming-candidates"><span class="emphasis">No naming candidates.</span> All candidates must be able to answer.</small>
 </div>
 {% endif %}

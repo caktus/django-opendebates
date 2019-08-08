@@ -14,12 +14,15 @@
       <span>{% blocktrans %}Tweet{% endblocktrans %}</span>
     </a>
   </span>
+  {% comment %}
+  <!-- disabled for fall-2017-nyc debate -->
   <span class="reddit-button">
     <a class="reddit" href="{{ idea.reddit_url }}" target="_blank">
       <i class="fa fa-reddit-alien"></i>      
       <span>{% blocktrans %}Comment{% endblocktrans %}</span>
     </a>
   </span>
+  {% endcomment %}
   <span class="email-button">
     <a class="email" href="{{ idea.email_url }}" target="_blank">
       <i class="fa fa-envelope"></i>      
