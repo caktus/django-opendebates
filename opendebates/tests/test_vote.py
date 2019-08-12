@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.contrib.sites.models import Site
 from django.test.utils import override_settings
 from django.utils import timezone
+from mock import patch, Mock
 
 from opendebates.models import Submission, Vote, Voter, ZipCode
 from .factories import (UserFactory, SubmissionFactory, VoterFactory, VoteFactory,
@@ -328,19 +329,23 @@ class VoteTest(TestCase):
         self.assertEqual(self.current_votes, refetched_sub.current_votes)
 
     def test_vote_user_bad_captcha(self):
-        # If captcha doesn't pass, no vote
-        self.client.logout()
-        data = {
-            'email': self.voter.email,
-            'zipcode': self.voter.zip,
-            'g-recaptcha-response': 'FAILED'
-        }
-        rsp = self.client.post(self.submission_url, data=data,
-                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(200, rsp.status_code)
-        refetched_sub = Submission.objects.get(pk=self.submission.pk)
-        self.assertEqual(self.votes, refetched_sub.votes)
-        self.assertEqual(self.current_votes, refetched_sub.current_votes)
+        with patch('nocaptcha_recaptcha.fields.client.submit') as submit_patch:
+            submit_patch.return_value = Mock(is_valid=False)
+
+            # If captcha doesn't pass, no vote
+            self.client.logout()
+            data = {
+                'email': self.voter.email,
+                'zipcode': self.voter.zip,
+                'g-recaptcha-response': 'FAILED'
+            }
+            rsp = self.client.post(self.submission_url, data=data,
+                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            self.assertEqual(200, rsp.status_code)
+            refetched_sub = Submission.objects.get(pk=self.submission.pk)
+            self.assertEqual(self.votes, refetched_sub.votes)
+            self.assertEqual(self.current_votes, refetched_sub.current_votes)
+            self.assertEqual(submit_patch.call_count, 1)
 
     @override_settings(USE_CAPTCHA=False)
     def test_vote_user_disabled_captcha(self):
