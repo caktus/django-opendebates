@@ -13,7 +13,7 @@ class SubmissionReallyAbsoluteUrlTest(TestCase):
         self.submission = SubmissionFactory()
         self.site.domain = 'example.net'
         self.site.save()
-        self.id = self.submission.id
+        self.submission_id = self.submission.id
 
     def tearDown(self):
         Site.objects.clear_cache()
@@ -21,7 +21,7 @@ class SubmissionReallyAbsoluteUrlTest(TestCase):
     def test_default(self):
         self.assertEqual(
             'https://testserver/%s/questions/%s/vote/' % (
-                self.debate.prefix, self.id),
+                self.debate.prefix, self.submission_id),
             self.submission.really_absolute_url())
 
     def test_source(self):
@@ -34,10 +34,10 @@ class SubmissionReallyAbsoluteUrlTest(TestCase):
         # The query string will include a ?source parameter prefixed with share-
         # that includes both the platform we are sharing on, and the question ID
         parsed = urlparse.urlparse(url)
-        self.assertEqual(parsed.query, 'source=share-fb-%s' % self.id)
+        self.assertEqual(parsed.query, 'source=share-fb-%s' % self.submission_id)
 
         parsed = urlparse.urlparse(self.submission.really_absolute_url('foo'))
-        self.assertEqual(parsed.query, 'source=share-foo-%s' % self.id)
+        self.assertEqual(parsed.query, 'source=share-foo-%s' % self.submission_id)
 
 
 class VoterUserDisplayNameTest(TestCase):

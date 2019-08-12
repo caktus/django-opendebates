@@ -24,3 +24,7 @@ node_modules
 aws.sh
 fabsecrets*.py
 /static/
+
+\.idea/
+
+package-lock\.json
