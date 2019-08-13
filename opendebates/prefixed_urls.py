@@ -4,7 +4,6 @@ from django.conf.urls import include, url
 urlpatterns = [
     url(r'^$', 'opendebates.views.list_ideas', name="list_ideas"),
     url(r'^changelog/$', 'opendebates.views.changelog', name='changelog'),
-    # url(r'^test/$', 'opendebates.views.test', name='test'),
 
     url(r'^recent/$', 'opendebates.views.recent_activity',
         name='recent_activity'),

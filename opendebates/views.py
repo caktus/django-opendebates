@@ -59,15 +59,6 @@ def state_from_zip(zip):
         return ''
 
 
-@allow_http("GET")
-@rendered_with("opendebates/test.html")
-def test(request):
-    copy = _("This is my inappropriately PCCC-specific site copy!")
-    return {
-        "copy": copy
-    }
-
-
 @cache_page(5)  # Cache for 5 seconds after rendering
 @allow_http("GET")
 @rendered_with("opendebates/snippets/recent_activity.html")
