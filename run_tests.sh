@@ -11,5 +11,5 @@ find . -name "*.js" -not \( \
 
 flake8 .
 coverage erase
-coverage run manage.py test --keepdb "$@"
-coverage report -m --fail-under 80
+coverage run manage.py test --keepdb -v 2 "$@"
+coverage report -m --fail-under 90
