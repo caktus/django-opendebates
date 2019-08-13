@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from .factories import (SubmissionFactory, UserFactory, VoterFactory,
-                        DebateFactory, SiteFactory)
+                        DebateFactory, SiteFactory, CategoryFactory)
 
 
 # Force the reverse() used here in the tests to always use the full
@@ -56,6 +56,40 @@ class ListIdeasTest(TestCase):
 
         response = self.client.get(reverse('list_ideas', kwargs={'prefix': debate.prefix}))
         self.assertNotContains(response, "Most Votes Since Last Debate")
+
+
+class ListCategoryTest(TestCase):
+
+    def setUp(self):
+        self.site = SiteFactory()
+        self.debate = DebateFactory(site=self.site)
+        self.category = CategoryFactory(debate=self.debate)
+        self.url = reverse('list_category', kwargs={'prefix': self.debate.prefix, 'cat_id': self.category.pk})
+
+    def tearDown(self):
+        Site.objects.clear_cache()
+
+    def test_list_category(self):
+        response = self.client.get(self.url)
+        self.assertContains(response, "Choose a Category")
+        self.assertEquals(response.status_code, 200)
+
+
+class CategorySearchTest(TestCase):
+
+    def setUp(self):
+        self.site = SiteFactory()
+        self.debate = DebateFactory(site=self.site, allow_sorting_by_votes=False)
+        self.category = CategoryFactory(debate=self.debate)
+        self.url = reverse('category_search', kwargs={'prefix': self.debate.prefix, 'cat_id': self.category.pk})
+
+    def tearDown(self):
+        Site.objects.clear_cache()
+
+    def test_category_search(self):
+        response = self.client.get(self.url + "?q=election&citations_only=true&sort=votes")
+        self.assertContains(response, "Choose a Category")
+        self.assertEquals(response.status_code, 200)
 
 
 class ChangelogTest(TestCase):

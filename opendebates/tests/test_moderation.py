@@ -1,17 +1,19 @@
 from functools import partial
-from httplib import FORBIDDEN, NOT_FOUND, OK
+from httplib import FORBIDDEN, NOT_FOUND, OK, BAD_REQUEST
 import json
 import os
 
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.utils import timezone
+from mock import patch
 
 from opendebates.models import Submission, Vote, Flag, ZipCode
+from opendebates_emails.tests.factories import EmailTemplateFactory
 from .factories import (UserFactory, VoterFactory, SubmissionFactory, RemovalFlagFactory,
                         MergeFlagFactory, SiteFactory, DebateFactory, CategoryFactory)
 from .utilities import reset_session
-
 
 # Force the reverse() used here in the tests to always use the full
 # urlconf, despite whatever machinations have taken place due to the
@@ -55,9 +57,16 @@ class ModerationTest(TestCase):
 
     def test_nonsuperuser_403(self):
         self.user.is_superuser = False
+        self.user.is_staff = False
         self.user.save()
-        rsp = self.client.get(self.preview_url)
-        self.assertEqual(FORBIDDEN, rsp.status_code)
+
+        for url in [self.preview_url, self.moderation_home_url]:
+            rsp = self.client.get(url)
+            self.assertEqual(FORBIDDEN, rsp.status_code)
+
+        for url in [self.merge_url, self.remove_url]:
+            rsp = self.client.post(url, data={})
+            self.assertEqual(FORBIDDEN, rsp.status_code)
 
     def test_get(self):
         rsp = self.client.get(self.preview_url)
@@ -67,7 +76,8 @@ class ModerationTest(TestCase):
         rsp = self.client.get(self.preview_url + "?to_remove=10")
         self.assertContains(rsp, 'name="to_remove" type="number" value="10"')
 
-    def test_merge_submission(self):
+    @patch('opendebates_emails.models.send_email_task')
+    def test_merge_submission(self, email_task):
         self.assertEqual(self.second_submission.has_duplicates, False)
         self.assertEqual(self.second_submission.duplicate_of, None)
         self.assertEqual(self.second_submission.keywords, None)
@@ -75,10 +85,14 @@ class ModerationTest(TestCase):
         self.assertEqual(self.third_submission.duplicate_of, None)
         self.assertEqual(self.third_submission.keywords, None)
 
+        EmailTemplateFactory(type='your_idea_is_merged')
+        EmailTemplateFactory(type='idea_merged_into_yours')
+
         rsp = self.client.post(self.merge_url, data={
             "action": "merge",
             "to_remove": self.third_submission.id,
             "duplicate_of": self.second_submission.id,
+            "send_email": "yes"
         })
         self.assertRedirects(rsp, self.moderation_home_url)
 
@@ -103,6 +117,9 @@ class ModerationTest(TestCase):
             reverse('show_idea', args=[self.debate.prefix, remaining.id]) + (
                 "#i%s" % merged.id)
         )
+
+        # Verify two emails are sent
+        self.assertEquals(email_task.delay.call_count, 2)
 
     def test_nested_merge_submission(self):
         self.client.post(self.merge_url, data={
@@ -266,7 +283,8 @@ class ModerationTest(TestCase):
         self.assertEqual(merged.local_votes, 2)
         self.assertEqual(remaining.local_votes, 2)
 
-    def test_unmoderate_does_not_merge_votes(self):
+    @patch('opendebates_emails.models.send_email_task')
+    def test_unmoderate_does_not_merge_votes(self, email_task):
         "During a duplicate unmoderate, no vote merging occurs"
 
         self.client.logout()
@@ -274,6 +292,8 @@ class ModerationTest(TestCase):
         first_voter = VoterFactory(user=None)
         second_voter = VoterFactory(user=None)
         third_voter = VoterFactory(user=None)
+
+        EmailTemplateFactory(type='your_idea_is_duplicate')
 
         reset_session(self.client)
 
@@ -317,6 +337,7 @@ class ModerationTest(TestCase):
             "action": "unmoderate",
             "to_remove": self.third_submission.id,
             "duplicate_of": self.second_submission.id,
+            "send_email": "yes",
         })
         self.assertRedirects(rsp, self.moderation_home_url)
 
@@ -343,6 +364,9 @@ class ModerationTest(TestCase):
 
         rsp = self.client.get(merged.get_absolute_url())
         self.assertEqual(NOT_FOUND, rsp.status_code)
+
+        # Verify an email is sent
+        self.assertEquals(email_task.delay.call_count, 1)
 
     def test_merge_link_hidden_after_merge(self):
         merge_url = reverse('merge', args=[self.debate.prefix, self.first_submission.pk])
@@ -387,16 +411,53 @@ class ModerationTest(TestCase):
         # The remaining submission should not be marked as having duplicates
         self.assertFalse(remaining.has_duplicates)
 
-    def test_remove_submission(self):
+    def test_merge_with_previous_debate(self):
+        self.debate.previous_debate_time = timezone.now()
+        self.debate.debate_state = None
+        self.debate.save()
+
+        rsp = self.client.post(self.merge_url, data={
+            "action": "merge",
+            "to_remove": self.third_submission.id,
+            "duplicate_of": self.second_submission.id,
+        })
+        self.assertRedirects(rsp, self.moderation_home_url)
+
+    def test_merge_invalid_action(self):
+        rsp = self.client.post(self.merge_url, data={
+            "action": "invalid",
+            "to_remove": self.third_submission.id,
+            "duplicate_of": self.second_submission.id,
+        })
+        self.assertEqual(BAD_REQUEST, rsp.status_code)
+
+    @patch('opendebates_emails.models.send_email_task')
+    def test_remove_submission(self, email_task):
+        EmailTemplateFactory(type='idea_is_removed')
         data = {
             'to_remove': self.first_submission.pk,
             'duplicate_of': '',
             'action': 'remove',
+            'send_email': 'yes',
         }
         rsp = self.client.post(self.remove_url, data=data)
         self.assertRedirects(rsp, self.moderation_home_url)
         refetched_sub = Submission.objects.get(pk=self.first_submission.pk)
         self.assertFalse(refetched_sub.approved)
+        self.assertIsNotNone(refetched_sub.moderated_at)
+        self.assertEquals(email_task.delay.call_count, 1)
+
+    def test_remove_submission__keep(self):
+        data = {
+            'to_remove': self.first_submission.pk,
+            'duplicate_of': '',
+            'action': 'other',
+        }
+
+        rsp = self.client.post(self.remove_url, data=data)
+        self.assertRedirects(rsp, self.moderation_home_url)
+        refetched_sub = Submission.objects.get(pk=self.first_submission.pk)
+        self.assertTrue(refetched_sub.approved)
         self.assertIsNotNone(refetched_sub.moderated_at)
 
     def test_reject_merge(self):
@@ -426,6 +487,15 @@ class ModerationTest(TestCase):
         rsp = self.client.post(self.preview_url, data=data)
         self.assertEqual(OK, rsp.status_code)
         self.assertIn('This field is required', str(rsp.context['form'].errors))
+
+    def test_preview_ok_submissions(self):
+        data = {
+            'to_remove': self.first_submission.pk,
+            'duplicate_of': self.second_submission.pk
+        }
+        rsp = self.client.post(self.preview_url, data=data)
+        self.assertEqual(OK, rsp.status_code)
+        self.assertEqual(rsp.context['form'].errors, {})
 
     def test_preview_bad_submissions(self):
         data = {
