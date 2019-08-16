@@ -28,9 +28,5 @@ script:
   - flake8 .
 
 notifications:
-  hipchat:
-    template:
-      - ! '%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message} (<a href="%{build_url}">Details</a>/<a href="%{compare_url}">Change view</a>)'
-    format: html
-    rooms:
-      secure: OwUbwQmpNS6ebDmvvD/1Ie74egE9/TaFkoNJFf0IBGDc95ZO24G0msm0kQK80IA6Xwcew7EpOFjcVuNnforaC6syiQp3kFX3dK17h0r5z0VgJhNDGeWAZ36KdusOXOhVXDIeKwd/FsdDCVMUV6aE0WJ6ulq9ElP7Acf0a79KzAyopTT4cOS6jLYkWgxYD9cRynMHw9GuHWZE7P0mo4+zIQCtMCDcxUIsQaRZeY0dw4TeEjsKqBzSRys8KZBtEu9eDL33fNyqQq0xrA5Rgh/UriqSI/6tylD2kbRObAwGdRzfzwI82kg8niJw4hHKdWJL/99PNuWgY/ZmH8S81xvyy564oLDpyveNgxsArdS6WOmYXm6JNuW8CcjgDsdf+uPaS/fOzG2i/DkJQZrqUxu3fjNQ8VSTYfLGXxXB5Wg4va7oB3ePSFsovineRl4fmrGjjTdlBjA40z2+TucJnUMXjx/KOaudnPfgIWMaRoTYhidYn+EXiT7NazAyHa+qY1XPbUfwz6AbKZJrzN6wugzWxg1CxWmCWttw1LvfwZ1bsxjiPewzlNoYywh3K5E/tlSHWzX55r6lcUqOwv3HgaAzEGp+3ukOrX/xKjqMsPBbKlijT4IQZuYj7nSWvcYlwvEPydmBKzvpG8DF4pmiTcZudbgqEwVyz/QIBX88L/xhApE=
+  slack:
+    secure: GDbP67dnhO2QDw5oDlpJTURHdJA6e61k2LgjB4WKq1DeiAnRkiGXos3UI8g6T0LMO/roZki6ETE4nCuCDDuloHZcFaMHCEs2yIw09y7Lry+RwMXPWcXL5fahpFzMhy/XUc1mI9fkqJ5j/Zo+sgMV04Z89WTZvs/hDhnYMdo5Lwa3X8CvBvm0D+LufHLImbImOc4zhP3+VPwkrjmpcC/D+EJNGcY6nq1dbj4mfwYNCG/ASXC2cDIUeO9f8IJPg2O5SgNoUha0vR71KcIQsABJtQ1oaL+vXHRc4wU8GXcHCjSQZgFoDvXYFKOZjvUVYxZyJsyy657oN7AHiWTezk53BHUejv71z2QBOyj2LOqd6qWG8LC5d0eTTUZLz8zSZ6jxJEWs5yGNg8GaC5v3RRqcLaStM+hO31JNnXUP1sseDDa7Af7yIxfVR4ukOrKUGYA8qE8kEO/uBtSEs/Dw7IpYp/CZvdCi4mduHXLqtROcZ21+5EGzOfympzJl+45ER1qBGt2S8lUDxZjxNREKN2UnB5FmPuknE56RsLnD5aapkt42EPW3mEuSp9kLxmtNm+7mcJGLqmXl15EDsJM8N8ATJq8wMZ4yF0Gwa+Ta0fKL5kpXyVLbPoPJRTAYcAOrc5MydX1uQcaNwc2wRh6kDYYZdgziuQh16W1f+Lm3jRm4b2k=
