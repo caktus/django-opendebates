@@ -17,7 +17,7 @@ install:
   - pip install -U -r requirements/dev.txt
 
 before_script:
-  - createdb -E UTF-8 opendebates -U postgres -O $USER
+  - createdb -h localhost -E UTF-8 opendebates -U postgres -O $USER
   - find . -name '*.pyc' -delete
   - coverage erase
 
