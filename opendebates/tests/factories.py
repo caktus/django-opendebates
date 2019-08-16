@@ -35,6 +35,13 @@ class DebateFactory(factory.django.DjangoModelFactory):
     debate_state = 'NY'
 
 
+class CandidateFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Candidate
+
+    debate = factory.SubFactory(DebateFactory)
+
+
 class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = get_user_model()
