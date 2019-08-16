@@ -21,6 +21,12 @@ if [ -f bin/install_nodejs ]; then
     fi
 fi
 
+if [ -f bin/install_yuglify ]; then
+    echo "-----> Running install_yuglify"
+    chmod +x bin/install_yuglify
+    bin/install_yuglify
+fi
+
 if [ -f bin/run_collectstatic ]; then
     echo "-----> Running run_collectstatic"
     chmod +x bin/run_collectstatic
