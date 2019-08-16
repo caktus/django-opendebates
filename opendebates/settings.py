@@ -31,7 +31,7 @@ if TEST:
 else:
     DEBUG = 'DJANGO_DEBUG' in os.environ
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost:8000').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.auth',
