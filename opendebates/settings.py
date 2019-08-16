@@ -20,7 +20,7 @@ ENABLE_USER_DISPLAY_NAME = False
 ENABLE_USER_PHONE_NUMBER = True
 
 # SECRET_KEY is overriden in deploy settings
-SECRET_KEY = 'secret-key-for-local-use-only'
+SECRET_KEY = os.getenv('SECRET_KEY', 'secret-key-for-local-use-only')
 
 TEST = 'test' in sys.argv
 if TEST:
@@ -339,5 +339,5 @@ LOGGING = {
     },
 }
 
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = not TEST and not DEBUG
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
