@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             """
             CREATE EXTENSION IF NOT EXISTS unaccent;
-            ALTER FUNCTION unaccent(text) IMMUTABLE;
+            -- ALTER FUNCTION unaccent(text) IMMUTABLE;
             -- The next line doesn't work:
             -- CREATE INDEX opendebates_submission_search_idx ON opendebates_submission USING gin(to_tsvector('english', search_index));
             """,
