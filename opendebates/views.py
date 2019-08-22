@@ -391,29 +391,29 @@ class OpenDebatesRegistrationView(RegistrationView):
     next = None
     prefix = None
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         self.next = request.GET.get('next', None)
         return super(OpenDebatesRegistrationView, self).get(request)
 
-    def get_context_data(self, *args, **kwargs):
-        data = super(OpenDebatesRegistrationView, self).get_context_data(*args, **kwargs)
+    def get_context_data(self, **kwargs):
+        data = super(OpenDebatesRegistrationView, self).get_context_data(**kwargs)
         if self.next:
             data['next'] = self.next
         return data
 
-    def form_valid(self, request, form):
+    def form_valid(self, form):
         User = get_user_model()
         if User.objects.filter(email__iexact=form.cleaned_data['email']).exists():
             return redirect(reverse('registration_duplicate'))
-        return super(OpenDebatesRegistrationView, self).form_valid(request, form)
+        return super(OpenDebatesRegistrationView, self).form_valid(form)
 
-    def register(self, request, form):
-        new_user = super(OpenDebatesRegistrationView, self).register(request, form)
+    def register(self, form):
+        new_user = super(OpenDebatesRegistrationView, self).register(form)
 
         voter, created = Voter.objects.update_or_create(
             email=form.cleaned_data['email'],
             defaults=dict(
-                source=request.COOKIES.get('opendebates.source'),
+                source=self.request.COOKIES.get('opendebates.source'),
                 state=state_from_zip(form.cleaned_data['zip']),
                 zip=form.cleaned_data['zip'],
                 display_name=form.cleaned_data.get('display_name'),
@@ -437,9 +437,9 @@ class OpenDebatesRegistrationView(RegistrationView):
             form.ignore_captcha()
         return form
 
-    def get_success_url(self, request, user):
-        if request.GET.get('next'):
-            return request.GET.get('next')
+    def get_success_url(self, user=None):
+        if self.request.GET.get('next'):
+            return self.request.GET.get('next')
         else:
             return reverse('registration_complete')
 
