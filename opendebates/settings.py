@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'opendebates',
     'opendebates_emails',
     'djorm_pgfulltext',
-    'endless_pagination',
+    'el_pagination',
     'bootstrapform',
     'registration',
     # more django apps, that we want to override template of
@@ -97,6 +97,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',  # For EL-pagination
                 'opendebates.context_processors.global_vars',
                 'opendebates.context_processors.voter',
             ],
