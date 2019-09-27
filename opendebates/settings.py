@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'djcelery',
     'opendebates',
     'opendebates_emails',
-    'djorm_pgfulltext',
     'el_pagination',
     'bootstrapform',
     'registration',

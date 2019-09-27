@@ -4,9 +4,9 @@ from django.db import models
 from django.conf import settings
 from django.core.signing import Signer
 from django.core.urlresolvers import reverse
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.contrib.sites.models import Site
-from djorm_pgfulltext.models import SearchManager
-from djorm_pgfulltext.fields import VectorField
 from urllib import quote_plus
 from django.utils.http import urlquote
 from django.utils.translation import ugettext_lazy as _
@@ -118,7 +118,15 @@ class Debate(CachingMixin, models.Model):
         return u'/'.join([self.site.domain, self.prefix])
 
 
+class SubmissionQuerySet(models.QuerySet):
+    def search(self, term):
+        return self.filter(search_vector=term)
+
+
 class Submission(models.Model):
+    # The _search_vectors are the search vectors used to update the search_vector
+    # field whenever a Submission is saved.
+    _search_vectors = SearchVector('idea', weight='A') + SearchVector('keywords', weight='A')
 
     def user_display_name(self):
         return self.voter.user_display_name()
@@ -159,14 +167,25 @@ class Submission(models.Model):
 
     random_id = models.FloatField(default=0, db_index=True)
 
-    search_index = VectorField()
+    # A field in the database that is used when searching this model. Instead of
+    # searching all of the relevant fields each time a user searches, we prepopulate
+    # the search_vector field (based on Submission._search_vectors) anytime a
+    # Submission is saved, and index the database table on this field, for faster
+    # retrieval.
+    search_vector = SearchVectorField(null=True)
 
     keywords = models.TextField(null=True, blank=True)
 
-    objects = SearchManager(fields=["idea", "keywords"],
-                            auto_update_search_field=True)
+    # Use the SubmissionQuerySet, so we get the .search() method, which is expected
+    # in other parts of the application.
+    objects = SubmissionQuerySet.as_manager()
 
     source = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        indexes = [
+            GinIndex(fields=['search_vector'])
+        ]
 
     @property
     def debate(self):
@@ -176,6 +195,20 @@ class Submission(models.Model):
         if not hasattr(self, '_cached_debate'):
             self._cached_debate = self.category.debate
         return self._cached_debate
+
+    def save(self, *args, **kwargs):
+        """
+        Update the search_vector field whenever the save() method is called.
+
+        Note: in case it becomes too slow to update the search_vector field (and
+        thus to re-index) when calling the save() method, we can use a different
+        approach to update the search_vector field, such as updating the field
+        for the entire table every few minutes, etc.
+        """
+        super(Submission, self).save(*args, **kwargs)
+        if 'update_fields' not in kwargs or 'search_vector' not in kwargs['update_fields']:
+            self.search_vector = self._search_vectors
+            self.save(update_fields=['search_vector'])
 
     def get_recent_votes(self):
         timespan = datetime.datetime.now() - datetime.timedelta(1)
