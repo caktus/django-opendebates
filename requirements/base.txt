@@ -1,7 +1,7 @@
-dj-static==0.0.6
+dj-static==0.0.6  # Note: dj-static recommends using whitenoise instead.
 gunicorn==19.4.3
 Django==1.11
-whitenoise==2.0.6
+whitenoise==3.3.1
 psycopg2==2.7.7
 dj-database-url==0.3.0
 django-localflavor==1.6
