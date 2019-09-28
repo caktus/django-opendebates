@@ -190,40 +190,81 @@ if TEST:
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     )
 
-PIPELINE_COMPILERS = (
-    'pipeline.compilers.less.LessCompiler',
-)
+# Settings for Django-pipeline
+PIPELINE = {
+    'JAVASCRIPT': {
+        'base': {
+            'source_filenames': (
+                'js/base/*.js',
+                'templates/base/*.handlebars',
+            ),
+            'output_filename': 'js/base.js',
+        },
+        'registration': {
+            'source_filenames': (
+                'js/registration.js',
+            ),
+            'output_filename': 'js/registration.js',
+        }
+    },
+    'STYLESHEETS': {
+        'base': {
+            'source_filenames': (
+                'less/base.less',
+            ),
+            'output_filename': 'css/base.css',
+            'extra_context': {
+                'media': 'screen,projection',
+            },
+        },
+        'login': {
+            'source_filenames': (
+                'less/login.less',
+            ),
+            'output_filename': 'css/login.css',
+            'extra_context': {
+                'media': 'screen,projection',
+            },
+        },
+    },
+    'CSS': {
+        'base': {
+            'source_filenames': (
+                'less/base.less',
+            ),
+            'output_filename': 'css/base.css',
+            'extra_context': {
+                'media': 'screen,projection',
+            },
+        },
+        'login': {
+            'source_filenames': (
+                'less/login.less',
+            ),
+            'output_filename': 'css/login.css',
+            'extra_context': {
+                'media': 'screen,projection',
+            },
+        },
+    },
+    'TEMPLATE_EXT': '.handlebars',
+    'TEMPLATE_FUNC': 'Handlebars.compile',
+    'TEMPLATE_NAMESPACE': 'Handlebars.templates',
+    'COMPILERS': (
+        'pipeline.compilers.less.LessCompiler',
+    ),
+}
 
 if DEBUG:
-    PIPELINE_CSS_COMPRESSOR = None
-    PIPELINE_JS_COMPRESSOR = None
+    PIPELINE['CSS_COMPRESSOR'] = None
+    PIPELINE['PIPELINE_JS_COMPRESSOR'] = None
 
 if TEST:
-    PIPELINE_COMPILERS = ()
-    PIPELINE_ENABLED = False
+    PIPELINE['COMPILERS'] = ()
+    PIPELINE['ENABLED'] = False
 
-PIPELINE_CSS = {
-    'base': {
-        'source_filenames': (
-            'less/base.less',
-        ),
-        'output_filename': 'css/base.css',
-        'extra_context': {
-            'media': 'screen,projection',
-        },
-    },
-    'login': {
-        'source_filenames': (
-            'less/login.less',
-        ),
-        'output_filename': 'css/login.css',
-        'extra_context': {
-            'media': 'screen,projection',
-        },
-    },
-}
 for theme in SITE_THEMES:
-    PIPELINE_CSS['theme-%s' % (theme,)] = {
+    PIPELINE['STYLESHEETS']['theme-%s' % (theme,)] = {
         'source_filenames': (
             'less/theme-%s.less' % (theme,),
         ),
@@ -232,27 +273,6 @@ for theme in SITE_THEMES:
             'media': 'screen,projection',
         },
     }
-
-PIPELINE_JS = {
-    'base': {
-        'source_filenames': (
-            'js/base/*.js',
-            'templates/base/*.handlebars',
-        ),
-        'output_filename': 'js/base.js',
-    },
-    'registration': {
-        'source_filenames': (
-            'js/registration.js',
-        ),
-        'output_filename': 'js/registration.js',
-    }
-
-}
-
-PIPELINE_TEMPLATE_EXT = '.handlebars'
-PIPELINE_TEMPLATE_FUNC = 'Handlebars.compile'
-PIPELINE_TEMPLATE_NAMESPACE = 'Handlebars.templates'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
