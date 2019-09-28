@@ -9,10 +9,13 @@ https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/
 
 import os
 
-from django.core.wsgi import get_wsgi_application
-from dj_static import Cling
 
+# Make sure settings module is set BEFORE get_wsgi application and also
+# that we process settings before importing DjangoWhiteNoise...
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "opendebates.settings")
 
+from django.core.wsgi import get_wsgi_application  # noqa
 application = get_wsgi_application()
-application = Cling(application)
+
+from whitenoise.django import DjangoWhiteNoise  # noqa
+application = DjangoWhiteNoise(application)
