@@ -9,21 +9,62 @@ Install python 2.7, virtualenv, postgres.
 $ createdb opendebates
 $ mkvirtualenv opendebates -p `which python2.7`
 (opendebates)$ pip install -r requirements/dev.txt
-(opendebates)$ python opendebates/manage.py migrate
-(opendebates)$ python opendebates/manage.py load_zipcode_database ./zips.csv
+(opendebates)$ python manage.py migrate
+(opendebates)$ python manage.py load_zipcode_database zips.csv
 (opendebates)$ npm install bower less
-(opendebates)$ cp opendebates/.env.sample opendebates/.env
+(opendebates)$ cp .env.sample .env
 (opendebates)$ echo "export PATH=$PWD/node_modules/.bin:$PATH" >> $VIRTUAL_ENV/bin/postactivate
 (opendebates)$ deactivate
 $ workon opendebates
 (opendebates)$
 ```
 
+Edit .env:
+
+```
+DATABASE_URL=postgres://@/opendebates
+DJANGO_DEBUG=1
+SITE_DOMAIN=0.0.0.0:8000
+ALLOWED_HOSTS=0.0.0.0
+```
+
+
+Create a Site object:
+
+```
+(opendebates)$ python manage.py shell
+>>> from django.contrib.sites.models import Site
+>>> Site.objects.create(domain='0.0.0.0:8000', name='0.0.0.0:8000')
+>>> ^D
+```
+
+Create a superuser:
+
+```
+(opendebates)$ python manage.py createsuperuser
+Username: rnixon
+Email address: rnixon@not-white-house.gov
+Password:
+Password (again):
+Superuser created successfully.
+```
+
 Then you can start the development server:
 
 ```
-./ve/bin/python opendebates/manage.py runserver 0.0.0.0:8000
+(opendebates)$ python manage.py runserver 0.0.0.0:8000
 ```
+
+Go to the *admin*: http://0.0.0.0:8000/admin/
+
+Login as the superuser
+
+Add a new Debate object:
+
+* Be sure to use the site 0.0.0.0:8000
+* Make note of the prefix you set, e.g. "nyc2019".
+
+Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 
 ## Site copy and content
 
