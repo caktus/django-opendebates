@@ -9,21 +9,62 @@ Install python 2.7, virtualenv, postgres.
 $ createdb opendebates
 $ mkvirtualenv opendebates -p `which python2.7`
 (opendebates)$ pip install -r requirements/dev.txt
-(opendebates)$ python opendebates/manage.py migrate
-(opendebates)$ python opendebates/manage.py load_zipcode_database ./zips.csv
+(opendebates)$ python manage.py migrate
+(opendebates)$ python manage.py load_zipcode_database zips.csv
 (opendebates)$ npm install bower less
-(opendebates)$ cp opendebates/.env.sample opendebates/.env
+(opendebates)$ cp .env.sample .env
 (opendebates)$ echo "export PATH=$PWD/node_modules/.bin:$PATH" >> $VIRTUAL_ENV/bin/postactivate
 (opendebates)$ deactivate
 $ workon opendebates
 (opendebates)$
 ```
 
+Edit .env:
+
+```
+DATABASE_URL=postgres://@/opendebates
+DJANGO_DEBUG=1
+SITE_DOMAIN=0.0.0.0:8000
+ALLOWED_HOSTS=0.0.0.0
+```
+
+
+Create a Site object:
+
+```
+(opendebates)$ python manage.py shell
+>>> from django.contrib.sites.models import Site
+>>> Site.objects.create(domain='0.0.0.0:8000', name='0.0.0.0:8000')
+>>> ^D
+```
+
+Create a superuser:
+
+```
+(opendebates)$ python manage.py createsuperuser
+Username: rnixon
+Email address: rnixon@not-white-house.gov
+Password:
+Password (again):
+Superuser created successfully.
+```
+
 Then you can start the development server:
 
 ```
-./ve/bin/python opendebates/manage.py runserver 0.0.0.0:8000
+(opendebates)$ python manage.py runserver 0.0.0.0:8000
 ```
+
+Go to the *admin*: http://0.0.0.0:8000/admin/
+
+Login as the superuser
+
+Add a new Debate object:
+
+* Be sure to use the site 0.0.0.0:8000
+* Make note of the prefix you set, e.g. "nyc2019".
+
+Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 
 ## Site copy and content
 
@@ -38,7 +79,8 @@ be collected into a .PO file with Django's built-in manage.py commands:
 ```
 sudo apt-get install gettext
 cd opendebates
-../ve/bin/python manage.py makemessages -l en
+workon opendebates
+python manage.py makemessages -l en
 ```
 
 This will give you an up-to-date file in
@@ -46,14 +88,14 @@ This will give you an up-to-date file in
 which you can edit with installation-appropriate text overrides.  To use it, then run:
 
 ```
-../ve/bin/python manage.py compilemessages -l en
+python manage.py compilemessages -l en
 ```
 
 You can visit the view at `/test/` to confirm that text overrides are working properly.
 
 ## Deployment
 
-There is a management command `manage.py update_trending_scores` --
+There is a management command `python manage.py update_trending_scores` --
 in production, you'll want a cronjob
 to run that every ten minutes (or more, or less) and may want to adjust
 the "trending algorithm" which is expressed in SQL.
@@ -64,8 +106,8 @@ See `opendebates/.env.sample` for relevant variables that you might want to set.
 To install front-end packages and then collect static files:
 
 ```
-./ve/bin/python /vagrant/opendebates/manage.py bower install
-./ve/bin/python opendebates/manage.py collectstatic --noinput
+python manage.py bower install
+python opendebates/manage.py collectstatic --noinput
 ```
 
 Files will be collected into `opendebates/static/` -- in production mode (DJANGO_DEBUG=False)
@@ -79,7 +121,7 @@ to update the served copies.
 Should be straightforward.  Only one catch -- run these as one command:
 
 ```
-heroku run 'opendebates/manage.py makemigrations registration && opendebates/manage.py syncdb'
+heroku run 'python manage.py makemigrations registration && python manage.py migrate'
 ```
 
 
