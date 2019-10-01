@@ -1,28 +1,12 @@
-Install python 2.7, virtualenv, postgres.
-
-```
-createdb opendebates
-virtualenv --python=python2.7 ve
-./ve/bin/pip install -r requirements.txt
-./ve/bin/python opendebates/manage.py syncdb
-```
-
-Then you can start the development server:
-
-```
-./ve/bin/python opendebates/manage.py runserver 0.0.0.0:8000
-```
-
-Deployment-specific environment variables can be stored in a `opendebates/.env` file.
-See `opendebates/.env.sample` for relevant variables that you might want to set.
+SEE README.md for how to run locally.
 
 To collect static files:
 
 ```
-./ve/bin/python opendebates/manage.py collectstatic --noinput
+python opendebates/manage.py collectstatic --noinput
 ```
 
-Files will be collected into `opendebates/static/` -- in production mode (DJANGO_DEBUG=False) 
+Files will be collected into `opendebates/static/` -- in production mode (DJANGO_DEBUG=False)
 all static files will be served from this directory.  Do not make edits to files directly
 in `opendebates/static` -- instead, make edits to the source files and then re-run collectstatic
 to update the served copies.
