@@ -84,7 +84,7 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 * ```fab createsuperuser``` (answer prompts to create superuser)
 * Visit http://localhost:8000/admin/ and log in as the new superuser
 * Create a new Debate and note its prefix
-* Visit http://localhost:8000/<prefix>/
+* Visit http://localhost:8000/PREFIX/
 * When done, ```fab down```.
 
 # Site copy and content

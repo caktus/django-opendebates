@@ -68,12 +68,6 @@ ENV DJANGO_ENV=prod
 ENV DOCKER_CONTAINER=1
 ENV PYTHONUNBUFFERED=1
 ENV ALLOWED_HOSTS=localhost
-# Allow docker-compose "build" to pass in the database URL that this container should use
-ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
-
-# FIXME: hack to run migrations, should not do this unconditionally on every container start
-#RUN python manage.py migrate --noinput
 
 # Call collectstatic (customize the following line with the minimal environment variables needed for manage.py to run):
 RUN DATABASE_URL='' python manage.py collectstatic --noinput -v 0

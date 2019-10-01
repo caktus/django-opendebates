@@ -12,15 +12,14 @@ services:
   redis:
     image: redis
   web:
-    build:
-      context: .
-      args:
-        # Use the DB that the postgres container already has
-        DATABASE_URL: postgres://postgres:postgres@db/postgres
+    build: .
     ports:
     - "8000:8000"
     depends_on:
     - db
     - redis
+    environment:
+      # Use the DB that the postgres container already has
+      DATABASE_URL: postgres://postgres:postgres@db/postgres
 volumes:
   dbvolume1: {}
