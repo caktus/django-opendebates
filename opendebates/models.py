@@ -3,7 +3,7 @@ import datetime
 from django.db import models
 from django.conf import settings
 from django.core.signing import Signer
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.contrib.sites.models import Site
