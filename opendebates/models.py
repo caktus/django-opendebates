@@ -9,6 +9,7 @@ from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.contrib.sites.models import Site
 from urllib import quote_plus
 from django.utils.http import urlquote
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from caching.base import CachingManager, CachingMixin
 from localflavor.us.models import PhoneNumberField
@@ -211,7 +212,7 @@ class Submission(models.Model):
             self.save(update_fields=['search_vector'])
 
     def get_recent_votes(self):
-        timespan = datetime.datetime.now() - datetime.timedelta(1)
+        timespan = now() - datetime.timedelta(1)
         return Vote.objects.filter(submission=self, created_at__gte=timespan).count()
 
     def get_duplicates(self):
