@@ -82,7 +82,7 @@ def list_ideas(request):
         'sort': sort,
         'url_name': reverse('list_ideas'),
         'stashed_submission': request.session.pop(
-            "opendebates.stashed_submission", None) if request.user.is_authenticated() else None,
+            "opendebates.stashed_submission", None) if request.user.is_authenticated else None,
     }
 
 
@@ -242,7 +242,7 @@ def vote(request, id):
             source=request.COOKIES.get('opendebates.source'),
             state=state,
             zip=form.cleaned_data['zipcode'],
-            user=request.user if request.user.is_authenticated() else None,
+            user=request.user if request.user.is_authenticated else None,
         )
     )
 
@@ -318,7 +318,7 @@ def questions(request):
             'ideas': [],
         }
 
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         request.session['opendebates.stashed_submission'] = {
             "category": request.POST['category'],
             "headline": request.POST['headline'],

@@ -10,7 +10,7 @@ def vote_needs_captcha(request):
     if not settings.USE_CAPTCHA:
         return False
     if not hasattr(request, 'vote_needs_captcha'):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             # A logged-in user has already filled out the captcha on registration
             need = False
         else:
@@ -31,7 +31,7 @@ def registration_needs_captcha(request):
 
 
 def get_voter(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         try:
             voter = request.user.voter
         except Voter.DoesNotExist:
