@@ -343,5 +343,5 @@ LOGGING = {
 }
 
 # FIXME: we probably do want this enabled iffi we have an SSL endpoint to redirect to.
-#SECURE_SSL_REDIRECT = not testing and not DEBUG
+# SECURE_SSL_REDIRECT = not testing and not DEBUG
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
