@@ -5,14 +5,13 @@ metadata:
   labels:
     app: opendebates
 spec:
+  type: LoadBalancer
   ports:
-  - name: "8000"
-    port: 8000
+  - name: "default"
+    port: 80
     targetPort: 8000
   selector:
     app: opendebates
-status:
-  loadBalancer: {}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,7 +28,7 @@ spec:
         app: opendebates
     spec:
       containers:
-      - image: dpoirier/opendebates:latest
+      - image: docker.io/dpoirier/opendebates:latest
         imagePullPolicy: Always
         name: opendebates
         ports:
@@ -37,3 +36,5 @@ spec:
         env:
           - name: GET_HOSTS_FROM
             value: dns
+          - name: DATABASE_URL
+            value: postgres://postgres:postgres@db/postgres

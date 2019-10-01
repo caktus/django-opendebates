@@ -17,6 +17,11 @@ logger.setLevel(logging.INFO)
 
 
 @task
+def kube_create_site(name):
+    local("kubectl run --image=opendebates...")
+
+
+@task
 def create_site(name):
     # Usage: fab create_site:localhost8000
     local("docker-compose run web python manage.py create_site %s" % name)

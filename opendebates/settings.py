@@ -123,7 +123,7 @@ else:
 WSGI_APPLICATION = 'opendebates.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(default="postgres://@/opendebates", conn_max_age=600),
+    'default': dj_database_url.config(env="DATABASE_URL", default="postgres://@/opendebates", conn_max_age=600),
 }
 
 if DEBUG:
