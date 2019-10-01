@@ -79,7 +79,8 @@ be collected into a .PO file with Django's built-in manage.py commands:
 ```
 sudo apt-get install gettext
 cd opendebates
-../ve/bin/python manage.py makemessages -l en
+workon opendebates
+python manage.py makemessages -l en
 ```
 
 This will give you an up-to-date file in
@@ -87,14 +88,14 @@ This will give you an up-to-date file in
 which you can edit with installation-appropriate text overrides.  To use it, then run:
 
 ```
-../ve/bin/python manage.py compilemessages -l en
+python manage.py compilemessages -l en
 ```
 
 You can visit the view at `/test/` to confirm that text overrides are working properly.
 
 ## Deployment
 
-There is a management command `manage.py update_trending_scores` --
+There is a management command `python manage.py update_trending_scores` --
 in production, you'll want a cronjob
 to run that every ten minutes (or more, or less) and may want to adjust
 the "trending algorithm" which is expressed in SQL.
@@ -105,8 +106,8 @@ See `opendebates/.env.sample` for relevant variables that you might want to set.
 To install front-end packages and then collect static files:
 
 ```
-./ve/bin/python /vagrant/opendebates/manage.py bower install
-./ve/bin/python opendebates/manage.py collectstatic --noinput
+python manage.py bower install
+python opendebates/manage.py collectstatic --noinput
 ```
 
 Files will be collected into `opendebates/static/` -- in production mode (DJANGO_DEBUG=False)
@@ -120,7 +121,7 @@ to update the served copies.
 Should be straightforward.  Only one catch -- run these as one command:
 
 ```
-heroku run 'opendebates/manage.py makemigrations registration && opendebates/manage.py syncdb'
+heroku run 'python manage.py makemigrations registration && python manage.py migrate'
 ```
 
 
