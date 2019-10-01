@@ -3,6 +3,8 @@ django-opendebates
 
 # Installation
 
+(See below if you prefer to run locally using Docker.)
+
 Install python 2.7, virtualenv, postgres.
 
 ```
@@ -66,7 +68,26 @@ Add a new Debate object:
 
 Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 
-## Site copy and content
+# To run locally using docker
+
+* Install docker-compose and its dependencies.
+* Your user needs to belong to group 'docker'. If not, add that group to your user,
+  then log out and log in again to make that take effect. (Sorry, no other
+  way that I know of to make user group changes take effect).
+* Clone this repo and change to its directory.
+* Create a virtualenv (using Python 2.7, sorry)
+* Activate virtualenv
+* ```pip install -r requirements/dev.txt```
+* ```fab up``` (smoketest may fail)
+* ```fab migrate```
+* ```fab smoketest``` (should pass now)
+* ```fab createsuperuser``` (answer prompts to create superuser)
+* Visit http://localhost:8000/admin/ and log in as the new superuser
+* Create a new Debate and note its prefix
+* Visit http://localhost:8000/<prefix>/
+* When done, ```fab down```.
+
+# Site copy and content
 
 We're relying on Django's i18n system for managing site copy.  An "English translation"
 should be generated and used to provide installation-specific text, rather than updating
@@ -92,7 +113,7 @@ which you can edit with installation-appropriate text overrides.  To use it, the
 
 You can visit the view at `/test/` to confirm that text overrides are working properly.
 
-## Deployment
+# Deployment
 
 There is a management command `manage.py update_trending_scores` --
 in production, you'll want a cronjob
