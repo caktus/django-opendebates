@@ -27,10 +27,15 @@ def logs():
     local("docker-compose logs")
     local("docker-compose logs --follow")
 
+@task
+def build():
+    local("docker-compose build")
+
 
 @task
 def up():
-    local("docker-compose up --build -d")
+    # local("docker-compose up --build -d")
+    local("docker-compose up -d")
     time.sleep(1)  # Sometimes it's not *quite* ready yet.
     smoketest()
 

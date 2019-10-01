@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: opendebates
+  labels:
+    app: opendebates
+spec:
+  ports:
+  - name: "8000"
+    port: 8000
+    targetPort: 8000
+  selector:
+    app: opendebates
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opendebates
+spec:
+  selector:
+    matchLabels:
+      app: opendebates
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: opendebates
+    spec:
+      containers:
+      - image: dpoirier/opendebates:latest
+        imagePullPolicy: Always
+        name: opendebates
+        ports:
+        - containerPort: 8000
+        env:
+          - name: GET_HOSTS_FROM
+            value: dns

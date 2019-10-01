@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    certmanager.k8s.io/cluster-issuer: "letsencrypt-production"
+spec:
+  tls:
+  - hosts:
+    - opendebates-testing.caktustest.us
+    secretName: opendebates-testing-tls
+  rules:
+  - host: opendebates-testing.caktustest.us
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: opendebates
+          servicePort: 80
