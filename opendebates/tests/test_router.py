@@ -89,7 +89,7 @@ class DBRouterTest(TestCase):
 
     def test_middleware_validation(self):
         # The router raises an error if the necessary middleware is not configured.
-        with override_settings(MIDDLEWARE_CLASSES=[]):
+        with override_settings(MIDDLEWARE=[]):
             with self.assertRaises(ImproperlyConfigured):
                 DBRouter()
 

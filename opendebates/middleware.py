@@ -1,10 +1,11 @@
 from django.http import Http404
+from django.utils.deprecation import MiddlewareMixin
 
 from opendebates.resolvers import PrefixedUrlconf
 from opendebates.utils import get_debate
 
 
-class DebateMiddleware(object):
+class DebateMiddleware(MiddlewareMixin, object):
     """
     Gets a Debate for the request, based on the hostname.
     """
