@@ -28,13 +28,16 @@ spec:
         app: opendebates
     spec:
       containers:
-      - image: docker.io/dpoirier/opendebates:latest
+      - image: docker.io/dpoirier/opendebates:20191002081650
         imagePullPolicy: Always
         name: opendebates
         ports:
         - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: django-config
+        - configMapRef:
+            name: postgres-config
         env:
-          - name: GET_HOSTS_FROM
-            value: dns
-          - name: DATABASE_URL
-            value: postgres://postgres:postgres@db/postgres
+        - name: GET_HOSTS_FROM
+          value: dns

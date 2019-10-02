@@ -1,0 +1,26 @@
+# CONFIGMAP to set up environment for django to get whatever settings it needs.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-config
+  namespace: default
+data:
+  DJANGO_SETTINGS_MODULE: opendebates.kube_settings
+  DEPLOYMENT_TAG: testing
+  ENVIRONMENT: testing
+  # Creds from opendebates' postmark account
+  EMAIL_HOST: smtp.postmarkapp.com
+  EMAIL_HOST_USER: 07efd20b-49ab-46ee-9141-2f6e92bed29b
+  EMAIL_HOST_PASSWORD: 07efd20b-49ab-46ee-9141-2f6e92bed29b
+  REDIS_HOST: redis
+  MEMCACHED_HOST: memcached
+
+  # This assumes the default postgres docker image is being used
+  # in a k8s service named "postgres". Edit this if using another
+  # postgres server.
+  DATABASE_URL: postgres://postgres@postgres/postgres
+
+  # FIXME: please please fixme:
+  DEFAULT_FROM_EMAIL: dpoirier+opendebates@caktusgroup.com
+  # FIXME: Add MEMCACHED, REDIS
+  # FIXME: Add recaptcha, mixpanel, optimizely

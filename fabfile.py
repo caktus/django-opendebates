@@ -1,6 +1,16 @@
+import json
 import logging
 
 # XXX import actual commands needed
+from pprint import pprint
+
+from fabric.api import (abort, cd, env, execute, hide, hosts, local, parallel,
+    prompt, put, roles, require, run, runs_once, settings, sudo, task)
+from fabric.colors import red
+from fabric.contrib.files import exists, upload_template, append, uncomment, sed
+from fabric.exceptions import NetworkError
+from fabric.network import disconnect_all
+
 import requests
 from fabulaws.library.wsgiautoscale.api import *  # noqa
 from fabulaws.library.wsgiautoscale.api import _setup_env
@@ -17,20 +27,67 @@ logger.setLevel(logging.INFO)
 
 
 @task
-def kube_create_site(name):
-    local("kubectl run --image=opendebates...")
+def kubernetes():
+    env.world = 'kubernetes'
+@task
+def docker():
+    env.world = 'docker'
+@task
+def creds(filename):
+    if not os.path.exists(filename):
+        print("Invalid value for credentials filename %s" % filename)
+        print("Does not exist")
+        abort()
+    env.creds = filename
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = filename
+
+####################
+#
+# FOR KUBERNETES
+#
+####################
+
+# Find an opendebates pod
+def get_opendebates_pod_name():
+    require("environment", provided_by=env.environments)
+    require("creds", provided_by=['creds'])
+    local("kubectl config set-context --current --namespace=opendebates-%s" % env.environment)
+    output = local("kubectl get pods -o json", capture=True)
+    data = json.loads(output)
+    for i in data["items"]:
+        # pprint(i)
+        m = i["metadata"]
+        if m["labels"].get("app") == "opendebates":
+            return m["name"]
+
+#############################
+#
+# FOR DOCKER OR KUBERNETES
+#
+#############################
 
 
 @task
 def create_site(name):
     # Usage: fab create_site:localhost8000
-    local("docker-compose run web python manage.py create_site %s" % name)
+    require("world", provided_by=['kubernetes', 'docker'])
+    require("environment", provided_by=env.environments)
+    if env.world == 'docker':
+        local("docker-compose run web python manage.py create_site %s" % name)
+    elif env.world == 'kubernetes':
+        require("creds", provided_by=['creds'])
+        os.chdir('kubernetes')
+        pod = get_opendebates_pod_name()
+        local(
+            "kubectl exec %s /venv/bin/python /code/manage.py create_site %s" % (pod, name)
+        )
 
 
 @task
 def logs():
     local("docker-compose logs")
     local("docker-compose logs --follow")
+
 
 @task
 def build():
@@ -39,11 +96,18 @@ def build():
 
 @task
 def up():
-    # local("docker-compose up --build -d")
-    local("docker-compose up -d")
-    time.sleep(1)  # Sometimes it's not *quite* ready yet.
-    smoketest()
-
+    require("world", provided_by=['kubernetes', 'docker'])
+    require("environment", provided_by=env.environments)
+    if env.world == 'docker':
+        # local("docker-compose up --build -d")
+        local("docker-compose up -d")
+        time.sleep(1)  # Sometimes it's not *quite* ready yet.
+        smoketest()
+    elif env.world == 'kubernetes':
+        require("creds", provided_by=['creds'])
+        os.chdir('kubernetes')
+        #local("kubectl apply -f kubernetes")
+        local("ansible-playbook -e ENVIRONMENT=%s playbook.yml" % env.environment)
 
 @task
 def down():
@@ -52,19 +116,37 @@ def down():
 
 @task
 def migrate():
-    local("docker-compose run web python manage.py migrate --noinput -v 0")
+    require("world", provided_by=['kubernetes', 'docker'])
+    require("environment", provided_by=env.environments)
+    if env.world == 'docker':
+        local("docker-compose run web python manage.py migrate --noinput -v 0")
+    elif env.world == 'kubernetes':
+        require("creds", provided_by=['creds'])
+        os.chdir('kubernetes')
+        pod = get_opendebates_pod_name()
+        local("kubectl exec %s /venv/bin/python /code/manage.py migrate" % pod)
 
 
 @task
 def createsuperuser():
-    local("docker-compose run web python manage.py createsuperuser")
+    require("world", provided_by=['kubernetes', 'docker'])
+    require("environment", provided_by=env.environments)
+    if env.world == 'docker':
+        local("docker-compose run web python manage.py createsuperuser")
+    elif env.world == 'kubernetes':
+        require("creds", provided_by=['creds'])
+        os.chdir('kubernetes')
+        pod = get_opendebates_pod_name()
+        local("kubectl exec -it %s /venv/bin/python /code/manage.py createsuperuser" % pod)
 
 
 @task
 def smoketest():
     # Make sure we're at least serving basic http requests
     site = "localhost:8000"
-    create_site(site)  # FIXME: not really the right place for this, but it works for now since "up" runs "smoketest"
+    create_site(
+        site
+    )  # FIXME: not really the right place for this, but it works for now since "up" runs "smoketest"
 
     admin_url = "http://%s/admin/" % site
     login_url = "http://%s/admin/login/?next=/admin/" % site
@@ -77,6 +159,11 @@ def smoketest():
 
 
 ###############################################################################
+
+
+@task
+def testing(deployment_tag=env.default_deployment, answer=None):
+    _setup_env(deployment_tag, "testing")
 
 
 @task

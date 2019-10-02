@@ -3,7 +3,7 @@ django-opendebates
 
 # Installation
 
-(See below if you prefer to run locally using Docker.)
+(See below if you prefer to run locally using Docker, or hit the big time with Kubernetes.)
 
 Install python 2.7, virtualenv, postgres.
 
@@ -86,6 +86,24 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 * Create a new Debate and note its prefix
 * Visit http://localhost:8000/PREFIX/
 * When done, ```fab down```.
+
+# Kubernetes
+
+* Create or get access to a cluster on GCP.
+* Download your json credentials file.
+* Pick a HOSTNAME.
+* Set things up so you can run ```kubectl``` locally and do things on that cluster.
+* ```fab kube_up```
+* Wait for things to get going. (FIXME: what's a good provider-independent way to tell?)
+* See what the "EXTERNAL_IP" of the load balancer is: 
+  ```kubectl get ingress opendebates```
+* Go make a DNS entry for HOSTNAME pointing at that IP address
+* ```fab kube_migrate```
+* ```fab kube_create_site:HOSTNAME```
+* ```fab kube_createsuperuser```
+* Visit http://HOSTNAME/admin/ and log in as the new superuser
+* Create a new Debate and note its prefix
+* Visit http://HOSTNAME/PREFIX/
 
 # Site copy and content
 

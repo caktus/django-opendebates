@@ -1,0 +1,170 @@
+# ANSIBLE PLAYBOOK
+#   $ ansible-playbook playbook.yml
+- hosts: localhost
+  vars:
+    ansible_python_interpreter: python3
+    ansible_connection_type: local
+    NAMESPACE: opendebates-{{ ENVIRONMENT }}
+    CONTAINER_REPLICAS: 2
+    CONTAINER_IMAGE_TAG: latest
+    CONFIG_MAP_NAMES: []
+    CONTAINER_PROTOCOL: http
+    IS_LOADBALANCER: false
+    DOMAIN: opendebates-testing.caktus-built.com
+  tasks:
+    - name: Override ansible_python_interpreter for virtualenv
+      set_fact:
+        ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
+      when: lookup('env','VIRTUAL_ENV')
+
+    # https://kubernetes.github.io/ingress-nginx/
+    - name: stuff needed to use nginx ingress controller
+      command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
+    - name: now tell ingress-nginx to make a load balancer when needed
+      command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml
+
+    - name: Django config map
+      k8s:
+        definition: "{{ lookup('template', item) }}"
+        # Ensure we see any failures in CI
+        wait: yes
+        validate:
+          fail_on_error: yes
+          strict: yes
+      with_items:
+        - configmap.yaml.j2
+      vars:
+        NAME: 'django-config'
+        CONFIGMAP_VARS:
+          DJANGO_SETTINGS_MODULE: opendebates.kube_settings
+          DEPLOYMENT_TAG: testing
+          # Creds from opendebates' postmark account
+          EMAIL_HOST: smtp.postmarkapp.com
+          EMAIL_HOST_USER: 07efd20b-49ab-46ee-9141-2f6e92bed29b
+          EMAIL_HOST_PASSWORD: 07efd20b-49ab-46ee-9141-2f6e92bed29b
+          REDIS_HOST: redis
+          MEMCACHED_HOST: memcached
+
+          # This assumes the default postgres docker image is being used
+          # in a k8s service named "postgres". Edit this if using another
+          # postgres server.
+          DATABASE_URL: postgres://postgres@postgres/postgres
+
+          # FIXME: valid email address needed
+          DEFAULT_FROM_EMAIL: noreply@example.com
+          # FIXME: Add recaptcha, mixpanel, optimizely
+
+    - name: Deploy redis
+      k8s:
+        definition: "{{ lookup('template', item) }}"
+        # Ensure we see any failures in CI
+        wait: yes
+        wait_timeout: 300
+        validate:
+          fail_on_error: yes
+          strict: yes
+      with_items:
+        - app.yaml.j2
+      vars:
+        APP_NAME: redis
+        CONTAINER_IMAGE_REPO: redis
+        CONTAINER_IMAGE_TAG: 5.0.6
+        CONTAINER_PORT: 6379
+        CONTAINER_REPLICAS: 1
+        SERVICE_PORT: 6379
+        VOLUME_MOUNT: /data
+        VOLUME_NAME: redisvolume
+        VOLUME_SIZE: 20Gi
+
+    - name: Deploy memcached
+      k8s:
+        definition: "{{ lookup('template', item) }}"
+        # Ensure we see any failures in CI
+        wait: yes
+        validate:
+          fail_on_error: yes
+          strict: yes
+      with_items:
+        - app.yaml.j2
+      vars:
+        APP_NAME: memcached
+        CONTAINER_IMAGE_REPO: memcached
+        CONTAINER_IMAGE_TAG: 1.5.19
+        CONTAINER_PORT: 11211
+        CONTAINER_REPLICAS: 1
+        SERVICE_PORT: 11211
+
+    - name: postgres config map
+      k8s:
+        definition: "{{ lookup('template', item) }}"
+        # Ensure we see any failures in CI
+        wait: yes
+        validate:
+          fail_on_error: yes
+          strict: yes
+      with_items:
+        - configmap.yaml.j2
+      vars:
+        NAME: 'postgres-config'
+        CONFIGMAP_VARS:
+          # Use a subdir of the mount point because postgres prefers it that way
+          PGDATA: /var/lib/postgresql/data/pgdata
+
+    - name: Deploy postgres
+      k8s:
+        definition: "{{ lookup('template', item) }}"
+        # Ensure we see any failures in CI
+        wait: yes
+        wait_timeout: 300
+        validate:
+          fail_on_error: yes
+          strict: yes
+      with_items:
+        - app.yaml.j2
+      vars:
+        APP_NAME: postgres
+        CONTAINER_IMAGE_REPO: postgres
+        CONTAINER_IMAGE_TAG: 11.5
+        CONFIG_MAP_NAMES:
+          - "postgres-config"
+        CONTAINER_PORT: 5432
+        CONTAINER_REPLICAS: 1
+        SERVICE_PORT: 5432
+        VOLUME_MOUNT: /var/lib/postgresql/data
+        VOLUME_NAME: postgresvolume
+        VOLUME_SIZE: 50Gi
+
+    - name: Deploy opendebates
+      k8s:
+        definition: "{{ lookup('template', item) }}"
+        # Ensure we see any failures in CI
+        wait: yes
+        wait_timeout: 300
+        validate:
+          fail_on_error: yes
+          strict: yes
+      with_items:
+        - app.yaml.j2
+      vars:
+        APP_NAME: opendebates
+        CONTAINER_IMAGE_REPO: docker.io/dpoirier/opendebates
+        CONTAINER_IMAGE_TAG: 20191002081650
+        CONFIG_MAP_NAMES:
+          - "django-config"
+        CONTAINER_PORT: 8000
+        CONTAINER_REPLICAS: 2
+        SERVICE_PORT: 80
+        DOMAIN_NAME: "{{ DOMAIN }}"
+        CONTAINER_URL_PATH: /
+
+    - name: Find a running pod
+      k8s_facts:
+        kind: Pod
+        label_selectors:
+        - app = opendebates
+      register: opendebates_pods
+    - name: run migrations
+      shell: kubectl exec {{ opendebates_pods["resources"][0]["metadata"]["name"] }} /venv/bin/python /code/manage.py migrate
+
+    - name: create site
+      shell: kubectl exec {{ opendebates_pods["resources"][0]["metadata"]["name"] }} /venv/bin/python /code/manage.py create_site {{ DOMAIN }}
