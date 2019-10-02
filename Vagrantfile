@@ -10,7 +10,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.network :private_network, ip: '192.168.50.50'
   config.vm.synced_folder '.', '/vagrant', nfs: true
-  
+
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 8000 on the guest machine.
@@ -30,7 +30,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "virtualbox" do |v|
     v.customize ["modifyvm", :id, "--memory", "1024"]
   end
-  
+
   # config.vm.provider "virtualbox" do |vb|
   #   # Don't boot with headless mode
   #   vb.gui = true
@@ -39,7 +39,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #   vb.customize ["modifyvm", :id, "--memory", "1024"]
   # end
 
-  # Because we want to use the client to provide it's own ansible (no installing on host), we
+  # Because we want to use the client to provide its own ansible (no installing on host), we
   # need to bootstrap it here
   $provision_script = <<SCRIPT
   apt-get update && apt-get install -y --force-yes python-pip ansible

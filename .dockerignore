@@ -1,0 +1,8 @@
+node_modules
+static
+.env
+.envrc
+*.priv
+Dockerfile
+.dockerignore
+deployment
