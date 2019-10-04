@@ -12,9 +12,10 @@ from django.utils.http import urlquote
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from caching.base import CachingManager, CachingMixin
-from localflavor.us.models import PhoneNumberField
+from phonenumber_field.modelfields import PhoneNumberField
 
 from opendebates import site_defaults
+
 
 NUMBER_OF_VOTES_CACHE_ENTRY = 'number_of_votes-{}'
 RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry-{}'

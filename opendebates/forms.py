@@ -6,8 +6,9 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils.html import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from localflavor.us.forms import USPhoneNumberField, USZipCodeField
+from localflavor.us.forms import USZipCodeField
 from nocaptcha_recaptcha.fields import NoReCaptchaField
+from phonenumber_field.formfields import PhoneNumberField
 from registration.forms import RegistrationForm
 
 from .models import Category, Flag, Submission, TopSubmissionCategory, TopSubmission
@@ -91,7 +92,7 @@ class OpenDebatesRegistrationForm(RegistrationForm):
         self.request = kwargs.pop('request')
         super(OpenDebatesRegistrationForm, self).__init__(*args, **kwargs)
         if settings.ENABLE_USER_PHONE_NUMBER:
-            self.fields['phone_number'] = USPhoneNumberField(
+            self.fields['phone_number'] = PhoneNumberField(
                 label=mark_safe(phone_number_label),
                 required=False,
             )
