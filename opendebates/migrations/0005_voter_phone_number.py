@@ -9,7 +9,7 @@ import phonenumber_field.modelfields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('opendebates', '0044_on_delete_parameters'),
+        ('opendebates', '0004_on_delete_parameters'),
     ]
 
     operations = [

@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('opendebates', '0043_populate_submission_search_vector'),
+        ('opendebates', '0003_populate_submission_search_vector'),
     ]
 
     operations = [
