@@ -534,5 +534,4 @@ def od_logout(request, next_page=None,
               current_app=None, extra_context=None):
     if next_page is not None:
         next_page = reverse(next_page)
-    return logout(request, next_page, template_name, redirect_field_name,
-                  current_app, extra_context)
+    return logout(request, next_page, template_name, redirect_field_name, extra_context)
