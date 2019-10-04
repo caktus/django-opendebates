@@ -14,10 +14,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='submission',
-            name='search_index',
-        ),
         migrations.AddField(
             model_name='submission',
             name='search_vector',
