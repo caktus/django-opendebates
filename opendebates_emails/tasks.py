@@ -21,5 +21,5 @@ def send_email_task(type, idea_pk):
 
         idea = Submission.objects.get(pk=idea_pk)
         return template.send({'idea': idea})
-    except:
-        logger.exception("Unexpected exception in send_email_task")
+    except Exception as error:
+        logger.exception("Unexpected exception in send_email_task: {}".format(error))
