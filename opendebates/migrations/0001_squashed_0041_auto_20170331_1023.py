@@ -7,7 +7,6 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.migrations.operations.special
 import django.db.models.deletion
-import djorm_pgfulltext.fields
 import localflavor.us.models
 
 
@@ -111,7 +110,6 @@ class Migration(migrations.Migration):
                 ('score', models.FloatField(db_index=True, default=0)),
                 ('rank', models.FloatField(db_index=True, default=0)),
                 ('random_id', models.FloatField(db_index=True, default=0)),
-                ('search_index', djorm_pgfulltext.fields.VectorField()),
                 ('keywords', models.TextField(blank=True, null=True)),
                 ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='opendebates.Category')),
                 ('duplicate_of', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='duplicates', to='opendebates.Submission')),
@@ -257,10 +255,6 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='flag',
             unique_together=set([('to_remove', 'voter')]),
-        ),
-        migrations.RunSQL(
-            sql="\n            CREATE EXTENSION IF NOT EXISTS unaccent;\n            -- ALTER FUNCTION unaccent(text) IMMUTABLE;\n            -- The next line doesn't work:\n            -- CREATE INDEX opendebates_submission_search_idx ON opendebates_submission USING gin(to_tsvector('english', search_index));\n            ",
-            reverse_sql='\n            DROP EXTENSION IF EXISTS unaccent;\n            DROP INDEX IF EXISTS opendebates_submission_search_idx;\n            ',
         ),
         migrations.AddField(
             model_name='flag',
