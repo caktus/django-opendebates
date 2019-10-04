@@ -43,6 +43,7 @@ class QuestionForm(forms.Form):
         self.fields['category'].error_messages['invalid_pk_value'] = _("You must select a category")
         self.fields['category'].queryset = Category.objects.filter(debate=request.debate)
 
+
 display_name_help_text = _("How your name will be displayed on the site. If you "
                            "are an expert in a particular field or have a professional "
                            "affiliation that is relevant to your ideas, feel free to "

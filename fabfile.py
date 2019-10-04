@@ -2,7 +2,7 @@ import logging
 
 # XXX import actual commands needed
 import requests
-from fabulaws.library.wsgiautoscale.api import *  # noqa
+from fabulaws.library.wsgiautoscale.api import env, local, require, roles, sudo, task, time
 from fabulaws.library.wsgiautoscale.api import _setup_env
 
 root_logger = logging.getLogger()

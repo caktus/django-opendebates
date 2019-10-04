@@ -91,7 +91,7 @@ def get_ip_address_from_request(request):
             if remote_addr.startswith(PRIVATE_IPS_PREFIX):
                 ip_address = remote_addr.strip()
     if not ip_address:
-            ip_address = '127.0.0.1'
+        ip_address = '127.0.0.1'
     return ip_address
 
 
