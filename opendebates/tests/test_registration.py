@@ -169,7 +169,6 @@ class LoginLogoutTest(TestCase):
         self.assertTrue(self.client.login(username=self.username, password=self.password))
         logout_url = reverse('auth_logout', kwargs={'prefix': self.debate.prefix})
         rsp = self.client.get(logout_url)
-        self.assertEqual(200, rsp.status_code)
-        self.assertEqual('Logged out', rsp.context_data['title'])
+        self.assertRedirects(rsp, self.home_url)
         rsp = self.client.get(self.home_url)
         self.assertIn('Log in', rsp.content)
