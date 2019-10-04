@@ -5,6 +5,20 @@ import sys
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
 
+testing = "test" in sys.argv
+
+if os.getenv("DJANGO_ENV") == "prod":
+    # "prod" really just means deployed vs. running locally. It could still be staging or testing.
+    DEBUG = False
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost:8000').split(',')
+elif testing:
+    # https://docs.djangoproject.com/en/1.8/topics/testing/overview/#other-test-conditions
+    # DEBUG is False for tests no matter what we set, so set it up properly for
+    # use later in this file
+    DEBUG = False
+else:
+    DEBUG = 'DJANGO_DEBUG' in os.environ
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 
@@ -23,17 +37,6 @@ PHONENUMBER_DEFAULT_REGION = 'US'
 
 # SECRET_KEY is overriden in deploy settings
 SECRET_KEY = os.getenv('SECRET_KEY', 'secret-key-for-local-use-only')
-
-TEST = 'test' in sys.argv
-if TEST:
-    # https://docs.djangoproject.com/en/1.8/topics/testing/overview/#other-test-conditions
-    # DEBUG is False for tests no matter what we set, so set it up properly for
-    # use later in this file
-    DEBUG = False
-else:
-    DEBUG = 'DJANGO_DEBUG' in os.environ
-
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost:8000').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.auth',
@@ -123,7 +126,7 @@ else:
 WSGI_APPLICATION = 'opendebates.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(default="postgres://@/opendebates"),
+    'default': dj_database_url.config(default="postgres://@/opendebates", conn_max_age=600),
 }
 
 if DEBUG:
@@ -154,7 +157,7 @@ USE_THOUSAND_SEPARATOR = True
 
 # celery settings
 CELERY_SEND_TASK_ERROR_EMAILS = True
-CELERY_ALWAYS_EAGER = DEBUG or TEST
+CELERY_ALWAYS_EAGER = DEBUG or testing
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_IGNORE_RESULT = True
 CELERYD_HIJACK_ROOT_LOGGER = False
@@ -188,7 +191,7 @@ STATICFILES_FINDERS = (
     'djangobower.finders.BowerFinder',
 )
 
-if TEST:
+if testing:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
     STATICFILES_FINDERS = (
         'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -264,7 +267,7 @@ if DEBUG:
     PIPELINE['CSS_COMPRESSOR'] = None
     PIPELINE['PIPELINE_JS_COMPRESSOR'] = None
 
-if TEST:
+if testing:
     PIPELINE['COMPILERS'] = ()
     PIPELINE['ENABLED'] = False
 
@@ -364,5 +367,6 @@ LOGGING = {
     },
 }
 
-SECURE_SSL_REDIRECT = not TEST and not DEBUG
+# FIXME: we probably do want this enabled iffi we have an SSL endpoint to redirect to.
+# SECURE_SSL_REDIRECT = not testing and not DEBUG
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

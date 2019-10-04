@@ -1,7 +1,7 @@
 gunicorn==19.9.0
 Django==1.11.25
 whitenoise==3.3.1
-psycopg2==2.7.7
+psycopg2==2.8.3
 dj-database-url==0.4.2
 django-localflavor==1.6
 django-phonenumber-field==2.4.0  # 3.0 removes python2 support
@@ -25,6 +25,7 @@ django-cache-machine==1.1.0
 newrelic==5.0.2.126
 
 django-celery==3.3.1
+  anyjson==0.3.3
 Celery==4.3.0
 kombu==4.6.4
 amqp==2.5.1

@@ -15,7 +15,7 @@ def populate_submission_search_vector(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('opendebates', '0042_submission_search_vector_and_index'),
+        ('opendebates', '0002_submission_search_vector_and_index'),
     ]
 
     operations = [

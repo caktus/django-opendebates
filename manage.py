@@ -5,7 +5,8 @@ import sys
 import dotenv
 
 dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".env"))
-dotenv.read_dotenv(dotenv_path)
+if os.path.exists(dotenv_path):
+    dotenv.read_dotenv(dotenv_path)
 
 if __name__ == "__main__":
     code_root = os.path.dirname(__file__)

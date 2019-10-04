@@ -10,7 +10,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('opendebates', '0041_auto_20170331_1023'),
+        ('opendebates', '0001_squashed_0041_auto_20170331_1023'),
     ]
 
     operations = [
