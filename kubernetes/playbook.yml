@@ -17,12 +17,6 @@
         ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
       when: lookup('env','VIRTUAL_ENV')
 
-    # https://kubernetes.github.io/ingress-nginx/
-    - name: stuff needed to use nginx ingress controller
-      command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
-    - name: now tell ingress-nginx to make a load balancer when needed
-      command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml
-
     - name: Django config map
       k8s:
         definition: "{{ lookup('template', item) }}"
