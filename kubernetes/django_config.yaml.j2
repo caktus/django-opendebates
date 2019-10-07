@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-config
+  namespace: {{ NAMESPACE }}
+  labels:
+    app: "opendebates"
+data:
+  DEFAULT_FROM_EMAIL: "{{ DEFAULT_FROM_EMAIL }}"
+  DJANGO_SETTINGS_MODULE: opendebates.kube_settings
+  DEPLOYMENT_TAG: "{{ ENVIRONMENT }}"
+  DOMAIN_NAME: "{{ DOMAIN_NAME }}"
+  EMAIL_HOST: "{{ EMAIL_HOST }}"
+  EMAIL_HOST_USER: "{{ EMAIL_HOST_USER }}"
+  ENVIRONMENT: "{{ ENVIRONMENT }}"
+  REDIS_HOST: redis
+  MEMCACHED_HOST: memcached
