@@ -73,6 +73,7 @@ def encrypt_string(text):
         )
     )
 
+
 @task
 def up():
     require("environment", provided_by=env.environments)
