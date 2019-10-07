@@ -108,7 +108,7 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
   *(Be sure to get this right, because whatever cluster you've set up this way is the one that's going to have all this stuff deployed to it.)*
 
 * Figure out which ENVIRONMENT you're going to use.
-* Run ```fab kubernetes testing up```
+* Run ```fab testing up```
 * Wait for things to get going. (FIXME: what's a good provider-independent way to tell?)
   - some things might fail because previous steps aren't done yet. You can
     wait a minute then just run the whole thing again.
@@ -116,7 +116,7 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
   ```kubectl get ingress --namespace=opendebates-ENVIRONMENT```
 * Pick a HOSTNAME.
 * Go make a DNS entry for HOSTNAME pointing at that IP address
-* ```fab kubernetes testing createsuperuser```
+* ```fab testing createsuperuser```
 * Visit http://HOSTNAME/admin/ and log in as the new superuser
 * Create a new Debate and note its prefix
 * Visit http://HOSTNAME/PREFIX/
