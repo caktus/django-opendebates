@@ -18,10 +18,12 @@ OPTIMIZELY_KEY
 """
 
 from __future__ import absolute_import
+from .settings import *  # noqa: F403
 
 from celery.schedules import crontab
+import os
+import dj_database_url
 
-from .settings import *
 
 DATABASES = {
     'default': dj_database_url.config(env="DATABASE_URL", conn_max_age=600),
@@ -84,7 +86,7 @@ SESSION_CACHE_ALIAS = "session"
 
 # ALLOWED_HOSTS = [{% for host in allowed_hosts %}'{{ host }}', {% endfor %}]
 
-CELERYBEAT_SCHEDULE["backup-database"] = {
+CELERYBEAT_SCHEDULE["backup-database"] = {  # noqa: F405
     "task": "opendebates.tasks.backup_database",
     "schedule": crontab(minute=0, hour="*/4"),  # backup database every 4 hours
 }
@@ -109,7 +111,7 @@ USE_CAPTCHA = bool(int(os.getenv("USE_CAPTCHA", "0")))
 MIXPANEL_KEY = os.getenv("MIXPANEL_KEY")
 OPTIMIZELY_KEY = os.getenv("OPTIMIZELY_KEY")
 
-if ENVIRONMENT in SITE_THEMES:
+if ENVIRONMENT in SITE_THEMES:  # noqa: F405
     SITE_THEME_NAME = ENVIRONMENT
 else:
     SITE_THEME_NAME = "testing"

@@ -1,9 +1,7 @@
-import json
 import logging
 import os.path
 
 from fabric.api import env, local, roles, require, sudo, task
-from fabric.utils import abort
 
 root_logger = logging.getLogger()
 root_logger.addHandler(logging.StreamHandler())
