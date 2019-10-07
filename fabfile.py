@@ -30,22 +30,12 @@ def testing():
 #
 ####################
 
-# Find an opendebates (Django) pod and return its name
-def get_opendebates_pod_name():
-    require("environment", provided_by=env.environments)
-    output = local("kubectl get --namespace=opendebates-%s pods -o json" % env.environment, capture=True)
-    data = json.loads(output)
-    for i in data["items"]:
-        m = i["metadata"]
-        if m["labels"].get("app") == "opendebates":
-            return m["name"]
-
 
 def run_in_opendebates_pod(command):
     require("environment", provided_by=env.environments)
     os.chdir("kubernetes")
-    pod = get_opendebates_pod_name()
-    local("kubectl exec -it %s %s" % (pod, command))
+    namespace = "opendebates-%s" % env.environment
+    local("kubectl exec -it --namespace=%s deployment/opendebates %s" % (namespace, command))
 
 
 @task
