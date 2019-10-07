@@ -10,7 +10,9 @@ testing = "test" in sys.argv
 if os.getenv("DJANGO_ENV") == "prod":
     # "prod" really just means deployed vs. running locally. It could still be staging or testing.
     DEBUG = False
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost:8000').split(',')
+    # By default just allow all hosts - we assume we're deployed behind a proxy or load balancer
+    # and won't be getting requests not intended for us anyway.
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 elif testing:
     # https://docs.djangoproject.com/en/1.8/topics/testing/overview/#other-test-conditions
     # DEBUG is False for tests no matter what we set, so set it up properly for
@@ -121,7 +123,7 @@ else:
 WSGI_APPLICATION = 'opendebates.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.config(default="postgres://@/opendebates", conn_max_age=600),
+    'default': dj_database_url.config(env="DATABASE_URL", default="postgres://@/opendebates", conn_max_age=600),
 }
 
 if DEBUG:

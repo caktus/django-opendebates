@@ -28,3 +28,4 @@ fabsecrets*.py
 \.idea/
 
 package-lock\.json
+.vault_password

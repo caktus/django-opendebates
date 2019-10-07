@@ -1,0 +1,46 @@
+# ANSIBLE PLAYBOOK
+#   $ ansible-playbook playbook.yml
+#
+# Be sure to run in a virtualenv that has not only ansible, but also
+# openshift and kubernetes-validate installed.
+- hosts: localhost
+  vars:
+    # A few globals
+    ansible_connection_type: local
+    CONTAINER_REPLICAS: 2
+    CONTAINER_PROTOCOL: http
+    NAMESPACE: opendebates-{{ ENVIRONMENT }}
+    DATABASE_NAME: opendebates_{{ ENVIRONMENT }}
+    DATABASE_USER: opendebates_{{ ENVIRONMENT }}
+    # Make sure Ansible uses the same Python interpreter to run tasks as it
+    # itself is being run with. This is included because the way Ansible determines
+    # which python to use for various ways of running tasks locally is arcane
+    # and confusing, so this makes it explicit and we don't need to worry about it.
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  tasks:
+    - name: read vars from files
+      # NOTE: vars in later files CAN change values of variables from earlier files
+      include_vars:
+        file: "{{ item }}"
+      with_items:
+      - "{{ ENVIRONMENT }}_vars.yml"
+
+    - name: create things in Kubernetes
+      k8s:
+        definition: "{{ lookup('template', item) }}"
+        # Ensure we see any failures in CI
+        wait: yes
+        validate:
+          fail_on_error: yes
+          strict: yes
+      with_items:
+        - namespace.yaml.j2
+        - redis.yaml.j2
+        - memcached.yaml.j2
+        - opendebates.yaml.j2
+
+    - name: run migrations
+      shell: kubectl exec --namespace={{ NAMESPACE }} deployment/opendebates /venv/bin/python /code/manage.py migrate
+
+    - name: create site
+      shell: kubectl exec --namespace={{ NAMESPACE }} deployment/opendebates /venv/bin/python /code/manage.py create_site {{ DOMAIN_NAME }}

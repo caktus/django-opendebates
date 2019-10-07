@@ -3,7 +3,7 @@ django-opendebates
 
 # Installation
 
-(See below if you prefer to run locally using Docker.)
+(See below if you prefer to run locally using Docker, or hit the big time with Kubernetes.)
 
 Install python 2.7, virtualenv, postgres.
 
@@ -86,6 +86,60 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 * Create a new Debate and note its prefix
 * Visit http://localhost:8000/PREFIX/
 * When done, ```fab down```.
+
+# Kubernetes
+
+* Create a python virtualenv, activate, and install requirements for dev
+
+    pip install -r requirements/dev.txt
+
+  (Python 2 or 3 should work equally well, but of course 3 is better :-).)
+
+* Get the opendebates ansible vault password from Lastpass and put it in a file
+  ".vault_password" at the top level of the local directory where you have checked
+  out this project.
+* Install the Google Cloud SDK (https://cloud.google.com/sdk/install). Depending on how you
+  install this, `kubectl` might not be included by default. You'll need it so be sure to install it too.
+* Create or get access to a project on GCP.  
+* Create or get access to a GKE cluster in that project.  
+* Configure your local kubectl to access that cluster. Maybe with a command like:
+
+    $ gcloud beta container clusters get-credentials opendebates-cluster --region us-east1 --project open-debates-2019-deployment
+    Fetching cluster endpoint and auth data.
+    kubeconfig entry generated for cluster-dan.
+
+  Once you've done that, you should not need to set GOOGLE_APPLICATION_CREDENTIALS
+  in your environment or anything like that.
+
+  *(Be sure to get this right, because whatever cluster you've set up this way is the one that's going to have all this stuff deployed to it.)*
+
+* Figure out which ENVIRONMENT you're going to use.
+* Run ```fab testing up```
+* Wait for things to get going. (FIXME: what's a good provider-independent way to tell?)
+  - some things might fail because previous steps aren't done yet. You can
+    wait a minute then just run the whole thing again.
+* See what the "EXTERNAL_IP" of the load balancer is: 
+  ```kubectl get ingress --namespace=opendebates-ENVIRONMENT```
+* Pick a HOSTNAME.
+* Go make a DNS entry for HOSTNAME pointing at that IP address
+* ```fab testing createsuperuser```
+* Visit http://HOSTNAME/admin/ and log in as the new superuser
+* Create a new Debate and note its prefix
+* Visit http://HOSTNAME/PREFIX/
+
+To create a new environment for Kubernetes:
+
+* Pick a name for the new environment, e.g. "staging" or "nov19debate". We'll
+  refer to that as ENVIRONMENT.
+* Add it to the list "env.environments" in fabfile.py.
+* Find out where the Postgres server is.
+* Create or get the password for a postgres user named "opendebates_ENVIRONMENT"
+* Create (if it doesn't exist) a database named  "opendebates_ENVIRONMENT" owned
+  by  "opendebates_ENVIRONMENT"
+* Create files kubernetes/ENVIRONMENT_vars.yml and kubernetes/ENVIRONMENT_secrets.yml,
+  looking at the corresponding files for other environments to fill those in.
+* Use "fab encrypt_file:kubernetes/ENVIRONMENT_secrets.yml to encrypt the new
+  environment's secrets.
 
 # Site copy and content
 

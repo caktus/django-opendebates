@@ -28,7 +28,7 @@ RUN set -ex && npm install -g yuglify less
 RUN set -ex \
     && pip install virtualenv \
     && virtualenv -p python2.7 /venv \
-    && /venv/bin/pip install -U pip wheel
+    && /venv/bin/pip install --no-cache-dir -U pip wheel
 
 # "Activate" virtualenv
 ENV PATH=/venv/bin:$PATH
@@ -67,10 +67,11 @@ EXPOSE 8000
 ENV DJANGO_ENV=prod
 ENV DOCKER_CONTAINER=1
 ENV PYTHONUNBUFFERED=1
-ENV ALLOWED_HOSTS=localhost
 
 # Call collectstatic (customize the following line with the minimal environment variables needed for manage.py to run):
 RUN DATABASE_URL='' python manage.py collectstatic --noinput -v 0
+
+# Note: to run migrations, see "fab migrate" after this is up.
 
 # By default run gunicorn, but if command-line arguments
 # are given run those instead:
