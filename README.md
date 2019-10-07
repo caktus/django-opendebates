@@ -104,7 +104,7 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 * Create or get access to a GKE cluster in that project.  
 * Configure your local kubectl to access that cluster. Maybe with a command like:
 
-    $ gcloud beta container clusters get-credentials cluster-dan --region us-east1 --project open-debates-2019-deployment
+    $ gcloud beta container clusters get-credentials opendebates-cluster --region us-east1 --project open-debates-2019-deployment
     Fetching cluster endpoint and auth data.
     kubeconfig entry generated for cluster-dan.
 
