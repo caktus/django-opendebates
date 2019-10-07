@@ -8,7 +8,7 @@
     DATABASE_NAME: opendebates_{{ ENVIRONMENT }}
     DATABASE_USER: opendebates_{{ ENVIRONMENT }}
     IS_LOADBALANCER: false
-    SECRET_NAMES: []
+    DOMAIN: opendebates-testing.caktus-built.com
   tasks:
     - name: read vars from files
       # NOTE: vars in later files CAN change values of variables from earlier files
@@ -117,7 +117,7 @@
         # for Django into the django-config configmap.
         APP_NAME: opendebates
         CONTAINER_IMAGE_REPO: "{{ OPENDEBATES_IMAGE }}"
-        CONTAINER_IMAGE_TAG: "{{ 20191002081650 }}"
+        CONTAINER_IMAGE_TAG: "20191002081650"
         CONFIG_MAP_NAMES:
           - "django-config"
         SECRET_NAMES:
