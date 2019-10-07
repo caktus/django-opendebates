@@ -9,6 +9,11 @@
     NAMESPACE: opendebates-{{ ENVIRONMENT }}
     DATABASE_NAME: opendebates_{{ ENVIRONMENT }}
     DATABASE_USER: opendebates_{{ ENVIRONMENT }}
+    # Make sure Ansible uses the same Python interpreter to run tasks as it
+    # itself is being run with. This is included because the way Ansible determines
+    # which python to use for various ways of running tasks locally is arcane
+    # and confusing, so this makes it explicit and we don't need to worry about it.
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
     - name: read vars from files
       # NOTE: vars in later files CAN change values of variables from earlier files
