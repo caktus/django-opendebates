@@ -5,7 +5,10 @@
 # openshift and kubernetes-validate installed.
 - hosts: localhost
   vars:
+    # A few globals
     ansible_connection_type: local
+    CONTAINER_REPLICAS: 2
+    CONTAINER_PROTOCOL: http
     NAMESPACE: opendebates-{{ ENVIRONMENT }}
     DATABASE_NAME: opendebates_{{ ENVIRONMENT }}
     DATABASE_USER: opendebates_{{ ENVIRONMENT }}
@@ -20,16 +23,7 @@
       include_vars:
         file: "{{ item }}"
       with_items:
-      - "global_vars.yml"
-      - "{{ ENVIRONMENT }}_secrets.yml"
       - "{{ ENVIRONMENT }}_vars.yml"
-
-    # https://kubernetes.github.io/ingress-nginx/
-    # FIXME: this will be provided by caktus-hosting-services soon.
-    - name: stuff needed to use nginx ingress controller
-      command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
-    - name: now tell ingress-nginx to make a load balancer when needed
-      command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml
 
     - name: create things in Kubernetes
       k8s:
@@ -41,8 +35,6 @@
           strict: yes
       with_items:
         - namespace.yaml.j2
-        - opendebates_secrets.yaml.j2
-        - django_config.yaml.j2
         - redis.yaml.j2
         - memcached.yaml.j2
         - opendebates.yaml.j2

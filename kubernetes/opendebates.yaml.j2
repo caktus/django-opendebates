@@ -1,3 +1,24 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "opendebates-secrets"
+  labels:
+    app: "opendebates"
+  namespace: "{{ NAMESPACE }}"
+type: Opaque
+stringData:
+  DATABASE_URL: "{{ DATABASE_URL }}"
+  DEFAULT_FROM_EMAIL: "{{ DEFAULT_FROM_EMAIL }}"
+  DJANGO_SETTINGS_MODULE: opendebates.kube_settings
+  DEPLOYMENT_TAG: "{{ ENVIRONMENT }}"
+  DOMAIN_NAME: "{{ DOMAIN_NAME }}"
+  EMAIL_HOST: "{{ EMAIL_HOST }}"
+  EMAIL_HOST_USER: "{{ EMAIL_HOST_USER }}"
+  EMAIL_HOST_PASSWORD: "{{ EMAIL_HOST_PASSWORD }}"
+  ENVIRONMENT: "{{ ENVIRONMENT }}"
+  REDIS_HOST: redis
+  MEMCACHED_HOST: memcached
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,8 +44,6 @@ spec:
         envFrom:
         - secretRef:
             name: "opendebates-secrets"
-        - configMapRef:
-            name: "django-config"
         ports:
         - containerPort: 8000
 ---
@@ -52,9 +71,13 @@ metadata:
   namespace: "{{ NAMESPACE }}"
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.org/mergeable-ingress-type: minion
+    certmanager.k8s.io/cluster-issuer: "letsencrypt-production"
     nginx.ingress.kubernetes.io/backend-protocol: "{{ CONTAINER_PROTOCOL }}"
 spec:
+  tls:
+  - hosts:
+    - "{{ DOMAIN_NAME }}"
+    secretName: "{{ DOMAIN_NAME }}-tls"
   rules:
   - host: "{{ DOMAIN_NAME }}"
     http:

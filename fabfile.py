@@ -66,6 +66,14 @@ def encrypt_file(filename):
 
 
 @task
+def encrypt_string(text):
+    local(
+        "ansible-vault encrypt_string --vault-password={PASSFILE} {TEXT}".format(
+            PASSFILE=env.vault_password_file, TEXT=text
+        )
+    )
+
+@task
 def up():
     require("environment", provided_by=env.environments)
     os.chdir("kubernetes")
