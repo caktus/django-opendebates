@@ -89,6 +89,12 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 
 # Kubernetes
 
+* Create a python virtualenv, activate, and install requirements for dev
+
+    pip install -r requirements/dev.txt
+
+  (Python 2 or 3 should work equally well, but of course 3 is better :-).)
+
 * Get the opendebates ansible vault password from Lastpass and put it in a file
   ".vault_password" at the top level of the local directory where you have checked
   out this project.

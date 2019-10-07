@@ -1,8 +1,10 @@
 # ANSIBLE PLAYBOOK
 #   $ ansible-playbook playbook.yml
+#
+# Be sure to run in a virtualenv that has not only ansible, but also
+# openshift and kubernetes-validate installed.
 - hosts: localhost
   vars:
-    ansible_python_interpreter: python3
     ansible_connection_type: local
     NAMESPACE: opendebates-{{ ENVIRONMENT }}
     DATABASE_NAME: opendebates_{{ ENVIRONMENT }}
@@ -16,11 +18,6 @@
       - "global_vars.yml"
       - "{{ ENVIRONMENT }}_secrets.yml"
       - "{{ ENVIRONMENT }}_vars.yml"
-
-    - name: Override ansible_python_interpreter for virtualenv
-      set_fact:
-        ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
-      when: lookup('env','VIRTUAL_ENV')
 
     # https://kubernetes.github.io/ingress-nginx/
     # FIXME: this will be provided by caktus-hosting-services soon.
