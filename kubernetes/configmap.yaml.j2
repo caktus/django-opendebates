@@ -1,13 +1,7 @@
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: "{{ NAMESPACE }}"
-  namespace: "{{ NAMESPACE }}"
----
-apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ NAME }}
+  name: {{ CONFIGMAP_NAME }}
   namespace: {{ NAMESPACE }}
 data:
 {% for k, v in CONFIGMAP_VARS.items() %}

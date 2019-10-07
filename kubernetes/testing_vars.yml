@@ -1,0 +1,26 @@
+DOMAIN_NAME: opendebates-testing.caktus-built.com
+
+# THESE are used in Django
+# Creds from opendebates' postmark account
+EMAIL_HOST: smtp.postmarkapp.com
+EMAIL_HOST_USER: "{{ SECRET_POSTMARK_API_TOKEN }}"
+EMAIL_HOST_PASSWORD: "{{ SECRET_POSTMARK_API_TOKEN }}"
+
+# This assumes the default postgres docker image is being used
+# in a k8s service named "postgres". Edit this if using another
+# postgres server.
+# DATABASE_URL: postgres://postgres@postgres/postgres
+DATABASE_URL: postgres://{{ DATABASE_USER }}:{{ SECRET_DATABASE_PASSWORD }}@172.17.128.2/{{ DATABASE_NAME }}
+
+# FIXME: valid email address needed
+DEFAULT_FROM_EMAIL: noreply@example.com
+
+# THESE are used in Kubernetes
+MEMCACHED_VERSION: 1.5.19
+POSTGRES_VERSION: 11.5
+REDIS_VERSION: 5.0.6
+
+OPENDEBATES_IMAGE: docker.io/dpoirier/opendebates
+OPENDEBATES_VERSION: 20191002081650
+
+POSTGRES_VOLUME_SIZE: 50Gi

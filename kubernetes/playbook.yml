@@ -5,13 +5,20 @@
     ansible_python_interpreter: python3
     ansible_connection_type: local
     NAMESPACE: opendebates-{{ ENVIRONMENT }}
-    CONTAINER_REPLICAS: 2
-    CONTAINER_IMAGE_TAG: latest
-    CONFIG_MAP_NAMES: []
-    CONTAINER_PROTOCOL: http
+    DATABASE_NAME: opendebates_{{ ENVIRONMENT }}
+    DATABASE_USER: opendebates_{{ ENVIRONMENT }}
     IS_LOADBALANCER: false
-    DOMAIN: opendebates-testing.caktus-built.com
+    SECRET_NAMES: []
   tasks:
+    - name: read vars from files
+      # NOTE: vars in later files CAN change values of variables from earlier files
+      include_vars:
+        file: "{{ item }}"
+      with_items:
+      - "global_vars.yml"
+      - "{{ ENVIRONMENT }}_secrets.yml"
+      - "{{ ENVIRONMENT }}_vars.yml"
+
     - name: Override ansible_python_interpreter for virtualenv
       set_fact:
         ansible_python_interpreter: "{{ lookup('env', 'VIRTUAL_ENV') }}/bin/python"
@@ -23,7 +30,7 @@
     - name: now tell ingress-nginx to make a load balancer when needed
       command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml
 
-    - name: Django config map
+    - name: create namespace, secret, config map
       k8s:
         definition: "{{ lookup('template', item) }}"
         # Ensure we see any failures in CI
@@ -32,26 +39,26 @@
           fail_on_error: yes
           strict: yes
       with_items:
+        - namespace.yml
+        - secret.yaml.j2
         - configmap.yaml.j2
       vars:
-        NAME: 'django-config'
+        APP_NAME: opendebates
+        SECRET_NAME: opendebates-secrets
+        SECRET_VARS:
+          DATABASE_URL: "{{ DATABASE_URL }}"
+          EMAIL_HOST_PASSWORD: "{{ EMAIL_HOST_PASSWORD }}"
+        CONFIGMAP_NAME: 'django-config'
         CONFIGMAP_VARS:
+          DEFAULT_FROM_EMAIL: "{{ DEFAULT_FROM_EMAIL }}"
           DJANGO_SETTINGS_MODULE: opendebates.kube_settings
-          DEPLOYMENT_TAG: testing
-          # Creds from opendebates' postmark account
-          EMAIL_HOST: smtp.postmarkapp.com
-          EMAIL_HOST_USER: 07efd20b-49ab-46ee-9141-2f6e92bed29b
-          EMAIL_HOST_PASSWORD: 07efd20b-49ab-46ee-9141-2f6e92bed29b
+          DEPLOYMENT_TAG: "{{ ENVIRONMENT }}"
+          DOMAIN_NAME: "{{ DOMAIN_NAME }}"
+          EMAIL_HOST: "{{ EMAIL_HOST }}"
+          EMAIL_HOST_USER: "{{ EMAIL_HOST_USER }}"
+          ENVIRONMENT: "{{ ENVIRONMENT }}"
           REDIS_HOST: redis
           MEMCACHED_HOST: memcached
-
-          # This assumes the default postgres docker image is being used
-          # in a k8s service named "postgres". Edit this if using another
-          # postgres server.
-          DATABASE_URL: postgres://postgres@postgres/postgres
-
-          # FIXME: valid email address needed
-          DEFAULT_FROM_EMAIL: noreply@example.com
           # FIXME: Add recaptcha, mixpanel, optimizely
 
     - name: Deploy redis
@@ -68,7 +75,7 @@
       vars:
         APP_NAME: redis
         CONTAINER_IMAGE_REPO: redis
-        CONTAINER_IMAGE_TAG: 5.0.6
+        CONTAINER_IMAGE_TAG: "{{ REDIS_VERSION }}"
         CONTAINER_PORT: 6379
         CONTAINER_REPLICAS: 1
         SERVICE_PORT: 6379
@@ -89,50 +96,10 @@
       vars:
         APP_NAME: memcached
         CONTAINER_IMAGE_REPO: memcached
-        CONTAINER_IMAGE_TAG: 1.5.19
+        CONTAINER_IMAGE_TAG: "{{ MEMCACHED_VERSION }}"
         CONTAINER_PORT: 11211
         CONTAINER_REPLICAS: 1
         SERVICE_PORT: 11211
-
-    - name: postgres config map
-      k8s:
-        definition: "{{ lookup('template', item) }}"
-        # Ensure we see any failures in CI
-        wait: yes
-        validate:
-          fail_on_error: yes
-          strict: yes
-      with_items:
-        - configmap.yaml.j2
-      vars:
-        NAME: 'postgres-config'
-        CONFIGMAP_VARS:
-          # Use a subdir of the mount point because postgres prefers it that way
-          PGDATA: /var/lib/postgresql/data/pgdata
-
-    - name: Deploy postgres
-      k8s:
-        definition: "{{ lookup('template', item) }}"
-        # Ensure we see any failures in CI
-        wait: yes
-        wait_timeout: 300
-        validate:
-          fail_on_error: yes
-          strict: yes
-      with_items:
-        - app.yaml.j2
-      vars:
-        APP_NAME: postgres
-        CONTAINER_IMAGE_REPO: postgres
-        CONTAINER_IMAGE_TAG: 11.5
-        CONFIG_MAP_NAMES:
-          - "postgres-config"
-        CONTAINER_PORT: 5432
-        CONTAINER_REPLICAS: 1
-        SERVICE_PORT: 5432
-        VOLUME_MOUNT: /var/lib/postgresql/data
-        VOLUME_NAME: postgresvolume
-        VOLUME_SIZE: 50Gi
 
     - name: Deploy opendebates
       k8s:
@@ -146,25 +113,23 @@
       with_items:
         - app.yaml.j2
       vars:
+        # These vars are used by Kubernetes. Put vars to be set in the env
+        # for Django into the django-config configmap.
         APP_NAME: opendebates
-        CONTAINER_IMAGE_REPO: docker.io/dpoirier/opendebates
-        CONTAINER_IMAGE_TAG: 20191002081650
+        CONTAINER_IMAGE_REPO: "{{ OPENDEBATES_IMAGE }}"
+        CONTAINER_IMAGE_TAG: "{{ 20191002081650 }}"
         CONFIG_MAP_NAMES:
           - "django-config"
+        SECRET_NAMES:
+          - opendebates-secrets
         CONTAINER_PORT: 8000
         CONTAINER_REPLICAS: 2
         SERVICE_PORT: 80
-        DOMAIN_NAME: "{{ DOMAIN }}"
+        DOMAIN_NAME: "{{ DOMAIN_NAME }}"
         CONTAINER_URL_PATH: /
 
-    - name: Find a running pod
-      k8s_facts:
-        kind: Pod
-        label_selectors:
-        - app = opendebates
-      register: opendebates_pods
     - name: run migrations
-      shell: kubectl exec {{ opendebates_pods["resources"][0]["metadata"]["name"] }} /venv/bin/python /code/manage.py migrate
+      shell: kubectl exec --namespace={{ NAMESPACE }} deployment/opendebates /venv/bin/python /code/manage.py migrate
 
     - name: create site
-      shell: kubectl exec {{ opendebates_pods["resources"][0]["metadata"]["name"] }} /venv/bin/python /code/manage.py create_site {{ DOMAIN }}
+      shell: kubectl exec --namespace={{ NAMESPACE }} deployment/opendebates /venv/bin/python /code/manage.py create_site {{ DOMAIN }}
