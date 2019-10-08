@@ -74,7 +74,7 @@ CACHE_INVALIDATE_ON_CREATE = "whole-model"
 
 # Task queue settings
 
-# see https://github.com/ask/celery/issues/436
+# see https://github.com/ask/celery/issues/436 (sorry, that's now a 404)
 BROKER_URL = "redis://%s:6379/0" % os.getenv("REDIS_HOST")
 CELERY_RESULT_BACKEND = "redis://%s:6379/2" % os.getenv("REDIS_HOST")
 BROKER_CONNECTION_TIMEOUT = 4

@@ -158,6 +158,8 @@ CELERY_ALWAYS_EAGER = DEBUG or testing
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 CELERY_IGNORE_RESULT = True
 CELERYD_HIJACK_ROOT_LOGGER = False
+CELERY_TASK_SERIALIZER = "json"
+CELERY_ACCEPT_CONTENT = ["json"]
 CELERYBEAT_SCHEDULE = {
     'update_recent_events': {
         'task': 'opendebates.tasks.update_recent_events',

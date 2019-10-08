@@ -50,6 +50,10 @@ spec:
             name: "opendebates-secrets"
         ports:
         - containerPort: 8000
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: {{ RUN_AS_USER_ID }}
+        runAsGroup: {{ RUN_AS_GROUP_ID }}
 ---
 apiVersion: v1
 kind: Service
