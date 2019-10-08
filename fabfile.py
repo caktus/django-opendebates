@@ -1,9 +1,7 @@
 import logging
+import os.path
 
-# XXX import actual commands needed
-import requests
-from fabulaws.library.wsgiautoscale.api import env, local, require, roles, sudo, task, time
-from fabulaws.library.wsgiautoscale.api import _setup_env
+from fabric.api import env, local, roles, require, sudo, task
 
 root_logger = logging.getLogger()
 root_logger.addHandler(logging.StreamHandler())
@@ -15,83 +13,109 @@ fabulaws_logger.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+env.environments = ["testing"]
+env.vault_password_file = os.path.abspath(".vault_password")
+
+
+@task
+def testing():
+    env.environment = "testing"
+
+
+####################
+#
+# FOR KUBERNETES
+#
+####################
+
+
+def run_in_opendebates_pod(command):
+    require("environment", provided_by=env.environments)
+    os.chdir("kubernetes")
+    namespace = "opendebates-%s" % env.environment
+    local("kubectl exec -it --namespace=%s deployment/opendebates %s" % (namespace, command))
+
 
 @task
 def create_site(name):
     # Usage: fab create_site:localhost8000
-    local("docker-compose run web python manage.py create_site %s" % name)
+    manage_run("create_site %s" % name)
 
 
 @task
-def logs():
-    local("docker-compose logs")
-    local("docker-compose logs --follow")
+def build():
+    local("docker build .")
+
+
+@task
+def decrypt_file(filename):
+    local(
+        "ansible-vault decrypt --vault-password={PASSFILE} {FILENAME}".format(
+            PASSFILE=env.vault_password_file, FILENAME=filename
+        )
+    )
+
+
+@task
+def encrypt_file(filename):
+    local(
+        "ansible-vault encrypt --vault-password={PASSFILE} {FILENAME}".format(
+            PASSFILE=env.vault_password_file, FILENAME=filename
+        )
+    )
+
+
+@task
+def encrypt_string(text):
+    local(
+        "ansible-vault encrypt_string --vault-password={PASSFILE} {TEXT}".format(
+            PASSFILE=env.vault_password_file, TEXT=text
+        )
+    )
 
 
 @task
 def up():
-    local("docker-compose up --build -d")
-    time.sleep(1)  # Sometimes it's not *quite* ready yet.
-    smoketest()
+    require("environment", provided_by=env.environments)
+    os.chdir("kubernetes")
+    # Note: the playbook loads vars from vars files itself.
+    local(
+        "ansible-playbook "
+        "--vault-password-file={PASSFILE} "
+        "-e ENVIRONMENT={ENVIRONMENT} "
+        "playbook.yml".format(
+            ENVIRONMENT=env.environment, PASSFILE=env.vault_password_file
+        )
+    )
 
 
 @task
-def down():
-    local("docker-compose down")
+def manage_run(command):
+    run_in_opendebates_pod("/venv/bin/python /code/manage.py %s" % command)
 
 
 @task
 def migrate():
-    local("docker-compose run web python manage.py migrate --noinput -v 0")
+    manage_run("migrate --noinput -v 0")
+
+
+@task
+def manage_shell():
+    manage_run("shell")
 
 
 @task
 def createsuperuser():
-    local("docker-compose run web python manage.py createsuperuser")
-
-
-@task
-def smoketest():
-    # Make sure we're at least serving basic http requests
-    site = "localhost:8000"
-    create_site(site)  # FIXME: not really the right place for this, but it works for now since "up" runs "smoketest"
-
-    admin_url = "http://%s/admin/" % site
-    login_url = "http://%s/admin/login/?next=/admin/" % site
-    result = requests.get(admin_url, allow_redirects=False)
-    result.raise_for_status()
-    assert result.headers["Location"] == login_url
-    result = requests.get(login_url, allow_redirects=False)
-    result.raise_for_status()
-    assert result.status_code == 200
+    manage_run("createsuperuser")
 
 
 ###############################################################################
 
 
 @task
-def florida(deployment_tag=env.default_deployment, answer=None):
-    _setup_env(deployment_tag, "florida")
-
-
-@task
-def presidential(deployment_tag=env.default_deployment, answer=None):
-    _setup_env(deployment_tag, "presidential")
-
-
-@task
-def staging01(deployment_tag=env.default_deployment, answer=None):
-    _setup_env(deployment_tag, "staging01")
-
-
-@task
-def prod01(deployment_tag=env.default_deployment, answer=None):
-    _setup_env(deployment_tag, "prod01")
-
-
-@task
 @roles("db-master")
 def pg_create_unaccent_ext():
+    # FIXME: do we still need this?
     """
     Workaround to facilitate granting the opendebates database user
     permission to use the 'unaccent' extension in Postgres.
