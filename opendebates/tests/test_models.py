@@ -109,7 +109,7 @@ class SubmissionTest(TestCase):
 
         Note: if we remove the save() override in models.py by using a stored
         generated column in Postgres (available in Postgres 12), this test should
-        still pass. The resposibility for updating the search_vector field would
+        still pass. The responsibility for updating the search_vector field would
         then shift from Submission.save() to Postgres. For more background about
         using a stored generated column, see the note in the Submission.save() method.
         """

@@ -210,17 +210,11 @@ class Submission(models.Model):
         becomes available on Postgres 12, which we are not using yet. Perhaps we
         can use that feature when we upgrade to Postgres 12 in the future.
         """
-        # If the searhc_vector field was updated, then we do not need to update it here.
-        search_vector_updated = False
-        if kwargs.get('search_vector_updated', False):
-            search_vector_updated = kwargs.pop('search_vector_updated')
-
         super(Submission, self).save(*args, **kwargs)
 
         # Determine if we need to update the search_vector field.
         updating_all_fields = 'update_fields' not in kwargs
         need_to_update_search_vector = (
-            not search_vector_updated and
             (
                 updating_all_fields or
                 any(
@@ -231,11 +225,19 @@ class Submission(models.Model):
                 )
             )
         )
+        # If we need to update the search_vector field, then call the super().save()
+        # method again, making sure to update the search_vector field.
         if need_to_update_search_vector:
             self.search_vector = self._search_vectors
-            # Set the search_vector_updated kwarg, so we avoid an infinite loop
-            # or search_vector updates.
-            self.save(search_vector_updated=True)
+            # By this time the Submission object has been created, so we remove
+            # 'force_insert' from the kwargs.
+            kwargs.pop('force_insert', False)
+            # If we are only updating certain fields, make sure that search_vector
+            # is one of them.
+            if 'update_fields' in kwargs:
+                kwargs['update_fields'].append('search_vector')
+            # Save the Submission again, this time with the search_vector field value.
+            super(Submission, self).save(*args, **kwargs)
 
     def get_recent_votes(self):
         timespan = now() - datetime.timedelta(1)
