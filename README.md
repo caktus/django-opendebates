@@ -108,6 +108,11 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
     Fetching cluster endpoint and auth data.
     kubeconfig entry generated for cluster-dan.
 
+* IMPORTANT: At least once, run a kubectl command like `kubectl cluster-info`. This does something
+  so that the Google credentials "stick" for later when you do things from Ansible.
+  (The fabfile tries to do this before invoking Ansible, but doing it yourself won't hurt
+  and might avoid surprises if you try to do something else that requires it.)
+
   Once you've done that, you should not need to set GOOGLE_APPLICATION_CREDENTIALS
   in your environment or anything like that.
 
