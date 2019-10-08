@@ -127,6 +127,7 @@ class SubmissionQuerySet(models.QuerySet):
 class Submission(models.Model):
     # The _search_vectors are the search vectors used to update the search_vector
     # field whenever a Submission is saved.
+    _search_vector_fields = ['idea', 'keywords']
     _search_vectors = SearchVector('idea', weight='A') + SearchVector('keywords', weight='A')
 
     def user_display_name(self):
@@ -201,15 +202,39 @@ class Submission(models.Model):
         """
         Update the search_vector field whenever the save() method is called.
 
-        Note: in case it becomes too slow to update the search_vector field (and
-        thus to re-index) when calling the save() method, we can use a different
-        approach to update the search_vector field, such as updating the field
-        for the entire table every few minutes, etc.
+        Note: ideally, instead of updating the search_vector field from the save()
+        method, we would prefer to use a stored generated column (see
+        https://www.postgresql.org/docs/12/ddl-generated-columns.html), and let
+        Postgres handle updating its value on its own. However, this feature only
+        becomes available on Postgres 12, which we are not using yet. Perhaps we
+        can use that feature when we upgrade to Postgres 12 in the future.
         """
+        # If the searhc_vector field was updated, then we do not need to update it here.
+        search_vector_updated = False
+        if kwargs.get('search_vector_updated', False):
+            search_vector_updated = kwargs.pop('search_vector_updated')
+
         super(Submission, self).save(*args, **kwargs)
-        if 'update_fields' not in kwargs or 'search_vector' not in kwargs['update_fields']:
+
+        # Determine if we need to update the search_vector field.
+        updating_all_fields = 'update_fields' not in kwargs
+        need_to_update_search_vector = (
+            not search_vector_updated and
+            (
+                updating_all_fields or
+                any(
+                    [
+                        kwargs['update_fields'].count(vector_field_name)
+                        for vector_field_name in self._search_vector_fields
+                    ]
+                )
+            )
+        )
+        if need_to_update_search_vector:
             self.search_vector = self._search_vectors
-            self.save(update_fields=['search_vector'])
+            # Set the search_vector_updated kwarg, so we avoid an infinite loop
+            # or search_vector updates.
+            self.save(search_vector_updated=True)
 
     def get_recent_votes(self):
         timespan = now() - datetime.timedelta(1)

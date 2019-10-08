@@ -6,6 +6,7 @@ import urlparse
 
 from .factories import UserFactory, VoterFactory, SubmissionFactory, SiteFactory, DebateFactory, VoteFactory, \
     CandidateFactory
+from ..models import Submission
 
 
 class SubmissionReallyAbsoluteUrlTest(TestCase):
@@ -101,6 +102,114 @@ class SubmissionTest(TestCase):
 
     def test_sms_url(self):
         self.assertIsNotNone(self.submission.sms_url())
+
+    def test_save_updates_search_vector_field(self):
+        """
+        Saving a Submission updates its search_vector field, so it can by found in a search.
+
+        Note: if we remove the save() override in models.py by using a stored
+        generated column in Postgres (available in Postgres 12), this test should
+        still pass. The resposibility for updating the search_vector field would
+        then shift from Submission.save() to Postgres. For more background about
+        using a stored generated column, see the note in the Submission.save() method.
+        """
+        # Make sure the self.submission has an idea and keywords
+        self.assertNotEqual(self.submission.idea, '')
+        self.submission.keywords = 'one, two'
+        self.submission.save()
+        # Searching by the self.submission's idea matches the self.submission
+        self.assertEqual(
+            [s.id for s in Submission.objects.search(self.submission.idea)],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+        # Searching by the self.submission's keywords matches the self.submission
+        self.assertEqual(
+            [s.id for s in Submission.objects.search('one')],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+        self.assertEqual(
+            [s.id for s in Submission.objects.search('two')],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+
+        # Change the self.submission's idea
+        self.submission.idea = 'New idea'
+        self.submission.save()
+
+        # Searching by the self.submission's new idea matches the self.submission
+        self.assertEqual(
+            [s.id for s in Submission.objects.search(self.submission.idea)],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+
+        # Change the self.submission's keywords
+        self.submission.keywords = 'other KeyWords, IMPORTANT'
+        self.submission.save()
+
+        # Searching by the self.submission's new keywords matches the self.submission
+        self.assertEqual(
+            [s.id for s in Submission.objects.search('other KeyWords, IMPORTANT')],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+        self.assertEqual(
+            [s.id for s in Submission.objects.search('KEYWORDS')],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+        self.assertEqual(
+            [s.id for s in Submission.objects.search('important')],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+
+        # Change the self.submission's idea, but call save() with update_fields
+        # for a different field.
+        self.submission.idea = 'A brand new one'
+        self.submission.save(update_fields=['score'])
+        # Searching by the self.submission's idea does not match the self.submission,
+        # because update_fields did not include the 'idea' field.
+        self.assertNotEqual(
+            [s.id for s in Submission.objects.search(self.submission.idea)],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+        # Call save() with update_fields for the 'idea' field.
+        self.submission.save(update_fields=['idea'])
+        # Now, searching by the self.submission's idea matches the self.submission.
+        self.assertEqual(
+            [s.id for s in Submission.objects.search(self.submission.idea)],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+        # Change the self.submission's keywords, but call save() with update_fields
+        # for a different field.
+        self.submission.keywords = 'submission, other'
+        self.submission.save(update_fields=['score'])
+        # Searching by the self.submission's keywords does not match the self.submission,
+        # because update_fields did not include the 'keywords' field.
+        self.assertNotEqual(
+            [s.id for s in Submission.objects.search(self.submission.keywords)],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+        # Call save() with update_fields for the 'keywords' field.
+        self.submission.save(update_fields=['keywords'])
+        # Now, searching by the self.submission's keywords matches the self.submission.
+        self.assertEqual(
+            [s.id for s in Submission.objects.search(self.submission.keywords)],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+        # Change the self.submission's idea and keywords, but call save() for the
+        # search_vector field.
+        self.submission.idea = 'A final idea'
+        self.submission.keywords = 'many more words'
+        self.submission.save(update_fields=['search_vector'])
+        # Searching by the self.submission's idea or keywords does not match the
+        # self.submission, because neither the self.submission's idea nor its
+        # keywords were updated.
+        self.assertNotEqual(
+            [s.id for s in Submission.objects.search(self.submission.idea)],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
+        self.assertNotEqual(
+            [s.id for s in Submission.objects.search(self.submission.keywords)],
+            [s.id for s in Submission.objects.filter(id=self.submission.id)]
+        )
 
 
 class VoterUserDisplayNameTest(TestCase):
