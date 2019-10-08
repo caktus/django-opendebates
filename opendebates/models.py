@@ -51,7 +51,7 @@ class Debate(CachingMixin, models.Model):
     THEME_CHOICES = [(theme, theme) for theme in settings.SITE_THEMES]
 
     site = models.ForeignKey(Site, related_name='debates')
-    prefix = models.SlugField()
+    prefix = models.SlugField(blank=True, default='')
     theme = models.CharField(max_length=255, choices=THEME_CHOICES)
 
     show_question_votes = models.BooleanField(default=True, blank=True)

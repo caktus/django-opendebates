@@ -34,10 +34,7 @@ ALLOWED_HOSTS=0.0.0.0
 Create a Site object:
 
 ```
-(opendebates)$ python manage.py shell
->>> from django.contrib.sites.models import Site
->>> Site.objects.create(domain='0.0.0.0:8000', name='0.0.0.0:8000')
->>> ^D
+(opendebates)$ python manage.py create_site 0.0.0.0:8000
 ```
 
 Create a superuser:

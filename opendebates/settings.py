@@ -21,6 +21,9 @@ elif testing:
 else:
     DEBUG = 'DJANGO_DEBUG' in os.environ
 
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]
 

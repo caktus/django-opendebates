@@ -6,13 +6,14 @@ from opendebates.utils import get_debate
 
 class DebateMiddleware(object):
     """
-    Gets a Debate for the request, based on the hostname.
+    Gets a Debate for the request, based on the hostname and URL path prefix.
     """
 
     def process_request(self, request):
         request.debate = get_debate(request)
         if request.debate:
-            request.urlconf = PrefixedUrlconf(request.debate.prefix)
+            if request.debate.prefix:
+                request.urlconf = PrefixedUrlconf(request.debate.prefix)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         if 'prefix' in view_kwargs:
