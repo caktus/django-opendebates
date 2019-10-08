@@ -209,7 +209,7 @@ class Submission(models.Model):
         becomes available on Postgres 12, which we are not using yet. Perhaps we
         can use that feature when we upgrade to Postgres 12 in the future.
         """
-        # If the searhc_vector field was updated, then we do not need to update it here.
+        # If the search_vector field was updated, then we do not need to update it here.
         search_vector_updated = False
         if kwargs.get('search_vector_updated', False):
             search_vector_updated = kwargs.pop('search_vector_updated')
