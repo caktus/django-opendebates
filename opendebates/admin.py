@@ -1,6 +1,6 @@
 import itertools
 
-from django.contrib.admin import ModelAdmin, register
+from django.contrib.admin import ModelAdmin, register, site
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.utils.html import format_html
@@ -9,6 +9,9 @@ from djangohelpers.export_action import admin_list_export
 
 from . import models
 from opendebates_emails.models import send_email
+
+site.password_change_template = 'admin/registration/password_change_form.html'
+site.password_change_done_template = 'admin/registration/password_change_done.html'
 
 
 def debate_link(debate):
