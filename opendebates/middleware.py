@@ -5,7 +5,7 @@ from opendebates.resolvers import PrefixedUrlconf
 from opendebates.utils import get_debate
 
 
-class DebateMiddleware(MiddlewareMixin, object):
+class DebateMiddleware(MiddlewareMixin):
     """
     Gets a Debate for the request, based on the hostname.
     """

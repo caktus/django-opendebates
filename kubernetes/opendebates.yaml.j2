@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "opendebates-secrets"
+  labels:
+    app: "opendebates"
+  namespace: "{{ NAMESPACE }}"
+type: Opaque
+stringData:
+  DATABASE_URL: "{{ DATABASE_URL }}"
+  DEFAULT_FROM_EMAIL: "{{ DEFAULT_FROM_EMAIL }}"
+  DJANGO_SETTINGS_MODULE: opendebates.kube_settings
+  DEPLOYMENT_TAG: "{{ ENVIRONMENT }}"
+  DOMAIN_NAME: "{{ DOMAIN_NAME }}"
+  EMAIL_HOST: "{{ EMAIL_HOST }}"
+  EMAIL_HOST_USER: "{{ EMAIL_HOST_USER }}"
+  EMAIL_HOST_PASSWORD: "{{ EMAIL_HOST_PASSWORD }}"
+  ENVIRONMENT: "{{ ENVIRONMENT }}"
+  REDIS_HOST: redis
+  MEMCACHED_HOST: memcached
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "opendebates"
+  namespace: "{{ NAMESPACE }}"
+spec:
+  selector:
+    matchLabels:
+      app: "opendebates"
+  replicas: {{ OPENDEBATES_REPLICAS }}
+  template:
+    metadata:
+      labels:
+        app: "opendebates"
+    spec:
+      containers:
+      - name: "opendebates"
+        image: "{{ OPENDEBATES_IMAGE }}:{{ OPENDEBATES_VERSION }}"
+        imagePullPolicy: Always
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        envFrom:
+        - secretRef:
+            name: "opendebates-secrets"
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "opendebates"
+  labels:
+    app: "opendebates"
+  namespace: "{{ NAMESPACE }}"
+spec:
+  ports:
+  - protocol: TCP
+    # Where other things in the cluster should try to connect to our application
+    port: 80
+    # Where our application is listening:
+    targetPort: 8000
+  selector:
+    app: "opendebates"
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: "opendebates"
+  namespace: "{{ NAMESPACE }}"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    certmanager.k8s.io/cluster-issuer: "letsencrypt-production"
+    nginx.ingress.kubernetes.io/backend-protocol: "{{ CONTAINER_PROTOCOL }}"
+spec:
+  tls:
+  - hosts:
+    - "{{ DOMAIN_NAME }}"
+    secretName: "{{ DOMAIN_NAME }}-tls"
+  rules:
+  - host: "{{ DOMAIN_NAME }}"
+    http:
+      paths:
+      - path: "/"
+        backend:
+          serviceName: "opendebates"
+          servicePort: 80

@@ -52,9 +52,10 @@ class NavigationTest(TestCase):
 
     def test_search_term_inserts_into_sort_form(self):
         rsp = self.client.get(self.search_url + "?q=something+ducks")
-        form_html = (r'\<form action="{search}" method="GET" '
-                     r'class="form-inline"\>\W+'
-                     r'\<input type="hidden" name="q" '
-                     r'value="something ducks"\>'.format(
+        form_html = ('<form action="{search}" method="GET" '
+                     'class="form-inline">'
+                     r'\W+'
+                     '<input type="hidden" name="q" '
+                     'value="something ducks">'.format(
                          search=self.search_url))
         self.assertNotEqual(None, re.search(form_html, rsp.content))

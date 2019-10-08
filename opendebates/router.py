@@ -76,7 +76,7 @@ def was_db_written():
     return state.was_written()
 
 
-class DBRoutingMiddleware(MiddlewareMixin, object):
+class DBRoutingMiddleware(MiddlewareMixin):
     def process_request(self, request):
         clear_db_written_flag()
         pinned_until = request.session.get(PINNING_KEY, False)

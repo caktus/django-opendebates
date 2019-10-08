@@ -8,7 +8,6 @@ urlpatterns = [
 
     url(r'^recent/$', views.recent_activity, name='recent_activity'),
     url(r'^questions/(?P<id>\d+)/vote/$', views.vote, name="vote"),
-    # url(r'^comment/$', 'opendebates_comments.views.post_comment', name="comment"),
     url(r'^questions/(?P<id>\d+)/$', views.vote, name="show_idea"),
     url(r'^questions/(?P<id>\d+)/report/$', views.report, name='report'),
     url(r'^questions/(?P<id>\d+)/merge/$', views.merge, name='merge'),
