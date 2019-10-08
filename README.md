@@ -132,6 +132,20 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 * Create a new Debate and note its prefix
 * Visit http://HOSTNAME/PREFIX/
 
+To update the docker image used by Kubernetes:
+
+* Build a new image: ```fab build```
+  In the output, note the tag assigned to the new image. It will have the
+  format YYYYMMDDhhmmss, e.g. 20191008110643
+* Publish your latest image: ```fab publish```. Notice where the push is
+  going to in the output, e.g. ```The push refers to repository [docker.io/caktus/opendebates]```
+* Update the ENVIRONMENT_vars.yml file for the environment you want to use the new
+  image (e.g. kubernetes/testing_vars.yml), 
+  changing OPENDEBATES_IMAGE to the full name from the push,
+  e.g. ```"docker.io/caktus/opendebates"```, and OPENDEBATES_VERSION to
+  the tag that was assigned to this image.
+* Deploy, e.g. ```fab testing up```.
+
 To create a new environment for Kubernetes:
 
 * Pick a name for the new environment, e.g. "staging" or "nov19debate". We'll
