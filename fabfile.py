@@ -78,6 +78,8 @@ def encrypt_string(text):
 def up():
     require("environment", provided_by=env.environments)
     os.chdir("kubernetes")
+    # Run simple kubectl command, just to get the credentials stashed or something.
+    local("kubectl cluster-info")
     # Note: the playbook loads vars from vars files itself.
     local(
         "ansible-playbook "
