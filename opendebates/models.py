@@ -114,6 +114,11 @@ class Debate(CachingMixin, models.Model):
 
     objects = CachingManager()
 
+    class Meta:
+        unique_together = [
+            ('site', 'prefix')
+        ]
+
     def __unicode__(self):
         return u'/'.join([self.site.domain, self.prefix])
 
