@@ -12,9 +12,10 @@ from django.utils.http import urlquote
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from caching.base import CachingManager, CachingMixin
-from localflavor.us.models import PhoneNumberField
+from phonenumber_field.modelfields import PhoneNumberField
 
 from opendebates import site_defaults
+
 
 NUMBER_OF_VOTES_CACHE_ENTRY = 'number_of_votes-{}'
 RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry-{}'
@@ -22,7 +23,7 @@ RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry-{}'
 
 class Category(CachingMixin, models.Model):
 
-    debate = models.ForeignKey('Debate', related_name='categories')
+    debate = models.ForeignKey('Debate', related_name='categories', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
 
     objects = CachingManager()
@@ -51,7 +52,7 @@ class FlatPageMetadataOverride(models.Model):
 class Debate(CachingMixin, models.Model):
     THEME_CHOICES = [(theme, theme) for theme in settings.SITE_THEMES]
 
-    site = models.ForeignKey(Site, related_name='debates')
+    site = models.ForeignKey(Site, related_name='debates', on_delete=models.CASCADE)
     prefix = models.SlugField()
     theme = models.CharField(max_length=255, choices=THEME_CHOICES)
 
@@ -133,7 +134,7 @@ class Submission(models.Model):
     def user_display_name(self):
         return self.voter.user_display_name()
 
-    category = models.ForeignKey(Category)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     idea = models.TextField(verbose_name=_('Question'))
 
     headline = models.TextField(null=False, blank=False)
@@ -144,7 +145,7 @@ class Submission(models.Model):
                                verbose_name=_("Optional link to full proposal or reference"))
     citation_verified = models.BooleanField(default=False, db_index=True)
 
-    voter = models.ForeignKey("Voter")
+    voter = models.ForeignKey("Voter", on_delete=models.CASCADE)
     created_at = models.DateTimeField(db_index=True)
     moderated_at = models.DateTimeField(blank=True, null=True)
 
@@ -159,7 +160,7 @@ class Submission(models.Model):
     has_duplicates = models.BooleanField(default=False, db_index=True)
 
     duplicate_of = models.ForeignKey('opendebates.Submission', null=True, blank=True,
-                                     related_name="duplicates")
+                                     related_name="duplicates", on_delete=models.SET_NULL)
 
     votes = models.IntegerField(default=0, db_index=True)
     local_votes = models.IntegerField(default=0, db_index=True)
@@ -384,8 +385,8 @@ class Voter(models.Model):
 
 class Vote(models.Model):
 
-    submission = models.ForeignKey(Submission)
-    voter = models.ForeignKey(Voter)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
+    voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
 
     is_suspicious = models.BooleanField(default=False)
     is_invalid = models.BooleanField(default=False)
@@ -395,7 +396,8 @@ class Vote(models.Model):
     request_headers = models.TextField(null=True, blank=True)
 
     original_merged_submission = models.ForeignKey(Submission, null=True, blank=True,
-                                                   related_name="votes_merged_elsewhere")
+                                                   related_name="votes_merged_elsewhere",
+                                                   on_delete=models.SET_NULL)
 
     class Meta:
         unique_together = [("submission", "voter")]
@@ -405,7 +407,7 @@ class Vote(models.Model):
 
 
 class Candidate(models.Model):
-    debate = models.ForeignKey('Debate', related_name='candidates')
+    debate = models.ForeignKey('Debate', related_name='candidates', on_delete=models.CASCADE)
 
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
@@ -429,10 +431,10 @@ class Candidate(models.Model):
 
 
 class Flag(models.Model):
-    to_remove = models.ForeignKey(Submission, related_name='removal_flags')
+    to_remove = models.ForeignKey(Submission, related_name='removal_flags', on_delete=models.CASCADE)
     duplicate_of = models.ForeignKey(Submission, related_name='+',
-                                     null=True, blank=True)
-    voter = models.ForeignKey(Voter)
+                                     null=True, blank=True, on_delete=models.SET_NULL)
+    voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
     reviewed = models.BooleanField(default=False)
     note = models.TextField(null=True, blank=True)
 
@@ -443,7 +445,7 @@ class Flag(models.Model):
 
 
 class TopSubmissionCategory(models.Model):
-    debate = models.ForeignKey('Debate', related_name='top_categories')
+    debate = models.ForeignKey('Debate', related_name='top_categories', on_delete=models.CASCADE)
 
     slug = models.SlugField()
     title = models.TextField()
@@ -458,7 +460,8 @@ class TopSubmissionCategory(models.Model):
 
 
 class TopSubmission(models.Model):
-    category = models.ForeignKey(TopSubmissionCategory, related_name='submissions')
+    category = models.ForeignKey(TopSubmissionCategory, related_name='submissions',
+                                 on_delete=models.CASCADE)
     submission = models.ForeignKey(Submission, null=True, blank=False,
                                    on_delete=models.SET_NULL)
 

@@ -34,6 +34,8 @@ SITE_THEME_NAME = 'florida'
 
 ENABLE_USER_DISPLAY_NAME = False
 ENABLE_USER_PHONE_NUMBER = True
+# Default phone numbers used by phonenumber_field library to US phone numbers.
+PHONENUMBER_DEFAULT_REGION = 'US'
 
 # SECRET_KEY is overriden in deploy settings
 SECRET_KEY = os.getenv('SECRET_KEY', 'secret-key-for-local-use-only')
@@ -57,6 +59,7 @@ INSTALLED_APPS = [
     'el_pagination',
     'bootstrapform',
     'registration',
+    'phonenumber_field',
     # more django apps, that we want to override template of
     'django.contrib.admin',
 ]
