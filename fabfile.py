@@ -15,13 +15,18 @@ fabulaws_logger.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-env.environments = ["testing"]
+env.environments = ["testing", "testing111"]
 env.vault_password_file = os.path.abspath(".vault_password")
 
 
 @task
 def testing():
     env.environment = "testing"
+
+
+@task
+def testing111():
+    env.environment = "testing111"
 
 
 ####################
