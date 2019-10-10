@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "opendebates-workers"
+  namespace: "{{ NAMESPACE }}"
+spec:
+  selector:
+    matchLabels:
+      app: "opendebates"
+  replicas: {{ OPENDEBATES_WORKERS }}
+  template:
+    metadata:
+      labels:
+        app: "opendebates"
+    spec:
+      containers:
+      - name: "opendebates-workers"
+        image: "{{ OPENDEBATES_IMAGE }}:{{ OPENDEBATES_VERSION }}"
+        imagePullPolicy: Always
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: {{ RUN_AS_USER_ID }}
+          runAsGroup: {{ RUN_AS_GROUP_ID }}
+        args: ["celery", "--app=opendebates", "worker", "--workdir=/code", "--loglevel=info"]
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        - name: PYTHONPATH
+          value: .
+        envFrom:
+        - secretRef:
+            name: "opendebates-secrets"

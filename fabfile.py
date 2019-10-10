@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 env.vault_password_file = os.path.abspath(".vault_password")
+env.docker_hub_account = "caktus"
 
 ENVIRONMENTS = {
     'testing': {  # see also kubernetes/testing_vars.yml
@@ -84,11 +85,17 @@ def create_site(name):
 
 
 @task
+def docker_hub(account_name):
+    """Set name of account to use on docker hub"""
+    env.docker_hub_account = account_name
+
+
+@task
 def build():
     """BUILD the docker image"""
     timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     print(timestamp)
-    tag = "docker.io/caktus/opendebates:%s" % timestamp
+    tag = "docker.io/%s/opendebates:%s" % (env.docker_hub_account, timestamp)
     local("docker build . --tag=%s" % tag)
 
 
@@ -97,12 +104,14 @@ def publish():
     """PUBLISH the most recent docker image"""
     # Find the most recent
     tag = local(
-        "docker images caktus/opendebates --format '{{.Tag}}' | head -1", capture=True
+        "docker images %s/opendebates --format '{{.Tag}}' | head -1"
+        % env.docker_hub_account,
+        capture=True,
     )
     if tag == "":
         abort("No docker image found, have you run 'fab build' yet?")
     print(tag)
-    local("docker push caktus/opendebates:%s" % tag)
+    local("docker push %s/opendebates:%s" % (env.docker_hub_account, tag))
 
 
 @task

@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: beatvolume-claim
+  namespace: "{{ NAMESPACE }}"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "opendebates-beat"
+  namespace: "{{ NAMESPACE }}"
+spec:
+  selector:
+    matchLabels:
+      app: "opendebates"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "opendebates"
+    spec:
+      containers:
+      - name: "opendebates-beat"
+        image: "{{ OPENDEBATES_IMAGE }}:{{ OPENDEBATES_VERSION }}"
+        imagePullPolicy: Always
+        args: ["celery", "--app=opendebates", "beat", "--workdir=/code", "--loglevel=info", "--pidfile=/data/beat.pid", "--schedule=/data/schedulefile.db"]
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        - name: PYTHONPATH
+          value: .
+        envFrom:
+        - secretRef:
+            name: "opendebates-secrets"
+        volumeMounts:
+          - mountPath: /data
+            name: beatvolume
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: {{ RUN_AS_GROUP_ID }}
+        runAsGroup: {{ RUN_AS_GROUP_ID }}
+        runAsUser: {{ RUN_AS_USER_ID }}
+
+      volumes:
+        - name: beatvolume
+          persistentVolumeClaim:
+            claimName: beatvolume-claim
