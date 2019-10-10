@@ -6,8 +6,9 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils.html import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from localflavor.us.forms import USPhoneNumberField, USZipCodeField
+from localflavor.us.forms import USZipCodeField
 from nocaptcha_recaptcha.fields import NoReCaptchaField
+from phonenumber_field.formfields import PhoneNumberField
 from registration.forms import RegistrationForm
 
 from .models import Category, Flag, Submission, TopSubmissionCategory, TopSubmission
@@ -41,6 +42,7 @@ class QuestionForm(forms.Form):
         super(QuestionForm, self).__init__(*args, **kwargs)
         self.fields['category'].error_messages['invalid_pk_value'] = _("You must select a category")
         self.fields['category'].queryset = Category.objects.filter(debate=request.debate)
+
 
 display_name_help_text = _("How your name will be displayed on the site. If you "
                            "are an expert in a particular field or have a professional "
@@ -91,7 +93,7 @@ class OpenDebatesRegistrationForm(RegistrationForm):
         self.request = kwargs.pop('request')
         super(OpenDebatesRegistrationForm, self).__init__(*args, **kwargs)
         if settings.ENABLE_USER_PHONE_NUMBER:
-            self.fields['phone_number'] = USPhoneNumberField(
+            self.fields['phone_number'] = PhoneNumberField(
                 label=mark_safe(phone_number_label),
                 required=False,
             )

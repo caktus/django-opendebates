@@ -1,7 +1,9 @@
+import datetime
 import logging
 import os.path
 
 from fabric.api import env, local, roles, require, sudo, task
+from fabric.utils import abort
 
 root_logger = logging.getLogger()
 root_logger.addHandler(logging.StreamHandler())
@@ -13,13 +15,25 @@ fabulaws_logger.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-env.environments = ["testing"]
 env.vault_password_file = os.path.abspath(".vault_password")
+
+ENVIRONMENTS = {
+    'testing': {  # see also kubernetes/testing_vars.yml
+        'gcloud': {
+            "cluster": "opendebates-cluster",
+            "region": "us-east1",
+            "project": "open-debates-2019-deployment",
+        }
+    }
+}
+env.environments = list(ENVIRONMENTS.keys())
 
 
 @task
 def testing():
     env.environment = "testing"
+    env.update(ENVIRONMENTS[env.environment])
+    auth_gcloud()
 
 
 ####################
@@ -29,11 +43,24 @@ def testing():
 ####################
 
 
+def auth_gcloud():
+    require("gcloud", provided_by=env.environments)
+    local(
+        "gcloud beta container clusters get-credentials {cluster} --region {region} --project {project}".format(
+            **env.gcloud
+        )
+    )
+    local("kubectl cluster-info")
+
+
 def run_in_opendebates_pod(command):
     require("environment", provided_by=env.environments)
     os.chdir("kubernetes")
     namespace = "opendebates-%s" % env.environment
-    local("kubectl exec -it --namespace=%s deployment/opendebates %s" % (namespace, command))
+    local(
+        "kubectl exec -it --namespace=%s deployment/opendebates %s"
+        % (namespace, command)
+    )
 
 
 @task
@@ -44,7 +71,24 @@ def create_site(name):
 
 @task
 def build():
-    local("docker build .")
+    """BUILD the docker image"""
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    print(timestamp)
+    tag = "docker.io/caktus/opendebates:%s" % timestamp
+    local("docker build . --tag=%s" % tag)
+
+
+@task
+def publish():
+    """PUBLISH the most recent docker image"""
+    # Find the most recent
+    tag = local(
+        "docker images caktus/opendebates --format '{{.Tag}}' | head -1", capture=True
+    )
+    if tag == "":
+        abort("No docker image found, have you run 'fab build' yet?")
+    print(tag)
+    local("docker push caktus/opendebates:%s" % tag)
 
 
 @task

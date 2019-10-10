@@ -3,17 +3,19 @@ import datetime
 from django.db import models
 from django.conf import settings
 from django.core.signing import Signer
-from django.core.urlresolvers import reverse
+from django.urls import reverse
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.contrib.sites.models import Site
-from djorm_pgfulltext.models import SearchManager
-from djorm_pgfulltext.fields import VectorField
 from urllib import quote_plus
 from django.utils.http import urlquote
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from caching.base import CachingManager, CachingMixin
-from localflavor.us.models import PhoneNumberField
+from phonenumber_field.modelfields import PhoneNumberField
 
 from opendebates import site_defaults
+
 
 NUMBER_OF_VOTES_CACHE_ENTRY = 'number_of_votes-{}'
 RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry-{}'
@@ -21,7 +23,7 @@ RECENT_EVENTS_CACHE_ENTRY = 'recent_events_cache_entry-{}'
 
 class Category(CachingMixin, models.Model):
 
-    debate = models.ForeignKey('Debate', related_name='categories')
+    debate = models.ForeignKey('Debate', related_name='categories', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
 
     objects = CachingManager()
@@ -50,7 +52,7 @@ class FlatPageMetadataOverride(models.Model):
 class Debate(CachingMixin, models.Model):
     THEME_CHOICES = [(theme, theme) for theme in settings.SITE_THEMES]
 
-    site = models.ForeignKey(Site, related_name='debates')
+    site = models.ForeignKey(Site, related_name='debates', on_delete=models.CASCADE)
     prefix = models.SlugField()
     theme = models.CharField(max_length=255, choices=THEME_CHOICES)
 
@@ -118,12 +120,21 @@ class Debate(CachingMixin, models.Model):
         return u'/'.join([self.site.domain, self.prefix])
 
 
+class SubmissionQuerySet(models.QuerySet):
+    def search(self, term):
+        return self.filter(search_vector=term)
+
+
 class Submission(models.Model):
+    # The _search_vectors are the search vectors used to update the search_vector
+    # field whenever a Submission is saved.
+    _search_vector_fields = ['idea', 'keywords']
+    _search_vectors = SearchVector('idea', weight='A') + SearchVector('keywords', weight='A')
 
     def user_display_name(self):
         return self.voter.user_display_name()
 
-    category = models.ForeignKey(Category)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     idea = models.TextField(verbose_name=_('Question'))
 
     headline = models.TextField(null=False, blank=False)
@@ -134,7 +145,7 @@ class Submission(models.Model):
                                verbose_name=_("Optional link to full proposal or reference"))
     citation_verified = models.BooleanField(default=False, db_index=True)
 
-    voter = models.ForeignKey("Voter")
+    voter = models.ForeignKey("Voter", on_delete=models.CASCADE)
     created_at = models.DateTimeField(db_index=True)
     moderated_at = models.DateTimeField(blank=True, null=True)
 
@@ -149,7 +160,7 @@ class Submission(models.Model):
     has_duplicates = models.BooleanField(default=False, db_index=True)
 
     duplicate_of = models.ForeignKey('opendebates.Submission', null=True, blank=True,
-                                     related_name="duplicates")
+                                     related_name="duplicates", on_delete=models.SET_NULL)
 
     votes = models.IntegerField(default=0, db_index=True)
     local_votes = models.IntegerField(default=0, db_index=True)
@@ -159,14 +170,25 @@ class Submission(models.Model):
 
     random_id = models.FloatField(default=0, db_index=True)
 
-    search_index = VectorField()
+    # A field in the database that is used when searching this model. Instead of
+    # searching all of the relevant fields each time a user searches, we prepopulate
+    # the search_vector field (based on Submission._search_vectors) anytime a
+    # Submission is saved, and index the database table on this field, for faster
+    # retrieval.
+    search_vector = SearchVectorField(null=True)
 
     keywords = models.TextField(null=True, blank=True)
 
-    objects = SearchManager(fields=["idea", "keywords"],
-                            auto_update_search_field=True)
+    # Use the SubmissionQuerySet, so we get the .search() method, which is expected
+    # in other parts of the application.
+    objects = SubmissionQuerySet.as_manager()
 
     source = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        indexes = [
+            GinIndex(fields=['search_vector'])
+        ]
 
     @property
     def debate(self):
@@ -177,8 +199,48 @@ class Submission(models.Model):
             self._cached_debate = self.category.debate
         return self._cached_debate
 
+    def save(self, *args, **kwargs):
+        """
+        Update the search_vector field whenever the save() method is called.
+
+        Note: ideally, instead of updating the search_vector field from the save()
+        method, we would prefer to use a stored generated column (see
+        https://www.postgresql.org/docs/12/ddl-generated-columns.html), and let
+        Postgres handle updating its value on its own. However, this feature only
+        becomes available on Postgres 12, which we are not using yet. Perhaps we
+        can use that feature when we upgrade to Postgres 12 in the future.
+        """
+        super(Submission, self).save(*args, **kwargs)
+
+        # Determine if we need to update the search_vector field.
+        updating_all_fields = 'update_fields' not in kwargs
+        need_to_update_search_vector = (
+            (
+                updating_all_fields or
+                any(
+                    [
+                        kwargs['update_fields'].count(vector_field_name)
+                        for vector_field_name in self._search_vector_fields
+                    ]
+                )
+            )
+        )
+        # If we need to update the search_vector field, then call the super().save()
+        # method again, making sure to update the search_vector field.
+        if need_to_update_search_vector:
+            self.search_vector = self._search_vectors
+            # By this time the Submission object has been created, so we remove
+            # 'force_insert' from the kwargs.
+            kwargs.pop('force_insert', False)
+            # If we are only updating certain fields, make sure that search_vector
+            # is one of them.
+            if 'update_fields' in kwargs:
+                kwargs['update_fields'].append('search_vector')
+            # Save the Submission again, this time with the search_vector field value.
+            super(Submission, self).save(*args, **kwargs)
+
     def get_recent_votes(self):
-        timespan = datetime.datetime.now() - datetime.timedelta(1)
+        timespan = now() - datetime.timedelta(1)
         return Vote.objects.filter(submission=self, created_at__gte=timespan).count()
 
     def get_duplicates(self):
@@ -323,8 +385,8 @@ class Voter(models.Model):
 
 class Vote(models.Model):
 
-    submission = models.ForeignKey(Submission)
-    voter = models.ForeignKey(Voter)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
+    voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
 
     is_suspicious = models.BooleanField(default=False)
     is_invalid = models.BooleanField(default=False)
@@ -334,7 +396,8 @@ class Vote(models.Model):
     request_headers = models.TextField(null=True, blank=True)
 
     original_merged_submission = models.ForeignKey(Submission, null=True, blank=True,
-                                                   related_name="votes_merged_elsewhere")
+                                                   related_name="votes_merged_elsewhere",
+                                                   on_delete=models.SET_NULL)
 
     class Meta:
         unique_together = [("submission", "voter")]
@@ -344,7 +407,7 @@ class Vote(models.Model):
 
 
 class Candidate(models.Model):
-    debate = models.ForeignKey('Debate', related_name='candidates')
+    debate = models.ForeignKey('Debate', related_name='candidates', on_delete=models.CASCADE)
 
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
@@ -368,10 +431,10 @@ class Candidate(models.Model):
 
 
 class Flag(models.Model):
-    to_remove = models.ForeignKey(Submission, related_name='removal_flags')
+    to_remove = models.ForeignKey(Submission, related_name='removal_flags', on_delete=models.CASCADE)
     duplicate_of = models.ForeignKey(Submission, related_name='+',
-                                     null=True, blank=True)
-    voter = models.ForeignKey(Voter)
+                                     null=True, blank=True, on_delete=models.SET_NULL)
+    voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
     reviewed = models.BooleanField(default=False)
     note = models.TextField(null=True, blank=True)
 
@@ -382,7 +445,7 @@ class Flag(models.Model):
 
 
 class TopSubmissionCategory(models.Model):
-    debate = models.ForeignKey('Debate', related_name='top_categories')
+    debate = models.ForeignKey('Debate', related_name='top_categories', on_delete=models.CASCADE)
 
     slug = models.SlugField()
     title = models.TextField()
@@ -397,7 +460,8 @@ class TopSubmissionCategory(models.Model):
 
 
 class TopSubmission(models.Model):
-    category = models.ForeignKey(TopSubmissionCategory, related_name='submissions')
+    category = models.ForeignKey(TopSubmissionCategory, related_name='submissions',
+                                 on_delete=models.CASCADE)
     submission = models.ForeignKey(Submission, null=True, blank=False,
                                    on_delete=models.SET_NULL)
 

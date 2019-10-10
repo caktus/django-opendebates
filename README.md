@@ -100,21 +100,19 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
   out this project.
 * Install the Google Cloud SDK (https://cloud.google.com/sdk/install). Depending on how you
   install this, `kubectl` might not be included by default. You'll need it so be sure to install it too.
-* Create or get access to a project on GCP.  
-* Create or get access to a GKE cluster in that project.  
-* Configure your local kubectl to access that cluster. Maybe with a command like:
-
-    $ gcloud beta container clusters get-credentials opendebates-cluster --region us-east1 --project open-debates-2019-deployment
-    Fetching cluster endpoint and auth data.
-    kubeconfig entry generated for cluster-dan.
-
-  Once you've done that, you should not need to set GOOGLE_APPLICATION_CREDENTIALS
-  in your environment or anything like that.
+  That's at https://kubernetes.io/docs/tasks/tools/install-kubectl/.
+* Run `gcloud auth login` once to login to the Google Compute Cloud with
+  your Google account.  (If you get auth errors later, the first thing to try is
+  doing this again.)
+* Each environment uses a particular project on Google Compute Cloud.
+  You can see these in the fabfile near the top.  Find out from another developer
+  which environment or environments you will need to access, and how to get
+  someone to give you that access.
+* Run `fab testing` (or other environment name) to check your auth is working.
 
   *(Be sure to get this right, because whatever cluster you've set up this way is the one that's going to have all this stuff deployed to it.)*
 
-* Figure out which ENVIRONMENT you're going to use.
-* Run ```fab testing up```
+* Run ```fab testing up``` - this will create or update the complete deploy.
 * Wait for things to get going. (FIXME: what's a good provider-independent way to tell?)
   - some things might fail because previous steps aren't done yet. You can
     wait a minute then just run the whole thing again.
@@ -127,19 +125,35 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 * Create a new Debate and note its prefix
 * Visit http://HOSTNAME/PREFIX/
 
+To update the docker image used by Kubernetes:
+
+* Build a new image: ```fab build```
+  In the output, note the tag assigned to the new image. It will have the
+  format YYYYMMDDhhmmss, e.g. 20191008110643
+* Publish your latest image: ```fab publish```. Notice where the push is
+  going to in the output, e.g. ```The push refers to repository [docker.io/caktus/opendebates]```
+* Update the ENVIRONMENT_vars.yml file for the environment you want to use the new
+  image (e.g. kubernetes/testing_vars.yml), 
+  changing OPENDEBATES_IMAGE to the full name from the push,
+  e.g. ```"docker.io/caktus/opendebates"```, and OPENDEBATES_VERSION to
+  the tag that was assigned to this image.
+* Deploy, e.g. ```fab testing up```.
+
 To create a new environment for Kubernetes:
 
 * Pick a name for the new environment, e.g. "staging" or "nov19debate". We'll
   refer to that as ENVIRONMENT.
-* Add it to the list "env.environments" in fabfile.py.
+* Add it to the list "ENVIRONMENTS" in fabfile.py.
+* Create a new task for it in fabfile.py (just copy and edit the 'testing' task).
 * Find out where the Postgres server is.
 * Create or get the password for a postgres user named "opendebates_ENVIRONMENT"
 * Create (if it doesn't exist) a database named  "opendebates_ENVIRONMENT" owned
   by  "opendebates_ENVIRONMENT"
-* Create files kubernetes/ENVIRONMENT_vars.yml and kubernetes/ENVIRONMENT_secrets.yml,
-  looking at the corresponding files for other environments to fill those in.
-* Use "fab encrypt_file:kubernetes/ENVIRONMENT_secrets.yml to encrypt the new
-  environment's secrets.
+* Create file kubernetes/ENVIRONMENT_vars.yml
+  looking at the corresponding file for other environments to fill those in.
+* To encrypt values, use "fab encrypt_string:STRING_TO_ENCRYPT".  Put the
+  result (starting with "!vault") into the vars file in place of the unencrypted
+  value.
 
 # Site copy and content
 

@@ -18,6 +18,10 @@ stringData:
   ENVIRONMENT: "{{ ENVIRONMENT }}"
   REDIS_HOST: redis
   MEMCACHED_HOST: memcached
+  NORECAPTCHA_SITE_KEY: "{{ NORECAPTCHA_SITE_KEY }}"
+  NORECAPTCHA_SECRET_KEY: "{{ NORECAPTCHA_SECRET_KEY }}"
+  USE_CAPTCHA: "{{ USE_CAPTCHA }}"
+  MIXPANEL_KEY: "{{ MIXPANEL_KEY }}"
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -13,7 +13,7 @@ class TestCaptchaUtils(TestCase):
 
         self.mock_request = Mock(spec=object)
         self.mock_request.user = Mock()
-        self.mock_request.user.is_authenticated = lambda: False
+        self.mock_request.user.is_authenticated = False
         self.mock_request.debate = DebateFactory()
 
     def tearDown(self):

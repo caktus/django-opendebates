@@ -2,7 +2,7 @@ import random
 
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
-from django.utils.timezone import now
+from django.utils.timezone import get_current_timezone, now
 import factory
 
 from opendebates import models
@@ -33,6 +33,7 @@ class DebateFactory(factory.django.DjangoModelFactory):
     site = factory.SubFactory(SiteFactory)
     prefix = factory.Faker('slug')
     debate_state = 'NY'
+    debate_time = factory.Faker("date_time", tzinfo=get_current_timezone())
 
 
 class CandidateFactory(factory.django.DjangoModelFactory):

@@ -10,7 +10,7 @@ def vote_needs_captcha(request):
     if not settings.USE_CAPTCHA:
         return False
     if not hasattr(request, 'vote_needs_captcha'):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             # A logged-in user has already filled out the captcha on registration
             need = False
         else:
@@ -31,7 +31,7 @@ def registration_needs_captcha(request):
 
 
 def get_voter(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         try:
             voter = request.user.voter
         except Voter.DoesNotExist:
@@ -91,7 +91,7 @@ def get_ip_address_from_request(request):
             if remote_addr.startswith(PRIVATE_IPS_PREFIX):
                 ip_address = remote_addr.strip()
     if not ip_address:
-            ip_address = '127.0.0.1'
+        ip_address = '127.0.0.1'
     return ip_address
 
 

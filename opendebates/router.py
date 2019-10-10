@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.deprecation import MiddlewareMixin
 
 
 # The name of the session variable or cookie used by the middleware
@@ -75,7 +76,7 @@ def was_db_written():
     return state.was_written()
 
 
-class DBRoutingMiddleware(object):
+class DBRoutingMiddleware(MiddlewareMixin):
     def process_request(self, request):
         clear_db_written_flag()
         pinned_until = request.session.get(PINNING_KEY, False)
@@ -101,8 +102,8 @@ class DBRouter(object):
         # things will appear to work, but we won't be routing readonly requests' queries
         # to the replica databases like we want. So catch that case now.
         middleware = 'opendebates.router.DBRoutingMiddleware'
-        if middleware not in settings.MIDDLEWARE_CLASSES:
-            msg = ("'{}' not in settings MIDDLEWARE_CLASSES. The DBRouter will not work."
+        if middleware not in settings.MIDDLEWARE:
+            msg = ("'{}' not in settings MIDDLEWARE. The DBRouter will not work."
                    .format(middleware))
             raise ImproperlyConfigured(msg)
 

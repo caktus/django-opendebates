@@ -34,6 +34,8 @@ SITE_THEME_NAME = 'florida'
 
 ENABLE_USER_DISPLAY_NAME = False
 ENABLE_USER_PHONE_NUMBER = True
+# Default phone numbers used by phonenumber_field library to US phone numbers.
+PHONENUMBER_DEFAULT_REGION = 'US'
 
 # SECRET_KEY is overriden in deploy settings
 SECRET_KEY = os.getenv('SECRET_KEY', 'secret-key-for-local-use-only')
@@ -54,10 +56,10 @@ INSTALLED_APPS = [
     'djcelery',
     'opendebates',
     'opendebates_emails',
-    'djorm_pgfulltext',
-    'endless_pagination',
+    'el_pagination',
     'bootstrapform',
     'registration',
+    'phonenumber_field',
     # more django apps, that we want to override template of
     'django.contrib.admin',
 ]
@@ -65,7 +67,7 @@ INSTALLED_APPS = [
 if DEBUG:
     INSTALLED_APPS.append('debug_toolbar')
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -78,7 +80,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'opendebates.router.DBRoutingMiddleware',
     'opendebates.middleware.DebateMiddleware',
-)
+]
+if DEBUG:
+    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -102,6 +106,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',  # For EL-pagination
                 'opendebates.context_processors.global_vars',
                 'opendebates.context_processors.voter',
             ],
@@ -195,40 +200,81 @@ if testing:
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     )
 
-PIPELINE_COMPILERS = (
-    'pipeline.compilers.less.LessCompiler',
-)
+# Settings for Django-pipeline
+PIPELINE = {
+    'JAVASCRIPT': {
+        'base': {
+            'source_filenames': (
+                'js/base/*.js',
+                'templates/base/*.handlebars',
+            ),
+            'output_filename': 'js/base.js',
+        },
+        'registration': {
+            'source_filenames': (
+                'js/registration.js',
+            ),
+            'output_filename': 'js/registration.js',
+        }
+    },
+    'STYLESHEETS': {
+        'base': {
+            'source_filenames': (
+                'less/base.less',
+            ),
+            'output_filename': 'css/base.css',
+            'extra_context': {
+                'media': 'screen,projection',
+            },
+        },
+        'login': {
+            'source_filenames': (
+                'less/login.less',
+            ),
+            'output_filename': 'css/login.css',
+            'extra_context': {
+                'media': 'screen,projection',
+            },
+        },
+    },
+    'CSS': {
+        'base': {
+            'source_filenames': (
+                'less/base.less',
+            ),
+            'output_filename': 'css/base.css',
+            'extra_context': {
+                'media': 'screen,projection',
+            },
+        },
+        'login': {
+            'source_filenames': (
+                'less/login.less',
+            ),
+            'output_filename': 'css/login.css',
+            'extra_context': {
+                'media': 'screen,projection',
+            },
+        },
+    },
+    'TEMPLATE_EXT': '.handlebars',
+    'TEMPLATE_FUNC': 'Handlebars.compile',
+    'TEMPLATE_NAMESPACE': 'Handlebars.templates',
+    'COMPILERS': (
+        'pipeline.compilers.less.LessCompiler',
+    ),
+}
 
 if DEBUG:
-    PIPELINE_CSS_COMPRESSOR = None
-    PIPELINE_JS_COMPRESSOR = None
+    PIPELINE['CSS_COMPRESSOR'] = None
+    PIPELINE['PIPELINE_JS_COMPRESSOR'] = None
 
 if testing:
-    PIPELINE_COMPILERS = ()
-    PIPELINE_ENABLED = False
+    PIPELINE['COMPILERS'] = ()
+    PIPELINE['ENABLED'] = False
 
-PIPELINE_CSS = {
-    'base': {
-        'source_filenames': (
-            'less/base.less',
-        ),
-        'output_filename': 'css/base.css',
-        'extra_context': {
-            'media': 'screen,projection',
-        },
-    },
-    'login': {
-        'source_filenames': (
-            'less/login.less',
-        ),
-        'output_filename': 'css/login.css',
-        'extra_context': {
-            'media': 'screen,projection',
-        },
-    },
-}
 for theme in SITE_THEMES:
-    PIPELINE_CSS['theme-%s' % (theme,)] = {
+    PIPELINE['STYLESHEETS']['theme-%s' % (theme,)] = {
         'source_filenames': (
             'less/theme-%s.less' % (theme,),
         ),
@@ -237,27 +283,6 @@ for theme in SITE_THEMES:
             'media': 'screen,projection',
         },
     }
-
-PIPELINE_JS = {
-    'base': {
-        'source_filenames': (
-            'js/base/*.js',
-            'templates/base/*.handlebars',
-        ),
-        'output_filename': 'js/base.js',
-    },
-    'registration': {
-        'source_filenames': (
-            'js/registration.js',
-        ),
-        'output_filename': 'js/registration.js',
-    }
-
-}
-
-PIPELINE_TEMPLATE_EXT = '.handlebars'
-PIPELINE_TEMPLATE_FUNC = 'Handlebars.compile'
-PIPELINE_TEMPLATE_NAMESPACE = 'Handlebars.templates'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')

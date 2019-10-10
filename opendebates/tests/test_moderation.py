@@ -74,7 +74,7 @@ class ModerationTest(TestCase):
 
     def test_get_with_initial(self):
         rsp = self.client.get(self.preview_url + "?to_remove=10")
-        self.assertContains(rsp, 'name="to_remove" type="number" value="10"')
+        self.assertContains(rsp, 'type="number" name="to_remove" value="10"')
 
     @patch('opendebates_emails.models.send_email_task')
     def test_merge_submission(self, email_task):

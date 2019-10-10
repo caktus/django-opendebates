@@ -33,7 +33,7 @@ class PaginationTest(TestCase):
         Site.objects.clear_cache()
 
     def find_first_page_link(self, content):
-        link = re.search('<a\W+href="(.*)"\W+rel="page"\W+class="endless_page_link">2</a>',
+        link = re.search(r'<a\W+href="(.*)"\W+data-el-querystring-key="page"\W+class="endless_page_link">2</a>',
                          content)
         self.assertNotEqual(None, link)
         return link.groups()[0]
