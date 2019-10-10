@@ -15,13 +15,25 @@ fabulaws_logger.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-env.environments = ["testing"]
 env.vault_password_file = os.path.abspath(".vault_password")
+
+ENVIRONMENTS = {
+    'testing': {  # see also kubernetes/testing_vars.yml
+        'gcloud': {
+            "cluster": "opendebates-cluster",
+            "region": "us-east1",
+            "project": "open-debates-2019-deployment",
+        }
+    }
+}
+env.environments = list(ENVIRONMENTS.keys())
 
 
 @task
 def testing():
     env.environment = "testing"
+    env.update(ENVIRONMENTS[env.environment])
+    auth_gcloud()
 
 
 ####################
@@ -29,6 +41,16 @@ def testing():
 # FOR KUBERNETES
 #
 ####################
+
+
+def auth_gcloud():
+    require("gcloud", provided_by=env.environments)
+    local(
+        "gcloud beta container clusters get-credentials {cluster} --region {region} --project {project}".format(
+            **env.gcloud
+        )
+    )
+    local("kubectl cluster-info")
 
 
 def run_in_opendebates_pod(command):
@@ -100,8 +122,6 @@ def encrypt_string(text):
 def up():
     require("environment", provided_by=env.environments)
     os.chdir("kubernetes")
-    # Run simple kubectl command, just to get the credentials stashed or something.
-    local("kubectl cluster-info")
     # Note: the playbook loads vars from vars files itself.
     local(
         "ansible-playbook "
