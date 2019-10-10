@@ -167,7 +167,7 @@ def home(request):
     # all merge flags which have not yet been reviewed
     merge_flags = Flag.objects.filter(
         to_remove__category__debate=request.debate
-    ).exclude(duplicate_of=None).exclude(reviewed=True)
+    ).exclude(duplicate_of=None).exclude(reviewed=True).order_by('id')
 
     return {
         'flagged_for_removal': flagged_for_removal,

@@ -111,7 +111,7 @@ def update_trending_scores():
         with connection.cursor() as cursor:
             cursor.execute(sql)
             cursor.execute(sql2)
-    except:
+    except Exception:
         logger.exception("Unexpected error in update_trending_scores")
 
 
