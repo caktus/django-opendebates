@@ -3,8 +3,6 @@
 # FIXME: update for Python 3
 FROM python:2.7.16-slim-buster
 
-# FIXME: run as normal user ("debates"?)
-
 # Install packages needed to run your application (not build deps):
 #   mime-support -- for mime types when serving static files
 #   postgresql-client -- for running database commands
@@ -22,6 +20,9 @@ RUN set -ex \
     && seq 1 8 | xargs -I{} mkdir -p /usr/share/man/man{} \
     && apt-get update && apt-get install -y --no-install-recommends $RUN_DEPS \
     && rm -rf /var/lib/apt/lists/*
+
+RUN addgroup --gid 9999 debates \
+  && adduser --no-create-home --disabled-password --uid 9999 --gid 9999 debates
 
 RUN set -ex && npm install -g yuglify less
 

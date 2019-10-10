@@ -127,6 +127,9 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 
 To update the docker image used by Kubernetes:
 
+* IF you want to use a different docker hub account than "caktus", change
+  `fab` to`fab docker_hub:accountname` in the following commands; e.g.
+  `fab docker_hub:dpoirier build`.
 * Build a new image: ```fab build```
   In the output, note the tag assigned to the new image. It will have the
   format YYYYMMDDhhmmss, e.g. 20191008110643

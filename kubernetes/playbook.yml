@@ -12,6 +12,8 @@
     NAMESPACE: opendebates-{{ ENVIRONMENT }}
     DATABASE_NAME: opendebates_{{ ENVIRONMENT }}
     DATABASE_USER: opendebates_{{ ENVIRONMENT }}
+    RUN_AS_USER_ID: 9999
+    RUN_AS_GROUP_ID: 9999
     # Make sure Ansible uses the same Python interpreter to run tasks as it
     # itself is being run with. This is included because the way Ansible determines
     # which python to use for various ways of running tasks locally is arcane
@@ -38,6 +40,8 @@
         - redis.yaml.j2
         - memcached.yaml.j2
         - opendebates.yaml.j2
+        - workers.yaml.j2
+        - beat.yaml.j2
 
     - name: run migrations
       shell: kubectl exec --namespace={{ NAMESPACE }} deployment/opendebates /venv/bin/python /code/manage.py migrate
