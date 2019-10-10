@@ -9,7 +9,7 @@ class EmailAuthBackend(object):
     a username/password pair.
     """
 
-    def authenticate(self, username=None, password=None):
+    def authenticate(self, request, username=None, password=None):
         """ Authenticate a user based on email address as the user name. """
         User = get_user_model()
         try:
