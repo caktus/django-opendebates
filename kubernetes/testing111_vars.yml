@@ -41,6 +41,7 @@ OPENDEBATES_VERSION: "20191008110643"
 
 REDIS_VOLUME_SIZE: "20Gi"
 OPENDEBATES_REPLICAS: 2
+OPENDEBATES_WORKERS: 2
 
 # With the following test keys, you will always get No CAPTCHA and all verification requests
 # will pass.
