@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 
@@ -5,10 +6,12 @@ from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db import connections
-from django.db.models import F, Q
+from django.db.models import DateField, F, Q
+from django.db.models.functions import Trunc
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.http import Http404, HttpResponse, HttpResponseServerError
@@ -18,7 +21,7 @@ from djangohelpers.lib import rendered_with, allow_http
 from registration.backends.simple.views import RegistrationView
 
 from .forms import OpenDebatesRegistrationForm, VoterForm, QuestionForm, MergeFlagForm
-from .models import (Candidate, Category, Flag, Submission, Vote, Voter,
+from .models import (Candidate, Category, Debate, Flag, Submission, Vote, Voter,
                      TopSubmissionCategory, ZipCode, RECENT_EVENTS_CACHE_ENTRY)
 from .router import readonly_db
 from .utils import (get_ip_address_from_request, get_headers_from_request, choose_sort, sort_list,
@@ -57,6 +60,27 @@ def state_from_zip(zip):
         return ZipCode.objects.get(zip=zip).state
     except ZipCode.DoesNotExist:
         return ''
+
+
+def root_redirect(request):
+    site = get_current_site(request)
+    # Look for the *next* debate
+    debate = Debate.objects.annotate(
+        debate_day=Trunc('debate_time', 'day', output_field=DateField())
+    ).filter(
+        site=site,
+        debate_day__gte=datetime.date.today(),
+    ).order_by('debate_time').first()
+    if debate is None:
+        # No next debate? Look for the most recently ended debate.
+        debate = Debate.objects.filter(
+            site=site,
+        ).order_by('-debate_time').first()
+    if debate:
+        return redirect('/%s/' % debate.prefix)
+    else:
+        # If no debates at all, redirect to opendebatecoalition.com
+        return redirect('https://opendebatecoalition.com')
 
 
 @cache_page(5)  # Cache for 5 seconds after rendering
