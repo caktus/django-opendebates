@@ -52,8 +52,6 @@ INSTALLED_APPS = [
     'djangobower',
     'dbbackup',
     'nocaptcha_recaptcha',
-    # Still using django-celery because that's how Fabulaws starts workers
-    'djcelery',
     'opendebates',
     'opendebates_emails',
     'el_pagination',
