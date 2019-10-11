@@ -93,7 +93,7 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 
 * Run migrations in the docker container
 
-    ```docker-compose run web python manage.py migrate --noinput -v 0```
+    ```docker-compose run web python manage.py migrate --noinput```
 
 * Create a superuser (so you can log into the admin)
 
