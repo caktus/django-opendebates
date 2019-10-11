@@ -84,8 +84,6 @@ BROKER_POOL_LIMIT = 10
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
 
-# ALLOWED_HOSTS = [{% for host in allowed_hosts %}'{{ host }}', {% endfor %}]
-
 CELERYBEAT_SCHEDULE["backup-database"] = {  # noqa: F405
     "task": "opendebates.tasks.backup_database",
     "schedule": crontab(minute=0, hour="*/4"),  # backup database every 4 hours

@@ -47,4 +47,5 @@
       shell: kubectl exec --namespace={{ NAMESPACE }} deployment/opendebates /venv/bin/python /code/manage.py migrate
 
     - name: create site
-      shell: kubectl exec --namespace={{ NAMESPACE }} deployment/opendebates /venv/bin/python /code/manage.py create_site {{ DOMAIN_NAME }}
+      shell: kubectl exec --namespace={{ NAMESPACE }} deployment/opendebates /venv/bin/python /code/manage.py create_site {{ item }}
+      with_items: "{{ DOMAIN_NAMES }}"

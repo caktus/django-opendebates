@@ -11,7 +11,7 @@ stringData:
   DEFAULT_FROM_EMAIL: "{{ DEFAULT_FROM_EMAIL }}"
   DJANGO_SETTINGS_MODULE: opendebates.kube_settings
   DEPLOYMENT_TAG: "{{ ENVIRONMENT }}"
-  DOMAIN_NAME: "{{ DOMAIN_NAME }}"
+  ALLOWED_HOSTS: "{{ DOMAIN_NAMES|join(",") }}"
   EMAIL_HOST: "{{ EMAIL_HOST }}"
   EMAIL_HOST_USER: "{{ EMAIL_HOST_USER }}"
   EMAIL_HOST_PASSWORD: "{{ EMAIL_HOST_PASSWORD }}"
@@ -84,13 +84,17 @@ metadata:
 spec:
   tls:
   - hosts:
-    - "{{ DOMAIN_NAME }}"
-    secretName: "{{ DOMAIN_NAME }}-tls"
+{% for domain in DOMAIN_NAMES %}
+    - "{{ domain }}"
+{% endfor %}
+    secretName: "{{ ENVIRONMENT }}-tls"
   rules:
-  - host: "{{ DOMAIN_NAME }}"
+{% for domain in DOMAIN_NAMES %}
+  - host: "{{ domain }}"
     http:
       paths:
       - path: "/"
         backend:
           serviceName: "opendebates"
           servicePort: 80
+{% endfor %}

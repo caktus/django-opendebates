@@ -1,4 +1,5 @@
-DOMAIN_NAME: opendebates-testing.caktus-built.com
+DOMAIN_NAMES:
+- opendebates-testing.caktus-built.com
 
 # THESE are used in Django
 # Creds from opendebates' postmark account
