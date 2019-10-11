@@ -41,7 +41,7 @@ spec:
       containers:
       - name: "opendebates"
         image: "{{ OPENDEBATES_IMAGE }}:{{ OPENDEBATES_VERSION }}"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         env:
         - name: GET_HOSTS_FROM
           value: dns

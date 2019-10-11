@@ -28,7 +28,7 @@ spec:
       containers:
       - name: "celery-beat"
         image: "{{ OPENDEBATES_IMAGE }}:{{ OPENDEBATES_VERSION }}"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         args: ["celery", "--app=opendebates", "beat", "--workdir=/code", "--loglevel=info", "--pidfile=/data/beat.pid", "--schedule=/data/schedulefile.db"]
         env:
         - name: GET_HOSTS_FROM
