@@ -13,20 +13,20 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "opendebates-beat"
+  name: "celery-beat"
   namespace: "{{ NAMESPACE }}"
 spec:
   selector:
     matchLabels:
-      app: "opendebates"
+      app: "celery-beat"
   replicas: 1
   template:
     metadata:
       labels:
-        app: "opendebates"
+        app: "celery-beat"
     spec:
       containers:
-      - name: "opendebates-beat"
+      - name: "celery-beat"
         image: "{{ OPENDEBATES_IMAGE }}:{{ OPENDEBATES_VERSION }}"
         imagePullPolicy: Always
         args: ["celery", "--app=opendebates", "beat", "--workdir=/code", "--loglevel=info", "--pidfile=/data/beat.pid", "--schedule=/data/schedulefile.db"]
