@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "opendebates-workers"
+  name: "celery-worker"
   namespace: "{{ NAMESPACE }}"
 spec:
   selector:
     matchLabels:
-      app: "opendebates"
+      app: "celery-worker"
   replicas: {{ OPENDEBATES_WORKERS }}
   template:
     metadata:
       labels:
-        app: "opendebates"
+        app: "celery-worker"
     spec:
       containers:
-      - name: "opendebates-workers"
+      - name: "celery-worker"
         image: "{{ OPENDEBATES_IMAGE }}:{{ OPENDEBATES_VERSION }}"
         imagePullPolicy: Always
         securityContext:

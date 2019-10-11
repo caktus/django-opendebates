@@ -181,7 +181,7 @@
   {% endif %}
 </script>
 <script id="my-votes-cast" type="application/json">
-  {{ VOTES_CAST }}
+  {{ VOTES_CAST|safe }}
 </script>
 
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
