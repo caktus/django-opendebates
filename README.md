@@ -76,16 +76,35 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
   way that I know of to make user group changes take effect).
 * Clone this repo and change to its directory.
 * Create a virtualenv (using Python 2.7, sorry)
+
+    ```$ mkvirtualenv opendebates -p `which python2.7` ```
+
 * Activate virtualenv
-* ```pip install -r requirements/dev.txt```
-* ```fab up``` (smoketest may fail)
-* ```fab migrate```
-* ```fab smoketest``` (should pass now)
-* ```fab createsuperuser``` (answer prompts to create superuser)
+
+    ```$ workon opendebates```
+
+* Install the project requirements
+
+    ```pip install -r requirements/dev.txt```
+
+* Build the docker container
+
+    ```docker-compose up --build -d```
+
+* Run migrations in the docker container
+
+    ```docker-compose run web python manage.py migrate --noinput```
+
+* Create a superuser (so you can log into the admin)
+
+    ```docker-compose run web python manage.py createsuperuser``` (answer prompts to create superuser)
+
 * Visit http://localhost:8000/admin/ and log in as the new superuser
 * Create a new Debate and note its prefix
-* Visit http://localhost:8000/PREFIX/
-* When done, ```fab down```.
+* Visit http://localhost:8000/<prefix of the debate you just created>/
+* When ready to shut the server down,
+
+    ```docker-compose stop```
 
 # Kubernetes
 
@@ -116,7 +135,7 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 * Wait for things to get going. (FIXME: what's a good provider-independent way to tell?)
   - some things might fail because previous steps aren't done yet. You can
     wait a minute then just run the whole thing again.
-* See what the "EXTERNAL_IP" of the load balancer is: 
+* See what the "EXTERNAL_IP" of the load balancer is:
   ```kubectl get ingress --namespace=opendebates-ENVIRONMENT```
 * Pick a HOSTNAME.
 * Go make a DNS entry for HOSTNAME pointing at that IP address
@@ -136,7 +155,7 @@ To update the docker image used by Kubernetes:
 * Publish your latest image: ```fab publish```. Notice where the push is
   going to in the output, e.g. ```The push refers to repository [docker.io/caktus/opendebates]```
 * Update the ENVIRONMENT_vars.yml file for the environment you want to use the new
-  image (e.g. kubernetes/testing_vars.yml), 
+  image (e.g. kubernetes/testing_vars.yml),
   changing OPENDEBATES_IMAGE to the full name from the push,
   e.g. ```"docker.io/caktus/opendebates"```, and OPENDEBATES_VERSION to
   the tag that was assigned to this image.
