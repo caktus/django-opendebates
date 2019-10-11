@@ -20,7 +20,10 @@ reverse = partial(old_reverse, urlconf='opendebates.urls')
 class RootRedirectTest(TestCase):
 
     def setUp(self):
-        self.site = SiteFactory()
+        # 'testserver' is the default domain for SiteFactory, but it's included
+        # here for clarity.
+        self.site = SiteFactory(domain='testserver')
+        self.other_site = SiteFactory(domain='otherdomain')
         # really old debate
         DebateFactory(
             site=self.site,
@@ -52,6 +55,11 @@ class RootRedirectTest(TestCase):
         self.next_debate.delete()
         r = self.client.get('/')
         self.assertRedirects(r, '/%s/' % self.previous_debate.prefix)
+
+    def test_site_with_no_debates(self):
+        with self.settings(ALLOWED_HOSTS=[self.other_site.domain]):
+            r = self.client.get('/', SERVER_NAME=self.other_site.domain)
+        self.assertRedirects(r, 'https://opendebatecoalition.com', fetch_redirect_response=False)
 
 
 class ListIdeasTest(TestCase):
