@@ -25,6 +25,13 @@ ENVIRONMENTS = {
             "region": "us-east1",
             "project": "open-debates-2019-deployment",
         }
+    },
+    'testing111': {  # see also kubernetes/testing111_vars.yml
+        'gcloud': {
+            "cluster": "opendebates-cluster",
+            "region": "us-east1",
+            "project": "open-debates-2019-deployment",
+        }
     }
 }
 env.environments = list(ENVIRONMENTS.keys())
@@ -33,6 +40,14 @@ env.environments = list(ENVIRONMENTS.keys())
 @task
 def testing():
     env.environment = "testing"
+    env.update(ENVIRONMENTS[env.environment])
+    auth_gcloud()
+
+
+@task
+def testing111():
+    """A testing environment running Django1.11."""
+    env.environment = "testing111"
     env.update(ENVIRONMENTS[env.environment])
     auth_gcloud()
 
