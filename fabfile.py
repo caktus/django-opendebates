@@ -1,19 +1,8 @@
 import datetime
-import logging
 import os.path
 
-from fabric.api import env, local, roles, require, sudo, task
+from fabric.api import env, local, require, task
 from fabric.utils import abort
-
-root_logger = logging.getLogger()
-root_logger.addHandler(logging.StreamHandler())
-root_logger.setLevel(logging.WARNING)
-
-fabulaws_logger = logging.getLogger("fabulaws")
-fabulaws_logger.setLevel(logging.INFO)
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 env.vault_password_file = os.path.abspath(".vault_password")
 env.docker_hub_account = "caktus"
@@ -175,31 +164,3 @@ def manage_shell():
 @task
 def createsuperuser():
     manage_run("createsuperuser")
-
-
-###############################################################################
-
-
-@task
-@roles("db-master")
-def pg_create_unaccent_ext():
-    # FIXME: do we still need this?
-    """
-    Workaround to facilitate granting the opendebates database user
-    permission to use the 'unaccent' extension in Postgres.
-    """
-    require("environment", provided_by=env.environments)
-    sudo(
-        'sudo -u postgres psql %s -c "CREATE EXTENSION IF NOT EXISTS unaccent;"'
-        "" % env.database_name
-    )
-    for func in [
-        "unaccent(text)",
-        "unaccent(regdictionary, text)",
-        "unaccent_init(internal)",
-        "unaccent_lexize(internal, internal, internal, internal)",
-    ]:
-        sudo(
-            'sudo -u postgres psql %s -c "ALTER FUNCTION %s OWNER TO %s;"'
-            "" % (env.database_name, func, env.database_user)
-        )
