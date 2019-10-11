@@ -51,6 +51,10 @@ Password (again):
 Superuser created successfully.
 ```
 
+Note, that any user created in the shell (or the admin) will not have a `Voter`
+object associated with it, so it won't function properly on the frontend until
+a `Voter` is created for it, which can be done through the admin.
+
 Then you can start the development server:
 
 ```
@@ -65,6 +69,9 @@ Add a new Debate object:
 
 * Be sure to use the site 0.0.0.0:8000
 * Make note of the prefix you set, e.g. "nyc2019".
+
+Create a `Voter` object (at the /admin/opendebates/voter/ URL) for the superuser
+you created for yourself.
 
 Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 
@@ -99,8 +106,14 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 
     ```docker-compose run web python manage.py createsuperuser``` (answer prompts to create superuser)
 
+    Note, that any user created in the shell (or the admin) will not have a `Voter`
+    object associated with it, so it won't function properly on the frontend until
+    a `Voter` is created for it, which can be done through the admin.
+
 * Visit http://localhost:8000/admin/ and log in as the new superuser
 * Create a new Debate and note its prefix
+* Create a `Voter` object (at the /admin/opendebates/voter/ URL) for the superuser
+you just created for yourself
 * Visit http://localhost:8000/<prefix of the debate you just created>/
 * When ready to shut the server down,
 
@@ -140,8 +153,16 @@ Now you can visit the site at http://0.0.0.0:8000/nyc2019/.
 * Pick a HOSTNAME.
 * Go make a DNS entry for HOSTNAME pointing at that IP address
 * ```fab testing createsuperuser```
+
+    Note, that any user created in the shell (or the admin) will not have a `Voter` object
+    associated with it, so it won't function properly on the frontend until a `Voter` is
+    created for it, which can be done through the admin.
+
 * Visit http://HOSTNAME/admin/ and log in as the new superuser
 * Create a new Debate and note its prefix
+* Create a `Voter` object (at the /admin/opendebates/voter/ URL) for the superuser
+you just created for yourself
+
 * Visit http://HOSTNAME/PREFIX/
 
 To update the docker image used by Kubernetes:
