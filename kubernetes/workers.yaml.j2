@@ -16,7 +16,7 @@ spec:
       containers:
       - name: "celery-worker"
         image: "{{ OPENDEBATES_IMAGE }}:{{ OPENDEBATES_VERSION }}"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         securityContext:
           runAsNonRoot: true
           runAsUser: {{ RUN_AS_USER_ID }}

@@ -16,7 +16,7 @@ spec:
       containers:
       - name: "memcached"
         image: "memcached:{{ MEMCACHED_VERSION }}"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         env:
         - name: GET_HOSTS_FROM
           value: dns

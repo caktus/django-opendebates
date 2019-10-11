@@ -28,7 +28,7 @@ spec:
       containers:
       - name: "redis"
         image: "redis:{{ REDIS_VERSION }}"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         env:
         - name: GET_HOSTS_FROM
           value: dns
