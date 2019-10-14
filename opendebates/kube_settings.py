@@ -29,6 +29,23 @@ DATABASES = {
     'default': dj_database_url.config(env="DATABASE_URL", conn_max_age=600),
 }
 
+if "DBBACKUP_STORAGE" in os.environ:
+    DBBACKUP_FILENAME_TEMPLATE = os.getenv("DBBACKUP_FILENAME_TEMPLATE")
+    DBBACKUP_STORAGE = os.getenv("DBBACKUP_STORAGE")
+    DBBACKUP_STORAGE_OPTIONS = {
+        "bucket_name": os.getenv("DBBACKUP_STORAGE_OPTIONS_GS_BUCKET_NAME"),
+    }
+    minutes_between_backups = 60 * 24  # 24 hours/backup
+    CELERYBEAT_SCHEDULE["dbbackup_hourly"] = {
+        'task': 'opendebates.tasks.backup_database',
+        'schedule': timedelta(minutes=minutes_between_backups),
+        'options': {
+            # If no worker runs it before the next scheduled run, throw it away; more
+            # tasks will already have been scheduled.
+            'expires': 60 * (minutes_between_backups - 2),  # seconds
+        }
+    }
+
 # media roots
 # MEDIA_ROOT = "{{ media_root }}"
 # STATIC_ROOT = "{{ static_root }}"
