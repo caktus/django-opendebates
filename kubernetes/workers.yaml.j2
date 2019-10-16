@@ -30,3 +30,41 @@ spec:
         envFrom:
         - secretRef:
             name: "opendebates-secrets"
+        resources:
+          # We must have a request set for any resource we want to track metrics on.
+          # We need to monitor CPU in order to use it for autoscaling.
+          # We might not need to specify memory for that, but it seems like a good
+          # idea rather than just letting K8S guess or whatever it does when we don't
+          # give it any clue.
+          requests:
+            # Requesting 120Mi is just a first approximation, based on one mostly
+            # idle container currently using around 100.
+            memory: "120Mi"
+            # This CPU request is just a wild guess
+            # because we haven't done any load testing and I have no idea how much
+            # CPU we might actually use when busy.
+            cpu: "500m"
+          limits:
+            memory: "240Mi"
+            cpu: "500m"
+{% if AUTOSCALE is defined %}
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: "celery-worker-autoscaler"
+  namespace: "{{ NAMESPACE }}"
+spec:
+  maxReplicas: {{ AUTOSCALE['max'] }}
+  minReplicas: {{ AUTOSCALE['min'] }}
+  metrics:
+  - 'type': Resource
+    resource:
+      name: cpu
+      # target percentage of requested CPU
+      targetAverageUtilization: {{ AUTOSCALE['cpu-percent'] }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: "celery-worker"
+{% endif %}
