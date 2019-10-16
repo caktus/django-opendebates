@@ -18,8 +18,10 @@ elif testing:
     # DEBUG is False for tests no matter what we set, so set it up properly for
     # use later in this file
     DEBUG = False
+    ALLOWED_HOSTS = ['*']
 else:
     DEBUG = 'DJANGO_DEBUG' in os.environ
+    ALLOWED_HOSTS = ['*']
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE_DIRS = [os.path.join(BASE_DIR, 'fixtures')]

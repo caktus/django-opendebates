@@ -22,6 +22,12 @@ stringData:
   NORECAPTCHA_SECRET_KEY: "{{ NORECAPTCHA_SECRET_KEY }}"
   USE_CAPTCHA: "{{ USE_CAPTCHA }}"
   MIXPANEL_KEY: "{{ MIXPANEL_KEY }}"
+{% if DBBACKUP_STORAGE is defined %}
+  DBBACKUP_FILENAME_TEMPLATE: "{{ DBBACKUP_FILENAME_TEMPLATE }}"
+  DBBACKUP_STORAGE: "{{ DBBACKUP_STORAGE }}"
+  DBBACKUP_STORAGE_OPTIONS_GS_BUCKET_NAME: "{{ DBBACKUP_STORAGE_OPTIONS_GS_BUCKET_NAME }}"
+{% endif %}
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -50,6 +56,23 @@ spec:
             name: "opendebates-secrets"
         ports:
         - containerPort: 8000
+        resources:
+          # We must have a request set for any resource we want to track metrics on.
+          # We need to monitor CPU in order to use it for autoscaling.
+          # We might not need to specify memory for that, but it seems like a good
+          # idea rather than just letting K8S guess or whatever it does when we don't
+          # give it any clue.
+          requests:
+            # Requesting 150Mi is just a first approximation, based on one mostly
+            # idle container currently using around 130Mi.
+            memory: "150Mi"
+            # This CPU request is just a wild guess
+            # because we haven't done any load testing and I have no idea how much
+            # CPU we might actually use when busy.
+            cpu: "500m"
+          limits:
+            memory: "250Mi"
+            cpu: "500m"
       securityContext:
         runAsNonRoot: true
         runAsUser: {{ RUN_AS_USER_ID }}
@@ -98,3 +121,24 @@ spec:
           serviceName: "opendebates"
           servicePort: 80
 {% endfor %}
+{% if AUTOSCALE is defined %}
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: "opendebates-autoscaler"
+  namespace: "{{ NAMESPACE }}"
+spec:
+  maxReplicas: {{ AUTOSCALE['max'] }}
+  minReplicas: {{ AUTOSCALE['min'] }}
+  metrics:
+  - 'type': Resource
+    resource:
+      name: cpu
+      # target percentage of requested CPU
+      targetAverageUtilization: {{ AUTOSCALE['cpu-percent'] }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: "opendebates"
+{% endif %}
