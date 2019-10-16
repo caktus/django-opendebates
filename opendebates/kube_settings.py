@@ -19,6 +19,7 @@ OPTIMIZELY_KEY
 
 from __future__ import absolute_import
 from .settings import *  # noqa: F403
+from .settings import ALLOWED_HOSTS, CELERYBEAT_SCHEDULE
 
 from celery.schedules import crontab
 import os
@@ -84,24 +85,23 @@ BROKER_POOL_LIMIT = 10
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
 
-CELERYBEAT_SCHEDULE["backup-database"] = {  # noqa: F405
-    "task": "opendebates.tasks.backup_database",
-    "schedule": crontab(minute=0, hour="*/4"),  # backup database every 4 hours
-}
-
-# DBBACKUP_DATABASES = [MASTER_DATABASE]
-#
-# DBBACKUP_STORAGE = 'dbbackup.storage.s3_storage'
-# DBBACKUP_STORAGE_OPTIONS = {
-#     'access_key': '{{ dbbackup_access_key }}',
-#     'secret_key': '{{ dbbackup_access_secret }}',
-#     'bucket_name': 'opendebates-backups'
-# }
-#
-# DBBACKUP_FILENAME_TEMPLATE = '{{ environment }}/{datetime}.{extension}'
-# DBBACKUP_SEND_EMAIL = True
-# # dbbackup needs this to send email
-# DBBACKUP_HOSTNAME = ALLOWED_HOSTS[0]
+if "DBBACKUP_STORAGE" in os.environ:
+    DBBACKUP_FILENAME_TEMPLATE = os.getenv("DBBACKUP_FILENAME_TEMPLATE")
+    DBBACKUP_STORAGE = os.getenv("DBBACKUP_STORAGE")
+    DBBACKUP_STORAGE_OPTIONS = {
+        "bucket_name": os.getenv("DBBACKUP_STORAGE_OPTIONS_GS_BUCKET_NAME"),
+    }
+    CELERYBEAT_SCHEDULE["backup-database"] = {
+        "task": "opendebates.tasks.backup_database",
+        "schedule": crontab(minute=0, hour="*/4"),  # backup database every 4 hours
+        'options': {
+            # If no worker runs it before the next scheduled run, throw it away; more
+            # tasks will already have been scheduled.
+            'expires': 3600 * 3,  # 3 hours, in seconds
+        }
+    }
+    # dbbackup needs this to send email
+    DBBACKUP_HOSTNAME = ALLOWED_HOSTS[0]
 
 NORECAPTCHA_SITE_KEY = os.getenv("NORECAPTCHA_SITE_KEY")
 NORECAPTCHA_SECRET_KEY = os.getenv("NORECAPTCHA_SECRET_KEY")
