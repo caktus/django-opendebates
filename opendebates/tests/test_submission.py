@@ -1,6 +1,5 @@
 import datetime
 from functools import partial
-from urlparse import urlparse
 
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
@@ -261,11 +260,18 @@ class SubmissionTest(TestCase):
         self.assertNotContains(rsp, "Merge")
 
     def test_questions_page_redirects(self):
-        "Questions view redirects to homepage because it is only meant for form handling."
+        "Questions view redirects to list_ideas page for the same Debate."
+        # Another Debate, happening tomorrow. In case the code looks for the next
+        # Debate in chronological order, this one would be it.
+        tomorrow = timezone.now() + datetime.timedelta(days=1)
+        DebateFactory(debate_time=tomorrow)
+
+        # The URL for the list of questions
         questions_url = reverse('questions', kwargs={'prefix': self.debate.prefix})
+
         rsp = self.client.get(questions_url)
-        self.assertEqual(302, rsp.status_code)
-        self.assertEqual("/", urlparse(rsp['Location']).path)
+        expected_url = reverse('list_ideas', kwargs={'prefix': self.debate.prefix})
+        self.assertRedirects(rsp, expected_url)
 
     def test_post_submission_with_source(self):
         "An opendebates.source cookie will be transmitted to the submission and vote."
