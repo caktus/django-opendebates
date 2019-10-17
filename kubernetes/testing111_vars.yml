@@ -87,3 +87,6 @@ AUTOSCALE:
   "cpu-percent": 50
   min: 1
   max: 5
+
+# A ansible-vault-encrypted JSON or YAML file - see README for how to get this.
+GS_CREDENTIALS_FILE: "Open Debates 2019 Deployment-bbc4254dc4ac.json"

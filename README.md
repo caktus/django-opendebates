@@ -197,6 +197,32 @@ To create a new environment for Kubernetes:
 * To encrypt values, use "fab encrypt_string:STRING_TO_ENCRYPT".  Put the
   result (starting with "!vault") into the vars file in place of the unencrypted
   value.
+  
+To get backups working for a new environment, it's a bit fiddly:
+
+* Create a Google Compute Platform service account by going to
+  https://console.cloud.google.com/iam-admin/serviceaccounts,
+  selecting the right project, then clicking "Create Service Account" at the top.
+  Just pick a meaningful name. It doesn't need any permissions or access added
+  here so if you're prompted, just decline.
+
+* In the list of service accounts, you should now see your new one. Click the "three dots"
+  in that account's row in the "Actions" column.  Select "Create Key".
+  Download the resulting JSON file into the kubernetes directory.
+  Use "fab encrypt_file:kubernetes/FILENAME" to encrypt it.
+
+* In your ENVIRONMENT_vars.yml file, set "GS_CREDENTIALS_FILE" to the filename of the
+  json file, without any path.
+
+* Create a Google Storage bucket by going to https://console.cloud.google.com/storage/browser and
+  clicking "Create Bucket".
+
+* Click on the new bucket in the bucket list, go to its permissions tab, "Add Members",
+  and add the service account you just created by entering its email address (or enough
+  for it to autocomplete).
+
+* Give the service account both "Storage Object Viewer" and "Storage Object Creator"
+  roles.
 
 # Site copy and content
 

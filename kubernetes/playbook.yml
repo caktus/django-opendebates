@@ -27,7 +27,7 @@
       with_items:
       - "{{ ENVIRONMENT }}_vars.yml"
 
-    - name: create things in Kubernetes
+    - name: create or update things in Kubernetes
       k8s:
         definition: "{{ lookup('template', item) }}"
         # Ensure we see any failures in CI
