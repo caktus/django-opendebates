@@ -1,3 +1,9 @@
+# This fabfile is written for Fabric3
+#
+# (Fabric3 is the fork of Fabric v1 that runs on Python 3.
+# Not to be confused with Fabric 2, the incompatible complete
+# rewrite of Fabric v1 that also runs on Python 3.)
+
 import datetime
 import os.path
 
