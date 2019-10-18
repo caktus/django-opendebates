@@ -323,9 +323,10 @@ def vote(request, id):
 @rendered_with("opendebates/list_ideas.html")
 @allow_http("GET", "POST")
 def questions(request):
-
+    # If the user is GETting the list of questions, then redirect to the list_ideas
+    # page for this Debate.
     if request.method == 'GET':
-        return redirect("/")
+        return redirect(reverse("list_ideas"))
 
     if not request.debate.allow_voting_and_submitting_questions:
         raise Http404
