@@ -72,6 +72,7 @@ def run_in_deployment(deployment, command):
 def run_in_opendebates_pod(command):
     run_in_deployment("opendebates", command)
 
+
 @task
 def run_in_worker_pod(command):
     run_in_deployment("celery-worker", command)
