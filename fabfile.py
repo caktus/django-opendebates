@@ -58,14 +58,29 @@ def auth_gcloud():
     local("kubectl cluster-info")
 
 
-def run_in_opendebates_pod(command):
+def run_in_deployment(deployment, command):
     require("environment", provided_by=env.environments)
     os.chdir("kubernetes")
     namespace = "opendebates-%s" % env.environment
     local(
-        "kubectl exec -it --namespace=%s deployment/opendebates %s"
-        % (namespace, command)
+        "kubectl exec -it --namespace=%s deployment/%s %s"
+        % (namespace, deployment, command)
     )
+
+
+@task
+def run_in_opendebates_pod(command):
+    run_in_deployment("opendebates", command)
+
+
+@task
+def run_in_worker_pod(command):
+    run_in_deployment("celery-worker", command)
+
+
+@task
+def run_in_beat_pod(command):
+    run_in_deployment("celery-beat", command)
 
 
 @task
@@ -107,7 +122,7 @@ def publish():
 @task
 def decrypt_file(filename):
     local(
-        "ansible-vault decrypt --vault-password={PASSFILE} {FILENAME}".format(
+        "ansible-vault decrypt --vault-password={PASSFILE} '{FILENAME}'".format(
             PASSFILE=env.vault_password_file, FILENAME=filename
         )
     )
@@ -116,7 +131,7 @@ def decrypt_file(filename):
 @task
 def encrypt_file(filename):
     local(
-        "ansible-vault encrypt --vault-password={PASSFILE} {FILENAME}".format(
+        "ansible-vault encrypt --vault-password={PASSFILE} '{FILENAME}'".format(
             PASSFILE=env.vault_password_file, FILENAME=filename
         )
     )
@@ -125,7 +140,7 @@ def encrypt_file(filename):
 @task
 def encrypt_string(text):
     local(
-        "ansible-vault encrypt_string --vault-password={PASSFILE} {TEXT}".format(
+        "ansible-vault encrypt_string --vault-password={PASSFILE} '{TEXT}'".format(
             PASSFILE=env.vault_password_file, TEXT=text
         )
     )

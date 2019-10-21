@@ -88,6 +88,8 @@ SESSION_CACHE_ALIAS = "session"
 if "DBBACKUP_STORAGE" in os.environ:
     DBBACKUP_FILENAME_TEMPLATE = os.getenv("DBBACKUP_FILENAME_TEMPLATE")
     DBBACKUP_STORAGE = os.getenv("DBBACKUP_STORAGE")
+    # Note: to write to this Google Storage bucket, GOOGLE_APPLICATION_CREDENTIALS should
+    # be set in the environment; see the README.
     DBBACKUP_STORAGE_OPTIONS = {
         "bucket_name": os.getenv("DBBACKUP_STORAGE_OPTIONS_GS_BUCKET_NAME"),
     }
