@@ -25,7 +25,7 @@ django-redis-cache==2.0.0
 django-cache-machine==1.1.0
 newrelic==5.0.2.126
 
-Celery==4.3.0
+Celery==5.2.2
 kombu==4.6.4
 amqp==2.5.1
 
